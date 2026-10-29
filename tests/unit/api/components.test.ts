@@ -94,6 +94,6 @@ describe("#26 M7.4 component hooks", () => {
     const rel = [...seen].map((p) => path.relative(root, p));
     expect(rel.filter((p) => /src\/(text|hatch|style)\//.test(p))).toEqual([]);
     const pkg = JSON.parse(readFileSync(path.join(root, "package.json"), "utf8")) as { exports: Record<string, unknown> };
-    expect(Object.keys(pkg.exports).sort()).toEqual([".", "./hatch", "./style", "./text"]);
+    expect(Object.keys(pkg.exports).sort()).toEqual([".", "./hatch", "./package.json", "./style", "./text", "./wasm", "./wasm/pvec_eval.wasm"]);
   });
 });
