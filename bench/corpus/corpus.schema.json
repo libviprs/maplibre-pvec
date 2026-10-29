@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "maplibre-pvec benchmark corpus",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["revision", "manifestSha256", "cases"],
+  "properties": {
+    "revision": { "type": "string", "minLength": 1 },
+    "manifestSha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "cases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["fixtureId", "class", "evidenceClass", "entities", "curves", "pvec", "viewport"],
+        "properties": {
+          "fixtureId": { "type": "string", "minLength": 1 },
+          "class": { "enum": ["known-truth", "architectural", "mep", "industrial", "huge", "spline-heavy", "adversarial"] },
+          "evidenceClass": { "enum": ["KNOWN_TRUTH_EXACT", "DUAL_ORACLE_EQUIVALENT", "REAL_WORLD_DIFFERENTIAL"] },
+          "entities": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 1 } },
+          "curves": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["total", "byClass"],
+            "properties": {
+              "total": { "type": "integer", "minimum": 0 },
+              "byClass": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 1 } }
+            }
+          },
+          "pvec": {
+            "description": "Byte size of the prebuilt .pvec. PENDING with null until pvec P2.4 emits canonical files.",
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["status", "bytes", "waitsOn"],
+            "properties": {
+              "status": { "enum": ["PENDING", "PRESENT"] },
+              "bytes": { "type": ["integer", "null"], "minimum": 1 },
+              "waitsOn": { "type": "string" }
+            }
+          },
+          "viewport": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["start", "zoomLadder", "panPath", "bearingSteps", "pitchSteps"],
+            "properties": {
+              "start": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["center", "zoom", "bearing", "pitch"],
+                "properties": {
+                  "center": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 },
+                  "zoom": { "type": "number", "maximum": 22 },
+                  "bearing": { "type": "number" },
+                  "pitch": { "type": "number", "minimum": 0, "maximum": 85 }
+                }
+              },
+              "zoomLadder": { "type": "array", "minItems": 1, "items": { "type": "number", "maximum": 22 } },
+              "panPath": { "type": "array", "minItems": 1, "items": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 } },
+              "bearingSteps": { "type": "array", "minItems": 1, "items": { "type": "number" } },
+              "pitchSteps": { "type": "array", "minItems": 1, "items": { "type": "number", "minimum": 0, "maximum": 85 } }
+            }
+          }
+        }
+      }
+    }
+  }
+}
