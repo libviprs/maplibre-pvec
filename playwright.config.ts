@@ -20,7 +20,9 @@ export default defineConfig({
   projects: jobs.flatMap((job) =>
     browsers.map((browserName) => ({
       name: `${job}-${browserName}`,
-      testDir: `tests/e2e/${job}`,
+      testDir: "tests/e2e",
+      // The Tier 0 stroke pipeline spec from #50 sits at the top of tests/e2e and is a rendering spec.
+      testMatch: job === "rendering" ? [`${job}/**/*.spec.ts`, "50-*.spec.ts"] : [`${job}/**/*.spec.ts`],
       use: { browserName },
     })),
   ),
