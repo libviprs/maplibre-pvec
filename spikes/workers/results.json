@@ -1,0 +1,1393 @@
+{
+  "browser": "chromium 130.0.6723.31",
+  "runs": {
+    "coop_coep_absent": {
+      "crossOriginIsolated": false,
+      "hardwareConcurrency": 28,
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/130.0.6723.31 Safari/537.36",
+      "sabAvailable": false,
+      "webgpu": {
+        "available": true,
+        "adapter": null
+      },
+      "throughput": [
+        {
+          "workers": 1,
+          "mode": "transfer",
+          "wallMs": 82.2,
+          "segPerSec": 29197080,
+          "maxFrameGapMs": 16.8,
+          "p95FrameGapMs": 16.8,
+          "longTaskMs": 0
+        },
+        {
+          "workers": 2,
+          "mode": "transfer",
+          "wallMs": 44.3,
+          "segPerSec": 54176072,
+          "maxFrameGapMs": 16.7,
+          "p95FrameGapMs": 16.7,
+          "longTaskMs": 116
+        },
+        {
+          "workers": 3,
+          "mode": "transfer",
+          "wallMs": 34.8,
+          "segPerSec": 68965517,
+          "maxFrameGapMs": 16.8,
+          "p95FrameGapMs": 16.8,
+          "longTaskMs": 128
+        },
+        {
+          "workers": 4,
+          "mode": "transfer",
+          "wallMs": 46.6,
+          "segPerSec": 51502146,
+          "maxFrameGapMs": 16.8,
+          "p95FrameGapMs": 16.8,
+          "longTaskMs": 98
+        },
+        {
+          "workers": 5,
+          "mode": "transfer",
+          "wallMs": 31.9,
+          "segPerSec": 75235109,
+          "maxFrameGapMs": 16.9,
+          "p95FrameGapMs": 16.9,
+          "longTaskMs": 109
+        },
+        {
+          "workers": 6,
+          "mode": "transfer",
+          "wallMs": 29.9,
+          "segPerSec": 80267559,
+          "maxFrameGapMs": 16.9,
+          "p95FrameGapMs": 16.9,
+          "longTaskMs": 110
+        },
+        {
+          "workers": 7,
+          "mode": "transfer",
+          "wallMs": 28.5,
+          "segPerSec": 84210526,
+          "maxFrameGapMs": 16.6,
+          "p95FrameGapMs": 16.6,
+          "longTaskMs": 114
+        },
+        {
+          "workers": 8,
+          "mode": "transfer",
+          "wallMs": 24.4,
+          "segPerSec": 98360656,
+          "maxFrameGapMs": 16.1,
+          "p95FrameGapMs": 16.1,
+          "longTaskMs": 106
+        },
+        {
+          "workers": 9,
+          "mode": "transfer",
+          "wallMs": 52.8,
+          "segPerSec": 45454545,
+          "maxFrameGapMs": 16.8,
+          "p95FrameGapMs": 16.8,
+          "longTaskMs": 124
+        },
+        {
+          "workers": 10,
+          "mode": "transfer",
+          "wallMs": 61.4,
+          "segPerSec": 39087948,
+          "maxFrameGapMs": 16.9,
+          "p95FrameGapMs": 16.9,
+          "longTaskMs": 118
+        },
+        {
+          "workers": 11,
+          "mode": "transfer",
+          "wallMs": 25.2,
+          "segPerSec": 95238095,
+          "maxFrameGapMs": 16.6,
+          "p95FrameGapMs": 16.6,
+          "longTaskMs": 117
+        },
+        {
+          "workers": 12,
+          "mode": "transfer",
+          "wallMs": 22.6,
+          "segPerSec": 106194690,
+          "maxFrameGapMs": 16.6,
+          "p95FrameGapMs": 16.6,
+          "longTaskMs": 115
+        },
+        {
+          "workers": 13,
+          "mode": "transfer",
+          "wallMs": 23.5,
+          "segPerSec": 102127660,
+          "maxFrameGapMs": 16.6,
+          "p95FrameGapMs": 16.6,
+          "longTaskMs": 115
+        },
+        {
+          "workers": 14,
+          "mode": "transfer",
+          "wallMs": 24.8,
+          "segPerSec": 96774193,
+          "maxFrameGapMs": 16.6,
+          "p95FrameGapMs": 16.6,
+          "longTaskMs": 117
+        },
+        {
+          "workers": 15,
+          "mode": "transfer",
+          "wallMs": 26.8,
+          "segPerSec": 89552239,
+          "maxFrameGapMs": 16.7,
+          "p95FrameGapMs": 16.7,
+          "longTaskMs": 130
+        },
+        {
+          "workers": 16,
+          "mode": "transfer",
+          "wallMs": 26.5,
+          "segPerSec": 90566038,
+          "maxFrameGapMs": 16.9,
+          "p95FrameGapMs": 16.9,
+          "longTaskMs": 120
+        },
+        {
+          "workers": 17,
+          "mode": "transfer",
+          "wallMs": 24.8,
+          "segPerSec": 96774193,
+          "maxFrameGapMs": 16.5,
+          "p95FrameGapMs": 16.5,
+          "longTaskMs": 127
+        },
+        {
+          "workers": 18,
+          "mode": "transfer",
+          "wallMs": 78.4,
+          "segPerSec": 30612245,
+          "maxFrameGapMs": 16.9,
+          "p95FrameGapMs": 16.9,
+          "longTaskMs": 133
+        },
+        {
+          "workers": 19,
+          "mode": "transfer",
+          "wallMs": 76.2,
+          "segPerSec": 31496063,
+          "maxFrameGapMs": 17.9,
+          "p95FrameGapMs": 17.9,
+          "longTaskMs": 108
+        },
+        {
+          "workers": 20,
+          "mode": "transfer",
+          "wallMs": 34,
+          "segPerSec": 70588235,
+          "maxFrameGapMs": 16.6,
+          "p95FrameGapMs": 16.6,
+          "longTaskMs": 125
+        },
+        {
+          "workers": 21,
+          "mode": "transfer",
+          "wallMs": 34.1,
+          "segPerSec": 70381232,
+          "maxFrameGapMs": 16.2,
+          "p95FrameGapMs": 16.2,
+          "longTaskMs": 138
+        },
+        {
+          "workers": 22,
+          "mode": "transfer",
+          "wallMs": 31.6,
+          "segPerSec": 75949367,
+          "maxFrameGapMs": 16.6,
+          "p95FrameGapMs": 16.6,
+          "longTaskMs": 137
+        },
+        {
+          "workers": 23,
+          "mode": "transfer",
+          "wallMs": 127.6,
+          "segPerSec": 18808777,
+          "maxFrameGapMs": 51.4,
+          "p95FrameGapMs": 51.4,
+          "longTaskMs": 139
+        },
+        {
+          "workers": 24,
+          "mode": "transfer",
+          "wallMs": 39.8,
+          "segPerSec": 60301507,
+          "maxFrameGapMs": 21.7,
+          "p95FrameGapMs": 21.7,
+          "longTaskMs": 135
+        },
+        {
+          "workers": 25,
+          "mode": "transfer",
+          "wallMs": 42.1,
+          "segPerSec": 57007126,
+          "maxFrameGapMs": 18.4,
+          "p95FrameGapMs": 18.4,
+          "longTaskMs": 142
+        },
+        {
+          "workers": 26,
+          "mode": "transfer",
+          "wallMs": 41.8,
+          "segPerSec": 57416268,
+          "maxFrameGapMs": 18.6,
+          "p95FrameGapMs": 18.6,
+          "longTaskMs": 139
+        },
+        {
+          "workers": 27,
+          "mode": "transfer",
+          "wallMs": 40.9,
+          "segPerSec": 58679707,
+          "maxFrameGapMs": 17.8,
+          "p95FrameGapMs": 17.8,
+          "longTaskMs": 129
+        },
+        {
+          "workers": 28,
+          "mode": "transfer",
+          "wallMs": 38.2,
+          "segPerSec": 62827225,
+          "maxFrameGapMs": 16.6,
+          "p95FrameGapMs": 16.6,
+          "longTaskMs": 127
+        },
+        {
+          "workers": 1,
+          "mode": "copy",
+          "wallMs": 179.1,
+          "segPerSec": 13400335,
+          "maxFrameGapMs": 16.9,
+          "p95FrameGapMs": 16.9,
+          "longTaskMs": 125
+        },
+        {
+          "workers": 2,
+          "mode": "copy",
+          "wallMs": 91.2,
+          "segPerSec": 26315789,
+          "maxFrameGapMs": 17.3,
+          "p95FrameGapMs": 17.3,
+          "longTaskMs": 120
+        },
+        {
+          "workers": 3,
+          "mode": "copy",
+          "wallMs": 72.5,
+          "segPerSec": 33103448,
+          "maxFrameGapMs": 17,
+          "p95FrameGapMs": 17,
+          "longTaskMs": 131
+        },
+        {
+          "workers": 4,
+          "mode": "copy",
+          "wallMs": 54.7,
+          "segPerSec": 43875686,
+          "maxFrameGapMs": 17.1,
+          "p95FrameGapMs": 17.1,
+          "longTaskMs": 137
+        },
+        {
+          "workers": 5,
+          "mode": "copy",
+          "wallMs": 59.1,
+          "segPerSec": 40609137,
+          "maxFrameGapMs": 17.4,
+          "p95FrameGapMs": 17.4,
+          "longTaskMs": 141
+        },
+        {
+          "workers": 6,
+          "mode": "copy",
+          "wallMs": 48.6,
+          "segPerSec": 49382716,
+          "maxFrameGapMs": 17.5,
+          "p95FrameGapMs": 17.5,
+          "longTaskMs": 154
+        },
+        {
+          "workers": 7,
+          "mode": "copy",
+          "wallMs": 49.8,
+          "segPerSec": 48192771,
+          "maxFrameGapMs": 17.2,
+          "p95FrameGapMs": 17.2,
+          "longTaskMs": 133
+        },
+        {
+          "workers": 8,
+          "mode": "copy",
+          "wallMs": 45.2,
+          "segPerSec": 53097345,
+          "maxFrameGapMs": 18.6,
+          "p95FrameGapMs": 18.6,
+          "longTaskMs": 162
+        },
+        {
+          "workers": 9,
+          "mode": "copy",
+          "wallMs": 45.7,
+          "segPerSec": 52516411,
+          "maxFrameGapMs": 18,
+          "p95FrameGapMs": 18,
+          "longTaskMs": 151
+        },
+        {
+          "workers": 10,
+          "mode": "copy",
+          "wallMs": 48.9,
+          "segPerSec": 49079755,
+          "maxFrameGapMs": 17.6,
+          "p95FrameGapMs": 17.6,
+          "longTaskMs": 157
+        },
+        {
+          "workers": 11,
+          "mode": "copy",
+          "wallMs": 49.9,
+          "segPerSec": 48096192,
+          "maxFrameGapMs": 21.3,
+          "p95FrameGapMs": 21.3,
+          "longTaskMs": 147
+        },
+        {
+          "workers": 12,
+          "mode": "copy",
+          "wallMs": 51.2,
+          "segPerSec": 46875000,
+          "maxFrameGapMs": 20,
+          "p95FrameGapMs": 20,
+          "longTaskMs": 171
+        },
+        {
+          "workers": 13,
+          "mode": "copy",
+          "wallMs": 60.1,
+          "segPerSec": 39933444,
+          "maxFrameGapMs": 25.5,
+          "p95FrameGapMs": 25.5,
+          "longTaskMs": 151
+        },
+        {
+          "workers": 14,
+          "mode": "copy",
+          "wallMs": 58.3,
+          "segPerSec": 41166381,
+          "maxFrameGapMs": 22,
+          "p95FrameGapMs": 22,
+          "longTaskMs": 136
+        },
+        {
+          "workers": 15,
+          "mode": "copy",
+          "wallMs": 56.5,
+          "segPerSec": 42477876,
+          "maxFrameGapMs": 23.1,
+          "p95FrameGapMs": 23.1,
+          "longTaskMs": 148
+        },
+        {
+          "workers": 16,
+          "mode": "copy",
+          "wallMs": 50,
+          "segPerSec": 48000000,
+          "maxFrameGapMs": 21.6,
+          "p95FrameGapMs": 21.6,
+          "longTaskMs": 161
+        },
+        {
+          "workers": 17,
+          "mode": "copy",
+          "wallMs": 60.8,
+          "segPerSec": 39473684,
+          "maxFrameGapMs": 21.8,
+          "p95FrameGapMs": 21.8,
+          "longTaskMs": 151
+        },
+        {
+          "workers": 18,
+          "mode": "copy",
+          "wallMs": 55.5,
+          "segPerSec": 43243243,
+          "maxFrameGapMs": 20.6,
+          "p95FrameGapMs": 20.6,
+          "longTaskMs": 154
+        },
+        {
+          "workers": 19,
+          "mode": "copy",
+          "wallMs": 73.4,
+          "segPerSec": 32697548,
+          "maxFrameGapMs": 23.9,
+          "p95FrameGapMs": 23.9,
+          "longTaskMs": 167
+        },
+        {
+          "workers": 20,
+          "mode": "copy",
+          "wallMs": 59,
+          "segPerSec": 40677966,
+          "maxFrameGapMs": 25.6,
+          "p95FrameGapMs": 25.6,
+          "longTaskMs": 159
+        },
+        {
+          "workers": 21,
+          "mode": "copy",
+          "wallMs": 52.4,
+          "segPerSec": 45801527,
+          "maxFrameGapMs": 21,
+          "p95FrameGapMs": 21,
+          "longTaskMs": 157
+        },
+        {
+          "workers": 22,
+          "mode": "copy",
+          "wallMs": 56.7,
+          "segPerSec": 42328042,
+          "maxFrameGapMs": 23.8,
+          "p95FrameGapMs": 23.8,
+          "longTaskMs": 164
+        },
+        {
+          "workers": 23,
+          "mode": "copy",
+          "wallMs": 59.4,
+          "segPerSec": 40404040,
+          "maxFrameGapMs": 20.1,
+          "p95FrameGapMs": 20.1,
+          "longTaskMs": 160
+        },
+        {
+          "workers": 24,
+          "mode": "copy",
+          "wallMs": 67.6,
+          "segPerSec": 35502959,
+          "maxFrameGapMs": 23.3,
+          "p95FrameGapMs": 23.3,
+          "longTaskMs": 167
+        },
+        {
+          "workers": 25,
+          "mode": "copy",
+          "wallMs": 84.4,
+          "segPerSec": 28436019,
+          "maxFrameGapMs": 18,
+          "p95FrameGapMs": 18,
+          "longTaskMs": 159
+        },
+        {
+          "workers": 26,
+          "mode": "copy",
+          "wallMs": 69.9,
+          "segPerSec": 34334764,
+          "maxFrameGapMs": 16.9,
+          "p95FrameGapMs": 16.9,
+          "longTaskMs": 164
+        },
+        {
+          "workers": 27,
+          "mode": "copy",
+          "wallMs": 62.9,
+          "segPerSec": 38155803,
+          "maxFrameGapMs": 21.3,
+          "p95FrameGapMs": 21.3,
+          "longTaskMs": 155
+        },
+        {
+          "workers": 28,
+          "mode": "copy",
+          "wallMs": 63.8,
+          "segPerSec": 37617555,
+          "maxFrameGapMs": 23.5,
+          "p95FrameGapMs": 23.5,
+          "longTaskMs": 159
+        }
+      ],
+      "transport": [
+        {
+          "mib": 1,
+          "mode": "transfer",
+          "roundTripMsPerMiB": 0.05,
+          "mainPostMs": 0
+        },
+        {
+          "mib": 1,
+          "mode": "copy",
+          "roundTripMsPerMiB": 1.65,
+          "mainPostMs": 1.1
+        },
+        {
+          "mib": 8,
+          "mode": "transfer",
+          "roundTripMsPerMiB": 0,
+          "mainPostMs": 0
+        },
+        {
+          "mib": 8,
+          "mode": "copy",
+          "roundTripMsPerMiB": 0.313,
+          "mainPostMs": 1.8
+        },
+        {
+          "mib": 64,
+          "mode": "transfer",
+          "roundTripMsPerMiB": 0.01,
+          "mainPostMs": 0.3
+        },
+        {
+          "mib": 64,
+          "mode": "copy",
+          "roundTripMsPerMiB": 0.193,
+          "mainPostMs": 7.6
+        }
+      ],
+      "fairness": [
+        {
+          "workers": 2,
+          "priorityQueue": false,
+          "queuedJobs": 300,
+          "interactiveLatencyMs": 655
+        },
+        {
+          "workers": 2,
+          "priorityQueue": true,
+          "queuedJobs": 300,
+          "interactiveLatencyMs": 2.1
+        }
+      ]
+    },
+    "coop_coep_present": {
+      "crossOriginIsolated": true,
+      "hardwareConcurrency": 28,
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/130.0.6723.31 Safari/537.36",
+      "sabAvailable": true,
+      "webgpu": {
+        "available": true,
+        "adapter": null
+      },
+      "throughput": [
+        {
+          "workers": 1,
+          "mode": "transfer",
+          "wallMs": 82.8,
+          "segPerSec": 28976758,
+          "maxFrameGapMs": 16.9,
+          "p95FrameGapMs": 16.9,
+          "longTaskMs": 0
+        },
+        {
+          "workers": 2,
+          "mode": "transfer",
+          "wallMs": 43.9,
+          "segPerSec": 54651030,
+          "maxFrameGapMs": 16.7,
+          "p95FrameGapMs": 16.7,
+          "longTaskMs": 123
+        },
+        {
+          "workers": 3,
+          "mode": "transfer",
+          "wallMs": 38,
+          "segPerSec": 63224447,
+          "maxFrameGapMs": 16.8,
+          "p95FrameGapMs": 16.8,
+          "longTaskMs": 143
+        },
+        {
+          "workers": 4,
+          "mode": "transfer",
+          "wallMs": 33.3,
+          "segPerSec": 72018004,
+          "maxFrameGapMs": 16.8,
+          "p95FrameGapMs": 16.8,
+          "longTaskMs": 109
+        },
+        {
+          "workers": 5,
+          "mode": "transfer",
+          "wallMs": 32.8,
+          "segPerSec": 73282443,
+          "maxFrameGapMs": 16.8,
+          "p95FrameGapMs": 16.8,
+          "longTaskMs": 109
+        },
+        {
+          "workers": 6,
+          "mode": "transfer",
+          "wallMs": 29.2,
+          "segPerSec": 82248115,
+          "maxFrameGapMs": 16.8,
+          "p95FrameGapMs": 16.8,
+          "longTaskMs": 111
+        },
+        {
+          "workers": 7,
+          "mode": "transfer",
+          "wallMs": 26.4,
+          "segPerSec": 90960773,
+          "maxFrameGapMs": 16.7,
+          "p95FrameGapMs": 16.7,
+          "longTaskMs": 117
+        },
+        {
+          "workers": 8,
+          "mode": "transfer",
+          "wallMs": 23.9,
+          "segPerSec": 100250626,
+          "maxFrameGapMs": 16.6,
+          "p95FrameGapMs": 16.6,
+          "longTaskMs": 116
+        },
+        {
+          "workers": 9,
+          "mode": "transfer",
+          "wallMs": 24.9,
+          "segPerSec": 96521215,
+          "maxFrameGapMs": 16.8,
+          "p95FrameGapMs": 16.8,
+          "longTaskMs": 115
+        },
+        {
+          "workers": 10,
+          "mode": "transfer",
+          "wallMs": 24.8,
+          "segPerSec": 96910963,
+          "maxFrameGapMs": 16.8,
+          "p95FrameGapMs": 16.8,
+          "longTaskMs": 117
+        },
+        {
+          "workers": 11,
+          "mode": "transfer",
+          "wallMs": 23.6,
+          "segPerSec": 101716466,
+          "maxFrameGapMs": 16.6,
+          "p95FrameGapMs": 16.6,
+          "longTaskMs": 119
+        },
+        {
+          "workers": 12,
+          "mode": "transfer",
+          "wallMs": 26.1,
+          "segPerSec": 91901206,
+          "maxFrameGapMs": 16.6,
+          "p95FrameGapMs": 16.6,
+          "longTaskMs": 119
+        },
+        {
+          "workers": 13,
+          "mode": "transfer",
+          "wallMs": 26.5,
+          "segPerSec": 90395480,
+          "maxFrameGapMs": 16.5,
+          "p95FrameGapMs": 16.5,
+          "longTaskMs": 125
+        },
+        {
+          "workers": 14,
+          "mode": "transfer",
+          "wallMs": 24.9,
+          "segPerSec": 96540627,
+          "maxFrameGapMs": 16.1,
+          "p95FrameGapMs": 16.1,
+          "longTaskMs": 122
+        },
+        {
+          "workers": 15,
+          "mode": "transfer",
+          "wallMs": 46.4,
+          "segPerSec": 51696284,
+          "maxFrameGapMs": 16.8,
+          "p95FrameGapMs": 16.8,
+          "longTaskMs": 121
+        },
+        {
+          "workers": 16,
+          "mode": "transfer",
+          "wallMs": 27.3,
+          "segPerSec": 87831656,
+          "maxFrameGapMs": 16.5,
+          "p95FrameGapMs": 16.5,
+          "longTaskMs": 130
+        },
+        {
+          "workers": 17,
+          "mode": "transfer",
+          "wallMs": 28.2,
+          "segPerSec": 84970791,
+          "maxFrameGapMs": 16.5,
+          "p95FrameGapMs": 16.5,
+          "longTaskMs": 111
+        },
+        {
+          "workers": 18,
+          "mode": "transfer",
+          "wallMs": 29.3,
+          "segPerSec": 81855389,
+          "maxFrameGapMs": 16.5,
+          "p95FrameGapMs": 16.5,
+          "longTaskMs": 132
+        },
+        {
+          "workers": 19,
+          "mode": "transfer",
+          "wallMs": 29.5,
+          "segPerSec": 81273281,
+          "maxFrameGapMs": 17.1,
+          "p95FrameGapMs": 17.1,
+          "longTaskMs": 111
+        },
+        {
+          "workers": 20,
+          "mode": "transfer",
+          "wallMs": 138,
+          "segPerSec": 17396347,
+          "maxFrameGapMs": 18.4,
+          "p95FrameGapMs": 18.4,
+          "longTaskMs": 133
+        },
+        {
+          "workers": 21,
+          "mode": "transfer",
+          "wallMs": 35.9,
+          "segPerSec": 66870995,
+          "maxFrameGapMs": 17.8,
+          "p95FrameGapMs": 17.8,
+          "longTaskMs": 130
+        },
+        {
+          "workers": 22,
+          "mode": "transfer",
+          "wallMs": 38,
+          "segPerSec": 63216120,
+          "maxFrameGapMs": 16.8,
+          "p95FrameGapMs": 16.8,
+          "longTaskMs": 122
+        },
+        {
+          "workers": 23,
+          "mode": "transfer",
+          "wallMs": 37.3,
+          "segPerSec": 64265631,
+          "maxFrameGapMs": 17,
+          "p95FrameGapMs": 17,
+          "longTaskMs": 131
+        },
+        {
+          "workers": 24,
+          "mode": "transfer",
+          "wallMs": 67.4,
+          "segPerSec": 35603026,
+          "maxFrameGapMs": 17.5,
+          "p95FrameGapMs": 17.5,
+          "longTaskMs": 131
+        },
+        {
+          "workers": 25,
+          "mode": "transfer",
+          "wallMs": 38.4,
+          "segPerSec": 62573328,
+          "maxFrameGapMs": 16.4,
+          "p95FrameGapMs": 16.4,
+          "longTaskMs": 134
+        },
+        {
+          "workers": 26,
+          "mode": "transfer",
+          "wallMs": 64.9,
+          "segPerSec": 36960037,
+          "maxFrameGapMs": 16.7,
+          "p95FrameGapMs": 16.7,
+          "longTaskMs": 126
+        },
+        {
+          "workers": 27,
+          "mode": "transfer",
+          "wallMs": 42.8,
+          "segPerSec": 56094426,
+          "maxFrameGapMs": 17.5,
+          "p95FrameGapMs": 17.5,
+          "longTaskMs": 140
+        },
+        {
+          "workers": 28,
+          "mode": "transfer",
+          "wallMs": 45.1,
+          "segPerSec": 53167922,
+          "maxFrameGapMs": 16.8,
+          "p95FrameGapMs": 16.8,
+          "longTaskMs": 135
+        },
+        {
+          "workers": 1,
+          "mode": "copy",
+          "wallMs": 168.3,
+          "segPerSec": 14259826,
+          "maxFrameGapMs": 17.2,
+          "p95FrameGapMs": 17.2,
+          "longTaskMs": 122
+        },
+        {
+          "workers": 2,
+          "mode": "copy",
+          "wallMs": 90.9,
+          "segPerSec": 26402640,
+          "maxFrameGapMs": 16.8,
+          "p95FrameGapMs": 16.8,
+          "longTaskMs": 121
+        },
+        {
+          "workers": 3,
+          "mode": "copy",
+          "wallMs": 80.1,
+          "segPerSec": 29970030,
+          "maxFrameGapMs": 16.7,
+          "p95FrameGapMs": 16.7,
+          "longTaskMs": 133
+        },
+        {
+          "workers": 4,
+          "mode": "copy",
+          "wallMs": 54.1,
+          "segPerSec": 44395117,
+          "maxFrameGapMs": 17.1,
+          "p95FrameGapMs": 17.1,
+          "longTaskMs": 134
+        },
+        {
+          "workers": 5,
+          "mode": "copy",
+          "wallMs": 53.5,
+          "segPerSec": 44872394,
+          "maxFrameGapMs": 17.1,
+          "p95FrameGapMs": 17.1,
+          "longTaskMs": 145
+        },
+        {
+          "workers": 6,
+          "mode": "copy",
+          "wallMs": 55.7,
+          "segPerSec": 43076371,
+          "maxFrameGapMs": 17.7,
+          "p95FrameGapMs": 17.7,
+          "longTaskMs": 141
+        },
+        {
+          "workers": 7,
+          "mode": "copy",
+          "wallMs": 47.6,
+          "segPerSec": 50451965,
+          "maxFrameGapMs": 18.4,
+          "p95FrameGapMs": 18.4,
+          "longTaskMs": 142
+        },
+        {
+          "workers": 8,
+          "mode": "copy",
+          "wallMs": 46,
+          "segPerSec": 52190932,
+          "maxFrameGapMs": 18,
+          "p95FrameGapMs": 18,
+          "longTaskMs": 143
+        },
+        {
+          "workers": 9,
+          "mode": "copy",
+          "wallMs": 46.7,
+          "segPerSec": 51441432,
+          "maxFrameGapMs": 17.7,
+          "p95FrameGapMs": 17.7,
+          "longTaskMs": 159
+        },
+        {
+          "workers": 10,
+          "mode": "copy",
+          "wallMs": 73.5,
+          "segPerSec": 32635300,
+          "maxFrameGapMs": 19,
+          "p95FrameGapMs": 19,
+          "longTaskMs": 162
+        },
+        {
+          "workers": 11,
+          "mode": "copy",
+          "wallMs": 47,
+          "segPerSec": 51107325,
+          "maxFrameGapMs": 20,
+          "p95FrameGapMs": 20,
+          "longTaskMs": 154
+        },
+        {
+          "workers": 12,
+          "mode": "copy",
+          "wallMs": 51.1,
+          "segPerSec": 46948357,
+          "maxFrameGapMs": 24.6,
+          "p95FrameGapMs": 24.6,
+          "longTaskMs": 157
+        },
+        {
+          "workers": 13,
+          "mode": "copy",
+          "wallMs": 55.1,
+          "segPerSec": 43584854,
+          "maxFrameGapMs": 19.8,
+          "p95FrameGapMs": 19.8,
+          "longTaskMs": 129
+        },
+        {
+          "workers": 14,
+          "mode": "copy",
+          "wallMs": 50.3,
+          "segPerSec": 47704234,
+          "maxFrameGapMs": 18.9,
+          "p95FrameGapMs": 18.9,
+          "longTaskMs": 152
+        },
+        {
+          "workers": 15,
+          "mode": "copy",
+          "wallMs": 51.7,
+          "segPerSec": 46390258,
+          "maxFrameGapMs": 22,
+          "p95FrameGapMs": 22,
+          "longTaskMs": 150
+        },
+        {
+          "workers": 16,
+          "mode": "copy",
+          "wallMs": 50.9,
+          "segPerSec": 47123503,
+          "maxFrameGapMs": 18.7,
+          "p95FrameGapMs": 18.7,
+          "longTaskMs": 150
+        },
+        {
+          "workers": 17,
+          "mode": "copy",
+          "wallMs": 52,
+          "segPerSec": 46167164,
+          "maxFrameGapMs": 25.4,
+          "p95FrameGapMs": 25.4,
+          "longTaskMs": 162
+        },
+        {
+          "workers": 18,
+          "mode": "copy",
+          "wallMs": 52.7,
+          "segPerSec": 45510572,
+          "maxFrameGapMs": 21.6,
+          "p95FrameGapMs": 21.6,
+          "longTaskMs": 160
+        },
+        {
+          "workers": 19,
+          "mode": "copy",
+          "wallMs": 61.6,
+          "segPerSec": 38973693,
+          "maxFrameGapMs": 21.9,
+          "p95FrameGapMs": 21.9,
+          "longTaskMs": 161
+        },
+        {
+          "workers": 20,
+          "mode": "copy",
+          "wallMs": 59.5,
+          "segPerSec": 40346306,
+          "maxFrameGapMs": 17.8,
+          "p95FrameGapMs": 17.8,
+          "longTaskMs": 167
+        },
+        {
+          "workers": 21,
+          "mode": "copy",
+          "wallMs": 58.5,
+          "segPerSec": 41029148,
+          "maxFrameGapMs": 25,
+          "p95FrameGapMs": 25,
+          "longTaskMs": 173
+        },
+        {
+          "workers": 22,
+          "mode": "copy",
+          "wallMs": 60.4,
+          "segPerSec": 39705517,
+          "maxFrameGapMs": 22.8,
+          "p95FrameGapMs": 22.8,
+          "longTaskMs": 187
+        },
+        {
+          "workers": 23,
+          "mode": "copy",
+          "wallMs": 90,
+          "segPerSec": 26681490,
+          "maxFrameGapMs": 18.2,
+          "p95FrameGapMs": 18.2,
+          "longTaskMs": 157
+        },
+        {
+          "workers": 24,
+          "mode": "copy",
+          "wallMs": 60.8,
+          "segPerSec": 39496421,
+          "maxFrameGapMs": 25.5,
+          "p95FrameGapMs": 25.5,
+          "longTaskMs": 155
+        },
+        {
+          "workers": 25,
+          "mode": "copy",
+          "wallMs": 61.5,
+          "segPerSec": 39021218,
+          "maxFrameGapMs": 18.1,
+          "p95FrameGapMs": 18.1,
+          "longTaskMs": 177
+        },
+        {
+          "workers": 26,
+          "mode": "copy",
+          "wallMs": 76.2,
+          "segPerSec": 31508468,
+          "maxFrameGapMs": 23,
+          "p95FrameGapMs": 23,
+          "longTaskMs": 150
+        },
+        {
+          "workers": 27,
+          "mode": "copy",
+          "wallMs": 73.3,
+          "segPerSec": 32764505,
+          "maxFrameGapMs": 28.7,
+          "p95FrameGapMs": 28.7,
+          "longTaskMs": 149
+        },
+        {
+          "workers": 28,
+          "mode": "copy",
+          "wallMs": 86.9,
+          "segPerSec": 27617952,
+          "maxFrameGapMs": 23.4,
+          "p95FrameGapMs": 23.4,
+          "longTaskMs": 161
+        },
+        {
+          "workers": 1,
+          "mode": "shared",
+          "wallMs": 90.9,
+          "segPerSec": 26412810,
+          "maxFrameGapMs": 16.7,
+          "p95FrameGapMs": 16.7,
+          "longTaskMs": 183
+        },
+        {
+          "workers": 2,
+          "mode": "shared",
+          "wallMs": 47.4,
+          "segPerSec": 50622232,
+          "maxFrameGapMs": 16.7,
+          "p95FrameGapMs": 16.7,
+          "longTaskMs": 120
+        },
+        {
+          "workers": 3,
+          "mode": "shared",
+          "wallMs": 35.9,
+          "segPerSec": 66787255,
+          "maxFrameGapMs": 16.7,
+          "p95FrameGapMs": 16.7,
+          "longTaskMs": 118
+        },
+        {
+          "workers": 4,
+          "mode": "shared",
+          "wallMs": 31.7,
+          "segPerSec": 75793463,
+          "maxFrameGapMs": 16.8,
+          "p95FrameGapMs": 16.8,
+          "longTaskMs": 128
+        },
+        {
+          "workers": 5,
+          "mode": "shared",
+          "wallMs": 27,
+          "segPerSec": 88806661,
+          "maxFrameGapMs": 16.8,
+          "p95FrameGapMs": 16.8,
+          "longTaskMs": 135
+        },
+        {
+          "workers": 6,
+          "mode": "shared",
+          "wallMs": 26.5,
+          "segPerSec": 90497737,
+          "maxFrameGapMs": 16.6,
+          "p95FrameGapMs": 16.6,
+          "longTaskMs": 129
+        },
+        {
+          "workers": 7,
+          "mode": "shared",
+          "wallMs": 25,
+          "segPerSec": 95846646,
+          "maxFrameGapMs": 16.6,
+          "p95FrameGapMs": 16.6,
+          "longTaskMs": 129
+        },
+        {
+          "workers": 8,
+          "mode": "shared",
+          "wallMs": 22.6,
+          "segPerSec": 106335844,
+          "maxFrameGapMs": 16.7,
+          "p95FrameGapMs": 16.7,
+          "longTaskMs": 129
+        },
+        {
+          "workers": 9,
+          "mode": "shared",
+          "wallMs": 22.9,
+          "segPerSec": 104872187,
+          "maxFrameGapMs": 16.7,
+          "p95FrameGapMs": 16.7,
+          "longTaskMs": 134
+        },
+        {
+          "workers": 10,
+          "mode": "shared",
+          "wallMs": 24.6,
+          "segPerSec": 97560976,
+          "maxFrameGapMs": 16.7,
+          "p95FrameGapMs": 16.7,
+          "longTaskMs": 155
+        },
+        {
+          "workers": 11,
+          "mode": "shared",
+          "wallMs": 24.7,
+          "segPerSec": 96989291,
+          "maxFrameGapMs": 14.8,
+          "p95FrameGapMs": 14.8,
+          "longTaskMs": 137
+        },
+        {
+          "workers": 12,
+          "mode": "shared",
+          "wallMs": 22.6,
+          "segPerSec": 106382978,
+          "maxFrameGapMs": 16.7,
+          "p95FrameGapMs": 16.7,
+          "longTaskMs": 137
+        },
+        {
+          "workers": 13,
+          "mode": "shared",
+          "wallMs": 23.6,
+          "segPerSec": 101716465,
+          "maxFrameGapMs": 16.6,
+          "p95FrameGapMs": 16.6,
+          "longTaskMs": 154
+        },
+        {
+          "workers": 14,
+          "mode": "shared",
+          "wallMs": 23.4,
+          "segPerSec": 102498399,
+          "maxFrameGapMs": 16.5,
+          "p95FrameGapMs": 16.5,
+          "longTaskMs": 135
+        },
+        {
+          "workers": 15,
+          "mode": "shared",
+          "wallMs": 23.6,
+          "segPerSec": 101910828,
+          "maxFrameGapMs": 16.8,
+          "p95FrameGapMs": 16.8,
+          "longTaskMs": 133
+        },
+        {
+          "workers": 16,
+          "mode": "shared",
+          "wallMs": 23.5,
+          "segPerSec": 101932470,
+          "maxFrameGapMs": 16.8,
+          "p95FrameGapMs": 16.8,
+          "longTaskMs": 126
+        },
+        {
+          "workers": 17,
+          "mode": "shared",
+          "wallMs": 109.9,
+          "segPerSec": 21843003,
+          "maxFrameGapMs": 18.4,
+          "p95FrameGapMs": 18.4,
+          "longTaskMs": 145
+        },
+        {
+          "workers": 18,
+          "mode": "shared",
+          "wallMs": 45.7,
+          "segPerSec": 52493438,
+          "maxFrameGapMs": 17.1,
+          "p95FrameGapMs": 17.1,
+          "longTaskMs": 140
+        },
+        {
+          "workers": 19,
+          "mode": "shared",
+          "wallMs": 31.4,
+          "segPerSec": 76433121,
+          "maxFrameGapMs": 16.9,
+          "p95FrameGapMs": 16.9,
+          "longTaskMs": 147
+        },
+        {
+          "workers": 20,
+          "mode": "shared",
+          "wallMs": 56.4,
+          "segPerSec": 42538107,
+          "maxFrameGapMs": 17.1,
+          "p95FrameGapMs": 17.1,
+          "longTaskMs": 128
+        },
+        {
+          "workers": 21,
+          "mode": "shared",
+          "wallMs": 70.1,
+          "segPerSec": 34224599,
+          "maxFrameGapMs": 16.9,
+          "p95FrameGapMs": 16.9,
+          "longTaskMs": 123
+        },
+        {
+          "workers": 22,
+          "mode": "shared",
+          "wallMs": 31.1,
+          "segPerSec": 77282241,
+          "maxFrameGapMs": 16.1,
+          "p95FrameGapMs": 16.1,
+          "longTaskMs": 129
+        },
+        {
+          "workers": 23,
+          "mode": "shared",
+          "wallMs": 30.3,
+          "segPerSec": 79103494,
+          "maxFrameGapMs": 16.6,
+          "p95FrameGapMs": 16.6,
+          "longTaskMs": 145
+        },
+        {
+          "workers": 24,
+          "mode": "shared",
+          "wallMs": 34.6,
+          "segPerSec": 69354140,
+          "maxFrameGapMs": 16.9,
+          "p95FrameGapMs": 16.9,
+          "longTaskMs": 148
+        },
+        {
+          "workers": 25,
+          "mode": "shared",
+          "wallMs": 62.3,
+          "segPerSec": 38544929,
+          "maxFrameGapMs": 17.2,
+          "p95FrameGapMs": 17.2,
+          "longTaskMs": 136
+        },
+        {
+          "workers": 26,
+          "mode": "shared",
+          "wallMs": 101.6,
+          "segPerSec": 23623210,
+          "maxFrameGapMs": 40,
+          "p95FrameGapMs": 40,
+          "longTaskMs": 138
+        },
+        {
+          "workers": 27,
+          "mode": "shared",
+          "wallMs": 43.8,
+          "segPerSec": 54757016,
+          "maxFrameGapMs": 16.6,
+          "p95FrameGapMs": 16.6,
+          "longTaskMs": 135
+        },
+        {
+          "workers": 28,
+          "mode": "shared",
+          "wallMs": 42.6,
+          "segPerSec": 56371110,
+          "maxFrameGapMs": 16.8,
+          "p95FrameGapMs": 16.8,
+          "longTaskMs": 147
+        }
+      ],
+      "transport": [
+        {
+          "mib": 1,
+          "mode": "transfer",
+          "roundTripMsPerMiB": 0.053,
+          "mainPostMs": 0.015
+        },
+        {
+          "mib": 1,
+          "mode": "copy",
+          "roundTripMsPerMiB": 0.527,
+          "mainPostMs": 0.415
+        },
+        {
+          "mib": 8,
+          "mode": "transfer",
+          "roundTripMsPerMiB": 0.001,
+          "mainPostMs": 0.005
+        },
+        {
+          "mib": 8,
+          "mode": "copy",
+          "roundTripMsPerMiB": 0.367,
+          "mainPostMs": 2.135
+        },
+        {
+          "mib": 64,
+          "mode": "transfer",
+          "roundTripMsPerMiB": 0.006,
+          "mainPostMs": 0.26
+        },
+        {
+          "mib": 64,
+          "mode": "copy",
+          "roundTripMsPerMiB": 0.192,
+          "mainPostMs": 7.68
+        }
+      ],
+      "fairness": [
+        {
+          "workers": 2,
+          "priorityQueue": false,
+          "queuedJobs": 300,
+          "interactiveLatencyMs": 668.9
+        },
+        {
+          "workers": 2,
+          "priorityQueue": true,
+          "queuedJobs": 300,
+          "interactiveLatencyMs": 2
+        }
+      ]
+    }
+  }
+}

@@ -5,7 +5,9 @@
   "description": "MapLibre GL JS add-on that streams .pvec directly",
   "license": "MIT",
   "type": "module",
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
@@ -22,6 +24,9 @@
 
     "maplibre-gl": "4.7.1",
     "typescript": "5.6.3",
-    "vitest": "2.1.4"
+    "vitest": "2.1.4",
+    "maplibre-gl-v5": "npm:maplibre-gl@5.24.0",
+    "maplibre-gl-v6": "npm:maplibre-gl@6.16.0",
+    "maplibre-gl-v4": "npm:maplibre-gl@4.7.1"
   }
 }
