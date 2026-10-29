@@ -85,10 +85,10 @@ describe("#26 M7.5 query and picking", () => {
         },
         halfWidthPx: () => w,
       });
-      const tol = 3;
+      const reach = 3;
       const y0 = pos(1);
-      expect(layer.pickPoint(at(y0 + (w + tol) * upx), { tolerancePx: tol }).map((h) => h.entityId)).toEqual(["wall-2"]);
-      expect(layer.pickPoint(at(y0 + (w + tol + 1) * upx), { tolerancePx: tol })).toEqual([]);
+      expect(layer.pickPoint(at(y0 + (w + reach) * upx), { tolerancePx: reach }).map((h) => h.entityId)).toEqual(["wall-2"]);
+      expect(layer.pickPoint(at(y0 + (w + reach + 1) * upx), { tolerancePx: reach })).toEqual([]);
     }
   });
 
