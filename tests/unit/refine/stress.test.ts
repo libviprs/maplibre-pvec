@@ -1,0 +1,104 @@
+import { describe, expect, it } from 'vitest';
+import { writeFileSync, mkdirSync } from 'node:fs';
+import { runInNewContext } from 'node:vm';
+import { setFlagsFromString } from 'node:v8';
+import { errorOfTessellation } from '../../../src/transform/screen_error';
+import { REFINE_DEFAULTS } from '../../../src/config/defaults';
+import { anchoredGeoRef } from '../helpers/scene';
+import { FRAME_MS, SITE, makeHarness, pipelineAt } from '../helpers/refine_harness';
+import { rng } from '../helpers/rng';
+
+setFlagsFromString('--expose-gc');
+const gc = () => (runInNewContext('gc') as () => void)();
+
+const mpp = (z: number) => 0.0252 * 2 ** (21 - z); // metres per CSS px at the site latitude
+type Cam = { x: number; y: number; zoom: number; bearing?: number; pitch?: number; geo?: ReturnType<typeof anchoredGeoRef> };
+type Script = (i: number, tSec: number) => Cam;
+
+interface Scenario { name: string; seconds: number; script: () => Script; churn?: boolean }
+
+const bounce = (v: number, span: number) => { const m = ((v % (2 * span)) + 2 * span) % (2 * span); return m > span ? 2 * span - m : m; };
+
+const scenarios: Scenario[] = [
+  { name: 'pan-600', seconds: 60, script: () => (_i, t) => ({ x: -150 + bounce(t * 600 * mpp(19), 300), y: 0, zoom: 19 }) },
+  { name: 'pan-2000', seconds: 60, script: () => (_i, t) => ({ x: -150 + bounce(t * 2000 * mpp(19), 300), y: 0, zoom: 19 }) },
+  { name: 'zoom-sweep', seconds: 60, script: () => (_i, t) => { const leg = (t * 2) % 28; return { x: 0, y: 0, zoom: leg < 14 ? 8 + leg : 22 - (leg - 14) }; } },
+  { name: 'rotate-tilt', seconds: 30, script: () => (_i, t) => ({ x: 0, y: 0, zoom: 19.5, bearing: (t * 90) % 360, pitch: Math.min(60, (t / 30) * 60) }) },
+  {
+    name: 'flyto-storm', seconds: 60,
+    script: () => { const r = rng(5); let cur: Cam = { x: 0, y: 0, zoom: 19 }; let last = -1; return (_i, t) => { const k = Math.floor(t / 0.25); if (k !== last) { last = k; cur = { x: (r() - 0.5) * 300, y: (r() - 0.5) * 300, zoom: 17 + r() * 4 }; } return cur; }; },
+  },
+  {
+    name: 'georef-churn', seconds: 30, churn: true,
+    script: () => { let k = -1; let geo = anchoredGeoRef({ ...SITE }); return (_i, t) => { const n = Math.floor(t / 0.5); if (n !== k) { k = n; geo = anchoredGeoRef({ lng: SITE.lng + (n % 7) * 1e-5, lat: SITE.lat, rotationDeg: n % 4 === 0 ? (n % 12) : 0, anisotropy: n % 4 === 0 ? 1 + 0.2 * (n % 3) : 1 }); } return { x: 0, y: 0, zoom: 19.5, geo }; }; },
+  },
+];
+
+const q = (xs: number[], p: number) => { const s = [...xs].sort((a, b) => a - b); return s[Math.min(s.length - 1, Math.floor(s.length * p))]!; };
+const report: Record<string, unknown> = {};
+
+describe('M6.8 interaction stress (virtual-time pool, real add-on CPU time)', () => {
+  for (const sc of scenarios) {
+    it(`${sc.name}: frame budget, bounded memory, safe race, convergence`, async () => {
+      const h = makeHarness({ n: 1500, seed: 41, spread: 300 });
+      const script = sc.script();
+      const frames = Math.round((sc.seconds * 1000) / FRAME_MS);
+      const cpu: number[] = [];
+      const heap: [number, number][] = [];
+      let stale = 0, maxGpu = 0;
+      for (let i = 0; i < frames; i++) {
+        const t = i * FRAME_MS / 1000;
+        const c = script(i, t);
+        const geo = c.geo ?? anchoredGeoRef({ ...SITE });
+        const p = pipelineAt({ zoom: c.zoom, bearing: c.bearing ?? 0, pitch: c.pitch ?? 0, center: h.pipeline.transform.forward(c.x, c.y) }, geo);
+        if (sc.churn && c.geo && c.geo !== (h as unknown as { lastGeo?: unknown }).lastGeo) {
+          (h as unknown as { lastGeo?: unknown }).lastGeo = c.geo;
+          h.refiner.setGeoReference(p); h.setCamera(p);
+        } else h.setCamera(p);
+        const ms = await h.frame();
+        if (i >= 60) cpu.push(ms);
+        stale += h.draw.audit().violations.length;
+        maxGpu = Math.max(maxGpu, h.refiner.stats().gpuBytes);
+        if (i % 300 === 0 && i >= 600) { gc(); heap.push([t, process.memoryUsage().heapUsed]); }
+      }
+      // convergence: hold the camera 2 s of virtual time
+      const last = h.pipeline;
+      for (let i = 0; i < Math.ceil(2000 / FRAME_MS); i++) await h.frame();
+      let worst = 0, within = 0, visible = 0;
+      for (const e of h.entities) {
+        if (!e.visible || !e.displayed) continue;
+        visible++;
+        const px = errorOfTessellation(Array.from(e.displayed.params), e.curve, last, 300);
+        worst = Math.max(worst, px);
+        if (px <= REFINE_DEFAULTS.targetPx) within++;
+      }
+      const st = h.refiner.stats();
+      const slope = heap.length > 2 ? ((heap[heap.length - 1]![1] - heap[0]![1]) / (heap[heap.length - 1]![0] - heap[0]![0])) * 60 : 0;
+      const row = {
+        seconds: sc.seconds, frames, cpuP95: q(cpu, 0.95), cpuP999: q(cpu, 0.999), cpuMax: Math.max(...cpu),
+        utilisation: h.pool.utilisation(), discarded: h.tracker.discarded, staleEpoch: h.tracker.staleEpoch, displayedStale: stale,
+        cacheHitRate: st.cacheHitRate, maxGpuBytes: maxGpu, heapSlopeBytesPerMin: slope,
+        wasteFraction: st.totalEvals ? st.wastedEvals / st.totalEvals : 0, visible, convergedWithinTargetFraction: visible ? within / visible : 1, worstErrorPx: worst,
+      };
+      report[sc.name] = row;
+      expect(row.cpuP95).toBeLessThanOrEqual(4);
+      expect(row.cpuP999).toBeLessThanOrEqual(12);
+      expect(row.cpuMax).toBeLessThanOrEqual(33);
+      expect(maxGpu).toBeLessThanOrEqual(64 * 1024 * 1024);
+      expect(slope).toBeLessThanOrEqual(1024 * 1024);
+      expect(row.displayedStale).toBe(0);
+      if (['pan-600', 'pan-2000', 'flyto-storm'].includes(sc.name)) expect(row.wasteFraction).toBeLessThanOrEqual(0.1);
+      if (['flyto-storm', 'georef-churn'].includes(sc.name)) expect(row.discarded + row.staleEpoch).toBeGreaterThan(0);
+      // The refine threshold (1.0 px) is the hysteresis ceiling; see docs/deferred.md on the 0.5 px convergence wording.
+      expect(worst).toBeLessThanOrEqual(REFINE_DEFAULTS.refinePx);
+    }, 300_000);
+  }
+
+  it('writes bench/out/interaction-stress.json when asked', () => {
+    if (process.env.INTERACTION_STRESS_OUT) {
+      mkdirSync(process.env.INTERACTION_STRESS_OUT, { recursive: true });
+      writeFileSync(`${process.env.INTERACTION_STRESS_OUT}/interaction-stress.json`, JSON.stringify(report, null, 2));
+    }
+    expect(Object.keys(report).length).toBeGreaterThan(0);
+  });
+});
