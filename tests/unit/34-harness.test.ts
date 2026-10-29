@@ -1,4 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { readdirSync, readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { checkVariance, relativeSpread } from "../../bench/lib/stats";
 import { evaluateMetrics, validateResult, type BenchResult, type Metric } from "../../bench/lib/result";
 
@@ -99,5 +102,18 @@ describe("#34 gate evaluation", () => {
     expect(evaluateMetrics([{ ...metric, value: 60, threshold: { op: ">=", limit: 70 } }])).toHaveLength(1);
     expect(evaluateMetrics([{ ...metric, value: 80, threshold: { op: ">=", limit: 70 } }])).toEqual([]);
     expect(evaluateMetrics([{ ...metric, value: 1e9, threshold: { op: "info" } }])).toEqual([]);
+  });
+});
+
+describe("#34 committed results", () => {
+  const dir = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "bench", "results");
+  const files = readdirSync(dir).filter((f) => f.endsWith(".json") && !f.endsWith(".rejected.json"));
+  it("exist, and each passes the harness's own rules and states its platform", () => {
+    expect(files.length).toBeGreaterThan(0);
+    for (const f of files) {
+      const r = JSON.parse(readFileSync(join(dir, f), "utf8")) as BenchResult;
+      expect(validateResult(r), f).toEqual([]);
+      expect(["linux/arm64", "linux/x86_64 native"]).toContain(r.environment.platform);
+    }
   });
 });
