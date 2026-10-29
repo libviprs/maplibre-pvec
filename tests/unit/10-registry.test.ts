@@ -128,7 +128,13 @@ describe("#10 evidence classes", () => {
     const doc = JSON.parse(new TextDecoder().decode(m.get("r0-open/manifest.json")!)) as { fixtures: Record<string, unknown>[] };
     edit(doc.fixtures[0]!);
     m.set("r0-open/manifest.json", new TextEncoder().encode(JSON.stringify(doc)));
-    return [m, await repin(m)];
+    const p = await repin(m);
+    const rel = JSON.parse(new TextDecoder().decode(m.get("release/r0-open-1/manifest.json")!)) as {
+      pins: { corpus: { manifest_sha256: string } };
+    };
+    rel.pins.corpus.manifest_sha256 = p.manifestSha256;
+    m.set("release/r0-open-1/manifest.json", new TextEncoder().encode(JSON.stringify(rel)));
+    return [m, { ...p, release: { ...p.release, manifestSha256: await sha256Hex(m.get("release/r0-open-1/manifest.json")!) } }];
   }
 
   it("names exactly the four classes", () => {
@@ -152,7 +158,7 @@ describe("#10 evidence classes", () => {
 
   it("rejects a manifest class that disagrees with the record's own class", async () => {
     const [m, p] = await withManifest((f) => (f.evidence_class = "DUAL_ORACLE_EQUIVALENT"));
-    await expect(loadRegistry(memorySource(m), p)).rejects.toBeInstanceOf(CorpusVerificationError);
+    await expect(loadRegistry(memorySource(m), p)).rejects.toThrow(/record says KNOWN_TRUTH_EXACT/);
   });
 
   it("refuses a structural exactness claim against a dual-oracle fixture", async () => {
@@ -207,5 +213,30 @@ describe("#10 gating and the run summary", () => {
     expect(text).toContain("QUARANTINED shear-001 UNSUPPORTED_ENTITY");
     expect(text).toContain("gating: 30");
     expect(text).toContain("canonical pvec pending: 30");
+  });
+});
+
+describe("#10 fetch and verify", () => {
+  it("accepts a remote artifact with the pinned hash and caches it", async () => {
+    const { mkdtemp, readdir } = await import("node:fs/promises");
+    const { tmpdir } = await import("node:os");
+    const { fetchVerified } = await import("../fixtures/node");
+    const bytes = new TextEncoder().encode("hello");
+    const sha = await sha256Hex(bytes);
+    const dir = await mkdtemp(join(tmpdir(), "mlp10-"));
+    const remote = memorySource(new Map([["fixtures/a/source.dwg", bytes]]));
+    expect(await fetchVerified({ remote, path: "fixtures/a/source.dwg", sha256: sha, cacheDir: dir })).toEqual(bytes);
+    expect(await readdir(dir)).toEqual([sha]);
+    const dead = memorySource(new Map());
+    expect(await fetchVerified({ remote: dead, path: "fixtures/a/source.dwg", sha256: sha, cacheDir: dir })).toEqual(bytes);
+  });
+
+  it("fails closed when the remote bytes differ from the pinned hash", async () => {
+    const { mkdtemp } = await import("node:fs/promises");
+    const { tmpdir } = await import("node:os");
+    const { fetchVerified } = await import("../fixtures/node");
+    const remote = memorySource(new Map([["x", new TextEncoder().encode("tampered")]]));
+    const dir = await mkdtemp(join(tmpdir(), "mlp10-"));
+    await expect(fetchVerified({ remote, path: "x", sha256: await sha256Hex(new TextEncoder().encode("hello")), cacheDir: dir })).rejects.toThrow(/mismatch/);
   });
 });

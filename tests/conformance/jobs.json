@@ -1,0 +1,16 @@
+{
+  "jobs": [
+    { "id": "math", "title": "mathematical semantics", "claim": "structural and geometric exactness", "specs": ["M2.3", "M2.4"] },
+    { "id": "range", "title": "range decoding", "claim": "container and transport correctness", "specs": ["M2.7", "M3.x"] },
+    { "id": "rendering", "title": "rendering snapshots", "claim": "display fidelity", "specs": ["M2.5", "M2.6"] },
+    { "id": "interaction", "title": "interaction and picking", "claim": "interaction correctness", "specs": ["M5.6"] }
+  ],
+  "pendingGates": [
+    { "name": "evaluator-math", "job": "math", "waitsOn": "#2 (M1.3, the shared WASM evaluator) and libviprs/pvec#1 (P7.2, P7.3)" },
+    { "name": "numeric-policy-equivalence", "job": "math", "waitsOn": "libviprs/pvec#1 (P1.2 policy surface, P2.6)" },
+    { "name": "hostile-input", "job": "range", "waitsOn": "#18 (M3.1, M3.6) and libviprs/pvec#1 (P4.7, P4.8)" },
+    { "name": "pipeline", "job": "rendering", "waitsOn": "#42 (M4.4, the screen-space error evaluator)" },
+    { "name": "tier0", "job": "rendering", "waitsOn": "#50 (M5.1, the Tier 0 decoder path)" },
+    { "name": "picking", "job": "interaction", "waitsOn": "#50 (M5.6, stable picking)" }
+  ]
+}
