@@ -1,0 +1,44 @@
+{
+  "browser": "chromium 130.0.6723.31",
+  "scope": "boundary cost only; pvec evaluator WASM not available (see docs/deferred.md)",
+  "perCall": {
+    "nsPerCall": 2.66,
+    "nsPerCallPureJsLoopBaseline": 0.94,
+    "sink": true
+  },
+  "batches": [
+    {
+      "n": 100,
+      "nsPerPointPacked": 1.135,
+      "nsPerPointPerCall": 2.54,
+      "sink": true
+    },
+    {
+      "n": 1000,
+      "nsPerPointPacked": 1.115,
+      "nsPerPointPerCall": 2.56,
+      "sink": true
+    },
+    {
+      "n": 10000,
+      "nsPerPointPacked": 1.12,
+      "nsPerPointPerCall": 2.36,
+      "sink": true
+    },
+    {
+      "n": 100000,
+      "nsPerPointPacked": 1.12,
+      "nsPerPointPerCall": 2.135,
+      "sink": true
+    }
+  ],
+  "heap": {
+    "evaluations": 20000000,
+    "heapBeforeBytes": 1939610,
+    "heapAfterBytes": 1945886,
+    "heapAfterGcBytes": 1939178,
+    "growthBytes": 6276,
+    "bytesPerEvaluation": 0.0003138,
+    "sink": true
+  }
+}
