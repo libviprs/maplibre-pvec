@@ -1,0 +1,8 @@
+{
+  "description": "A circular arc whose source-space chord error is 0.1 px at the nominal (isotropic, equator) scale, drawn on a plan stretched 12x along y and anchored at 75 N. Mercator stretches it by sec(75 deg) and the calibration by 12, so the post-projection error is about 4.6 px.",
+  "arc": { "radiusM": 30, "sweepRad": 0.08928 },
+  "camera": { "zoom": 18, "bearing": 0, "pitch": 0, "width": 1024, "height": 768, "devicePixelRatio": 1 },
+  "highLatitude": { "lng": 8.5, "lat": 75, "anisotropy": 12 },
+  "nominal": { "lng": 8.5, "lat": 0, "anisotropy": 1 },
+  "expect": { "sourceSpacePx": 0.1, "postProjectionPxAtLeast": 4 }
+}
