@@ -1,3 +1,4 @@
+import { budget } from '../helpers/budget';
 import { describe, expect, it } from 'vitest';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
@@ -5,8 +6,8 @@ import { CurveDataError, packCurves, splitForBatches } from '../../../src/decode
 import { EVAL_BATCH, checkCapability, refineSteps } from '../../../src/workers/evaluator';
 import { DoubleEvaluator, measureSource, splineFixture } from '../helpers/refine';
 
-function runSync(ev: DoubleEvaluator, control: Float64Array, tol: number) {
-  const g = refineSteps(ev, { family: 'bezier', control, t0: 0, t1: 1, toleranceUnits: tol });
+function runSync(ev: DoubleEvaluator, control: Float64Array, chord: number) {
+  const g = refineSteps(ev, { family: 'bezier', control, t0: 0, t1: 1, toleranceUnits: chord });
   for (;;) { const r = g.next(); if (r.done) return r.value; }
 }
 
@@ -21,12 +22,12 @@ describe('M6.1 packed batches', () => {
     expect(ev.calls).toBeLessThan(ev.evaluations / 100);
   });
 
-  it('tessellates to the tolerance against f64 ground truth', () => {
+  it('tessellates to the chord bound against f64 ground truth', () => {
     const ev = new DoubleEvaluator();
     for (const e of splineFixture(30, 5)) {
-      const tol = 0.01;
-      const p = runSync(ev, e.control, tol);
-      expect(measureSource(e.control, p.params, p.positions, 1000)).toBeLessThanOrEqual(tol);
+      const chord = 0.01;
+      const p = runSync(ev, e.control, chord);
+      expect(measureSource(e.control, p.params, p.positions, 1000)).toBeLessThanOrEqual(chord);
       expect(p.params[0]).toBe(0);
       expect(p.params[p.params.length - 1]).toBe(1);
     }
@@ -36,7 +37,7 @@ describe('M6.1 packed batches', () => {
     const lens = Array.from({ length: 50 }, (_, i) => 100 + i * 37);
     const parts = splitForBatches(lens, 1000);
     expect(parts.flat().length).toBe(50);
-    for (const p of parts) expect(p.reduce((a, i) => a + lens[i]!, 0)).toBeLessThanOrEqual(1000 + Math.max(...lens));
+    for (const p of parts) expect(p.reduce((a, i) => a + lens[i]!, 0)).toBeLessThanOrEqual(budget(1000 + Math.max(...lens)));
   });
 });
 

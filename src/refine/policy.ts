@@ -11,9 +11,9 @@ export type Action = 'refine' | 'coarsen' | 'keep';
 export interface Decision { action: Action; errorPx: number }
 
 export interface PolicyOptions {
-  navigating?: boolean;
+  navigating?: boolean | undefined;
   /** Error of the displayed tessellation in device px. Defaults to the post-transform measurement. */
-  measure?: (entity: PolicyEntity, pipeline: TransformPipeline) => number;
+  measure?: ((entity: PolicyEntity, pipeline: TransformPipeline) => number) | undefined;
 }
 
 /** Post-transform error of the displayed tessellation: source -> GIS -> projection -> camera -> device px. */
@@ -43,7 +43,7 @@ export function needsRefinement(e: PolicyEntity, displayedGeneration: number, pi
 export class PolicySweep {
   private order: Uint32Array;
   private cursor = 0;
-  completedSweeps = 0;
+  fullPasses = 0;
   private static readonly CHECK_EVERY = 16;
 
   constructor(
@@ -77,7 +77,7 @@ export class PolicySweep {
     }
     if (this.cursor >= this.count) {
       this.cursor = 0;
-      this.completedSweeps++;
+      this.fullPasses++;
       this.o.onSweepComplete?.();
     }
     return n;

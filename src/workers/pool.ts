@@ -33,7 +33,7 @@ export interface PoolJob {
   control: Float64Array;
   t0: number;
   t1: number;
-  tolerance: number;
+  chordUnits: number;
   tag: JobTag;
 }
 
@@ -69,8 +69,8 @@ interface Pending {
   bytes: number;
   startedAt: number;
   resolve: (r: JobResult) => void;
-  signal?: AbortSignal;
-  onAbort?: () => void;
+  signal?: AbortSignal | undefined;
+  onAbort?: (() => void) | undefined;
 }
 
 /**
@@ -147,7 +147,7 @@ export class WorkerPool {
         signal.addEventListener('abort', p.onAbort, { once: true });
       }
       const buf = job.control.buffer as ArrayBuffer;
-      slot.worker.postMessage({ type: 'job', jobId, family: job.family, control: job.control, t0: job.t0, t1: job.t1, tolerance: job.tolerance, tag: job.tag }, [buf]);
+      slot.worker.postMessage({ type: 'job', jobId, family: job.family, control: job.control, t0: job.t0, t1: job.t1, chordUnits: job.chordUnits, tag: job.tag }, [buf]);
       this.s.detachChecks++;
       if (buf.byteLength !== 0) this.s.copiesDetected++; // the post copied instead of transferring
     });

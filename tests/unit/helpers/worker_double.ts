@@ -11,7 +11,7 @@ export class ChannelWorker implements WorkerLike {
   readonly runtime: WorkerRuntime;
   private readonly toWorker: MessagePort;
   private readonly fromWorker: MessagePort;
-  constructor(evaluator: CurveEvaluator, o: { shared?: boolean } = {}) {
+  constructor(evaluator: CurveEvaluator, o: { shared?: boolean | undefined } = {}) {
     const ch = new MessageChannel();
     this.toWorker = ch.port1 as unknown as MessagePort;
     this.fromWorker = ch.port2 as unknown as MessagePort;
@@ -100,7 +100,7 @@ export class SimWorker implements WorkerLike {
     if (!msg) { this.running = false; return; }
     const control = msg.control;
     let evals = 0;
-    const gen = refineSteps(this.ev, { family: msg.family, control, t0: msg.t0, t1: msg.t1, toleranceUnits: msg.tolerance });
+    const gen = refineSteps(this.ev, { family: msg.family, control, t0: msg.t0, t1: msg.t1, toleranceUnits: msg.chordUnits });
     const step = (): void => {
       if (this.cancelled.has(msg.jobId)) {
         this.wastedMs += this.clock.now - (this.cancelStamp.get(msg.jobId) ?? this.clock.now);

@@ -28,14 +28,14 @@ export interface RefinerOptions {
   draw: DrawTable;
   queue: RefineQueue;
   entities: RefineEntity[];
-  cache?: RefineCache;
+  cache?: RefineCache | undefined;
   /** Time source for idle detection (ms). */
   now: () => number;
   /** CPU clock for the per-frame budgets. Defaults to performance.now. */
-  cpuNow?: () => number;
-  measure?: (e: PolicyEntity, p: TransformPipeline) => number;
+  cpuNow?: (() => number) | undefined;
+  measure?: ((e: PolicyEntity, p: TransformPipeline) => number) | undefined;
   /** Keep every request in `jobLog` (tests and diagnostics). Off by default: the log would grow without bound. */
-  logJobs?: boolean;
+  logJobs?: boolean | undefined;
   /** Called for every accepted upload, before the draw record is staged. The GPU write lives here. */
   onUpload?: (entityId: number, positions: Float64Array, range: { start: number; count: number }) => void;
 }
@@ -53,7 +53,7 @@ interface Pending {
   costMs: number;
 }
 
-interface PieceWork { entity: RefineEntity; pend: Pending; index: number; t0: number; t1: number; tolerance: number }
+interface PieceWork { entity: RefineEntity; pend: Pending; index: number; t0: number; t1: number; chordUnits: number }
 
 export interface FrameStats { policyMs: number; scheduleMs: number; evaluated: number }
 
@@ -240,7 +240,7 @@ export class Refiner {
       const buf = this.o.pool.recycler.acquire(w.entity.control.byteLength);
       const control = new Float64Array(buf);
       control.set(w.entity.control);
-      const p = this.o.pool.tryRun({ family: w.entity.family, control, t0: w.t0, t1: w.t1, tolerance: w.tolerance, tag: w.pend.tag }, w.pend.abort.signal);
+      const p = this.o.pool.tryRun({ family: w.entity.family, control, t0: w.t0, t1: w.t1, chordUnits: w.chordUnits, tag: w.pend.tag }, w.pend.abort.signal);
       if (!p) {
         this.o.pool.recycler.release(buf);
         this.partial.unshift(w);
@@ -266,8 +266,8 @@ export class Refiner {
       const ranges = planPieces(e.curve.domain[0], e.curve.domain[1], c.costMs);
       pend.pieces = ranges.length;
       pend.got = new Array(ranges.length).fill(undefined);
-      const tolerance = (REFINE_DEFAULTS.targetPx * 0.9) / pend.scale;
-      this.partial = ranges.map(([t0, t1], index) => ({ entity: e, pend, index, t0, t1, tolerance }));
+      const chordUnits = (REFINE_DEFAULTS.targetPx * 0.9) / pend.scale;
+      this.partial = ranges.map(([t0, t1], index) => ({ entity: e, pend, index, t0, t1, chordUnits }));
     }
   }
 

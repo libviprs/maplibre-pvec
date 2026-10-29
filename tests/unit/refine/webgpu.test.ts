@@ -1,3 +1,4 @@
+import { budget } from '../helpers/budget';
 import { describe, expect, it } from 'vitest';
 import { build } from 'esbuild';
 import { existsSync, mkdtempSync, readdirSync, readFileSync } from 'node:fs';
@@ -55,7 +56,7 @@ describe('M6.7 default bundle', () => {
     const entry = readFileSync(join(out, 'backend.js'), 'utf8');
     for (const sym of ['navigator.gpu', 'requestAdapter', 'GPUDevice', 'webgpuUnavailable']) expect(entry.includes(sym), sym).toBe(false);
     const chunks = readdirSync(out).filter((f) => f !== 'backend.js');
-    expect(chunks.length).toBeGreaterThan(0);
+    expect(chunks.length).toBeGreaterThan(budget(0));
     expect(chunks.map((f) => readFileSync(join(out, f), 'utf8')).join('\n')).toContain('webgpuUnavailable');
   });
 });

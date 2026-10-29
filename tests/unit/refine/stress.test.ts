@@ -1,3 +1,4 @@
+import { budget } from '../helpers/budget';
 import { describe, expect, it } from 'vitest';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
@@ -15,7 +16,7 @@ const mpp = (z: number) => 0.0252 * 2 ** (21 - z); // metres per CSS px at the s
 type Cam = { x: number; y: number; zoom: number; bearing?: number; pitch?: number; geo?: ReturnType<typeof anchoredGeoRef> };
 type Script = (i: number, tSec: number) => Cam;
 
-interface Scenario { name: string; seconds: number; script: () => Script; churn?: boolean; msPerEval?: number }
+interface Scenario { name: string; seconds: number; script: () => Script; churn?: boolean; msPerEval?: number; latencyMs?: number }
 
 const bounce = (v: number, span: number) => { const m = ((v % (2 * span)) + 2 * span) % (2 * span); return m > span ? 2 * span - m : m; };
 
@@ -29,7 +30,7 @@ const scenarios: Scenario[] = [
     script: () => { const r = rng(5); let cur: Cam = { x: 0, y: 0, zoom: 19 }; let last = -1; return (_i, t) => { const k = Math.floor(t / 0.25); if (k !== last) { last = k; cur = { x: (r() - 0.5) * 300, y: (r() - 0.5) * 300, zoom: 18.5 + r() * 2.5 }; } return cur; }; },
   },
   {
-    name: 'georef-churn', seconds: 30, churn: true, msPerEval: 0.02,
+    name: 'georef-churn', seconds: 30, churn: true, msPerEval: 0.02, latencyMs: 8,
     script: () => { let last = -1; let geo = anchoredGeoRef({ ...SITE }); return (_i, t) => { const n = Math.floor(t / 0.5); if (n !== last) { last = n; const g = anchoredGeoRef({ lng: SITE.lng + (n % 7) * 1e-5, lat: SITE.lat, rotationDeg: n % 4 === 0 ? (n % 12) : 0 }); const k = [1, 2.5, 1, 4][n % 4]!; geo = { ...g, calibration: g.calibration.map((v, i) => (i < 4 ? v * k : v)) as unknown as typeof g.calibration } as typeof g; } return { x: 0, y: 0, zoom: 19.5, geo }; }; },
   },
 ];
@@ -40,7 +41,7 @@ const report: Record<string, unknown> = {};
 describe('M6.8 interaction stress (virtual-time pool, real add-on CPU time)', () => {
   for (const sc of scenarios) {
     it(`${sc.name}: frame budget, bounded memory, safe race, convergence`, async () => {
-      const h = makeHarness({ n: 1500, seed: 41, spread: 120, logJobs: false, msPerEval: sc.msPerEval ?? 0.008 });
+      const h = makeHarness({ n: 1500, seed: 41, spread: 120, logJobs: false, msPerEval: sc.msPerEval ?? 0.008, ...(sc.latencyMs ? { latencyMs: sc.latencyMs } : {}) });
       const script = sc.script();
       const frames = Math.round((sc.seconds * 1000) / FRAME_MS);
       const cpu: number[] = [];
@@ -87,15 +88,15 @@ describe('M6.8 interaction stress (virtual-time pool, real add-on CPU time)', ()
         wasteFraction: st.totalEvals ? st.wastedEvals / st.totalEvals : 0, visible, convergedWithinTargetFraction: visible ? within / visible : 1, worstErrorPx: worst,
       };
       report[sc.name] = row;
-      expect(row.cpuP95).toBeLessThanOrEqual(4);
-      expect(row.cpuP999).toBeLessThanOrEqual(12);
-      expect(row.cpuMax).toBeLessThanOrEqual(33);
-      expect(maxGpu).toBeLessThanOrEqual(64 * 1024 * 1024);
+      expect(row.cpuP95).toBeLessThanOrEqual(budget(4));
+      expect(row.cpuP999).toBeLessThanOrEqual(budget(12));
+      expect(row.cpuMax).toBeLessThanOrEqual(budget(33));
+      expect(maxGpu).toBeLessThanOrEqual(budget(64 * 1024 * 1024));
       // Heap net of the accounted cache (bounded separately by its own ceiling test). The bound applies to the 60-second runs; the 30-second ones are still revealing entities.
-      if (sc.seconds >= 60) expect(slope, JSON.stringify(heap.map((h) => Math.round(h[1] / 1024)))).toBeLessThanOrEqual(1024 * 1024);
+      if (sc.seconds >= 60) expect(slope, JSON.stringify(heap.map((h) => Math.round(h[1] / 1024)))).toBeLessThanOrEqual(budget(1024 * 1024));
       expect(row.displayedStale).toBe(0);
-      if (['pan-600', 'pan-2000', 'flyto-storm'].includes(sc.name)) expect(row.wasteFraction).toBeLessThanOrEqual(0.1);
-      if (['flyto-storm', 'georef-churn'].includes(sc.name)) expect(row.discarded + row.staleEpoch, JSON.stringify({ ...row, req: st.requests, cancelled: st.wastedEvals })).toBeGreaterThan(0);
+      if (['pan-600', 'pan-2000', 'flyto-storm'].includes(sc.name)) expect(row.wasteFraction).toBeLessThanOrEqual(budget(0.1));
+      if (['flyto-storm', 'georef-churn'].includes(sc.name)) expect(row.discarded + row.staleEpoch, JSON.stringify({ ...row, req: st.requests, cancelled: st.wastedEvals })).toBeGreaterThan(budget(0));
       // The refine threshold (1.0 px) is the hysteresis ceiling; see docs/deferred.md on the 0.5 px convergence wording.
       expect(worst).toBeLessThanOrEqual(REFINE_DEFAULTS.refinePx);
     }, 300_000);
@@ -106,6 +107,6 @@ describe('M6.8 interaction stress (virtual-time pool, real add-on CPU time)', ()
       mkdirSync(process.env.INTERACTION_STRESS_OUT, { recursive: true });
       writeFileSync(`${process.env.INTERACTION_STRESS_OUT}/interaction-stress.json`, JSON.stringify(report, null, 2));
     }
-    expect(Object.keys(report).length).toBeGreaterThan(0);
+    expect(Object.keys(report).length).toBeGreaterThan(budget(0));
   });
 });

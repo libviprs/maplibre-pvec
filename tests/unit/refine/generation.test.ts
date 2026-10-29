@@ -1,3 +1,4 @@
+import { budget } from '../helpers/budget';
 import { describe, expect, it } from 'vitest';
 import { DrawTable, GenerationTracker, type JobTag } from '../../../src/refine/generation';
 import { rng } from '../helpers/rng';
@@ -119,7 +120,7 @@ describe('M6.5 randomised race harness', () => {
   });
   it('MUTATION no-generation-check turns the harness red', () => {
     const r = race(NoCheckTracker as typeof GenerationTracker, 1);
-    expect(r.staleShown + r.lost).toBeGreaterThan(0);
+    expect(r.staleShown + r.lost).toBeGreaterThan(budget(0));
   });
   it('the forced-race test is red under the same mutation', () => {
     const t = new NoCheckTracker();

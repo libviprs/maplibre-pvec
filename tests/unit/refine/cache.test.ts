@@ -1,3 +1,4 @@
+import { budget } from '../helpers/budget';
 import { describe, expect, it } from 'vitest';
 import { RefineCache, zoomBucket, dprBucket } from '../../../src/refine/cache';
 import { CACHE_DEFAULTS, DISPLAY_FIDELITY_TARGET_PX } from '../../../src/config/defaults';
@@ -58,8 +59,8 @@ describe('M6.6 accounting and ceiling', () => {
       peak = Math.max(peak, actual);
       i++;
     }
-    expect(peak).toBeLessThanOrEqual(2 * 1024 * 1024 + maxEntry);
-    expect(cache.stats().evictions).toBeGreaterThan(0);
+    expect(peak).toBeLessThanOrEqual(budget(2 * 1024 * 1024 + maxEntry));
+    expect(cache.stats().evictions).toBeGreaterThan(budget(0));
   });
   it('evicts the least valuable entry (visibility, area, recompute cost), not the oldest', () => {
     const cache = new RefineCache({ maxBytes: 1e9, maxEntries: 3 });
@@ -101,7 +102,7 @@ describe('M6.6 hits are proofs', () => {
       const err = errorOfTessellation(Array.from(hit.params), m.curve, p, 1000);
       expect(err).toBeLessThanOrEqual(DISPLAY_FIDELITY_TARGET_PX);
     }
-    expect(hits).toBeGreaterThan(0);
+    expect(hits).toBeGreaterThan(budget(0));
   });
 
   it('zoom bucketing hides no error at bucket boundaries', () => {

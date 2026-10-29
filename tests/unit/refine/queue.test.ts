@@ -1,3 +1,4 @@
+import { budget } from '../helpers/budget';
 import { describe, expect, it } from 'vitest';
 import { RefineQueue, estimateCostMs, planPieces, type Candidate } from '../../../src/refine/queue';
 import { QUEUE_DEFAULTS } from '../../../src/config/defaults';
@@ -83,10 +84,10 @@ describe('M6.4 budgets with the pool', () => {
     h.setCamera(pipelineAt({ zoom: 21 }));
     await h.frames(600);
     const s = h.pool.stats();
-    expect(s.dispatched).toBeGreaterThan(100);
-    expect(s.maxInFlight).toBeLessThanOrEqual(8);
+    expect(s.dispatched).toBeGreaterThan(budget(100));
+    expect(s.maxInFlight).toBeLessThanOrEqual(budget(8));
     expect(s.maxWorkerBytes).toBeLessThanOrEqual(QUEUE_DEFAULTS.perWorkerBytes);
-    expect(s.p99DurationMs).toBeLessThanOrEqual(40);
+    expect(s.p99DurationMs).toBeLessThanOrEqual(budget(40));
   }, 120_000);
 
   it('saturation: 4 workers stay at least 70 percent busy while work is queued', async () => {
@@ -99,7 +100,7 @@ describe('M6.4 budgets with the pool', () => {
       await h.frame();
       if (hadWork && h.queue.depth > 0) { busy += h.sims.reduce((a, w) => a + w.busyMs, 0) - b0; wall += (h.clock.now - t0) * h.pool.size; queuedFrames++; }
     }
-    expect(queuedFrames).toBeGreaterThan(30);
+    expect(queuedFrames).toBeGreaterThan(budget(30));
     expect(busy / wall).toBeGreaterThanOrEqual(0.7);
   }, 120_000);
 
@@ -115,7 +116,7 @@ describe('M6.4 budgets with the pool', () => {
       const e = h.entities[j.entityId]!;
       if (!isEntityVisible(e.curve, j.pipeline)) offscreen++;
     }
-    expect(h.refiner.jobLog.length).toBeGreaterThan(0);
+    expect(h.refiner.jobLog.length).toBeGreaterThan(budget(0));
     expect(offscreen).toBe(0);
   }, 120_000);
 
@@ -134,7 +135,7 @@ describe('M6.4 budgets with the pool', () => {
     }
     sched.slice(30).sort((a, b) => a - b);
     const s = sched.slice(30).sort((a, b) => a - b);
-    expect(s[Math.floor(s.length * 0.99)]!).toBeLessThanOrEqual(0.5);
-    expect(Math.max(...frameMs.slice(30))).toBeLessThanOrEqual(16.6);
+    expect(s[Math.floor(s.length * 0.99)]!).toBeLessThanOrEqual(budget(0.5));
+    expect(Math.max(...frameMs.slice(30))).toBeLessThanOrEqual(budget(16.6));
   }, 120_000);
 });

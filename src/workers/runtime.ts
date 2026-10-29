@@ -2,8 +2,8 @@ import { type CurveEvaluator, type CurveFamily, refineSteps } from './evaluator'
 import type { JobTag } from '../refine/generation';
 
 export type WorkerIn =
-  | { type: 'init'; module?: WebAssembly.Module; shared?: boolean }
-  | { type: 'job'; jobId: number; family: CurveFamily; control: Float64Array; t0: number; t1: number; tolerance: number; tag: JobTag }
+  | { type: 'init'; module?: WebAssembly.Module | undefined; shared?: boolean | undefined }
+  | { type: 'job'; jobId: number; family: CurveFamily; control: Float64Array; t0: number; t1: number; chordUnits: number; tag: JobTag }
   | { type: 'cancel'; jobId: number };
 
 export type WorkerOut =
@@ -30,7 +30,7 @@ export class WorkerRuntime {
   constructor(
     private readonly evaluator: CurveEvaluator,
     private readonly post: (msg: WorkerOut, transfer: Transferable[]) => void,
-    private readonly opts: { yield?: () => Promise<void>; shared?: boolean } = {},
+    private readonly opts: { yield?: (() => Promise<void>) | undefined; shared?: boolean | undefined } = {},
   ) {}
 
   onMessage(msg: WorkerIn): void {
@@ -42,7 +42,7 @@ export class WorkerRuntime {
   private async run(msg: Extract<WorkerIn, { type: 'job' }>): Promise<void> {
     const yieldFn = this.opts.yield ?? (() => new Promise<void>((r) => setTimeout(r, 0)));
     try {
-      const gen = refineSteps(this.evaluator, { family: msg.family, control: msg.control, t0: msg.t0, t1: msg.t1, toleranceUnits: msg.tolerance });
+      const gen = refineSteps(this.evaluator, { family: msg.family, control: msg.control, t0: msg.t0, t1: msg.t1, toleranceUnits: msg.chordUnits });
       let evals = 0;
       for (;;) {
         if (this.cancelled.delete(msg.jobId)) {

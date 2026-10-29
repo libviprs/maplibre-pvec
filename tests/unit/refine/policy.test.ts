@@ -1,3 +1,4 @@
+import { budget } from '../helpers/budget';
 import { describe, expect, it } from 'vitest';
 import { PolicySweep, needsRefinement, type PolicyEntity } from '../../../src/refine/policy';
 import { REFINE_DEFAULTS } from '../../../src/config/defaults';
@@ -40,7 +41,7 @@ describe('M6.3 decision', () => {
     const params = Float64Array.from(Array.from({ length: 33 }, (_, i) => i / 32));
     const pos = Float64Array.from(Array.from(params).flatMap((t) => cubicAt(ctrl, t)));
     const srcErr = measureSource(ctrl, params, pos, 400);
-    expect(srcErr).toBeLessThan(2);
+    expect(srcErr).toBeLessThan(budget(2));
     const hi = pipelineAt({ zoom: 22 });
     const px = errorOfTessellation(Array.from(params), curve, hi, 200);
     expect(px).toBeGreaterThan(REFINE_DEFAULTS.refinePx);
@@ -61,17 +62,17 @@ describe('M6.3 frame budget', () => {
     const sweep = new PolicySweep(N, (i) => areas[i]!, (i) => { seen++; return i & 1 ? 'keep' : 'keep'; }, { budgetMs: 1, now: () => performance.now() });
     const times: number[] = [];
     let frames = 0;
-    while (!sweep.completedSweeps && frames < 5000) {
+    while (!sweep.fullPasses && frames < 5000) {
       const t0 = performance.now();
       sweep.runFrame();
       times.push(performance.now() - t0);
       frames++;
     }
     expect(seen).toBe(N);
-    expect(frames).toBeGreaterThan(1); // it resumed across frames
+    expect(frames).toBeGreaterThan(budget(1)); // it resumed across frames
     times.sort((a, b) => a - b);
-    expect(times[Math.floor(times.length * 0.99)]!).toBeLessThanOrEqual(1.25);
-    expect(times[times.length - 1]!).toBeLessThanOrEqual(3);
+    expect(times[Math.floor(times.length * 0.99)]!).toBeLessThanOrEqual(budget(1.25));
+    expect(times[times.length - 1]!).toBeLessThanOrEqual(budget(3));
   });
   it('visits entities in descending area order within a sweep', () => {
     const areas = [5, 90, 1, 40, 7];
@@ -96,8 +97,8 @@ describe('M6.3 behaviour with the pool', () => {
       const px = errorOfTessellation(Array.from(e.displayed!.params), e.curve, h.pipeline, 1000);
       worst = Math.max(worst, px);
     }
-    expect(checked).toBeGreaterThan(10);
-    expect(worst).toBeLessThanOrEqual(0.5);
+    expect(checked).toBeGreaterThan(budget(10));
+    expect(worst).toBeLessThanOrEqual(budget(0.5));
   }, 120_000);
 
   it('hysteresis: +/-0.4 zoom for 100 cycles queues at most 5 jobs after the first pass', async () => {
@@ -109,7 +110,7 @@ describe('M6.3 behaviour with the pool', () => {
       h.setCamera(pipelineAt({ zoom: c % 2 ? 18.6 : 19.4 }));
       await h.frames(Math.ceil((REFINE_DEFAULTS.idleMs + 100) / FRAME_MS));
     }
-    expect(h.refiner.jobLog.length - base).toBeLessThanOrEqual(5);
+    expect(h.refiner.jobLog.length - base).toBeLessThanOrEqual(budget(5));
   }, 120_000);
 
   it('a curve already measuring 0.3 px is never requeued', async () => {

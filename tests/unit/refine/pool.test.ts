@@ -1,11 +1,12 @@
+import { budget } from '../helpers/budget';
 import { describe, expect, it } from 'vitest';
 import { BufferRecycler, WorkerPool, defaultWorkerCount } from '../../../src/workers/pool';
 import { EVAL_BATCH } from '../../../src/workers/evaluator';
 import { DoubleEvaluator, splineFixture } from '../helpers/refine';
 import { ChannelWorker, SimWorker, simClock } from '../helpers/worker_double';
 
-const job = (control: Float64Array, tolerance = 0.01, entityId = 1) => ({
-  family: 'bezier' as const, control, t0: 0, t1: 1, tolerance, tag: { entityId, generation: 1, transformEpoch: 0 },
+const job = (control: Float64Array, chord = 0.01, entityId = 1) => ({
+  family: 'bezier' as const, control, t0: 0, t1: 1, chordUnits: chord, tag: { entityId, generation: 1, transformEpoch: 0 },
 });
 
 describe('M6.2 sizing', () => {
@@ -25,7 +26,7 @@ describe('M6.2 zero copy', () => {
     const res = await p;
     expect(res.status).toBe('done');
     if (res.status !== 'done') return;
-    expect(res.positions.length).toBeGreaterThan(4);
+    expect(res.positions.length).toBeGreaterThan(budget(4));
     const s = pool.stats();
     expect(s.copiesDetected).toBe(0);
     expect(s.detachChecks).toBeGreaterThanOrEqual(2); // control out, results in (worker side asserts its own)
@@ -85,7 +86,7 @@ describe('M6.2 cancellation', () => {
     ac.abort();
     const res = await p;
     expect(res.status).toBe('cancelled');
-    expect(ev.calls - callsAtCancel).toBeLessThanOrEqual(2);
+    expect(ev.calls - callsAtCancel).toBeLessThanOrEqual(budget(2));
     expect(ev.maxBatch).toBeLessThanOrEqual(EVAL_BATCH);
     pool.terminate();
   }, 20_000);
@@ -112,7 +113,7 @@ describe('M6.2 cancellation', () => {
     expect(out.some((r) => r.status === 'cancelled')).toBe(true);
     const wasted = sims.reduce((a, s) => a + s.wastedMs, 0);
     const total = sims.reduce((a, s) => a + s.busyMs, 0);
-    expect(wasted / total).toBeLessThanOrEqual(0.05);
+    expect(wasted / total).toBeLessThanOrEqual(budget(0.05));
   }, 60_000);
 });
 
