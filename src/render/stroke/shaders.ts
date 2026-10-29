@@ -44,6 +44,7 @@ flat out uint v_dash;
 flat out uint v_cap;
 flat out int v_kind;
 flat out uint v_nb;
+flat out float v_dashSign;
 
 vec2 rel(vec4 p) { return u_linear * ((p.xy - u_centerHi) + (p.zw - u_centerLo)); }
 vec2 perp(vec2 v) { return vec2(-v.y, v.x); }
@@ -78,12 +79,21 @@ void main() {
   float pad = u_dpr;
   vec2 a = rel(a_p0);
   vec2 b = rel(a_p1);
+  bool hasPrev = (flags & 1u) != 0u;
+  bool hasNext = (flags & 2u) != 0u;
+  vec4 prevP = a_prev;
+  vec4 nextP = a_next;
+  // Canonical endpoint order, so a segment submitted in either direction runs the same arithmetic.
+  bool flip = b.x < a.x || (b.x == a.x && b.y < a.y);
+  if (flip) {
+    vec2 tmp = a; a = b; b = tmp;
+    bool h = hasPrev; hasPrev = hasNext; hasNext = h;
+    vec4 q = prevP; prevP = nextP; nextP = q;
+  }
   vec2 d = b - a;
   float len = max(length(d), 1e-6);
   vec2 t = d / len;
   vec2 n = perp(t);
-  bool hasPrev = (flags & 1u) != 0u;
-  bool hasNext = (flags & 2u) != 0u;
   uint cap = (flags >> 2) & 3u;
   uint join = (flags >> 4) & 3u;
   int id = gl_VertexID;
@@ -100,7 +110,7 @@ void main() {
     pos = a + t * (u > 0.5 ? len + e1 : -e0) + n * v * (hw + pad);
   } else if (id < 12) {
     if (hasPrev) {
-      vec2 tp = normalize(a - rel(a_prev));
+      vec2 tp = normalize(a - rel(prevP));
       int tri = (id - 6) / 3;
       vec2 q1, q2;
       joinTriangle(a, tp, t, hw, join, tri, q1, q2, kind);
@@ -110,7 +120,7 @@ void main() {
     }
   } else {
     if (hasNext) {
-      vec2 tn = normalize(rel(a_next) - b);
+      vec2 tn = normalize(rel(nextP) - b);
       int tri = (id - 12) / 3;
       vec2 q1, q2;
       joinTriangle(b, t, tn, hw, join, tri, q1, q2, kind);
@@ -124,11 +134,12 @@ void main() {
   v_len = len;
   v_hw = hw;
   v_joint = jointLocal;
-  v_arcPx = a_arc * u_arcToPx;
+  v_arcPx = a_arc * u_arcToPx + (flip ? len : 0.0);
+  v_dashSign = flip ? -1.0 : 1.0;
   v_dash = di;
   v_cap = cap;
   v_kind = kind;
-  v_nb = flags & 3u;
+  v_nb = (hasPrev ? 1u : 0u) | (hasNext ? 2u : 0u);
   gl_Position = vec4(pos / (0.5 * u_viewport), 0.0, 1.0);
 }
 `;
@@ -145,6 +156,7 @@ flat in uint v_dash;
 flat in uint v_cap;
 flat in int v_kind;
 flat in uint v_nb;
+flat in float v_dashSign;
 
 uniform float u_dpr;      // 1 css px of feather, in device px
 uniform vec4 u_color;     // straight alpha, black by default
@@ -182,7 +194,7 @@ void main() {
     vec4 p = u_dash[min(v_dash - 1u, 15u)];
     float period = p.x + p.y + p.z + p.w;
     if (period > 0.0) {
-      float t = mod(v_arcPx + v_local.x, period);
+      float t = mod(v_arcPx + v_dashSign * v_local.x, period);
       float sd1 = within(t, 0.0, p.x);
       float sd2 = p.z > 0.0 ? within(t, p.x + p.y, p.x + p.y + p.z) : -1e3;
       float wrap = within(t - period, 0.0, p.x);

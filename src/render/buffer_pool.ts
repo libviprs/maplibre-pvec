@@ -7,6 +7,8 @@ export interface PoolOptions {
   uploadBudgetBytes?: number;
   uploadBudgetMs?: number;
   compactAbove?: number;
+  /** Bytes of padding kept before and after every range, so instanced neighbour attributes can read one record either side. */
+  guardBytes?: number;
   now?: () => number;
 }
 
@@ -37,6 +39,7 @@ export class BufferPool {
   private readonly budgetMs: number;
   private readonly compactAbove: number;
   private readonly now: () => number;
+  private readonly guard: number;
   private pages: Page[] = [];
   private entries = new Map<string, Entry>();
   private queue: string[] = [];
@@ -51,6 +54,7 @@ export class BufferPool {
     this.budgetMs = o.uploadBudgetMs ?? DEFAULTS.uploadBudgetMs;
     this.compactAbove = o.compactAbove ?? DEFAULTS.compactAboveFragmentation;
     this.now = o.now ?? (() => performance.now());
+    this.guard = o.guardBytes ?? 0;
   }
 
   add(key: string, bytes: Uint8Array): void {
@@ -134,8 +138,8 @@ export class BufferPool {
       const here = [...this.entries.entries()].filter(([, e]) => e.page === pg).sort((a, b) => a[1].offset - b[1].offset);
       let off = 0;
       for (const [k, e] of here) {
-        if (e.offset !== off) { e.offset = off; e.uploaded = 0; this.enqueue(k, e); }
-        off += e.length;
+        if (e.offset !== off + this.guard) { e.offset = off + this.guard; e.uploaded = 0; this.enqueue(k, e); }
+        off += e.length + 2 * this.guard;
       }
       pg.free = off < pg.size ? [{ off, len: pg.size - off }] : [];
     }
@@ -191,20 +195,21 @@ export class BufferPool {
 
   private place(key: string, bytes: Uint8Array): void {
     const len = align(bytes.byteLength);
+    const need = len + 2 * this.guard;
     let target: Page | undefined, at = -1;
     for (const pg of this.pages) {
-      const i = pg.free.findIndex((b) => b.len >= len);
+      const i = pg.free.findIndex((b) => b.len >= need);
       if (i >= 0) { target = pg; at = i; break; }
     }
     if (!target) {
-      target = { size: Math.max(this.pageBytes, len), glBuffer: null, free: [{ off: 0, len: Math.max(this.pageBytes, len) }], used: 0, pending: 0 };
+      target = { size: Math.max(this.pageBytes, need), glBuffer: null, free: [{ off: 0, len: Math.max(this.pageBytes, need) }], used: 0, pending: 0 };
       this.pages.push(target);
       at = 0;
     }
     const b = target.free[at]!;
-    const offset = b.off;
-    if (b.len === len) target.free.splice(at, 1); else { b.off += len; b.len -= len; }
-    target.used += len;
+    const offset = b.off + this.guard;
+    if (b.len === need) target.free.splice(at, 1); else { b.off += need; b.len -= need; }
+    target.used += need;
     this.ensure(target);
     const e: Entry = { page: target, offset, length: len, bytes, uploaded: 0, queued: false };
     this.entries.set(key, e);
@@ -215,9 +220,10 @@ export class BufferPool {
     const e = this.entries.get(key);
     if (!e) return;
     this.entries.delete(key);
-    e.page.used -= e.length;
-    e.page.pending += e.length;
-    this.pendingFree.push({ page: e.page, block: { off: e.offset, len: e.length }, frame: this.frame });
+    const need = e.length + 2 * this.guard;
+    e.page.used -= need;
+    e.page.pending += need;
+    this.pendingFree.push({ page: e.page, block: { off: e.offset - this.guard, len: need }, frame: this.frame });
   }
 
   private freeBlock(pg: Page, blk: Block): void {

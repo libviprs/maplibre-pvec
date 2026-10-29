@@ -1,3 +1,5 @@
+import { STROKE_FLAGS } from './stroke/shaders';
+
 /**
  * Per-segment instance record, 40 bytes (see docs/buffer-model.md):
  *   f32 x0_hi, y0_hi, x0_lo, y0_lo   endpoint 0 (16 B)
@@ -6,6 +8,7 @@
  *   u32 meta                         widthIndex:12 | dashIndex:12 | flags:8 (4 B)
  */
 export const SEGMENT_RECORD_BYTES = 40;
+
 
 export interface SegmentMeta { widthIndex: number; dashIndex: number; flags: number }
 
@@ -37,14 +40,17 @@ export interface PackResult {
 /** Pack the consecutive point pairs of a polyline (x,y,x,y,...) into segment records. */
 export function packPolyline(points: ArrayLike<number>, meta: SegmentMeta): PackResult {
   const n = Math.floor(points.length / 2) - 1;
-  const packedMeta = packFlags(meta);
+  packFlags(meta);
   const out = new ArrayBuffer(Math.max(n, 0) * SEGMENT_RECORD_BYTES);
   const dv = new DataView(out);
   let count = 0, degenerate = 0, arc = 0;
+  const linked: boolean[] = []; // record k continues record k-1
+  let chain = false;
   for (let i = 0; i < n; i++) {
     const x0 = points[2 * i]!, y0 = points[2 * i + 1]!, x1 = points[2 * i + 2]!, y1 = points[2 * i + 3]!;
     const len = Math.hypot(x1 - x0, y1 - y0);
-    if (!Number.isFinite(x0 + y0 + x1 + y1) || !(len > 0)) { degenerate++; continue; }
+    if (!Number.isFinite(x0 + y0 + x1 + y1)) { degenerate++; chain = false; continue; }
+    if (!(len > 0)) { degenerate++; continue; }
     const o = count * SEGMENT_RECORD_BYTES;
     const a = [splitHiLo(x0), splitHiLo(y0), splitHiLo(x1), splitHiLo(y1)];
     dv.setFloat32(o, a[0]!.hi, true); dv.setFloat32(o + 4, a[1]!.hi, true);
@@ -52,9 +58,15 @@ export function packPolyline(points: ArrayLike<number>, meta: SegmentMeta): Pack
     dv.setFloat32(o + 16, a[2]!.hi, true); dv.setFloat32(o + 20, a[3]!.hi, true);
     dv.setFloat32(o + 24, a[2]!.lo, true); dv.setFloat32(o + 28, a[3]!.lo, true);
     dv.setFloat32(o + 32, arc, true);
-    dv.setUint32(o + 36, packedMeta, true);
+    linked.push(chain);
+    chain = true;
     arc += len;
     count++;
+  }
+  // neighbour flags let the shader build joins without reading across a break
+  for (let k = 0; k < count; k++) {
+    const nb = (linked[k] ? STROKE_FLAGS.HAS_PREV : 0) | (linked[k + 1] ? STROKE_FLAGS.HAS_NEXT : 0);
+    dv.setUint32(k * SEGMENT_RECORD_BYTES + 36, packFlags({ ...meta, flags: meta.flags | nb }), true);
   }
   return { data: out.slice(0, count * SEGMENT_RECORD_BYTES), count, degenerate };
 }
