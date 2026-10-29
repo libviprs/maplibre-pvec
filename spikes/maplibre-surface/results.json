@@ -1,0 +1,720 @@
+{
+  "browser": "chromium 130.0.6723.31",
+  "renderer": "SwiftShader software GL (arm64/x64 container, no GPU)",
+  "versions": {
+    "v4": {
+      "accuracy": {
+        "dpr1": {
+          "version": "4.7.1",
+          "dpr": 1,
+          "hooks": [
+            {
+              "hook": "onAdd",
+              "ctor": "WebGL2RenderingContext",
+              "isWebGL2": true,
+              "t": 204.20000004768372
+            }
+          ],
+          "prerenderArgs": {
+            "kind": "matrix-only",
+            "type": "Array",
+            "length": 16
+          },
+          "renderArgs": {
+            "kind": "matrix-only",
+            "type": "Array",
+            "length": 16
+          },
+          "matrixKind": "arg0 is matrix",
+          "centroid": {
+            "x": 256,
+            "y": 256,
+            "n": 324,
+            "w": 512,
+            "h": 512
+          },
+          "expected": {
+            "x": 256,
+            "y": 256
+          },
+          "errPx": 0,
+          "sameContextAsCanvasWebgl2": true,
+          "zoom": 14,
+          "renderStateAfter": {
+            "blend": true,
+            "depthTest": true,
+            "program": true
+          },
+          "pageErrors": []
+        },
+        "dpr2": {
+          "version": "4.7.1",
+          "dpr": 2,
+          "hooks": [
+            {
+              "hook": "onAdd",
+              "ctor": "WebGL2RenderingContext",
+              "isWebGL2": true,
+              "t": 146.89999997615814
+            }
+          ],
+          "prerenderArgs": {
+            "kind": "matrix-only",
+            "type": "Array",
+            "length": 16
+          },
+          "renderArgs": {
+            "kind": "matrix-only",
+            "type": "Array",
+            "length": 16
+          },
+          "matrixKind": "arg0 is matrix",
+          "centroid": {
+            "x": 512.5,
+            "y": 511.5,
+            "n": 1369,
+            "w": 1024,
+            "h": 1024
+          },
+          "expected": {
+            "x": 512,
+            "y": 512
+          },
+          "errPx": 0.7071067811865476,
+          "sameContextAsCanvasWebgl2": true,
+          "zoom": 14,
+          "renderStateAfter": {
+            "blend": true,
+            "depthTest": true,
+            "program": true
+          },
+          "pageErrors": []
+        }
+      },
+      "version": "4.7.1",
+      "ordering": {
+        "below_line_above_fill_2d": {
+          "center": [
+            0,
+            255,
+            0
+          ],
+          "offBand": [
+            0,
+            0,
+            255
+          ]
+        },
+        "top_2d": {
+          "center": [
+            0,
+            0,
+            255
+          ],
+          "offBand": [
+            0,
+            0,
+            255
+          ]
+        },
+        "below_line_3d": {
+          "center": [
+            0,
+            255,
+            0
+          ],
+          "offBand": [
+            0,
+            0,
+            255
+          ]
+        },
+        "top_3d": {
+          "center": [
+            0,
+            0,
+            255
+          ],
+          "offBand": [
+            0,
+            0,
+            255
+          ]
+        },
+        "below_fill_2d": {
+          "center": [
+            0,
+            255,
+            0
+          ],
+          "offBand": [
+            255,
+            0,
+            0
+          ]
+        }
+      },
+      "repaint": {
+        "idle2s": {
+          "renders": 0,
+          "prerenders": 0
+        },
+        "onDemand30": {
+          "renders": 30,
+          "prerenders": 30,
+          "meanRenderMs": 0.02333333492279053
+        },
+        "selfLoop3s": {
+          "renders": 180,
+          "prerenders": 180,
+          "fps": 60,
+          "meanRenderMs": 0.01833333174387614
+        }
+      },
+      "contextLoss": {
+        "before": {
+          "program": true,
+          "buffer": true,
+          "vao": true
+        },
+        "during": {
+          "program": false,
+          "buffer": false,
+          "vao": false,
+          "isContextLost": true
+        },
+        "after": {
+          "program": false,
+          "buffer": false,
+          "vao": false,
+          "sameGlObject": true
+        },
+        "hooksDuring": [
+          "map:webglcontextlost",
+          "map:webglcontextrestored"
+        ],
+        "rendersSinceRestore": 2,
+        "rendersBeforeLoss": 19,
+        "rendersWhileLost": 0
+      }
+    },
+    "v5": {
+      "accuracy": {
+        "dpr1": {
+          "version": "5.24.0",
+          "dpr": 1,
+          "hooks": [
+            {
+              "hook": "onAdd",
+              "ctor": "WebGL2RenderingContext",
+              "isWebGL2": true,
+              "t": 233.69999992847443
+            }
+          ],
+          "prerenderArgs": {
+            "kind": "object",
+            "keys": [
+              "farZ",
+              "nearZ",
+              "fov",
+              "modelViewProjectionMatrix",
+              "projectionMatrix",
+              "shaderData",
+              "defaultProjectionData"
+            ],
+            "defaultProjectionDataKeys": [
+              "mainMatrix",
+              "tileMercatorCoords",
+              "clippingPlane",
+              "projectionTransition",
+              "fallbackMatrix"
+            ]
+          },
+          "renderArgs": {
+            "kind": "object",
+            "keys": [
+              "farZ",
+              "nearZ",
+              "fov",
+              "modelViewProjectionMatrix",
+              "projectionMatrix",
+              "shaderData",
+              "defaultProjectionData"
+            ],
+            "defaultProjectionDataKeys": [
+              "mainMatrix",
+              "tileMercatorCoords",
+              "clippingPlane",
+              "projectionTransition",
+              "fallbackMatrix"
+            ]
+          },
+          "matrixKind": "args.defaultProjectionData.mainMatrix",
+          "centroid": {
+            "x": 256,
+            "y": 256,
+            "n": 324,
+            "w": 512,
+            "h": 512
+          },
+          "expected": {
+            "x": 256,
+            "y": 256
+          },
+          "errPx": 0,
+          "sameContextAsCanvasWebgl2": true,
+          "zoom": 14,
+          "renderStateAfter": {
+            "blend": true,
+            "depthTest": true,
+            "program": true
+          },
+          "pageErrors": []
+        },
+        "dpr2": {
+          "version": "5.24.0",
+          "dpr": 2,
+          "hooks": [
+            {
+              "hook": "onAdd",
+              "ctor": "WebGL2RenderingContext",
+              "isWebGL2": true,
+              "t": 175
+            }
+          ],
+          "prerenderArgs": {
+            "kind": "object",
+            "keys": [
+              "farZ",
+              "nearZ",
+              "fov",
+              "modelViewProjectionMatrix",
+              "projectionMatrix",
+              "shaderData",
+              "defaultProjectionData"
+            ],
+            "defaultProjectionDataKeys": [
+              "mainMatrix",
+              "tileMercatorCoords",
+              "clippingPlane",
+              "projectionTransition",
+              "fallbackMatrix"
+            ]
+          },
+          "renderArgs": {
+            "kind": "object",
+            "keys": [
+              "farZ",
+              "nearZ",
+              "fov",
+              "modelViewProjectionMatrix",
+              "projectionMatrix",
+              "shaderData",
+              "defaultProjectionData"
+            ],
+            "defaultProjectionDataKeys": [
+              "mainMatrix",
+              "tileMercatorCoords",
+              "clippingPlane",
+              "projectionTransition",
+              "fallbackMatrix"
+            ]
+          },
+          "matrixKind": "args.defaultProjectionData.mainMatrix",
+          "centroid": {
+            "x": 512.5,
+            "y": 511.5,
+            "n": 1369,
+            "w": 1024,
+            "h": 1024
+          },
+          "expected": {
+            "x": 512,
+            "y": 512
+          },
+          "errPx": 0.7071067811865476,
+          "sameContextAsCanvasWebgl2": true,
+          "zoom": 14,
+          "renderStateAfter": {
+            "blend": true,
+            "depthTest": true,
+            "program": true
+          },
+          "pageErrors": []
+        }
+      },
+      "version": "5.24.0",
+      "ordering": {
+        "below_line_above_fill_2d": {
+          "center": [
+            0,
+            255,
+            0
+          ],
+          "offBand": [
+            0,
+            0,
+            255
+          ]
+        },
+        "top_2d": {
+          "center": [
+            0,
+            0,
+            255
+          ],
+          "offBand": [
+            0,
+            0,
+            255
+          ]
+        },
+        "below_line_3d": {
+          "center": [
+            0,
+            255,
+            0
+          ],
+          "offBand": [
+            0,
+            0,
+            255
+          ]
+        },
+        "top_3d": {
+          "center": [
+            0,
+            0,
+            255
+          ],
+          "offBand": [
+            0,
+            0,
+            255
+          ]
+        },
+        "below_fill_2d": {
+          "center": [
+            0,
+            255,
+            0
+          ],
+          "offBand": [
+            255,
+            0,
+            0
+          ]
+        }
+      },
+      "repaint": {
+        "idle2s": {
+          "renders": 0,
+          "prerenders": 0
+        },
+        "onDemand30": {
+          "renders": 30,
+          "prerenders": 30,
+          "meanRenderMs": 0.06000000238418579
+        },
+        "selfLoop3s": {
+          "renders": 180,
+          "prerenders": 180,
+          "fps": 59.99400060089349,
+          "meanRenderMs": 0.03444444404708014
+        }
+      },
+      "contextLoss": {
+        "before": {
+          "program": true,
+          "buffer": true,
+          "vao": true
+        },
+        "during": {
+          "program": false,
+          "buffer": false,
+          "vao": false,
+          "isContextLost": true
+        },
+        "after": {
+          "program": false,
+          "buffer": false,
+          "vao": false,
+          "sameGlObject": true
+        },
+        "hooksDuring": [
+          "onRemove",
+          "map:webglcontextlost",
+          "map:webglcontextrestored"
+        ],
+        "rendersSinceRestore": 0,
+        "rendersBeforeLoss": 20,
+        "rendersWhileLost": 0
+      }
+    },
+    "v6": {
+      "accuracy": {
+        "dpr1": {
+          "version": "6.16.0",
+          "dpr": 1,
+          "hooks": [
+            {
+              "hook": "onAdd",
+              "ctor": "WebGL2RenderingContext",
+              "isWebGL2": true,
+              "t": 118.5
+            }
+          ],
+          "prerenderArgs": {
+            "kind": "object",
+            "keys": [
+              "farZ",
+              "nearZ",
+              "fov",
+              "modelViewProjectionMatrix",
+              "projectionMatrix",
+              "shaderData",
+              "defaultProjectionData",
+              "getProjectionData",
+              "renderTerrainHeightMap"
+            ],
+            "defaultProjectionDataKeys": [
+              "mainMatrix",
+              "tileMercatorCoords",
+              "clippingPlane",
+              "projectionTransition",
+              "fallbackMatrix",
+              "clipAntimeridian"
+            ]
+          },
+          "renderArgs": {
+            "kind": "object",
+            "keys": [
+              "farZ",
+              "nearZ",
+              "fov",
+              "modelViewProjectionMatrix",
+              "projectionMatrix",
+              "shaderData",
+              "defaultProjectionData",
+              "getProjectionData",
+              "renderTerrainHeightMap"
+            ],
+            "defaultProjectionDataKeys": [
+              "mainMatrix",
+              "tileMercatorCoords",
+              "clippingPlane",
+              "projectionTransition",
+              "fallbackMatrix",
+              "clipAntimeridian"
+            ]
+          },
+          "matrixKind": "args.defaultProjectionData.mainMatrix",
+          "centroid": {
+            "x": 256,
+            "y": 256,
+            "n": 324,
+            "w": 512,
+            "h": 512
+          },
+          "expected": {
+            "x": 256,
+            "y": 256
+          },
+          "errPx": 0,
+          "sameContextAsCanvasWebgl2": true,
+          "zoom": 14,
+          "renderStateAfter": {
+            "blend": true,
+            "depthTest": true,
+            "program": true
+          },
+          "pageErrors": []
+        },
+        "dpr2": {
+          "version": "6.16.0",
+          "dpr": 2,
+          "hooks": [
+            {
+              "hook": "onAdd",
+              "ctor": "WebGL2RenderingContext",
+              "isWebGL2": true,
+              "t": 127.5
+            }
+          ],
+          "prerenderArgs": {
+            "kind": "object",
+            "keys": [
+              "farZ",
+              "nearZ",
+              "fov",
+              "modelViewProjectionMatrix",
+              "projectionMatrix",
+              "shaderData",
+              "defaultProjectionData",
+              "getProjectionData",
+              "renderTerrainHeightMap"
+            ],
+            "defaultProjectionDataKeys": [
+              "mainMatrix",
+              "tileMercatorCoords",
+              "clippingPlane",
+              "projectionTransition",
+              "fallbackMatrix",
+              "clipAntimeridian"
+            ]
+          },
+          "renderArgs": {
+            "kind": "object",
+            "keys": [
+              "farZ",
+              "nearZ",
+              "fov",
+              "modelViewProjectionMatrix",
+              "projectionMatrix",
+              "shaderData",
+              "defaultProjectionData",
+              "getProjectionData",
+              "renderTerrainHeightMap"
+            ],
+            "defaultProjectionDataKeys": [
+              "mainMatrix",
+              "tileMercatorCoords",
+              "clippingPlane",
+              "projectionTransition",
+              "fallbackMatrix",
+              "clipAntimeridian"
+            ]
+          },
+          "matrixKind": "args.defaultProjectionData.mainMatrix",
+          "centroid": {
+            "x": 512.5,
+            "y": 511.5,
+            "n": 1369,
+            "w": 1024,
+            "h": 1024
+          },
+          "expected": {
+            "x": 512,
+            "y": 512
+          },
+          "errPx": 0.7071067811865476,
+          "sameContextAsCanvasWebgl2": true,
+          "zoom": 14,
+          "renderStateAfter": {
+            "blend": true,
+            "depthTest": true,
+            "program": true
+          },
+          "pageErrors": []
+        }
+      },
+      "version": "6.16.0",
+      "ordering": {
+        "below_line_above_fill_2d": {
+          "center": [
+            0,
+            255,
+            0
+          ],
+          "offBand": [
+            0,
+            0,
+            255
+          ]
+        },
+        "top_2d": {
+          "center": [
+            0,
+            0,
+            255
+          ],
+          "offBand": [
+            0,
+            0,
+            255
+          ]
+        },
+        "below_line_3d": {
+          "center": [
+            0,
+            255,
+            0
+          ],
+          "offBand": [
+            0,
+            0,
+            255
+          ]
+        },
+        "top_3d": {
+          "center": [
+            0,
+            0,
+            255
+          ],
+          "offBand": [
+            0,
+            0,
+            255
+          ]
+        },
+        "below_fill_2d": {
+          "center": [
+            0,
+            255,
+            0
+          ],
+          "offBand": [
+            255,
+            0,
+            0
+          ]
+        }
+      },
+      "repaint": {
+        "idle2s": {
+          "renders": 0,
+          "prerenders": 0
+        },
+        "onDemand30": {
+          "renders": 30,
+          "prerenders": 30,
+          "meanRenderMs": 0.07999999523162842
+        },
+        "selfLoop3s": {
+          "renders": 180,
+          "prerenders": 180,
+          "fps": 59.99400059850978,
+          "meanRenderMs": 0.04777777923478021
+        }
+      },
+      "contextLoss": {
+        "before": {
+          "program": true,
+          "buffer": true,
+          "vao": true
+        },
+        "during": {
+          "program": false,
+          "buffer": false,
+          "vao": false,
+          "isContextLost": true
+        },
+        "after": {
+          "program": false,
+          "buffer": false,
+          "vao": false,
+          "sameGlObject": true
+        },
+        "hooksDuring": [
+          "onRemove",
+          "map:webglcontextlost",
+          "map:webglcontextrestored"
+        ],
+        "rendersSinceRestore": 0,
+        "rendersBeforeLoss": 2,
+        "rendersWhileLost": 0
+      }
+    }
+  }
+}

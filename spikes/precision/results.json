@@ -1,0 +1,1200 @@
+{
+  "browser": "chromium 130.0.6723.31",
+  "renderer": "SwiftShader software GL in a container (no GPU)",
+  "info": {
+    "glRenderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+    "highpFloatPrecision": 23
+  },
+  "cases": [
+    {
+      "magnitude": 1000,
+      "chunkOffsetUnits": 500,
+      "pxPerUnit": 1,
+      "zoomEquivalent": 17.26,
+      "strategy": "naive",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 0.0001368059153282435,
+          "panJitterPx": 0.00010066175855925284,
+          "segmentLengthErrorPx": 0.00002343750000000002,
+          "idealLengthPx": 0.001
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 0.00014724314528962522,
+          "panJitterPx": 0.00010066175855925284
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 5,
+          "staticDeviationPx": 0.0001368059153282435,
+          "panJitterPx": 0.00010066175855925284
+        }
+      }
+    },
+    {
+      "magnitude": 1000,
+      "chunkOffsetUnits": 500,
+      "pxPerUnit": 1,
+      "zoomEquivalent": 17.26,
+      "strategy": "local",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 0.000027021415668239592,
+          "panJitterPx": 0.000025165439763892196,
+          "segmentLengthErrorPx": 0.000007080078124999979,
+          "idealLengthPx": 0.001
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 0.00003655808615141131,
+          "panJitterPx": 0.000025165439763892196
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 5,
+          "staticDeviationPx": 0.000027021415668239592,
+          "panJitterPx": 0.000025165439763892196
+        }
+      }
+    },
+    {
+      "magnitude": 1000,
+      "chunkOffsetUnits": 500,
+      "pxPerUnit": 1,
+      "zoomEquivalent": 17.26,
+      "strategy": "hilo",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 2.7826380879693127e-7,
+          "panJitterPx": 5.39479628783974e-7,
+          "segmentLengthErrorPx": 4.043579101562292e-7,
+          "idealLengthPx": 0.001
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 3.097574899337015e-7,
+          "panJitterPx": 5.394797895614178e-7
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 5,
+          "staticDeviationPx": 0.000008301678683690015,
+          "panJitterPx": 0.000012947511894702141
+        }
+      }
+    },
+    {
+      "magnitude": 1000,
+      "chunkOffsetUnits": 500,
+      "pxPerUnit": 16,
+      "zoomEquivalent": 21.26,
+      "strategy": "naive",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 0.0024331892969458977,
+          "panJitterPx": 0.002209708693265913,
+          "segmentLengthErrorPx": 0.00037500000000000033,
+          "idealLengthPx": 0.016
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 0.0022699226305116296,
+          "panJitterPx": 0.002209708693265913
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 0.0024331892969458977,
+          "panJitterPx": 0.002209708693265913
+        }
+      }
+    },
+    {
+      "magnitude": 1000,
+      "chunkOffsetUnits": 500,
+      "pxPerUnit": 16,
+      "zoomEquivalent": 21.26,
+      "strategy": "local",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 0.0004823862927659119,
+          "panJitterPx": 0.0005524271758889177,
+          "segmentLengthErrorPx": 0.00011328124999999967,
+          "idealLengthPx": 0.016
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 0.0006256721009836306,
+          "panJitterPx": 0.0005524271758889177
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 0.0004823862927659119,
+          "panJitterPx": 0.0005524271758889177
+        }
+      }
+    },
+    {
+      "magnitude": 1000,
+      "chunkOffsetUnits": 500,
+      "pxPerUnit": 16,
+      "zoomEquivalent": 21.26,
+      "strategy": "hilo",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 3.0039411918646887e-7,
+          "panJitterPx": 3.9321105270948503e-7,
+          "segmentLengthErrorPx": 2.7084350585904193e-7,
+          "idealLengthPx": 0.016
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 3.1848941250328615e-7,
+          "panJitterPx": 5.394817188910311e-7
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 2.412647096444094e-7,
+          "panJitterPx": 3.9321105270948503e-7
+        }
+      }
+    },
+    {
+      "magnitude": 1000,
+      "chunkOffsetUnits": 500,
+      "pxPerUnit": 256,
+      "zoomEquivalent": 25.26,
+      "strategy": "naive",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 0.03457329172494994,
+          "panJitterPx": 0.025769410191168726,
+          "segmentLengthErrorPx": 0.006000000000000005,
+          "idealLengthPx": 0.256
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 0.038624726252088196,
+          "panJitterPx": 0.025769410191168726
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 0.03457329172494994,
+          "panJitterPx": 0.025769410191168726
+        }
+      }
+    },
+    {
+      "magnitude": 1000,
+      "chunkOffsetUnits": 500,
+      "pxPerUnit": 256,
+      "zoomEquivalent": 25.26,
+      "strategy": "local",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 0.007022564106389475,
+          "panJitterPx": 0.006442352579556402,
+          "segmentLengthErrorPx": 0.0018124999999999947,
+          "idealLengthPx": 0.256
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 0.008952495983404458,
+          "panJitterPx": 0.006442352579556402
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 0.007022564106389475,
+          "panJitterPx": 0.006442352579556402
+        }
+      }
+    },
+    {
+      "magnitude": 1000,
+      "chunkOffsetUnits": 500,
+      "pxPerUnit": 256,
+      "zoomEquivalent": 25.26,
+      "strategy": "hilo",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 2.4125895819428904e-7,
+          "panJitterPx": 3.93226935829548e-7,
+          "segmentLengthErrorPx": 4.3487548828657907e-7,
+          "idealLengthPx": 0.256
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 3.121868739894031e-7,
+          "panJitterPx": 5.395125881648428e-7
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 2.4125895819428904e-7,
+          "panJitterPx": 3.93170465343643e-7
+        }
+      }
+    },
+    {
+      "magnitude": 1000,
+      "chunkOffsetUnits": 500,
+      "pxPerUnit": 4096,
+      "zoomEquivalent": 29.26,
+      "strategy": "naive",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 0.42544094780245967,
+          "panJitterPx": 0.41231056283282075,
+          "segmentLengthErrorPx": 0.09600000000000009,
+          "idealLengthPx": 4.096
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 0.5523814474984555,
+          "panJitterPx": 0.41231056283282075
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 0.42544094780245967,
+          "panJitterPx": 0.41231056283282075
+        }
+      }
+    },
+    {
+      "magnitude": 1000,
+      "chunkOffsetUnits": 500,
+      "pxPerUnit": 4096,
+      "zoomEquivalent": 29.26,
+      "strategy": "local",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 0.10606601757310882,
+          "panJitterPx": 0.10307764127290243,
+          "segmentLengthErrorPx": 0.028999999999999915,
+          "idealLengthPx": 4.096
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 0.12895840577773382,
+          "panJitterPx": 0.10307764127290243
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 0.10606601757310882,
+          "panJitterPx": 0.10307764127290243
+        }
+      }
+    },
+    {
+      "magnitude": 1000,
+      "chunkOffsetUnits": 500,
+      "pxPerUnit": 4096,
+      "zoomEquivalent": 29.26,
+      "strategy": "hilo",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 2.578351031340015e-7,
+          "panJitterPx": 3.9348130791421587e-7,
+          "segmentLengthErrorPx": 2.8228759774151513e-7,
+          "idealLengthPx": 4.096
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 4.822560595547334e-7,
+          "panJitterPx": 6.883759158385152e-7
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 2.4149824691359616e-7,
+          "panJitterPx": 3.9348130791421587e-7
+        }
+      }
+    },
+    {
+      "magnitude": 1000,
+      "chunkOffsetUnits": 500,
+      "pxPerUnit": 16384,
+      "zoomEquivalent": 31.26,
+      "strategy": "naive",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 2.2514439835187,
+          "panJitterPx": 1.9026297611586513,
+          "segmentLengthErrorPx": 0.38400000000000034,
+          "idealLengthPx": 16.384
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 2.525779223119153,
+          "panJitterPx": 1.9026297611586513
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 2.2514439835187,
+          "panJitterPx": 1.9026297611586513
+        }
+      }
+    },
+    {
+      "magnitude": 1000,
+      "chunkOffsetUnits": 500,
+      "pxPerUnit": 16384,
+      "zoomEquivalent": 31.26,
+      "strategy": "local",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 0.4393176524075466,
+          "panJitterPx": 0.41231056147754735,
+          "segmentLengthErrorPx": 0.11599999999999966,
+          "idealLengthPx": 16.384
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 0.4849416173183704,
+          "panJitterPx": 0.41231056147754735
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 0.4393176524075466,
+          "panJitterPx": 0.41231056147754735
+        }
+      }
+    },
+    {
+      "magnitude": 1000,
+      "chunkOffsetUnits": 500,
+      "pxPerUnit": 16384,
+      "zoomEquivalent": 31.26,
+      "strategy": "hilo",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 4.4681747437093237e-7,
+          "panJitterPx": 5.9090197261865e-7,
+          "segmentLengthErrorPx": 6.523132327629355e-7,
+          "idealLengthPx": 16.384
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 9.297566361950649e-7,
+          "panJitterPx": 0.0000015739252316568635
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 2.391450680152183e-7,
+          "panJitterPx": 3.921299388092985e-7
+        }
+      }
+    },
+    {
+      "magnitude": 1000000,
+      "chunkOffsetUnits": 5000,
+      "pxPerUnit": 1,
+      "zoomEquivalent": 17.26,
+      "strategy": "naive",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 0.04044749687689067,
+          "panJitterPx": 0.0530330086383819,
+          "segmentLengthErrorPx": 0.001,
+          "idealLengthPx": 0.001
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 0.041310915564421014,
+          "panJitterPx": 0.0530330086383819
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 0.04031128877903556,
+          "panJitterPx": 0.0530330086383819
+        }
+      }
+    },
+    {
+      "magnitude": 1000000,
+      "chunkOffsetUnits": 5000,
+      "pxPerUnit": 1,
+      "zoomEquivalent": 17.26,
+      "strategy": "local",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 0.0002796449036142865,
+          "panJitterPx": 0.000402646988575953,
+          "segmentLengthErrorPx": 0.00002343750000000002,
+          "idealLengthPx": 0.001
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 0.00046617549890930367,
+          "panJitterPx": 0.000402646988575953
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 0.0002796449036142865,
+          "panJitterPx": 0.000402646988575953
+        }
+      }
+    },
+    {
+      "magnitude": 1000000,
+      "chunkOffsetUnits": 5000,
+      "pxPerUnit": 1,
+      "zoomEquivalent": 17.26,
+      "strategy": "hilo",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 2.781991294798404e-7,
+          "panJitterPx": 5.394302763822898e-7,
+          "segmentLengthErrorPx": 4.043579101562292e-7,
+          "idealLengthPx": 0.001
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 3.0976297138277204e-7,
+          "panJitterPx": 5.395125881648428e-7
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 2.4124055342245986e-7,
+          "panJitterPx": 3.9325517880112434e-7
+        }
+      }
+    },
+    {
+      "magnitude": 1000000,
+      "chunkOffsetUnits": 5000,
+      "pxPerUnit": 16,
+      "zoomEquivalent": 21.26,
+      "strategy": "naive",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 0.8723531383452993,
+          "panJitterPx": 0.9055385141428531,
+          "segmentLengthErrorPx": 0.016,
+          "idealLengthPx": 0.016
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 0.8883505854708756,
+          "panJitterPx": 0.9055385141428531
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 0.8723531383452993,
+          "panJitterPx": 0.9055385141428531
+        }
+      }
+    },
+    {
+      "magnitude": 1000000,
+      "chunkOffsetUnits": 5000,
+      "pxPerUnit": 16,
+      "zoomEquivalent": 21.26,
+      "strategy": "local",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 0.004419416855580348,
+          "panJitterPx": 0.006442352268972927,
+          "segmentLengthErrorPx": 0.00037500000000000033,
+          "idealLengthPx": 0.016
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 0.007303687062566292,
+          "panJitterPx": 0.006442352268972927
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 0.004419416855580348,
+          "panJitterPx": 0.006442352268972927
+        }
+      }
+    },
+    {
+      "magnitude": 1000000,
+      "chunkOffsetUnits": 5000,
+      "pxPerUnit": 16,
+      "zoomEquivalent": 21.26,
+      "strategy": "hilo",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 3.000246675999101e-7,
+          "panJitterPx": 3.9348130791421587e-7,
+          "segmentLengthErrorPx": 2.7084350585904193e-7,
+          "idealLengthPx": 0.016
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 3.2018539626797056e-7,
+          "panJitterPx": 5.400064965458298e-7
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 2.4149824691359616e-7,
+          "panJitterPx": 3.9348130791421587e-7
+        }
+      }
+    },
+    {
+      "magnitude": 1000000,
+      "chunkOffsetUnits": 5000,
+      "pxPerUnit": 256,
+      "zoomEquivalent": 25.26,
+      "strategy": "naive",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 13.15587321051766,
+          "panJitterPx": 15.900314468222026,
+          "segmentLengthErrorPx": 0.256,
+          "idealLengthPx": 0.256
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 13.411850106402847,
+          "panJitterPx": 15.900314468222026
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 13.15587321051766,
+          "panJitterPx": 15.900314468222026
+        }
+      }
+    },
+    {
+      "magnitude": 1000000,
+      "chunkOffsetUnits": 5000,
+      "pxPerUnit": 256,
+      "zoomEquivalent": 25.26,
+      "strategy": "local",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 0.0782623712156904,
+          "panJitterPx": 0.10307763630356684,
+          "segmentLengthErrorPx": 0.006000000000000005,
+          "idealLengthPx": 0.256
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 0.13099272921446842,
+          "panJitterPx": 0.10307763630356684
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 0.0782623712156904,
+          "panJitterPx": 0.10307763630356684
+        }
+      }
+    },
+    {
+      "magnitude": 1000000,
+      "chunkOffsetUnits": 5000,
+      "pxPerUnit": 256,
+      "zoomEquivalent": 25.26,
+      "strategy": "hilo",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 2.5463115409962923e-7,
+          "panJitterPx": 3.976125736274223e-7,
+          "segmentLengthErrorPx": 2.8038024901810843e-7,
+          "idealLengthPx": 0.256
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 3.1680303253932744e-7,
+          "panJitterPx": 5.479090306416225e-7
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 2.5463115409962923e-7,
+          "panJitterPx": 3.976125736274223e-7
+        }
+      }
+    },
+    {
+      "magnitude": 1000000,
+      "chunkOffsetUnits": 5000,
+      "pxPerUnit": 4096,
+      "zoomEquivalent": 29.26,
+      "strategy": "naive",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 9.320354284993828,
+          "panJitterPx": 0.14142155854258429,
+          "segmentLengthErrorPx": 4.096,
+          "idealLengthPx": 4.096
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 12.581210784810974,
+          "panJitterPx": 0.14142155854258429
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 9.320354284993828,
+          "panJitterPx": 0.14142155854258429
+        }
+      }
+    },
+    {
+      "magnitude": 1000000,
+      "chunkOffsetUnits": 5000,
+      "pxPerUnit": 4096,
+      "zoomEquivalent": 29.26,
+      "strategy": "local",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 1.5456392337376788,
+          "panJitterPx": 1.9026298492672642,
+          "segmentLengthErrorPx": 0.09600000000000009,
+          "idealLengthPx": 4.096
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 2.4391254156574202,
+          "panJitterPx": 1.9026298492672642
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 1.5456392337376788,
+          "panJitterPx": 1.9026298492672642
+        }
+      }
+    },
+    {
+      "magnitude": 1000000,
+      "chunkOffsetUnits": 5000,
+      "pxPerUnit": 4096,
+      "zoomEquivalent": 29.26,
+      "strategy": "hilo",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 0,
+          "panJitterPx": 0,
+          "segmentLengthErrorPx": 1.9454956046160987e-7,
+          "idealLengthPx": 4.096
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 4.76837158203125e-7,
+          "panJitterPx": 4.76837158203125e-7
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 0,
+          "panJitterPx": 0
+        }
+      }
+    },
+    {
+      "magnitude": 1000000,
+      "chunkOffsetUnits": 5000,
+      "pxPerUnit": 16384,
+      "zoomEquivalent": 31.26,
+      "strategy": "naive",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 16.01537678796991,
+          "panJitterPx": 0.14142189571697045,
+          "segmentLengthErrorPx": 16.384,
+          "idealLengthPx": 16.384
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 23.95552250273344,
+          "panJitterPx": 0.14142189571697045
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 9.320354284993828,
+          "panJitterPx": 0.14142189571697045
+        }
+      }
+    },
+    {
+      "magnitude": 1000000,
+      "chunkOffsetUnits": 5000,
+      "pxPerUnit": 16384,
+      "zoomEquivalent": 31.26,
+      "strategy": "local",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 6.492226334401757,
+          "panJitterPx": 7.900632509430657,
+          "segmentLengthErrorPx": 0.38400000000000034,
+          "idealLengthPx": 16.384
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 10.33977510065623,
+          "panJitterPx": 7.900632509430657
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 6.492226334401757,
+          "panJitterPx": 7.900632509430657
+        }
+      }
+    },
+    {
+      "magnitude": 1000000,
+      "chunkOffsetUnits": 5000,
+      "pxPerUnit": 16384,
+      "zoomEquivalent": 31.26,
+      "strategy": "hilo",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 0,
+          "panJitterPx": 0,
+          "segmentLengthErrorPx": 7.781982418464395e-7,
+          "idealLengthPx": 16.384
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 0,
+          "panJitterPx": 0
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 0,
+          "panJitterPx": 0
+        }
+      }
+    },
+    {
+      "magnitude": 10000000,
+      "chunkOffsetUnits": 5000,
+      "pxPerUnit": 1,
+      "zoomEquivalent": 17.26,
+      "strategy": "naive",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 0.9300537623275139,
+          "panJitterPx": 0.9055385141428531,
+          "segmentLengthErrorPx": 0.001,
+          "idealLengthPx": 0.001
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 0.9310529141387407,
+          "panJitterPx": 0.9055385141428531
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 0.9300537623275139,
+          "panJitterPx": 0.9055385141428531
+        }
+      }
+    },
+    {
+      "magnitude": 10000000,
+      "chunkOffsetUnits": 5000,
+      "pxPerUnit": 1,
+      "zoomEquivalent": 17.26,
+      "strategy": "local",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 0.0002796454890325498,
+          "panJitterPx": 0.00040264856972826334,
+          "segmentLengthErrorPx": 0.00002343750000000002,
+          "idealLengthPx": 0.001
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 0.0004661761788885381,
+          "panJitterPx": 0.00040264856972826334
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 0.0002796454890325498,
+          "panJitterPx": 0.00040264856972826334
+        }
+      }
+    },
+    {
+      "magnitude": 10000000,
+      "chunkOffsetUnits": 5000,
+      "pxPerUnit": 1,
+      "zoomEquivalent": 17.26,
+      "strategy": "hilo",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 2.7845766272309933e-7,
+          "panJitterPx": 5.400064965458298e-7,
+          "segmentLengthErrorPx": 4.043579101562292e-7,
+          "idealLengthPx": 0.001
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 3.095187210562475e-7,
+          "panJitterPx": 5.400064965458298e-7
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 2.4149824691359616e-7,
+          "panJitterPx": 3.9348130791421587e-7
+        }
+      }
+    },
+    {
+      "magnitude": 10000000,
+      "chunkOffsetUnits": 5000,
+      "pxPerUnit": 16,
+      "zoomEquivalent": 21.26,
+      "strategy": "naive",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 15.314731461998203,
+          "panJitterPx": 15.900314468222026,
+          "segmentLengthErrorPx": 0.016,
+          "idealLengthPx": 0.016
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 15.33073116257222,
+          "panJitterPx": 15.900314468222026
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 15.314731461998203,
+          "panJitterPx": 15.900314468222026
+        }
+      }
+    },
+    {
+      "magnitude": 10000000,
+      "chunkOffsetUnits": 5000,
+      "pxPerUnit": 16,
+      "zoomEquivalent": 21.26,
+      "strategy": "local",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 0.0044194300264885624,
+          "panJitterPx": 0.006442369887592203,
+          "segmentLengthErrorPx": 0.00037500000000000033,
+          "idealLengthPx": 0.016
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 0.007303714710425469,
+          "panJitterPx": 0.006442369887592203
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 0.0044194300264885624,
+          "panJitterPx": 0.006442369887592203
+        }
+      }
+    },
+    {
+      "magnitude": 10000000,
+      "chunkOffsetUnits": 5000,
+      "pxPerUnit": 16,
+      "zoomEquivalent": 21.26,
+      "strategy": "hilo",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 2.980232238769531e-7,
+          "panJitterPx": 3.976125736274223e-7,
+          "segmentLengthErrorPx": 2.7084350585904193e-7,
+          "idealLengthPx": 0.016
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 3.1680303253932744e-7,
+          "panJitterPx": 5.479090306416225e-7
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 2.5463115409962923e-7,
+          "panJitterPx": 3.976125736274223e-7
+        }
+      }
+    },
+    {
+      "magnitude": 10000000,
+      "chunkOffsetUnits": 5000,
+      "pxPerUnit": 256,
+      "zoomEquivalent": 25.26,
+      "strategy": "naive",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 9.320354284993828,
+          "panJitterPx": 0.14142155854258429,
+          "segmentLengthErrorPx": 0.256,
+          "idealLengthPx": 0.256
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 9.505239640225719,
+          "panJitterPx": 0.14142155854258429
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 9.320354284993828,
+          "panJitterPx": 0.14142155854258429
+        }
+      }
+    },
+    {
+      "magnitude": 10000000,
+      "chunkOffsetUnits": 5000,
+      "pxPerUnit": 256,
+      "zoomEquivalent": 25.26,
+      "strategy": "local",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 0.07826246451200716,
+          "panJitterPx": 0.10307803385043542,
+          "segmentLengthErrorPx": 0.006000000000000005,
+          "idealLengthPx": 0.256
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 0.1309929706670007,
+          "panJitterPx": 0.10307803385043542
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 0.07826246451200716,
+          "panJitterPx": 0.10307803385043542
+        }
+      }
+    },
+    {
+      "magnitude": 10000000,
+      "chunkOffsetUnits": 5000,
+      "pxPerUnit": 256,
+      "zoomEquivalent": 25.26,
+      "strategy": "hilo",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 0,
+          "panJitterPx": 0,
+          "segmentLengthErrorPx": 4.196166991654593e-8,
+          "idealLengthPx": 0.256
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 0,
+          "panJitterPx": 0
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 0,
+          "panJitterPx": 0
+        }
+      }
+    },
+    {
+      "magnitude": 10000000,
+      "chunkOffsetUnits": 5000,
+      "pxPerUnit": 4096,
+      "zoomEquivalent": 29.26,
+      "strategy": "naive",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 9.32035425225131,
+          "panJitterPx": 0.14142459321817036,
+          "segmentLengthErrorPx": 4.096,
+          "idealLengthPx": 4.096
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 12.581210547628393,
+          "panJitterPx": 0.14142459321817036
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 9.32035425225131,
+          "panJitterPx": 0.14142459321817036
+        }
+      }
+    },
+    {
+      "magnitude": 10000000,
+      "chunkOffsetUnits": 5000,
+      "pxPerUnit": 4096,
+      "zoomEquivalent": 29.26,
+      "strategy": "local",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 1.5456390362971213,
+          "panJitterPx": 1.9026312026161871,
+          "segmentLengthErrorPx": 0.09600000000000009,
+          "idealLengthPx": 4.096
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 2.4391289145205635,
+          "panJitterPx": 1.9026312026161871
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 1.5456390362971213,
+          "panJitterPx": 1.9026312026161871
+        }
+      }
+    },
+    {
+      "magnitude": 10000000,
+      "chunkOffsetUnits": 5000,
+      "pxPerUnit": 4096,
+      "zoomEquivalent": 29.26,
+      "strategy": "hilo",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 0,
+          "panJitterPx": 0,
+          "segmentLengthErrorPx": 6.713867186647349e-7,
+          "idealLengthPx": 4.096
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 0,
+          "panJitterPx": 0
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 0,
+          "panJitterPx": 0
+        }
+      }
+    },
+    {
+      "magnitude": 10000000,
+      "chunkOffsetUnits": 5000,
+      "pxPerUnit": 16384,
+      "zoomEquivalent": 31.26,
+      "strategy": "naive",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 16.01538431667118,
+          "panJitterPx": 0.14142998791188455,
+          "segmentLengthErrorPx": 16.384,
+          "idealLengthPx": 16.384
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 23.955539778931392,
+          "panJitterPx": 0.14142998791188455
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 9.320370500934484,
+          "panJitterPx": 0.14142998791188455
+        }
+      }
+    },
+    {
+      "magnitude": 10000000,
+      "chunkOffsetUnits": 5000,
+      "pxPerUnit": 16384,
+      "zoomEquivalent": 31.26,
+      "strategy": "local",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 6.49224256334067,
+          "panJitterPx": 7.900656989172931,
+          "segmentLengthErrorPx": 0.38400000000000034,
+          "idealLengthPx": 16.384
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 10.339770086277891,
+          "panJitterPx": 7.900656989172931
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 6.49224256334067,
+          "panJitterPx": 7.900656989172931
+        }
+      }
+    },
+    {
+      "magnitude": 10000000,
+      "chunkOffsetUnits": 5000,
+      "pxPerUnit": 16384,
+      "zoomEquivalent": 31.26,
+      "strategy": "hilo",
+      "shapes": {
+        "seg1mm": {
+          "verticesInView": 2,
+          "staticDeviationPx": 0,
+          "panJitterPx": 0,
+          "segmentLengthErrorPx": 0.0000026855468746589395,
+          "idealLengthPx": 16.384
+        },
+        "arc1mm": {
+          "verticesInView": 32,
+          "staticDeviationPx": 0,
+          "panJitterPx": 0
+        },
+        "spanNurbsControlPoints": {
+          "verticesInView": 1,
+          "staticDeviationPx": 0,
+          "panJitterPx": 0
+        }
+      }
+    }
+  ],
+  "upload": [
+    {
+      "strategy": "naive",
+      "bytesPerVertex": 8,
+      "vertices": 1000000,
+      "medianUploadMs": 0.5
+    },
+    {
+      "strategy": "local",
+      "bytesPerVertex": 8,
+      "vertices": 1000000,
+      "medianUploadMs": 0.5
+    },
+    {
+      "strategy": "hilo",
+      "bytesPerVertex": 16,
+      "vertices": 1000000,
+      "medianUploadMs": 1.2
+    }
+  ]
+}

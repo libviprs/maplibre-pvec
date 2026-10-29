@@ -1,0 +1,78 @@
+<!doctype html><meta charset="utf-8"><title>workers</title><body>
+<script>
+const SEG_PER_JOB = 50000, JOBS = 48;
+function makeInput(n, seed) { const a = new Float64Array(n * 4); let s = seed; const r = () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); for (let i = 0; i < a.length; i++) a[i] = r() * 1000; return a; }
+function pool(k) { return Array.from({ length: k }, () => new Worker("worker.js")); }
+
+async function frameProbe(run) { // main-thread blocking while `run` executes
+  const gaps = []; let last = performance.now(), stop = false, long = 0;
+  const po = new PerformanceObserver(l => { for (const e of l.getEntries()) long += e.duration; }); try { po.observe({ entryTypes: ["longtask"] }); } catch {}
+  const tick = () => { const t = performance.now(); gaps.push(t - last); last = t; if (!stop) requestAnimationFrame(tick); }; requestAnimationFrame(tick);
+  const t0 = performance.now(); const val = await run(); const wall = performance.now() - t0; stop = true; await new Promise(r => setTimeout(r, 50)); po.disconnect();
+  gaps.sort((a, b) => a - b);
+  return { val, wall, maxGapMs: gaps[gaps.length - 1], p95GapMs: gaps[Math.floor(gaps.length * 0.95)], frames: gaps.length, longTaskMs: long };
+}
+
+async function throughput(k, mode) {
+  const ws = pool(k);
+  const inputs = Array.from({ length: JOBS }, (_, j) => makeInput(SEG_PER_JOB, j + 1));
+  const shared = mode === "shared" ? inputs.map(a => { const s = new SharedArrayBuffer(a.byteLength); new Float64Array(s).set(a); return { i: s, o: new SharedArrayBuffer(SEG_PER_JOB * 12 * 4) }; }) : null;
+  let next = 0, done = 0;
+  const p = await frameProbe(() => new Promise(res => {
+    const feed = (w) => { if (next >= JOBS) return; const id = next++; const m = { kind: "job", id, mode };
+      if (mode === "shared") { m.inSab = shared[id].i; m.outSab = shared[id].o; w.postMessage(m); }
+      else if (mode === "transfer") { m.buf = inputs[id].buffer; w.postMessage(m, [m.buf]); }
+      else { m.buf = inputs[id].buffer; w.postMessage(m); } };
+    for (const w of ws) { w.onmessage = () => { if (++done === JOBS) res(); else feed(w); }; feed(w); }
+  }));
+  ws.forEach(w => w.terminate());
+  const segs = JOBS * SEG_PER_JOB;
+  return { workers: k, mode, wallMs: +p.wall.toFixed(1), segPerSec: Math.round(segs / (p.wall / 1000)), maxFrameGapMs: +p.maxGapMs.toFixed(1), p95FrameGapMs: +p.p95GapMs.toFixed(1), longTaskMs: +p.longTaskMs.toFixed(1) };
+}
+
+async function transport(mib, mode) { // round trip of one buffer; ms per MiB (both directions) and main-thread post cost
+  const w = new Worker("worker.js"); const n = mib * 1048576;
+  const reps = mib >= 32 ? 3 : 6, times = [], posts = [];
+  for (let r = 0; r < reps + 1; r++) {
+    let buf = new ArrayBuffer(n); new Uint8Array(buf, 0, 4096).fill(7);
+    const t0 = performance.now();
+    const back = new Promise(res => (w.onmessage = e => res(e)));
+    const tp = performance.now();
+    if (mode === "transfer") w.postMessage({ kind: "echo", mode, id: r, buf }, [buf]); else w.postMessage({ kind: "echo", mode, id: r, buf });
+    posts.push(performance.now() - tp);
+    await back; times.push(performance.now() - t0);
+  }
+  w.terminate(); times.shift(); posts.shift();
+  const med = a => a.slice().sort((x, y) => x - y)[a.length >> 1];
+  return { mib, mode, roundTripMsPerMiB: +(med(times) / mib / 2).toFixed(3), mainPostMs: +med(posts).toFixed(3) };
+}
+
+async function fairness(k, priority) { // interactive small job arriving while a long queue is busy (copy mode keeps buffers reusable)
+  const ws = pool(k); const FJ = 300; const inputs = Array.from({ length: 12 }, (_, j) => makeInput(SEG_PER_JOB, j + 1));
+  const small = makeInput(500, 99);
+  const queue = Array.from({ length: FJ }, (_, id) => ({ id, a: inputs[id % 12] })); let done = 0, tSub = null, tInter = null; const idle = [];
+  return new Promise(res => {
+    const feed = w => { const it = queue.shift(); if (!it) { idle.push(w); return; } w.postMessage({ kind: "job", id: it.id, mode: "copy", buf: it.a.buffer }); };
+    for (const w of ws) { w.onmessage = e => { if (e.data.id === -1) tInter = performance.now() - tSub; if (++done === FJ + 1) { ws.forEach(x => x.terminate()); res({ workers: k, priorityQueue: priority, queuedJobs: FJ, interactiveLatencyMs: +tInter.toFixed(1) }); } else feed(w); }; feed(w); }
+    setTimeout(() => { tSub = performance.now(); const item = { id: -1, a: small }; if (priority) queue.unshift(item); else queue.push(item); if (idle.length) feed(idle.pop()); }, 50);
+  });
+}
+
+async function webgpu() {
+  const o = { available: !!navigator.gpu };
+  if (navigator.gpu) { try { const a = await navigator.gpu.requestAdapter(); o.adapter = a ? { vendor: a.info && a.info.vendor, architecture: a.info && a.info.architecture, isFallback: a.isFallbackAdapter } : null; } catch (e) { o.error = String(e); } }
+  return o;
+}
+window.__run = async () => {
+  const out = { crossOriginIsolated, hardwareConcurrency: navigator.hardwareConcurrency, userAgent: navigator.userAgent, sabAvailable: typeof SharedArrayBuffer !== "undefined" };
+  out.webgpu = await webgpu();
+  out.throughput = [];
+  const maxW = navigator.hardwareConcurrency;
+  const modes = crossOriginIsolated ? ["transfer", "copy", "shared"] : ["transfer", "copy"];
+  for (const mode of modes) for (let k = 1; k <= maxW; k++) { console.log("throughput", mode, k); out.throughput.push(await throughput(k, mode)); }
+  console.log("transport"); out.transport = [];
+  for (const mib of [1, 8, 64]) for (const mode of ["transfer", "copy"]) out.transport.push(await transport(mib, mode));
+  out.fairness = [await fairness(2, false), await fairness(2, true)];
+  return out;
+};
+</script>

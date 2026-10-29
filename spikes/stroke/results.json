@@ -1,0 +1,413 @@
+{
+  "engines": {
+    "chromium": {
+      "engine": {
+        "ua": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/130.0.6723.31 Safari/537.36",
+        "glRenderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+        "lineWidthRange": [
+          1,
+          1
+        ]
+      },
+      "quality": [
+        {
+          "strategy": "instancedQuad",
+          "widthPx": 1,
+          "meanAbsCoverageError": 0.0449,
+          "rmsError": 0.1165,
+          "maxError": 0.941,
+          "maxErrorNearJoinsAndCaps": 0.941,
+          "pixelsCompared": 429
+        },
+        {
+          "strategy": "cpuMesh",
+          "widthPx": 1,
+          "meanAbsCoverageError": 0.0253,
+          "rmsError": 0.0348,
+          "maxError": 0.276,
+          "maxErrorNearJoinsAndCaps": 0.276,
+          "pixelsCompared": 422
+        },
+        {
+          "strategy": "sdfFragment",
+          "widthPx": 1,
+          "meanAbsCoverageError": 0.0263,
+          "rmsError": 0.0366,
+          "maxError": 0.28,
+          "maxErrorNearJoinsAndCaps": 0.28,
+          "pixelsCompared": 422
+        },
+        {
+          "strategy": "instancedQuad",
+          "widthPx": 2,
+          "meanAbsCoverageError": 0.0428,
+          "rmsError": 0.1413,
+          "maxError": 1,
+          "maxErrorNearJoinsAndCaps": 0.996,
+          "pixelsCompared": 631
+        },
+        {
+          "strategy": "cpuMesh",
+          "widthPx": 2,
+          "meanAbsCoverageError": 0.0188,
+          "rmsError": 0.03,
+          "maxError": 0.264,
+          "maxErrorNearJoinsAndCaps": 0.264,
+          "pixelsCompared": 617
+        },
+        {
+          "strategy": "sdfFragment",
+          "widthPx": 2,
+          "meanAbsCoverageError": 0.0174,
+          "rmsError": 0.0286,
+          "maxError": 0.248,
+          "maxErrorNearJoinsAndCaps": 0.248,
+          "pixelsCompared": 617
+        },
+        {
+          "strategy": "instancedQuad",
+          "widthPx": 8,
+          "meanAbsCoverageError": 0.0578,
+          "rmsError": 0.2106,
+          "maxError": 1,
+          "maxErrorNearJoinsAndCaps": 1,
+          "pixelsCompared": 1833
+        },
+        {
+          "strategy": "cpuMesh",
+          "widthPx": 8,
+          "meanAbsCoverageError": 0.0157,
+          "rmsError": 0.0643,
+          "maxError": 0.589,
+          "maxErrorNearJoinsAndCaps": 0.538,
+          "pixelsCompared": 1752
+        },
+        {
+          "strategy": "sdfFragment",
+          "widthPx": 8,
+          "meanAbsCoverageError": 0.0063,
+          "rmsError": 0.018,
+          "maxError": 0.373,
+          "maxErrorNearJoinsAndCaps": 0.22,
+          "pixelsCompared": 1752
+        }
+      ],
+      "dash": [
+        {
+          "strategy": "instancedQuad",
+          "chunkBoundaryX": 64.1,
+          "maxDashCentroidErrorPx": 0.0255,
+          "maxNearChunkBoundaryPx": 0.0255,
+          "maxInteriorDashPx": 0.0255
+        },
+        {
+          "strategy": "cpuMesh",
+          "chunkBoundaryX": 64.1,
+          "maxDashCentroidErrorPx": 0.5085,
+          "maxNearChunkBoundaryPx": 0.0234,
+          "maxInteriorDashPx": 0.0234
+        },
+        {
+          "strategy": "sdfFragment",
+          "chunkBoundaryX": 64.1,
+          "maxDashCentroidErrorPx": 0.5085,
+          "maxNearChunkBoundaryPx": 0.0234,
+          "maxInteriorDashPx": 0.0234
+        }
+      ],
+      "cost": [
+        {
+          "strategy": "instancedQuad",
+          "segments": 100000,
+          "bytesPerSegment": 20,
+          "verticesPerSegment": "4 per instance (shared corner buffer)",
+          "cpuBuildMs": 11,
+          "frameMsMedian": 686.8,
+          "frameMsAll": [
+            668.6,
+            686.8,
+            688.4
+          ],
+          "width": 2
+        },
+        {
+          "strategy": "cpuMesh",
+          "segments": 100000,
+          "bytesPerSegment": 273.8,
+          "verticesPerSegment": 11.07,
+          "cpuBuildMs": 82,
+          "frameMsMedian": 43.3,
+          "frameMsAll": [
+            42.2,
+            43.3,
+            44.4
+          ],
+          "width": 2
+        },
+        {
+          "strategy": "sdfFragment",
+          "segments": 100000,
+          "bytesPerSegment": 20,
+          "verticesPerSegment": "4 per instance (shared corner buffer)",
+          "cpuBuildMs": 9,
+          "frameMsMedian": 643.3,
+          "frameMsAll": [
+            642.6,
+            643.3,
+            653.7
+          ],
+          "width": 2
+        },
+        {
+          "strategy": "instancedQuad",
+          "segments": 1000000,
+          "bytesPerSegment": 20,
+          "verticesPerSegment": "4 per instance (shared corner buffer)",
+          "cpuBuildMs": 74,
+          "frameMsMedian": 6705.4,
+          "frameMsAll": [
+            6582,
+            6705.4,
+            6845.8
+          ],
+          "width": 2
+        },
+        {
+          "strategy": "cpuMesh",
+          "segments": 1000000,
+          "bytesPerSegment": 273.8,
+          "verticesPerSegment": 11.07,
+          "cpuBuildMs": 683,
+          "frameMsMedian": 461.1,
+          "frameMsAll": [
+            454.6,
+            461.1,
+            462.8
+          ],
+          "width": 2
+        },
+        {
+          "strategy": "sdfFragment",
+          "segments": 1000000,
+          "bytesPerSegment": 20,
+          "verticesPerSegment": "4 per instance (shared corner buffer)",
+          "cpuBuildMs": 90,
+          "frameMsMedian": 6915.6,
+          "frameMsAll": [
+            6822.5,
+            6915.6,
+            6940.2
+          ],
+          "width": 2
+        }
+      ],
+      "version": "chromium 130.0.6723.31"
+    },
+    "firefox": {
+      "error": "Error: page.evaluate: no webgl2\nwindow.__stroke@about:blank line 7 > injectedScript:7:18\n@debugger eval code line 234 > eval:1:14\nevaluate@debugger eval code:236:17\n@debugger eval code:1:44\n"
+    },
+    "webkit": {
+      "engine": {
+        "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15",
+        "glRenderer": "Apple GPU",
+        "lineWidthRange": [
+          1,
+          255
+        ]
+      },
+      "quality": [
+        {
+          "strategy": "instancedQuad",
+          "widthPx": 1,
+          "meanAbsCoverageError": 0.0427,
+          "rmsError": 0.1159,
+          "maxError": 0.929,
+          "maxErrorNearJoinsAndCaps": 0.929,
+          "pixelsCompared": 429
+        },
+        {
+          "strategy": "cpuMesh",
+          "widthPx": 1,
+          "meanAbsCoverageError": 0.0235,
+          "rmsError": 0.0333,
+          "maxError": 0.296,
+          "maxErrorNearJoinsAndCaps": 0.296,
+          "pixelsCompared": 422
+        },
+        {
+          "strategy": "sdfFragment",
+          "widthPx": 1,
+          "meanAbsCoverageError": 0.0239,
+          "rmsError": 0.0343,
+          "maxError": 0.296,
+          "maxErrorNearJoinsAndCaps": 0.296,
+          "pixelsCompared": 422
+        },
+        {
+          "strategy": "instancedQuad",
+          "widthPx": 2,
+          "meanAbsCoverageError": 0.0421,
+          "rmsError": 0.1411,
+          "maxError": 1,
+          "maxErrorNearJoinsAndCaps": 0.996,
+          "pixelsCompared": 631
+        },
+        {
+          "strategy": "cpuMesh",
+          "widthPx": 2,
+          "meanAbsCoverageError": 0.017,
+          "rmsError": 0.0287,
+          "maxError": 0.244,
+          "maxErrorNearJoinsAndCaps": 0.244,
+          "pixelsCompared": 617
+        },
+        {
+          "strategy": "sdfFragment",
+          "widthPx": 2,
+          "meanAbsCoverageError": 0.0164,
+          "rmsError": 0.0275,
+          "maxError": 0.244,
+          "maxErrorNearJoinsAndCaps": 0.244,
+          "pixelsCompared": 617
+        },
+        {
+          "strategy": "instancedQuad",
+          "widthPx": 8,
+          "meanAbsCoverageError": 0.0575,
+          "rmsError": 0.2105,
+          "maxError": 1,
+          "maxErrorNearJoinsAndCaps": 1,
+          "pixelsCompared": 1833
+        },
+        {
+          "strategy": "cpuMesh",
+          "widthPx": 8,
+          "meanAbsCoverageError": 0.0153,
+          "rmsError": 0.0647,
+          "maxError": 0.577,
+          "maxErrorNearJoinsAndCaps": 0.558,
+          "pixelsCompared": 1752
+        },
+        {
+          "strategy": "sdfFragment",
+          "widthPx": 8,
+          "meanAbsCoverageError": 0.0056,
+          "rmsError": 0.0172,
+          "maxError": 0.385,
+          "maxErrorNearJoinsAndCaps": 0.216,
+          "pixelsCompared": 1752
+        }
+      ],
+      "dash": [
+        {
+          "strategy": "instancedQuad",
+          "chunkBoundaryX": 64.1,
+          "maxDashCentroidErrorPx": 0.002,
+          "maxNearChunkBoundaryPx": 0.002,
+          "maxInteriorDashPx": 0.002
+        },
+        {
+          "strategy": "cpuMesh",
+          "chunkBoundaryX": 64.1,
+          "maxDashCentroidErrorPx": 0.5247,
+          "maxNearChunkBoundaryPx": 0.002,
+          "maxInteriorDashPx": 0.002
+        },
+        {
+          "strategy": "sdfFragment",
+          "chunkBoundaryX": 64.1,
+          "maxDashCentroidErrorPx": 0.5247,
+          "maxNearChunkBoundaryPx": 0.002,
+          "maxInteriorDashPx": 0.002
+        }
+      ],
+      "cost": [
+        {
+          "strategy": "instancedQuad",
+          "segments": 100000,
+          "bytesPerSegment": 20,
+          "verticesPerSegment": "4 per instance (shared corner buffer)",
+          "cpuBuildMs": 5,
+          "frameMsMedian": 28,
+          "frameMsAll": [
+            27,
+            28,
+            31
+          ],
+          "width": 2
+        },
+        {
+          "strategy": "cpuMesh",
+          "segments": 100000,
+          "bytesPerSegment": 273.8,
+          "verticesPerSegment": 11.07,
+          "cpuBuildMs": 68,
+          "frameMsMedian": 43,
+          "frameMsAll": [
+            42,
+            43,
+            47
+          ],
+          "width": 2
+        },
+        {
+          "strategy": "sdfFragment",
+          "segments": 100000,
+          "bytesPerSegment": 20,
+          "verticesPerSegment": "4 per instance (shared corner buffer)",
+          "cpuBuildMs": 4,
+          "frameMsMedian": 22,
+          "frameMsAll": [
+            21,
+            22,
+            22
+          ],
+          "width": 2
+        },
+        {
+          "strategy": "instancedQuad",
+          "segments": 1000000,
+          "bytesPerSegment": 20,
+          "verticesPerSegment": "4 per instance (shared corner buffer)",
+          "cpuBuildMs": 48,
+          "frameMsMedian": 201,
+          "frameMsAll": [
+            189,
+            201,
+            202
+          ],
+          "width": 2
+        },
+        {
+          "strategy": "cpuMesh",
+          "segments": 1000000,
+          "bytesPerSegment": 273.8,
+          "verticesPerSegment": 11.07,
+          "cpuBuildMs": 592,
+          "frameMsMedian": 419,
+          "frameMsAll": [
+            412,
+            419,
+            434
+          ],
+          "width": 2
+        },
+        {
+          "strategy": "sdfFragment",
+          "segments": 1000000,
+          "bytesPerSegment": 20,
+          "verticesPerSegment": "4 per instance (shared corner buffer)",
+          "cpuBuildMs": 31,
+          "frameMsMedian": 200,
+          "frameMsAll": [
+            199,
+            200,
+            202
+          ],
+          "width": 2
+        }
+      ],
+      "version": "webkit 18.0"
+    }
+  }
+}
