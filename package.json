@@ -66,7 +66,12 @@
     "pack:check": "node scripts/pack-check.mjs",
     "test:jobs": "node tools/check-jobs.mjs job-reports",
     "api:report": "node tools/api-report.mjs --write",
-    "bench": "node bench/run.mjs"
+    "bench": "node bench/run.mjs",
+    "docs:generate": "node tools/docs.mjs --write",
+    "docs:check": "node tools/docs.mjs --check",
+    "release:gate": "node tools/release-gate.mjs --write",
+    "release:check": "node tools/release-gate.mjs --check",
+    "release:tag-check": "node tools/release-gate.mjs --tag-check"
   },
   "overrides": {
     "fflate": "0.8.2"

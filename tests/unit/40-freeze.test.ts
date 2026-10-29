@@ -40,7 +40,7 @@ describe("#40 v1 freeze", () => {
 
   it("pins the API report: hash and per-symbol table match the committed report", () => {
     const report = readFileSync(path.join(root, "etc/maplibre-pvec.api.md"), "utf8");
-    expect(buildApiReport(root)).toBe(report);
+    expect(buildApiReport(root).text).toBe(report);
     expect(freeze.api.reportSha256).toBe(sha256(report));
     expect(freeze.api.symbols).toEqual(apiSymbols(report));
   });

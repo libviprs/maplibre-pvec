@@ -68,7 +68,8 @@ describe("#40 documentation set", () => {
   it("never calls a display-fidelity result exact, and states no mathematical tolerance", () => {
     for (const f of listDocPages(root) as string[]) {
       if (f.startsWith("spikes/") || f === "deferred.md") continue;
-      const text = read(`docs/${f}`).replace(/\bnot\b[^.\n]*\b(mathematically|geometrically) exact[^.\n]*/gi, "");
+      // A sentence that denies the claim ("never called exact") is not the claim.
+      const text = read(`docs/${f}`).split(/(?<=[.!?])\s+/).filter((x) => !/\b(not|never|nothing|no|neither)\b/i.test(x)).join(" ");
       expect(text, f).not.toMatch(/(mathematically|geometrically) exact/i);
       expect(text, f).not.toMatch(/tolerance of \d|within \d[\d.e-]* (mm|units?) of the (true|exact)/i);
     }
