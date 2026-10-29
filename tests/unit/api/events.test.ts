@@ -114,7 +114,7 @@ describe("#26 M7.3 events and diagnostics", () => {
     const { gl } = countingGl();
     layer.onAdd(fakeMap, gl);
     await layer.whenReady();
-    controlOf(layer).reportBytes(payload);
+    controlOf(layer).reportBytes({ rangesRequested: 1, rangesIssued: 1, rangesCoalesced: 0, bytesFetched: 1, bytesDecoded: 0, cacheTier: "network" });
     payload = undefined;
     await new Promise((res) => setTimeout(res, 10));
     (globalThis as { gc?: () => void }).gc?.();

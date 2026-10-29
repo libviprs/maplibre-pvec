@@ -12,7 +12,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "build": "tsc -p tsconfig.build.json"
+    "build": "tsc -p tsconfig.build.json",
+    "api:report": "node tools/api-report.mjs --write"
   },
   "peerDependencies": {
     "maplibre-gl": ">=4.7.1"
@@ -21,12 +22,30 @@
     "@playwright/test": "1.48.2",
     "@types/node": "22.9.0",
     "esbuild": "0.24.0",
-
     "maplibre-gl": "4.7.1",
     "typescript": "5.6.3",
     "vitest": "2.1.4",
     "maplibre-gl-v5": "npm:maplibre-gl@5.24.0",
     "maplibre-gl-v6": "npm:maplibre-gl@6.16.0",
     "maplibre-gl-v4": "npm:maplibre-gl@4.7.1"
-  }
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./style": {
+      "types": "./dist/style/index.d.ts",
+      "default": "./dist/style/index.js"
+    },
+    "./text": {
+      "types": "./dist/text/index.d.ts",
+      "default": "./dist/text/index.js"
+    },
+    "./hatch": {
+      "types": "./dist/hatch/index.d.ts",
+      "default": "./dist/hatch/index.js"
+    }
+  },
+  "sideEffects": false
 }

@@ -9,9 +9,9 @@ afterEach(async () => r.stop());
 
 /** Horizontal lines y = 10*i, 4 px half width, 1 source unit per device px, expected ids from a table. */
 const EXPECTED = ["wall-1", "wall-2", "door-3"];
-function engine(over: Partial<QueryEngine> = {}): QueryEngine {
+function engine(over: Partial<QueryEngine> = {}): QueryEngine & { refine(id: string): void } {
   const gen = new Map<string, number>();
-  const e: QueryEngine = {
+  const e: QueryEngine & { refine(id: string): void } = {
     pipeline: {
       lngLatToSource: (l) => ({ x: l.lng, y: l.lat }),
       sourceUnitsPerDevicePx: () => 1,
@@ -75,14 +75,18 @@ describe("#26 M7.5 query and picking", () => {
 
   it("hits at w + tolerancePx and misses one pixel further, at three zoom levels", async () => {
     for (const [upx, w] of [[1, 4], [0.25, 4], [16, 4]] as const) {
+      const pos = (i: number): number => 1000 * upx * i;
       const { layer } = await ready({
         pipeline: { lngLatToSource: (l) => ({ x: l.lng, y: l.lat }), sourceUnitsPerDevicePx: () => upx },
-        evaluator: { distance: (id, p) => Math.abs(p.y - 100 * EXPECTED.indexOf(id)), intersects: () => true },
-        index: { query: (b) => EXPECTED.filter((_, i) => 100 * i >= b.minY && 100 * i <= b.maxY).map((id) => ({ entityId: id, entityType: "wall" })), isLoaded: () => true },
+        evaluator: { distance: (id, p) => Math.abs(p.y - pos(EXPECTED.indexOf(id))), intersects: () => true },
+        index: {
+          query: (b) => EXPECTED.filter((_, i) => pos(i) >= b.minY && pos(i) <= b.maxY).map((id) => ({ entityId: id, entityType: "wall" })),
+          isLoaded: () => true,
+        },
         halfWidthPx: () => w,
       });
       const tol = 3;
-      const y0 = 100;
+      const y0 = pos(1);
       expect(layer.pickPoint(at(y0 + (w + tol) * upx), { tolerancePx: tol }).map((h) => h.entityId)).toEqual(["wall-2"]);
       expect(layer.pickPoint(at(y0 + (w + tol + 1) * upx), { tolerancePx: tol })).toEqual([]);
     }
