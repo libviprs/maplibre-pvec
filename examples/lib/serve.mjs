@@ -3,6 +3,7 @@
 import { createServer } from "node:http";
 import { readFile, stat } from "node:fs/promises";
 import { extname, join, normalize, sep } from "node:path";
+import { createHash } from "node:crypto";
 
 const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".mjs": "text/javascript; charset=utf-8", ".wasm": "application/wasm", ".css": "text/css; charset=utf-8", ".json": "application/json" };
 
@@ -18,6 +19,7 @@ export async function startServer({ routes = {}, fixtures = {}, csp, headers = {
     log.push({ path: u.pathname, range: req.headers.range ?? null });
     const send = (status, body, type = "application/octet-stream") => {
       const h = { "content-type": type, "cache-control": "no-store", ...headers };
+      if (body) h.etag = `"${createHash("sha1").update(body).digest("hex")}"`;
       if (csp) h["content-security-policy"] = csp;
       if (body && req.headers.range && status === 200) {
         const m = /^bytes=(\d+)-(\d*)$/.exec(req.headers.range);

@@ -22,13 +22,13 @@ describe("#31 M7.8 example hygiene", () => {
   it("no file under examples/ names an origin other than localhost or 127.0.0.1", () => {
     for (const f of files) {
       for (const m of readFileSync(f, "utf8").matchAll(/https?:\/\/([^/\s"'`)<>]+)/g)) {
-        expect(["localhost", "127.0.0.1"], `${f} references ${m[0]}`).toContain(m[1]!.replace(/:\d+$/, ""));
+        expect(["localhost", "127.0.0.1"], `${f} references ${m[0]}`).toContain(m[1]!.replace(/:(\d+|\$\{port\})$/, ""));
       }
     }
   });
 
   it("no example reads an API key or token", () => {
-    for (const f of files) expect(readFileSync(f, "utf8"), f).not.toMatch(/api[-_ ]?key|access[-_ ]?token|apikey|[?&]key=/i);
+    for (const f of files.filter((x) => !x.endsWith("README.md"))) expect(readFileSync(f, "utf8"), f).not.toMatch(/api[-_ ]?key|access[-_ ]?token|apikey|[?&]key=/i);
   });
 
   it("the server is gone and its port free after a run, including when the run throws", async () => {

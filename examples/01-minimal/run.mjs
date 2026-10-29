@@ -13,7 +13,7 @@ import { withServer } from "../lib/serve.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const arg = (n) => process.argv[process.argv.indexOf(n) + 1];
-const pkg = resolve(arg("--pkg"));
+const pkg = join(resolve(arg("--pkg")), "dist");
 const out = resolve(arg("--out") ?? join(here, "out"));
 mkdirSync(out, { recursive: true });
 
@@ -28,14 +28,15 @@ let failed = 0;
 const browser = await chromium.launch();
 try {
   for (const c of cases) {
-    await withServer({ routes: { "/pkg": pkg, "/": here }, fixtures: { "/fixtures/small.pvec": smallFixture() }, csp: c.csp }, async (s) => {
+    await withServer({ routes: { "/pkg": pkg, "/": join(here, "..") }, fixtures: { "/fixtures/small.pvec": smallFixture() }, csp: c.csp }, async (s) => {
       const page = await browser.newPage();
       const pageErrors = [];
       page.on("pageerror", (e) => pageErrors.push(String(e)));
       if (c.block) await page.route(c.block, (r) => r.abort());
       await page.goto(`${s.url}/01-minimal/index.html`);
-      await page.waitForFunction(() => window.__result);
-      const r = await page.evaluate(() => window.__result);
+      // No page.evaluate or waitForFunction: Playwright evals strings, which the page's CSP refuses.
+      await page.waitForSelector("#status[data-state]");
+      const r = JSON.parse(await page.locator("#out").textContent());
       await page.screenshot({ path: join(out, `01-minimal-${c.name}.png`) });
       await page.close();
       const ok = c.expect(r) && pageErrors.length === 0;
