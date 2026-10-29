@@ -75,20 +75,25 @@ export class SimWorker implements WorkerLike {
   private cancelStamp = new Map<number, number>();
   private pending: Extract<WorkerIn, { type: 'job' }>[] = [];
   private running = false;
-  constructor(private readonly clock: SimClock, private readonly ev: CurveEvaluator, private readonly msPerEval = 0.0004) {}
+  constructor(private readonly clock: SimClock, private readonly ev: CurveEvaluator, private readonly msPerEval = 0.0004, private readonly latencyMs = 1) {}
   postMessage(msg: WorkerIn, transfer: Transferable[] = []): void {
     if (msg.type === 'init') return;
     if (msg.type === 'cancel') {
-      this.cancelled.add(msg.jobId);
-      this.cancelStamp.set(msg.jobId, this.clock.now);
+      // the cancel message takes `latencyMs` to reach the worker
+      this.clock.at(this.clock.now + this.latencyMs, () => {
+        this.cancelled.add(msg.jobId);
+        this.cancelStamp.set(msg.jobId, this.clock.now);
+      });
       return;
     }
     // move the control buffer like a real transfer: the sender's copy detaches, the worker gets the bytes
     const moved = structuredClone(msg.control.buffer, { transfer: [msg.control.buffer] }) as ArrayBuffer;
     void transfer;
-    this.pending.push({ ...msg, control: new Float64Array(moved) });
-    if (!this.running) this.clock.at(this.clock.now, () => this.next());
-    this.running = true;
+    const arrive = { ...msg, control: new Float64Array(moved) };
+    this.clock.at(this.clock.now + this.latencyMs, () => {
+      this.pending.push(arrive);
+      if (!this.running) { this.running = true; this.next(); }
+    });
   }
   private next(): void {
     const msg = this.pending.shift();
@@ -100,14 +105,15 @@ export class SimWorker implements WorkerLike {
       if (this.cancelled.has(msg.jobId)) {
         this.wastedMs += this.clock.now - (this.cancelStamp.get(msg.jobId) ?? this.clock.now);
         this.cancelled.delete(msg.jobId);
-        this.onmessage?.({ data: { type: 'cancelled', jobId: msg.jobId, control, evaluations: evals } });
+        this.cancelStamp.delete(msg.jobId);
+        this.reply({ type: 'cancelled', jobId: msg.jobId, control, evaluations: evals });
         this.next();
         return;
       }
       const r = gen.next();
       if (r.done) {
         const p = r.value;
-        this.onmessage?.({ data: { type: 'done', jobId: msg.jobId, params: p.params, positions: p.positions, control, evaluations: p.evaluations, batches: p.batches } });
+        this.reply({ type: 'done', jobId: msg.jobId, params: p.params, positions: p.positions, control, evaluations: p.evaluations, batches: p.batches });
         this.next();
         return;
       }
@@ -117,6 +123,9 @@ export class SimWorker implements WorkerLike {
       this.clock.at(this.clock.now + dt, step);
     };
     step();
+  }
+  private reply(m: WorkerOut): void {
+    this.clock.at(this.clock.now + this.latencyMs, () => this.onmessage?.({ data: m }));
   }
   terminate(): void { /* nothing to free */ }
 }

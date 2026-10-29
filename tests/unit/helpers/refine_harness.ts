@@ -27,6 +27,8 @@ export interface HarnessOptions {
   queueDepth?: number;
   measure?: RefinerOptions['measure'];
   spread?: number;
+  logJobs?: boolean;
+  latencyMs?: number;
 }
 
 const hull = (c: Float64Array) => {
@@ -39,7 +41,7 @@ export function makeHarness(o: HarnessOptions = {}) {
   const ev = new DoubleEvaluator();
   const sims: SimWorker[] = [];
   const pool = new WorkerPool({
-    spawn: () => { const w = new SimWorker(clock, ev, o.msPerEval ?? MS_PER_EVAL); sims.push(w); return w; },
+    spawn: () => { const w = new SimWorker(clock, ev, o.msPerEval ?? MS_PER_EVAL, o.latencyMs ?? 1); sims.push(w); return w; },
     size: o.workers ?? 4,
     now: () => clock.now,
   });
@@ -56,7 +58,7 @@ export function makeHarness(o: HarnessOptions = {}) {
     displayed: null,
   }));
   const queue = new RefineQueue(o.queueDepth ? { maxDepth: o.queueDepth } : {});
-  const refiner = new Refiner({ pool, tracker, draw, queue, entities, now: () => clock.now, measure: o.measure });
+  const refiner = new Refiner({ pool, tracker, draw, queue, entities, now: () => clock.now, measure: o.measure, logJobs: o.logJobs ?? true });
   let cam = pipelineAt();
   refiner.setCamera(cam);
   const h = {

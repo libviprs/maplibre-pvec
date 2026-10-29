@@ -18,7 +18,7 @@ export interface CachedTessellation {
 }
 
 /** What the tessellation was built under and what error it declared. Its envelope is derived from this (M4.4/M4.6). */
-export interface BuiltUnder extends DeclaredTessellation {
+export interface BuiltUnder extends Omit<DeclaredTessellation, 'blockId'> {
   pipeline: TransformPipeline;
 }
 
@@ -100,7 +100,7 @@ export class RefineCache {
 
   get(key: CacheKey, now: TransformPipeline): CachedTessellation | undefined {
     const e = this.map.get(keyOf(key));
-    if (e && tessellationStillValid(e.built.pipeline, now, e.built, this.budgetPx)) {
+    if (e && tessellationStillValid(e.built.pipeline, now, { ...e.built, blockId: e.entityId }, this.budgetPx)) {
       this.c.hits++;
       return e.value;
     }
@@ -122,7 +122,7 @@ export class RefineCache {
     let kept = 0, dropped = 0;
     const survivors = new Map<string, Entry>();
     for (const e of this.map.values()) {
-      if (tessellationStillValid(e.built.pipeline, next, e.built, this.budgetPx)) {
+      if (tessellationStillValid(e.built.pipeline, next, { ...e.built, blockId: e.entityId }, this.budgetPx)) {
         const [, , z, d] = e.key.split('|');
         const k = `${e.entityId}|${epoch}|${z}|${d}`;
         // the build pipeline stays: later checks compare against it, so scale changes accumulate

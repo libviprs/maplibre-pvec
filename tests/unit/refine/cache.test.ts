@@ -144,7 +144,8 @@ describe('M6.6 hits are proofs', () => {
     expect(cache.has(els[0]!.id)).toBe(true);
 
     // scale change of 3x: all envelopes broken
-    const pS = pipelineAt({ zoom: 20 }, anchoredGeoRef({ ...SITE, unit: 'ft' }));
+    const g3 = anchoredGeoRef({ ...SITE });
+    const pS = pipelineAt({ zoom: 20 }, { ...g3, calibration: g3.calibration.map((v, i) => (i < 4 ? v * 3 : v)) as unknown as typeof g3.calibration } as typeof g3);
     const res = cache.onGeoReferenceUpdate(pS, tr.bumpEpoch());
     expect(res.kept + res.dropped).toBe(6);
     expect(res.dropped).toBe(6);

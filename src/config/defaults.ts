@@ -49,7 +49,7 @@ export const REFINE_DEFAULTS = Object.freeze({
   /** Policy evaluation budget per frame, ms. */
   policyBudgetMs: 1,
   /** Parameters sampled per entity when measuring the displayed error. */
-  measureSamples: 48,
+  measureSamples: 96,
 });
 
 /** Cost-aware queue and dispatch budgets (M6.4). Provisional until M8.6. */

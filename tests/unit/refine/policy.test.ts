@@ -37,7 +37,7 @@ describe('M6.3 decision', () => {
   });
   it('error is post-transform: tiny source error, large projected error queues refinement', () => {
     // a 3-point polyline of the curve: source error is ~0.2 m, at zoom 22 that is many device px
-    const params = Float64Array.from([0, 0.25, 0.5, 0.75, 1]);
+    const params = Float64Array.from(Array.from({ length: 33 }, (_, i) => i / 32));
     const pos = Float64Array.from(Array.from(params).flatMap((t) => cubicAt(ctrl, t)));
     const srcErr = measureSource(ctrl, params, pos, 400);
     expect(srcErr).toBeLessThan(2);

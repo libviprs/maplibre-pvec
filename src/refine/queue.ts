@@ -118,7 +118,7 @@ export class RefineQueue {
     this.live.set(c.entityId, e);
     this.max.push(e);
     this.min.push(e);
-    if (this.max.length > 4 * this.live.size + 64) this.compact();
+    if (Math.max(this.max.length, this.min.length) > 4 * this.live.size + 64) this.compact();
     if (this.live.size > this.maxDepth) {
       const victim = this.evictLowest();
       return victim === e ? 'dropped' : 'queued';

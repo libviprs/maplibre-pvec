@@ -34,6 +34,8 @@ export interface RefinerOptions {
   /** CPU clock for the per-frame budgets. Defaults to performance.now. */
   cpuNow?: () => number;
   measure?: (e: PolicyEntity, p: TransformPipeline) => number;
+  /** Keep every request in `jobLog` (tests and diagnostics). Off by default: the log would grow without bound. */
+  logJobs?: boolean;
   /** Called for every accepted upload, before the draw record is staged. The GPU write lives here. */
   onUpload?: (entityId: number, positions: Float64Array, range: { start: number; count: number }) => void;
 }
@@ -75,7 +77,7 @@ export class Refiner {
   private resultMs = 0;
   private nextStart = 0;
   private liveBytes = new Map<number, number>();
-  private s = { gpuBytes: 0, wastedEvals: 0, totalEvals: 0, coarsenCandidates: 0 };
+  private s = { gpuBytes: 0, wastedEvals: 0, totalEvals: 0, coarsenCandidates: 0, requests: 0 };
   private byId = new Map<number, RefineEntity>();
 
   constructor(private readonly o: RefinerOptions) {
@@ -155,14 +157,18 @@ export class Refiner {
     const v = this.viewAabb, b = e.bounds;
     if (v && (b.maxX < v.minX || b.minX > v.maxX || b.maxY < v.minY || b.minY > v.maxY)) {
       e.visible = false; e.areaPx = 0;
+      this.drop(e.id);
       return 'keep';
     }
-    const sb = conservativeScreenBounds(e.curve, this.pipeline, { subdivisionsPerPiece: 2 });
+    const sb = conservativeScreenBounds(e.curve, this.pipeline);
     const { width, height, devicePixelRatio: dpr } = this.pipeline.camera;
     const visible = !sb || (sb.maxX >= 0 && sb.minX <= width * dpr && sb.maxY >= 0 && sb.minY <= height * dpr);
     e.visible = visible;
     e.areaPx = sb ? Math.max(1, (sb.maxX - sb.minX) * (sb.maxY - sb.minY)) : 1e6;
-    if (!visible) return 'keep';
+    if (!visible) {
+      this.drop(e.id);
+      return 'keep';
+    }
     const d = needsRefinement(e, e.displayed?.generation ?? 0, this.pipeline, { navigating: this.navigating, measure: this.o.measure });
     if (d.action === 'coarsen') this.s.coarsenCandidates++;
     else if (d.action === 'refine') this.request(e, d.errorPx);
@@ -206,7 +212,18 @@ export class Refiner {
     const verdict = this.o.queue.offer(cand);
     if (verdict !== 'queued') { this.pending.delete(e.id); return; }
     this.pending.set(e.id, { tag, scale, abort: new AbortController(), pieces: 0, got: [], have: 0, evals: 0, built: this.pipeline, areaPx: cand.areaPx, costMs });
-    this.jobLog.push({ entityId: e.id, generation: tag.generation, frame: this.frameNo, pipeline: this.pipeline });
+    this.s.requests++;
+    if (this.o.logJobs) this.jobLog.push({ entityId: e.id, generation: tag.generation, frame: this.frameNo, pipeline: this.pipeline });
+  }
+
+  /** The entity left the view: whatever is queued or running for it is obsolete. */
+  private drop(entityId: number): void {
+    const p = this.pending.get(entityId);
+    if (!p) return;
+    p.abort.abort();
+    this.o.tracker.next(entityId); // a result already on its way is now stale and is refused at the upload boundary
+    this.pending.delete(entityId);
+    this.o.queue.remove(entityId);
   }
 
   private abandon(entityId: number, generation: number): void {

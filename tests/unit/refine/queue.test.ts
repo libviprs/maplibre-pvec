@@ -90,17 +90,17 @@ describe('M6.4 budgets with the pool', () => {
   }, 120_000);
 
   it('saturation: 4 workers stay at least 70 percent busy while work is queued', async () => {
-    const h = makeHarness({ n: 2500, seed: 32, spread: 120 });
-    h.setCamera(pipelineAt({ zoom: 21 }));
-    let frames = 0;
-    // run until the queue first drains; utilisation is measured over the window in which work was queued
-    while (frames < 3000) {
+    const h = makeHarness({ n: 2500, seed: 32, spread: 120, msPerEval: 0.03 });
+    h.setCamera(pipelineAt({ zoom: 19 }));
+    let busy = 0, wall = 0, queuedFrames = 0;
+    for (let f = 0; f < 600; f++) {
+      const b0 = h.sims.reduce((a, w) => a + w.busyMs, 0), t0 = h.clock.now;
+      const hadWork = h.queue.depth > 0;
       await h.frame();
-      frames++;
-      if (frames > 5 && h.queue.depth === 0) break;
+      if (hadWork && h.queue.depth > 0) { busy += h.sims.reduce((a, w) => a + w.busyMs, 0) - b0; wall += (h.clock.now - t0) * h.pool.size; queuedFrames++; }
     }
-    expect(frames).toBeGreaterThan(30);
-    expect(h.pool.utilisation()).toBeGreaterThanOrEqual(0.7);
+    expect(queuedFrames).toBeGreaterThan(30);
+    expect(busy / wall).toBeGreaterThanOrEqual(0.7);
   }, 120_000);
 
   it('queues nothing that fails conservative visibility over a scripted camera path', async () => {

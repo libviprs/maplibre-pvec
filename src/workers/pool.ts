@@ -166,6 +166,7 @@ export class WorkerPool {
       this.s.detachChecks++;
       const durationMs = t - p.startedAt;
       this.durations.push(durationMs);
+      if (this.durations.length > 8192) this.durations.splice(0, 4096); // keep the recent window, not every job ever
       p.resolve({ status: 'done', tag: p.tag, params: m.params, positions: m.positions, evaluations: m.evaluations, durationMs });
     } else if (m.type === 'cancelled') p.resolve({ status: 'cancelled', tag: p.tag, evaluations: m.evaluations });
     else p.resolve({ status: 'error', tag: p.tag, message: m.message });
@@ -183,6 +184,14 @@ export class WorkerPool {
     let busy = 0;
     for (const s of this.slots) busy += s.busyMs + (s.inFlight > 0 ? t - s.busySince : 0);
     return busy / (this.size * window);
+  }
+
+  /** Total worker-time with at least one job in flight, ms (open intervals included). */
+  busyMs(): number {
+    const t = this.now();
+    let busy = 0;
+    for (const s of this.slots) busy += s.busyMs + (s.inFlight > 0 ? t - s.busySince : 0);
+    return busy;
   }
 
   stats() {
