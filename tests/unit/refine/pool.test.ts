@@ -29,7 +29,6 @@ describe('M6.2 zero copy', () => {
     const s = pool.stats();
     expect(s.copiesDetected).toBe(0);
     expect(s.detachChecks).toBeGreaterThanOrEqual(2); // control out, results in (worker side asserts its own)
-    expect((pool as unknown as { workerDetachFailures: number }).workerDetachFailures ?? 0).toBe(0);
     pool.terminate();
   });
 

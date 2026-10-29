@@ -29,6 +29,11 @@ export interface HarnessOptions {
   spread?: number;
 }
 
+const hull = (c: Float64Array) => {
+  const xs = [c[0]!, c[2]!, c[4]!, c[6]!], ys = [c[1]!, c[3]!, c[5]!, c[7]!];
+  return { minX: Math.min(...xs), maxX: Math.max(...xs), minY: Math.min(...ys), maxY: Math.max(...ys) };
+};
+
 export function makeHarness(o: HarnessOptions = {}) {
   const clock = simClock();
   const ev = new DoubleEvaluator();
@@ -46,6 +51,7 @@ export function makeHarness(o: HarnessOptions = {}) {
     family: 'bezier',
     control: f.control,
     curve: { domain: [0, 1], point: f.curve.point, breakParams: [], strokeWidthPx: 2 },
+    bounds: hull(f.control),
     cost: { degree: 3, ctrlCount: 4, knotMultiplicity: 1, trimIntervals: 0 },
     displayed: null,
   }));
@@ -63,7 +69,7 @@ export function makeHarness(o: HarnessOptions = {}) {
       await flush();
       const t0 = performance.now();
       refiner.frame();
-      return performance.now() - t0;
+      return performance.now() - t0 + refiner.takeResultMs();
     },
     async frames(n: number): Promise<void> { for (let i = 0; i < n; i++) await h.frame(); },
     async settle(maxMs = 20_000): Promise<void> {

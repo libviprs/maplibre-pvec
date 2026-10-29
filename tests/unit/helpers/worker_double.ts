@@ -83,8 +83,10 @@ export class SimWorker implements WorkerLike {
       this.cancelStamp.set(msg.jobId, this.clock.now);
       return;
     }
-    for (const t of transfer) structuredClone(t, { transfer: [t] }); // detach like a real transfer
-    this.pending.push(msg);
+    // move the control buffer like a real transfer: the sender's copy detaches, the worker gets the bytes
+    const moved = structuredClone(msg.control.buffer, { transfer: [msg.control.buffer] }) as ArrayBuffer;
+    void transfer;
+    this.pending.push({ ...msg, control: new Float64Array(moved) });
     if (!this.running) this.clock.at(this.clock.now, () => this.next());
     this.running = true;
   }
