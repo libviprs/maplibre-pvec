@@ -22,7 +22,8 @@ export default defineConfig({
       name: `${job}-${browserName}`,
       testDir: "tests/e2e",
       // The Tier 0 stroke pipeline spec from #50 sits at the top of tests/e2e and is a rendering spec.
-      testMatch: job === "rendering" ? [`${job}/**/*.spec.ts`, "50-*.spec.ts"] : [`${job}/**/*.spec.ts`],
+      // It sets Chromium-only SwiftShader launch flags, so it runs on Chromium alone.
+      testMatch: job === "rendering" && browserName === "chromium" ? [`${job}/**/*.spec.ts`, "50-*.spec.ts"] : [`${job}/**/*.spec.ts`],
       use: { browserName },
     })),
   ),
