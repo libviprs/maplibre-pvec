@@ -12,16 +12,50 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
-    ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
-    "./style": { "types": "./dist/style.d.ts", "import": "./dist/style.js" },
-    "./text": { "types": "./dist/text.d.ts", "import": "./dist/text.js" },
-    "./hatch": { "types": "./dist/hatch.d.ts", "import": "./dist/hatch.js" },
-    "./wasm": { "types": "./dist/wasm.d.ts", "import": "./dist/wasm.js" },
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./style": {
+      "types": "./dist/style.d.ts",
+      "import": "./dist/style.js"
+    },
+    "./text": {
+      "types": "./dist/text.d.ts",
+      "import": "./dist/text.js"
+    },
+    "./hatch": {
+      "types": "./dist/hatch.d.ts",
+      "import": "./dist/hatch.js"
+    },
+    "./wasm": {
+      "types": "./dist/wasm.d.ts",
+      "import": "./dist/wasm.js"
+    },
     "./wasm/pvec_eval.wasm": "./dist/pvec_eval.wasm",
     "./package.json": "./package.json"
   },
-  "typesVersions": { "*": { "style": ["dist/style.d.ts"], "text": ["dist/text.d.ts"], "hatch": ["dist/hatch.d.ts"], "wasm": ["dist/wasm.d.ts"] } },
-  "files": ["dist", "LICENSE", "README.md"],
+  "typesVersions": {
+    "*": {
+      "style": [
+        "dist/style.d.ts"
+      ],
+      "text": [
+        "dist/text.d.ts"
+      ],
+      "hatch": [
+        "dist/hatch.d.ts"
+      ],
+      "wasm": [
+        "dist/wasm.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
@@ -31,9 +65,12 @@
     "compat:check": "node scripts/gen-compat.mjs --check",
     "pack:check": "node scripts/pack-check.mjs",
     "test:jobs": "node tools/check-jobs.mjs job-reports",
-    "api:report": "node tools/api-report.mjs --write"
+    "api:report": "node tools/api-report.mjs --write",
+    "bench": "node bench/run.mjs"
   },
-  "overrides": { "fflate": "0.8.2" },
+  "overrides": {
+    "fflate": "0.8.2"
+  },
   "peerDependencies": {
     "maplibre-gl": ">=4.7.1 <7.0.0"
   },
@@ -41,15 +78,16 @@
     "@arethetypeswrong/cli": "0.16.4",
     "@playwright/test": "1.48.2",
     "@types/node": "22.9.0",
+    "ajv": "8.17.1",
     "esbuild": "0.24.0",
     "maplibre-gl": "4.7.1",
+    "maplibre-gl-v4": "npm:maplibre-gl@4.7.1",
+    "maplibre-gl-v5": "npm:maplibre-gl@5.24.0",
+    "maplibre-gl-v6": "npm:maplibre-gl@6.16.0",
     "publint": "0.2.12",
     "rollup": "4.24.0",
     "rollup-plugin-dts": "6.1.1",
     "typescript": "5.6.3",
-    "vitest": "2.1.4",
-    "maplibre-gl-v5": "npm:maplibre-gl@5.24.0",
-    "maplibre-gl-v6": "npm:maplibre-gl@6.16.0",
-    "maplibre-gl-v4": "npm:maplibre-gl@4.7.1"
+    "vitest": "2.1.4"
   }
 }
