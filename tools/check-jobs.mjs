@@ -36,7 +36,7 @@ export function evaluateJob(job, report) {
 }
 
 function main() {
-  const dir = process.argv[2] ?? "test-results";
+  const dir = process.argv[2] ?? "job-reports";
   let exit = 0;
   for (const j of data.jobs) {
     const file = join(dir, `${j.id}.json`);
