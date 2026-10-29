@@ -109,7 +109,7 @@ describe("#18 M3.3 priority range scheduler", () => {
     await Promise.all(jobs.map((j) => j.promise));
     const expected = s.queryBounds(bounds);
     expect(jobs.length).toBe(expected.length);
-    expect(expected.length).toBe(9);
+    expect(expected.length).toBe(4); // cells 5, 6, 9, 10: the other 12 must never be requested
     for (const [start] of starts) {
       const chunk = expected.find((c) => c.offset === start);
       expect(chunk).toBeDefined();

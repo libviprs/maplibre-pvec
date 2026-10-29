@@ -79,7 +79,7 @@ describe("#18 M3.5 tiered cache", () => {
     for (let i = 0; i < 6; i++) c.put("gpu", `b${i}`, blob(1000), { payload: gl.createBuffer() });
     expect(live.size).toBe(baseline + 6);
     c.put("gpu", "big", blob(9000), { payload: gl.createBuffer() });
-    expect(live.size).toBe(baseline + 1); // evicted ones were deleted
+    expect(live.size).toBe(baseline + 2); // b0..b4 were deleted on eviction, b5 and big remain
     c.clear();
     expect(live.size).toBe(baseline);
     expect(c.bytes("gpu")).toBe(0);

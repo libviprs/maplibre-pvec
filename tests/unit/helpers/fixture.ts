@@ -36,7 +36,7 @@ export interface BuiltFixture {
 const align8 = (n: number): number => (n + 7) & ~7;
 
 export function buildPvec(spec: FixtureSpec): BuiltFixture {
-  const caps = spec.capabilities ?? [1, 4, 5, 6].map((id) => ({ id }));
+  const caps: FixtureCapability[] = spec.capabilities ?? [1, 4, 5, 6].map((id) => ({ id }));
   const marker = spec.marker ?? 0xaa;
   const producer = new TextEncoder().encode("fixture");
   const manifestFixed = 128;
