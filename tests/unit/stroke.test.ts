@@ -1,9 +1,9 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { buildStrokeMesh } from '../src/render/stroke/mesh';
-import { dashRuns, dashOn } from '../src/render/stroke/dash';
-import { FRAGMENT_SHADER, VERTEX_SHADER } from '../src/render/stroke/shaders';
+import { buildStrokeMesh } from '../../src/render/stroke/mesh';
+import { dashRuns, dashOn } from '../../src/render/stroke/dash';
+import { FRAGMENT_SHADER, VERTEX_SHADER } from '../../src/render/stroke/shaders';
 
 const dist = (ax: number, ay: number, bx: number, by: number) => Math.hypot(ax - bx, ay - by);
 
@@ -59,7 +59,7 @@ describe('stroke mesh (#50 M5.4)', () => {
         const across = -Math.sin(a) * m.positions[i]! + Math.cos(a) * m.positions[i + 1]!;
         min = Math.min(min, across); max = Math.max(max, across);
       }
-      expect(max - min).toBeCloseTo(4, 6);
+      expect(max - min).toBeCloseTo(4, 4); // f32 mesh
     }
   });
 

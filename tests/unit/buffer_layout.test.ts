@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { SEGMENT_RECORD_BYTES, decodeRecord, packFlags, packPolyline, splitHiLo, unpackFlags } from '../src/render/buffer_layout';
+import { SEGMENT_RECORD_BYTES, decodeRecord, packFlags, packPolyline, splitHiLo, unpackFlags } from '../../src/render/buffer_layout';
 
 describe('buffer layout (#50 M5.2)', () => {
   it('records are 40 bytes and 1e6 segments fit in 40 MiB', () => {
@@ -37,7 +37,8 @@ describe('buffer layout (#50 M5.2)', () => {
   it('drops and counts degenerate segments exactly', () => {
     const pts = Float64Array.of(0, 0, 0, 0, 1, 0, NaN, 3, 4, 4, Infinity, 1, 5, 5, 5, 5);
     const r = packPolyline(pts, { widthIndex: 0, dashIndex: 0, flags: 0 });
-    expect(r.degenerate).toBe(5);
+    expect(r.degenerate).toBe(6);
+    expect(r.count).toBe(1);
     expect(r.count + r.degenerate).toBe(7);
   });
 

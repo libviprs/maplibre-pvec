@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { CoverageTracker, FetchGate, Tier0Decoder, type RawEntity } from '../src/decode/tier0';
+import { CoverageTracker, FetchGate, Tier0Decoder, type RawEntity } from '../../src/decode/tier0';
 
 const exact = (id: string): RawEntity => ({ entityId: id, kind: 'exact', geometry: { type: 'line', points: [0, 0, 1, 1] }, bounds: { minX: 0, minY: 0, maxX: 1, maxY: 1 } });
 const preview = (id: string): RawEntity => ({ entityId: id, kind: 'preview', geometry: { type: 'polyline', points: [0, 0, 1, 1] }, bounds: { minX: 0, minY: 0, maxX: 1, maxY: 1 }, declaredErrorPx: 1.5 });

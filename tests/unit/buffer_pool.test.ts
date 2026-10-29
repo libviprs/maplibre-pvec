@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { BufferPool } from '../src/render/buffer_pool';
+import { BufferPool } from '../../src/render/buffer_pool';
 import { FakeGl } from './helpers/fake_gl';
 
 const bytes = (n: number, seed = 1) => { const u = new Uint8Array(n); for (let i = 0; i < n; i++) u[i] = (i * 31 + seed) & 255; return u; };
@@ -57,7 +57,7 @@ describe('buffer pool (#50 M5.5)', () => {
     expect(frames).toBeGreaterThan(1);
     for (let i = 0; i < total / per; i++) {
       const r = pool.range(`b${i}`)!;
-      expect(same(gl.buffers.get(r.buffer)!.subarray(r.offset, r.offset + per), src.subarray(i * per, (i + 1) * per))).toBe(true);
+      expect(same(gl.buffers.get(r.buffer as unknown as number)!.subarray(r.offset, r.offset + per), src.subarray(i * per, (i + 1) * per))).toBe(true);
     }
   });
 
@@ -108,7 +108,7 @@ describe('buffer pool (#50 M5.5)', () => {
     pool.add('a', bytes(80, 1)); pool.update('a', bytes(160, 2)); pool.flush();
     const r = pool.range('a')!;
     expect(r.length).toBe(160);
-    expect(same(gl.buffers.get(r.buffer)!.subarray(r.offset, r.offset + 160), bytes(160, 2))).toBe(true);
+    expect(same(gl.buffers.get(r.buffer as unknown as number)!.subarray(r.offset, r.offset + 160), bytes(160, 2))).toBe(true);
   });
 
   it('compacts above 35 percent fragmentation without losing data', () => {
@@ -123,7 +123,7 @@ describe('buffer pool (#50 M5.5)', () => {
     expect(pool.accounting().fragmentation).toBeLessThanOrEqual(0.35);
     for (let i = 1; i < 64; i += 2) {
       const r = pool.range(`e${i}`)!;
-      expect(same(gl.buffers.get(r.buffer)!.subarray(r.offset, r.offset + 64), bytes(64, i))).toBe(true);
+      expect(same(gl.buffers.get(r.buffer as unknown as number)!.subarray(r.offset, r.offset + 64), bytes(64, i))).toBe(true);
     }
   });
 
@@ -136,6 +136,6 @@ describe('buffer pool (#50 M5.5)', () => {
     const gl2 = new FakeGl();
     pool.rebind(gl2 as never); pool.flush();
     const r = pool.range('a')!;
-    expect(same(gl2.buffers.get(r.buffer)!.subarray(r.offset, r.offset + 96), bytes(96, 3))).toBe(true);
+    expect(same(gl2.buffers.get(r.buffer as unknown as number)!.subarray(r.offset, r.offset + 96), bytes(96, 3))).toBe(true);
   });
 });

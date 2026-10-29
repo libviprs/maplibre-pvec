@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { measureDeviation, previewTessellate, type CurveRef, type ScreenPipeline } from '../src/render/preview';
+import { measureDeviation, previewTessellate, type CurveRef, type ScreenPipeline } from '../../src/render/preview';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -29,13 +29,14 @@ describe('preview tessellation (#50 M5.3)', () => {
   it('trim [0.25, 0.4] never produces a vertex outside the interval and hits the analytic endpoints', () => {
     const c: CurveRef = { kind: 'arc', cx: 0, cy: 0, r: 0.5, a0: 0, a1: 2 * Math.PI, trim: [0.25, 0.4] };
     const r = previewTessellate(c, { toScreen: (x, y) => [x * 1000, y * 1000] }, 1.0);
+    expect(r.positions.length).toBeGreaterThan(4);
     const lo = 0.25 * 2 * Math.PI, hi = 0.4 * 2 * Math.PI;
     for (let i = 0; i < r.positions.length; i += 2) {
-      let a = Math.atan2(r.positions[i + 1]! / 1000, r.positions[i]! / 1000); if (a < 0) a += 2 * Math.PI;
+      let a = Math.atan2(r.positions[i + 1]!, r.positions[i]!); if (a < 0) a += 2 * Math.PI;
       expect(a).toBeGreaterThanOrEqual(lo - 1e-9); expect(a).toBeLessThanOrEqual(hi + 1e-9);
     }
-    expect(r.positions[0]! / 1000).toBeCloseTo(0.5 * Math.cos(lo), 9);
-    expect(r.positions[r.positions.length - 1]! / 1000).toBeCloseTo(0.5 * Math.sin(hi), 9);
+    expect(r.positions[0]!).toBeCloseTo(0.5 * Math.cos(lo), 9);
+    expect(r.positions[r.positions.length - 1]!).toBeCloseTo(0.5 * Math.sin(hi), 9);
   });
 
   it('when the iteration cap binds it reports residual error and stays flagged for refinement', () => {

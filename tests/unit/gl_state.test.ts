@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { GlStateGuard, RepaintScheduler, watchContextLoss } from '../src/render/gl_state';
+import { GlStateGuard, RepaintScheduler, watchContextLoss } from '../../src/render/gl_state';
 import { FakeGl } from './helpers/fake_gl';
 
 describe('GlStateGuard (#50 M5.7)', () => {

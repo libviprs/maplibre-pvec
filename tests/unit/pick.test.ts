@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { nearestEntity, pickPoint, queryRegion, type PickContext, type Bounds } from '../src/pick/index';
+import { nearestEntity, pickPoint, queryRegion, type PickContext, type Bounds } from '../../src/pick/index';
 
 // Source space == lng/lat here; one device px is k / 2^zoom source units.
 const pipeline = (zoom: number) => ({
@@ -15,7 +15,7 @@ function ctxFor(ents: Ent[], zoom: number, opts: { loaded?: boolean; gen?: () =>
     index: { query: (b: Bounds) => ents.filter((e) => e.cx + e.r >= b.minX && e.cx - e.r <= b.maxX && e.cy + e.r >= b.minY && e.cy - e.r <= b.maxY).map((e) => ({ entityId: e.id, entityType: e.type })), isLoaded: () => opts.loaded ?? true },
     evaluator: {
       distance: (id, p) => { const e = ents.find((x) => x.id === id)!; return Math.abs(Math.hypot(p.x - e.cx, p.y - e.cy) - e.r); },
-      intersects: (id, region) => { const e = ents.find((x) => x.id === id)!; return e.cx >= region.minX && e.cx <= region.maxX && e.cy >= region.minY && e.cy <= region.maxY; },
+      intersects: (id, rg) => { const region = rg as Bounds; const e = ents.find((x) => x.id === id)!; return e.cx >= region.minX && e.cx <= region.maxX && e.cy >= region.minY && e.cy <= region.maxY; },
     },
     generation: () => (opts.gen ? opts.gen() : 0),
     maxCandidateRadiusPx: 64,
