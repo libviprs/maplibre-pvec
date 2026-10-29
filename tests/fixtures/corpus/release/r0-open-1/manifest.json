@@ -1,0 +1,128 @@
+{
+  "pins": {
+    "converters": {
+      "acadsharp-dwg2step": "ACadSharp 3.7.1+d7dc111, tool 1"
+    },
+    "corpus": {
+      "bundle_sha256": "b0e3377be9581fac4c0e172982bdeb3319f93c95383428823097ef82918c3eeb",
+      "manifest_sha256": "aaa7fcac8eeecd5e0e60dd7084ca40601df9194967107cd0330ab3f515b98ace",
+      "revision": "r0-open"
+    },
+    "evaluator": {
+      "evaluator": "1",
+      "occt": "7.6.3"
+    },
+    "images": {
+      "dwg2step-acadsharp": {
+        "base": "mcr.microsoft.com/dotnet/sdk:10.0.401-noble@sha256:e70cdb7f80b0348f5cb85f19a8f670fca061f033d57eed12fa003d58b0e06317, mcr.microsoft.com/dotnet/runtime:10.0.12-noble@sha256:b89586dc17781f25531909993658aa8161205ae38b8cec8847df4a8221a403d5",
+        "built_image_id": "sha256:cd8ae705bb86b2e185abd41d1e27e23fe06d4f8b5749baa57e6568134bb1ffe3"
+      },
+      "step-validator": {
+        "base": "debian:bookworm-slim@sha256:7c7b2c966bc9ee8cedfeef67e0e279108992c77681fa595db4a9d65c06ccc587",
+        "built_image_id": "sha256:535d2244cb5e019b36aea468999bab2dfb7a9752cf6618a63f2066143ee61f1e"
+      }
+    },
+    "numeric_policy": "PVec numeric policy v1",
+    "signatures": {
+      "arc-seam-001": "fe7557297fdad79ef97d6970ebb9f57b1faf29f9e9d34925190cfeadfb580f5f",
+      "bezier-d3-001": "465fbb53bd9935fd86d97e8be47e786664adc2556c81140d9eb091e494747ff8",
+      "bspline-d3-001": "0a77cfacac1359d35a38af1f6cf40a889f53d474ef89ac1284b3641c18b4fe75",
+      "bspline-d5-001": "a46ccaa859a11f861ac9b4bcdf19700e47fbe555bf77b28b5ce9682990086578",
+      "bulge-arc-001": "6e977b824987d7be1cdda7acccd7943f41486154b62e8c7bc78df196182504a7",
+      "bulge-arc-neg-001": "817fc8068538917d7324b26d339ac89a85e83a5e02c43a982318b532cb7390fe",
+      "circle-001": "6ad1f47fe57a810c9214e4cf37d589a670737d885e7c5158e993ee7d04136210",
+      "closed-by-endpoint-001": "78953625695be6375a9deff82f65db953b73ee7213453f9bdff7c3c4f3232649",
+      "closed-periodic-001": "2f20c917a296855ce2ef4b0288fa3fb7441eba68b82cbff6778d8f8f5a2897ff",
+      "ellipse-001": "9a1c2ca968a5ae3100d89e6029ade2f64bd5b1bcf1ae3f6ed93ae8988064fe78",
+      "elliptical-arc-001": "c6e6a607b26ffa272e46be36030c58f2c238f926580131de500dcdb47e838778",
+      "large-coords-001": "048f5a50c4eda79055e663184c6681c1845b485687a3daa9125da85ece5e13e2",
+      "layer-state-001": "445cfd63a91754768ad956f2a52d74763f83f558a33a6df5c69db0ed6a30e789",
+      "line-001": "71b477906816edd2a47269064dfe9701219cda0a7a5f5b6a68c5aa817fb81380",
+      "lwpolyline-closed-001": "19e34ae44b0c2b3cd38e4dd8fc36ef3f9f438583a08c44e055e33b57b27535c5",
+      "nested-blocks-001": "c672bc5bb5c8efd7b8c18ab51169dd67c62fc17f056adb2f0311c1068a63d5f4",
+      "nonuniform-scale-circle-001": "782bf9a565f76b14f6a29baf1f76bd4571da30f6e10bbb0c16897ff18b5fd455",
+      "nonuniform-scale-rotated-001": "899b7c83bbef9a17698171ba98ca503acac4e11a253d7c3e77f4403462f11bf3",
+      "nonunit-weight-001": "82c1f9185c44be3272944fa446486458dc1d365f41b4f5ce33df5095b2c58ed8",
+      "nurbs-d2-offconic-001": "8204f71d2101879bd8b9821cc7adec01409eeb1df2977f95ebeed04e40f6f8ef",
+      "nurbs-d3-001": "bf189406db9fb435e36e2cec9d10ad08d2d3c9807f6e3abdd7b3944cbf019e77",
+      "polyline-001": "021207c25dcf4f600070c1a89b597eac73e8412258aaf0baf703c1216571d873",
+      "polyline2d-001": "94ea45e1e421001f48cd13f5259d89f48b25989ba0fa5013be99a8573775607d",
+      "reflection-001": "63864ffb4fb08437af860711495ac9a1e293cd50578dd9ab3b347d77a633a28c",
+      "repeated-knot-c0-001": "a27e47f2e134cdd01343b6676a30c33922ff4fcb7f42f766388578d5c0fc33a6",
+      "rotation-irrational-001": "2582cd7cda4ce61226b44efcc70eb71f30e849be4c7c240101a532fbc8a5dddc",
+      "tiny-radius-001": "bab335564648c4594ea0bcff46160f05552250a1a2f76e51f47ac73f67d5e860",
+      "translation-001": "bf1b9825aeff07e3779810e737773820b6a7f9f70602f52dfa1d30099e00e9fd",
+      "uniform-scale-001": "5d5c4ff7d0ba01a8a06a41bcbf1f4e6ae7543c68f0c6b6114788c09686835fff"
+    },
+    "source_hashes": {
+      "arc-seam-001": "9d7bedeb21f9e7e2c0d1b1549fdc732eb4de8d6150eb142fe01989cd8f01dca1",
+      "bezier-d3-001": "d2d1812b915f43291298f8e08fe4a09999136f6c6a1e8d88734a2d0238884cc5",
+      "bspline-d3-001": "703053ee5e8fc3edbdd4314583816ffee9899535ff35939a1cdb7c8bde182e92",
+      "bspline-d5-001": "4e69904d92919e984eac306663bdaf3b07bb9d555468d74c68ffaaaa98fe2708",
+      "bulge-arc-001": "bb96f380d577028c0a3c3d2239a86f6681e44acff7981b4ba664e6186239fd18",
+      "bulge-arc-neg-001": "39d03d7551d26307ae629c3922363e10894a8a204d3500373571d74d30b0b989",
+      "circle-001": "27e9ce322e461d4d0cafa49ce823b0a88db254710bb0878d2eafa5657c7270e2",
+      "closed-by-endpoint-001": "6624459da6246ba134c6a1cb920cc21884b9599e30eec777cdc83153b7861fa6",
+      "closed-periodic-001": "8ba9cfa5dd3f22bf5b8fe13f6167c14ffdd549164db565bacd124fcbf7fcb435",
+      "ellipse-001": "f9651591169c2662cf44be5e7c3b89fbc2f13f82a960203c45c85d6db4586683",
+      "elliptical-arc-001": "0fe4fcb19a65a8c2296bc89f13516cd05172c34b2aa9bfc1064289493c2de1fd",
+      "large-coords-001": "89d2a00a7f784fd05c7acf3ce9cbb227f705f165aaaad080fcc0a7262e38c709",
+      "layer-state-001": "27de1eed38ad29b57e5708b7a5b575955e0a836cba1ba8f265fad69a77ecf217",
+      "line-001": "3eca180bec811026d5b968ca979ceb0b36b3d4504f56f09aa635431801b2b957",
+      "lwpolyline-closed-001": "2571b5a5f08e7aaf8c5b02fdf14db2c6d64359aedff64be8eda83035ddd9f27f",
+      "near-singular-001": "e89ed4e9988b3fab7e74ac87aacaf378ddd9c7f414b21558c3eadd87fb731be1",
+      "nested-blocks-001": "8c1e7b6c8e101c53fc8d87adba3114d5887fbc5c053004ad9ad8ae99fc0b7f0e",
+      "nonuniform-scale-circle-001": "ae90b0c005f51bd089b9e8373c91115acaeb03cc0994518f3b94ed0540eccbb3",
+      "nonuniform-scale-rotated-001": "9fd8cc060c04daa78d1b31bab78e6c27dce4cba89f271840b6dc29dc2973c4a3",
+      "nonunit-weight-001": "ce408295cfbfbf685c340591e53e869b3a04d0178ba321d6dd443da00d57b3ba",
+      "nurbs-d2-offconic-001": "b7719ceb970a9ab7d6e1b41286db49cd5cb59783ed445cde0fff14cdf40ef4ce",
+      "nurbs-d3-001": "d343b892f5172639da510cc16ed625f604cdffa6ae7b2caf46c7ee78eb6ed76d",
+      "polyline-001": "fddbb9a48053edf60b567e7a48463203f44e889348022363f5207587dd4fb3a6",
+      "polyline2d-001": "c8b8e65cbbe9e67dbb12ba8e773d4bac0ee31d18769168f8f9da83d48c935a54",
+      "reflection-001": "2b5f057dbfb2dab163a9c6a0f90871f7fd4bc7ca5261d1358bf991027e6ae046",
+      "repeated-knot-c0-001": "bb814c57fef950e70a844b65001c61b83263d6a8847da78e494206a3c867c739",
+      "rotation-irrational-001": "07066e4133da04a520d2c682ddbe30a5b9fd6134a96c72902b5adce893d86349",
+      "tiny-radius-001": "01ff577b359ef66e3c7094c7842818fa57e8434e12c6cdb84706c55163887f8b",
+      "translation-001": "55d0bbbaa4d9aa48a20b837abd6483aa0611784d4a4414d7112c61e385ccab6f",
+      "uniform-scale-001": "834ea1539c7dbbf5ce02b8c2738b335e907b642227a3607f69d69d55bfbe2fa3"
+    },
+    "step_hashes": {
+      "arc-seam-001": "2059d55e04ace3b7be62a2272897ea1cc125d62cd9ef93772ea3d5ab21c6da87",
+      "bezier-d3-001": "e04c1cdc357b8ac08c32392172bd7f23f354c78be747242ecfb6b6f710574e1a",
+      "bspline-d3-001": "98a419a4528b926ca9d188bbe93c13a4e9491bd4f36bc41b56b651d0354a2fe1",
+      "bspline-d5-001": "b3a278dfcbf4d5c7b1806e70fe6ce2f4a9addfb49ad5821a2850e65082a17f4f",
+      "bulge-arc-001": "d806875e4f5bc16bcd68c4ed772bc52c4bb88dcc497e0efa7abaa80df5d87ccf",
+      "bulge-arc-neg-001": "fbb9ef71941a8e2139b319dff35de8a0b7c297b5da2dad9eea9bd5c99a2c9811",
+      "circle-001": "916da2eb09b6060c71a978543590f6890d71ac47b261ee68db24cd78de8ff039",
+      "closed-by-endpoint-001": "d408f19c4536567d1b1dc9a88c706cbf86fee029a141b773578d3d4affaa2f42",
+      "closed-periodic-001": "116a5c1269f22a3e34567eb97135dd264dc146193be489bb81ad5037444aa19c",
+      "ellipse-001": "97cade7f2f092e71c2acf43fdee1eca5cf07d684cfc66630a5238fd19c70c760",
+      "elliptical-arc-001": "b39eb7a36ff1548da28ae39dd6ea86ea290ac2df20bd60b3efe6aca018b2efba",
+      "large-coords-001": "eee06d816c88e422a6dc942907d9a5f19e9bdb7fea9ad67837f1565100065a72",
+      "layer-state-001": "438c1d67f831edc4bb4c34a64ac57b882bf673f9360e7b8fa6928b569b5c2f66",
+      "line-001": "28ea2c4f3a0111abccef7a07d2aaaa3579794201ea169794241ca2797678e805",
+      "lwpolyline-closed-001": "fd133cce4c9720cf710390eb928e017813b0bcc82fde63752801062b95fd5135",
+      "nested-blocks-001": "d9123f1415ebdf7a20386e6c796b4ddaa7141d6cf4792e10cce2fc92fdb43dca",
+      "nonuniform-scale-circle-001": "3d5ecef18e4cd4ec7c795a12ea2f890dec98eaacb6f7c77ec08bf6b161ae9ebd",
+      "nonuniform-scale-rotated-001": "aa60804b7b5a14e3fc2bb4daac8d5ef5fb40b576b5da774ebd5a22ccf5cc9550",
+      "nonunit-weight-001": "83fe08fa093f05fa87e1082b3482ad30bc84b6e01fd7cea63a740a25fc14b760",
+      "nurbs-d2-offconic-001": "347ed49076e92bdfd55978190c15bf33daf6adf3f3c96a620ac2fb43030aad1e",
+      "nurbs-d3-001": "12f1ada976f0ba8fe2a5f4b4287825be236d35154986e82d79a8731c52489da5",
+      "polyline-001": "da9e661c3561cea8c2550a7b8c90beb291579a73756341c1ca5a29f8422095d6",
+      "polyline2d-001": "57b891b73d9cd4dbebe99288f18841cc4346d65150ea71825dd7cc3e5bde827d",
+      "reflection-001": "49da6b2798c294e0334626d5ae4a732af066edb25dd33ff62c025d11058f7cfe",
+      "repeated-knot-c0-001": "9b1c6e04ea6cd5235ff66933d5a67256f786324175a16c5e0bb8af968c05a2d1",
+      "rotation-irrational-001": "58275a3f966d251261be905028b711d28543eb0b28724c7290d62dddbddc9f23",
+      "tiny-radius-001": "05d7b6246e8c3d35724863bc92002ab68eef70df57b9af379eba9121bdd433f8",
+      "translation-001": "5516e1f18bdfb30b3ecdaf00727742154a9c18248c8a5f87b14aa1645468da04",
+      "uniform-scale-001": "da37e6aa200017e09cbbfc098f97a5dfbf3914114ac3e6cf8d88ab3086eeaf02"
+    }
+  },
+  "refused": {
+    "near-singular-001": "exit 15 CONVERSION_FAILED"
+  },
+  "release": "r0-open-1",
+  "schema_version": "pvec-gold/release-manifest/1",
+  "status": "FROZEN_CANDIDATE_NOT_TAGGED",
+  "step_hash_note": "sha256 of the STEP text with the FILE_NAME time stamp replaced by <TIMESTAMP>"
+}

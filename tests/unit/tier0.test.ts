@@ -40,7 +40,7 @@ describe('Tier0Decoder (#50 M5.1)', () => {
 
   it('rejects a preview without a declared error', () => {
     const d = new Tier0Decoder({ maxEntitiesPerBlock: 10, maxSliceMs: 8, now: clock() });
-    const bad = { ...preview('x'), declaredErrorPx: undefined } as RawEntity;
+    const bad = { ...preview('x'), declaredErrorPx: undefined } as unknown as RawEntity;
     expect(() => d.decodeAll(source([bad]))).toThrow(/declaredErrorPx/);
   });
 });
