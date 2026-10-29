@@ -11,8 +11,9 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:e2e": "playwright test",
+    "test:e2e": "bash tools/run-jobs.sh",
     "build": "tsc -p tsconfig.build.json",
+    "test:jobs": "node tools/check-jobs.mjs job-reports",
     "api:report": "node tools/api-report.mjs --write"
   },
   "peerDependencies": {

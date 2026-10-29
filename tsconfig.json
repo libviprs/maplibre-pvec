@@ -10,7 +10,9 @@
     "noImplicitOverride": true,
     "isolatedModules": true,
     "skipLibCheck": true,
-    "noEmit": true
+    "noEmit": true,
+    "resolveJsonModule": true,
+    "allowJs": false
   },
-  "include": ["src", "tests", "vitest.config.ts", "playwright.config.ts"]
+  "include": ["src", "tests", "tools", "vitest.config.ts", "playwright.config.ts"]
 }
