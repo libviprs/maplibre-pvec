@@ -1,0 +1,631 @@
+{
+  "platform": "x64 Linux container, node v22.23.4, host mars x64 (NAS-native)",
+  "provisional": true,
+  "note": "synthetic container; layout not frozen until P1.8",
+  "runs": [
+    {
+      "fixture": {
+        "n": 10000,
+        "perBlock": 100,
+        "fanout": 16,
+        "blocks": 100,
+        "directoryBytes": 4280,
+        "fileBytes": 488440
+      },
+      "preset": "fullExtent",
+      "strategy": "whole",
+      "rttMs": 0,
+      "requests": 3,
+      "bytes": {
+        "header": 4160,
+        "manifest": 0,
+        "directory": 4280,
+        "tier0": 480000
+      },
+      "serialisedRoundTrips": 3,
+      "msToFirstUsefulDrawing": 16.1,
+      "tier0Blocks": 100,
+      "tier0Ranges": 1
+    },
+    {
+      "fixture": {
+        "n": 10000,
+        "perBlock": 100,
+        "fanout": 16,
+        "blocks": 100,
+        "directoryBytes": 4280,
+        "fileBytes": 488440
+      },
+      "preset": "fullExtent",
+      "strategy": "progressive",
+      "rttMs": 0,
+      "requests": 10,
+      "bytes": {
+        "header": 4160,
+        "manifest": 0,
+        "directory": 4280,
+        "tier0": 480000
+      },
+      "serialisedRoundTrips": 4,
+      "msToFirstUsefulDrawing": 14.1,
+      "tier0Blocks": 100,
+      "tier0Ranges": 1
+    },
+    {
+      "fixture": {
+        "n": 10000,
+        "perBlock": 100,
+        "fanout": 16,
+        "blocks": 100,
+        "directoryBytes": 4280,
+        "fileBytes": 488440
+      },
+      "preset": "denseDetail",
+      "strategy": "whole",
+      "rttMs": 0,
+      "requests": 15,
+      "bytes": {
+        "header": 4160,
+        "manifest": 0,
+        "directory": 4280,
+        "tier0": 148800
+      },
+      "serialisedRoundTrips": 3,
+      "msToFirstUsefulDrawing": 8.6,
+      "tier0Blocks": 31,
+      "tier0Ranges": 13
+    },
+    {
+      "fixture": {
+        "n": 10000,
+        "perBlock": 100,
+        "fanout": 16,
+        "blocks": 100,
+        "directoryBytes": 4280,
+        "fileBytes": 488440
+      },
+      "preset": "denseDetail",
+      "strategy": "progressive",
+      "rttMs": 0,
+      "requests": 20,
+      "bytes": {
+        "header": 4160,
+        "manifest": 0,
+        "directory": 3480,
+        "tier0": 148800
+      },
+      "serialisedRoundTrips": 4,
+      "msToFirstUsefulDrawing": 10.9,
+      "tier0Blocks": 31,
+      "tier0Ranges": 13
+    },
+    {
+      "fixture": {
+        "n": 10000,
+        "perBlock": 100,
+        "fanout": 16,
+        "blocks": 100,
+        "directoryBytes": 4280,
+        "fileBytes": 488440
+      },
+      "preset": "sparseEdge",
+      "strategy": "whole",
+      "rttMs": 0,
+      "requests": 4,
+      "bytes": {
+        "header": 4160,
+        "manifest": 0,
+        "directory": 4280,
+        "tier0": 19200
+      },
+      "serialisedRoundTrips": 3,
+      "msToFirstUsefulDrawing": 5.5,
+      "tier0Blocks": 4,
+      "tier0Ranges": 2
+    },
+    {
+      "fixture": {
+        "n": 10000,
+        "perBlock": 100,
+        "fanout": 16,
+        "blocks": 100,
+        "directoryBytes": 4280,
+        "fileBytes": 488440
+      },
+      "preset": "sparseEdge",
+      "strategy": "progressive",
+      "rttMs": 0,
+      "requests": 6,
+      "bytes": {
+        "header": 4160,
+        "manifest": 0,
+        "directory": 1080,
+        "tier0": 19200
+      },
+      "serialisedRoundTrips": 4,
+      "msToFirstUsefulDrawing": 6.9,
+      "tier0Blocks": 4,
+      "tier0Ranges": 2
+    },
+    {
+      "fixture": {
+        "n": 200000,
+        "perBlock": 200,
+        "fanout": 16,
+        "blocks": 1000,
+        "directoryBytes": 42680,
+        "fileBytes": 9646840
+      },
+      "preset": "fullExtent",
+      "strategy": "whole",
+      "rttMs": 0,
+      "requests": 3,
+      "bytes": {
+        "header": 4160,
+        "manifest": 0,
+        "directory": 42680,
+        "tier0": 9600000
+      },
+      "serialisedRoundTrips": 3,
+      "msToFirstUsefulDrawing": 17.6,
+      "tier0Blocks": 1000,
+      "tier0Ranges": 1
+    },
+    {
+      "fixture": {
+        "n": 200000,
+        "perBlock": 200,
+        "fanout": 16,
+        "blocks": 1000,
+        "directoryBytes": 42680,
+        "fileBytes": 9646840
+      },
+      "preset": "fullExtent",
+      "strategy": "progressive",
+      "rttMs": 0,
+      "requests": 70,
+      "bytes": {
+        "header": 4160,
+        "manifest": 0,
+        "directory": 42680,
+        "tier0": 9600000
+      },
+      "serialisedRoundTrips": 5,
+      "msToFirstUsefulDrawing": 98.7,
+      "tier0Blocks": 1000,
+      "tier0Ranges": 1
+    },
+    {
+      "fixture": {
+        "n": 200000,
+        "perBlock": 200,
+        "fanout": 16,
+        "blocks": 1000,
+        "directoryBytes": 42680,
+        "fileBytes": 9646840
+      },
+      "preset": "denseDetail",
+      "strategy": "whole",
+      "rttMs": 0,
+      "requests": 21,
+      "bytes": {
+        "header": 4160,
+        "manifest": 0,
+        "directory": 42680,
+        "tier0": 1776000
+      },
+      "serialisedRoundTrips": 3,
+      "msToFirstUsefulDrawing": 11.5,
+      "tier0Blocks": 185,
+      "tier0Ranges": 19
+    },
+    {
+      "fixture": {
+        "n": 200000,
+        "perBlock": 200,
+        "fanout": 16,
+        "blocks": 1000,
+        "directoryBytes": 42680,
+        "fileBytes": 9646840
+      },
+      "preset": "denseDetail",
+      "strategy": "progressive",
+      "rttMs": 0,
+      "requests": 51,
+      "bytes": {
+        "header": 4160,
+        "manifest": 0,
+        "directory": 19360,
+        "tier0": 1776000
+      },
+      "serialisedRoundTrips": 5,
+      "msToFirstUsefulDrawing": 17.7,
+      "tier0Blocks": 185,
+      "tier0Ranges": 19
+    },
+    {
+      "fixture": {
+        "n": 200000,
+        "perBlock": 200,
+        "fanout": 16,
+        "blocks": 1000,
+        "directoryBytes": 42680,
+        "fileBytes": 9646840
+      },
+      "preset": "sparseEdge",
+      "strategy": "whole",
+      "rttMs": 0,
+      "requests": 6,
+      "bytes": {
+        "header": 4160,
+        "manifest": 0,
+        "directory": 42680,
+        "tier0": 144000
+      },
+      "serialisedRoundTrips": 3,
+      "msToFirstUsefulDrawing": 5,
+      "tier0Blocks": 15,
+      "tier0Ranges": 4
+    },
+    {
+      "fixture": {
+        "n": 200000,
+        "perBlock": 200,
+        "fanout": 16,
+        "blocks": 1000,
+        "directoryBytes": 42680,
+        "fileBytes": 9646840
+      },
+      "preset": "sparseEdge",
+      "strategy": "progressive",
+      "rttMs": 0,
+      "requests": 10,
+      "bytes": {
+        "header": 4160,
+        "manifest": 0,
+        "directory": 2360,
+        "tier0": 144000
+      },
+      "serialisedRoundTrips": 5,
+      "msToFirstUsefulDrawing": 9.5,
+      "tier0Blocks": 15,
+      "tier0Ranges": 4
+    },
+    {
+      "fixture": {
+        "n": 200000,
+        "perBlock": 200,
+        "fanout": 64,
+        "blocks": 1000,
+        "directoryBytes": 40640,
+        "fileBytes": 9644800
+      },
+      "preset": "fullExtent",
+      "strategy": "whole",
+      "rttMs": 0,
+      "requests": 3,
+      "bytes": {
+        "header": 4160,
+        "manifest": 0,
+        "directory": 40640,
+        "tier0": 9600000
+      },
+      "serialisedRoundTrips": 3,
+      "msToFirstUsefulDrawing": 14.4,
+      "tier0Blocks": 1000,
+      "tier0Ranges": 1
+    },
+    {
+      "fixture": {
+        "n": 200000,
+        "perBlock": 200,
+        "fanout": 64,
+        "blocks": 1000,
+        "directoryBytes": 40640,
+        "fileBytes": 9644800
+      },
+      "preset": "fullExtent",
+      "strategy": "progressive",
+      "rttMs": 0,
+      "requests": 19,
+      "bytes": {
+        "header": 4160,
+        "manifest": 0,
+        "directory": 40640,
+        "tier0": 9600000
+      },
+      "serialisedRoundTrips": 4,
+      "msToFirstUsefulDrawing": 18.5,
+      "tier0Blocks": 1000,
+      "tier0Ranges": 1
+    },
+    {
+      "fixture": {
+        "n": 200000,
+        "perBlock": 200,
+        "fanout": 64,
+        "blocks": 1000,
+        "directoryBytes": 40640,
+        "fileBytes": 9644800
+      },
+      "preset": "denseDetail",
+      "strategy": "whole",
+      "rttMs": 0,
+      "requests": 21,
+      "bytes": {
+        "header": 4160,
+        "manifest": 0,
+        "directory": 40640,
+        "tier0": 1776000
+      },
+      "serialisedRoundTrips": 3,
+      "msToFirstUsefulDrawing": 10.2,
+      "tier0Blocks": 185,
+      "tier0Ranges": 19
+    },
+    {
+      "fixture": {
+        "n": 200000,
+        "perBlock": 200,
+        "fanout": 64,
+        "blocks": 1000,
+        "directoryBytes": 40640,
+        "fileBytes": 9644800
+      },
+      "preset": "denseDetail",
+      "strategy": "progressive",
+      "rttMs": 0,
+      "requests": 32,
+      "bytes": {
+        "header": 4160,
+        "manifest": 0,
+        "directory": 28800,
+        "tier0": 1776000
+      },
+      "serialisedRoundTrips": 4,
+      "msToFirstUsefulDrawing": 13.4,
+      "tier0Blocks": 185,
+      "tier0Ranges": 19
+    },
+    {
+      "fixture": {
+        "n": 200000,
+        "perBlock": 200,
+        "fanout": 64,
+        "blocks": 1000,
+        "directoryBytes": 40640,
+        "fileBytes": 9644800
+      },
+      "preset": "sparseEdge",
+      "strategy": "whole",
+      "rttMs": 0,
+      "requests": 6,
+      "bytes": {
+        "header": 4160,
+        "manifest": 0,
+        "directory": 40640,
+        "tier0": 144000
+      },
+      "serialisedRoundTrips": 3,
+      "msToFirstUsefulDrawing": 6.1,
+      "tier0Blocks": 15,
+      "tier0Ranges": 4
+    },
+    {
+      "fixture": {
+        "n": 200000,
+        "perBlock": 200,
+        "fanout": 64,
+        "blocks": 1000,
+        "directoryBytes": 40640,
+        "fileBytes": 9644800
+      },
+      "preset": "sparseEdge",
+      "strategy": "progressive",
+      "rttMs": 0,
+      "requests": 8,
+      "bytes": {
+        "header": 4160,
+        "manifest": 0,
+        "directory": 4800,
+        "tier0": 144000
+      },
+      "serialisedRoundTrips": 4,
+      "msToFirstUsefulDrawing": 9.7,
+      "tier0Blocks": 15,
+      "tier0Ranges": 4
+    },
+    {
+      "fixture": {
+        "n": 200000,
+        "perBlock": 1000,
+        "fanout": 16,
+        "blocks": 200,
+        "directoryBytes": 8520,
+        "fileBytes": 9612680
+      },
+      "preset": "fullExtent",
+      "strategy": "whole",
+      "rttMs": 0,
+      "requests": 3,
+      "bytes": {
+        "header": 4160,
+        "manifest": 0,
+        "directory": 8520,
+        "tier0": 9600000
+      },
+      "serialisedRoundTrips": 3,
+      "msToFirstUsefulDrawing": 17.7,
+      "tier0Blocks": 200,
+      "tier0Ranges": 1
+    },
+    {
+      "fixture": {
+        "n": 200000,
+        "perBlock": 1000,
+        "fanout": 16,
+        "blocks": 200,
+        "directoryBytes": 8520,
+        "fileBytes": 9612680
+      },
+      "preset": "fullExtent",
+      "strategy": "progressive",
+      "rttMs": 0,
+      "requests": 16,
+      "bytes": {
+        "header": 4160,
+        "manifest": 0,
+        "directory": 8520,
+        "tier0": 9600000
+      },
+      "serialisedRoundTrips": 4,
+      "msToFirstUsefulDrawing": 20.6,
+      "tier0Blocks": 200,
+      "tier0Ranges": 1
+    },
+    {
+      "fixture": {
+        "n": 200000,
+        "perBlock": 1000,
+        "fanout": 16,
+        "blocks": 200,
+        "directoryBytes": 8520,
+        "fileBytes": 9612680
+      },
+      "preset": "denseDetail",
+      "strategy": "whole",
+      "rttMs": 0,
+      "requests": 14,
+      "bytes": {
+        "header": 4160,
+        "manifest": 0,
+        "directory": 8520,
+        "tier0": 2496000
+      },
+      "serialisedRoundTrips": 3,
+      "msToFirstUsefulDrawing": 10.5,
+      "tier0Blocks": 52,
+      "tier0Ranges": 12
+    },
+    {
+      "fixture": {
+        "n": 200000,
+        "perBlock": 1000,
+        "fanout": 16,
+        "blocks": 200,
+        "directoryBytes": 8520,
+        "fileBytes": 9612680
+      },
+      "preset": "denseDetail",
+      "strategy": "progressive",
+      "rttMs": 0,
+      "requests": 23,
+      "bytes": {
+        "header": 4160,
+        "manifest": 0,
+        "directory": 6280,
+        "tier0": 2496000
+      },
+      "serialisedRoundTrips": 4,
+      "msToFirstUsefulDrawing": 11.6,
+      "tier0Blocks": 52,
+      "tier0Ranges": 12
+    },
+    {
+      "fixture": {
+        "n": 200000,
+        "perBlock": 1000,
+        "fanout": 16,
+        "blocks": 200,
+        "directoryBytes": 8520,
+        "fileBytes": 9612680
+      },
+      "preset": "sparseEdge",
+      "strategy": "whole",
+      "rttMs": 0,
+      "requests": 4,
+      "bytes": {
+        "header": 4160,
+        "manifest": 0,
+        "directory": 8520,
+        "tier0": 288000
+      },
+      "serialisedRoundTrips": 3,
+      "msToFirstUsefulDrawing": 6,
+      "tier0Blocks": 6,
+      "tier0Ranges": 2
+    },
+    {
+      "fixture": {
+        "n": 200000,
+        "perBlock": 1000,
+        "fanout": 16,
+        "blocks": 200,
+        "directoryBytes": 8520,
+        "fileBytes": 9612680
+      },
+      "preset": "sparseEdge",
+      "strategy": "progressive",
+      "rttMs": 0,
+      "requests": 7,
+      "bytes": {
+        "header": 4160,
+        "manifest": 0,
+        "directory": 2120,
+        "tier0": 288000
+      },
+      "serialisedRoundTrips": 4,
+      "msToFirstUsefulDrawing": 6.4,
+      "tier0Blocks": 6,
+      "tier0Ranges": 2
+    },
+    {
+      "fixture": {
+        "n": 200000,
+        "perBlock": 200,
+        "fanout": 16,
+        "blocks": 1000,
+        "directoryBytes": 42680,
+        "fileBytes": 9646840
+      },
+      "preset": "denseDetail",
+      "strategy": "whole",
+      "rttMs": 200,
+      "requests": 21,
+      "bytes": {
+        "header": 4160,
+        "manifest": 0,
+        "directory": 42680,
+        "tier0": 1776000
+      },
+      "serialisedRoundTrips": 3,
+      "msToFirstUsefulDrawing": 615,
+      "tier0Blocks": 185,
+      "tier0Ranges": 19
+    },
+    {
+      "fixture": {
+        "n": 200000,
+        "perBlock": 200,
+        "fanout": 16,
+        "blocks": 1000,
+        "directoryBytes": 42680,
+        "fileBytes": 9646840
+      },
+      "preset": "denseDetail",
+      "strategy": "progressive",
+      "rttMs": 200,
+      "requests": 51,
+      "bytes": {
+        "header": 4160,
+        "manifest": 0,
+        "directory": 19360,
+        "tier0": 1776000
+      },
+      "serialisedRoundTrips": 5,
+      "msToFirstUsefulDrawing": 1032.4,
+      "tier0Blocks": 185,
+      "tier0Ranges": 19
+    }
+  ]
+}

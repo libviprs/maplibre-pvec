@@ -33,3 +33,48 @@ export const PRECISION_ENVELOPE = Object.freeze({
   maxZoom: 22,
   maxLatitude: 84,
 });
+
+/** Refinement policy (M6.3). Provisional until M8.6 tunes them and M8.7 freezes them. */
+export const REFINE_DEFAULTS = Object.freeze({
+  /** Target error of a refined tessellation, device px. */
+  targetPx: 0.5,
+  /** Refine when the evaluated error exceeds this. */
+  refinePx: 1.0,
+  /** Coarsen below this. The 4x band to refinePx is the hysteresis. */
+  coarsenPx: 0.25,
+  /** Refine threshold while the camera is moving. */
+  navigatingPx: 4.0,
+  /** Idle delay after the last camera change, ms. */
+  idleMs: 150,
+  /** Policy evaluation budget per frame, ms. */
+  policyBudgetMs: 1,
+  /** Parameters sampled per entity when measuring the displayed error. */
+  measureSamples: 96,
+});
+
+/** Cost-aware queue and dispatch budgets (M6.4). Provisional until M8.6. */
+export const QUEUE_DEFAULTS = Object.freeze({
+  maxInFlight: 8,
+  perWorkerInFlight: 2,
+  perWorkerBytes: 2 * 1024 * 1024,
+  /** Target granularity of one job, ms of estimated work. */
+  jobTargetMs: 20,
+  maxDepth: 4096,
+  /** Main-thread scheduling cost per frame, ms. */
+  scheduleBudgetMs: 0.5,
+  /** Placeholder calibration, ns per control-point-degree evaluation unit, until M1.3 can be measured on the real evaluator. */
+  nsPerCostUnit: 400,
+});
+
+/** Refinement cache ceiling (M6.6). Provisional until M8.6. */
+export const CACHE_DEFAULTS = Object.freeze({
+  maxBytes: 48 * 1024 * 1024,
+  maxEntries: 4096,
+  /** Zoom bucket width, in zoom levels. */
+  zoomBucketWidth: 0.25,
+  /** Device pixel ratio bucket width. */
+  dprBucketWidth: 0.25,
+});
+
+/** Worker pool (M6.2). */
+export const POOL_DEFAULTS = Object.freeze({ minWorkers: 1, maxWorkers: 4 });

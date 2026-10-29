@@ -233,7 +233,7 @@ export class PVecSource {
     const t0 = this.internals.now();
     let res: Response;
     try {
-      res = await this.fetchImpl(this.options.url, { headers, signal });
+      res = await this.fetchImpl(this.options.url, { headers, ...(signal ? { signal } : {}) });
     } catch (e) {
       if (signal?.aborted || isAbort(e)) throw new PVecAbortError();
       throw new PVecTransportError("connection-reset", `request failed: ${String(e)}`);

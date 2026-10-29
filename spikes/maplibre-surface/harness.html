@@ -1,0 +1,114 @@
+<!doctype html>
+<meta charset="utf-8">
+<style>html,body,#map{margin:0;width:512px;height:512px}</style>
+<div id="map"></div>
+<script>
+// Throwaway harness. Loads the maplibre build named in ?v= and runs one probe named in ?probe=.
+const q = new URLSearchParams(location.search);
+const v = q.get("v"), probe = q.get("probe");
+const LNG = 8.5417, LAT = 47.3769, ZOOM = 14;
+const log = { version: null, hooks: [], counters: { prerender: 0, render: 0 } };
+window.__log = log;
+
+function loadScript(src) { return new Promise((res, rej) => { const s = document.createElement("script"); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); }); }
+function loadCss(href) { const l = document.createElement("link"); l.rel = "stylesheet"; l.href = href; document.head.appendChild(l); }
+
+const VS = `#version 300 es
+uniform mat4 u_matrix; in vec2 a_pos; void main(){ gl_Position = u_matrix * vec4(a_pos, 0.0, 1.0); }`;
+const FS = `#version 300 es
+precision mediump float; uniform vec4 u_color; out vec4 o; void main(){ o = u_color; }`;
+
+function makeLayer(id, color, halfMeters, opts) {
+  const mc = maplibregl.MercatorCoordinate.fromLngLat([LNG, LAT]);
+  const h = halfMeters * mc.meterInMercatorCoordinateUnits();
+  const verts = new Float32Array([mc.x - h, mc.y - h, mc.x + h, mc.y - h, mc.x - h, mc.y + h, mc.x + h, mc.y + h]);
+  const st = { prog: null, buf: null, vao: null, gl: null, centroid: null, matrixKind: null, loop: !!(opts && opts.loop) };
+  const layer = {
+    id, type: "custom", renderingMode: (opts && opts.mode) || "2d",
+    onAdd(map, gl) {
+      log.hooks.push({ hook: "onAdd", ctor: gl.constructor.name, isWebGL2: gl instanceof WebGL2RenderingContext, t: performance.now() });
+      st.gl = gl; st.map = map;
+      const mk = (t, s) => { const sh = gl.createShader(t); gl.shaderSource(sh, s); gl.compileShader(sh); return sh; };
+      st.prog = gl.createProgram();
+      gl.attachShader(st.prog, mk(gl.VERTEX_SHADER, VS)); gl.attachShader(st.prog, mk(gl.FRAGMENT_SHADER, FS)); gl.linkProgram(st.prog);
+      st.loc = { m: gl.getUniformLocation(st.prog, "u_matrix"), c: gl.getUniformLocation(st.prog, "u_color"), a: gl.getAttribLocation(st.prog, "a_pos") };
+      st.buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, st.buf); gl.bufferData(gl.ARRAY_BUFFER, verts, gl.STATIC_DRAW);
+      st.vao = gl.createVertexArray(); gl.bindVertexArray(st.vao); gl.enableVertexAttribArray(st.loc.a); gl.vertexAttribPointer(st.loc.a, 2, gl.FLOAT, false, 0, 0); gl.bindVertexArray(null);
+    },
+    onRemove(map, gl) { log.hooks.push({ hook: "onRemove", sameGl: gl === st.gl, t: performance.now() }); },
+    prerender(gl, a) {
+      log.counters.prerender++;
+      if (!log.prerenderArgs) log.prerenderArgs = describeArgs(a);
+    },
+    render(gl, a) {
+      const t0 = performance.now();
+      log.counters.render++;
+      if (!log.renderArgs) log.renderArgs = describeArgs(a);
+      let m;
+      if (Array.isArray(a) || a instanceof Float32Array || a instanceof Float64Array) { m = a; st.matrixKind = "arg0 is matrix"; }
+      else { m = a.defaultProjectionData.mainMatrix; st.matrixKind = "args.defaultProjectionData.mainMatrix"; }
+      gl.useProgram(st.prog);
+      gl.uniformMatrix4fv(st.loc.m, false, m);
+      gl.uniform4f(st.loc.c, color[0], color[1], color[2], 1);
+      gl.bindVertexArray(st.vao);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      gl.bindVertexArray(null);
+      log.renderStateAfter = { blend: gl.isEnabled(gl.BLEND), depthTest: gl.isEnabled(gl.DEPTH_TEST), program: gl.getParameter(gl.CURRENT_PROGRAM) === st.prog };
+      if (opts && opts.measure) { st.centroid = readCentroid(gl, color); log.centroid = st.centroid; }
+      log.lastRenderMs = performance.now() - t0;
+      log.renderMsSum = (log.renderMsSum || 0) + log.lastRenderMs;
+      if (st.loop) st.map.triggerRepaint();
+    },
+  };
+  layer.__st = st;
+  return layer;
+}
+function describeArgs(a) {
+  if (Array.isArray(a) || ArrayBuffer.isView(a)) return { kind: "matrix-only", type: a.constructor.name, length: a.length };
+  const o = { kind: "object", keys: Object.keys(a) };
+  if (a.defaultProjectionData) o.defaultProjectionDataKeys = Object.keys(a.defaultProjectionData);
+  return o;
+}
+function readCentroid(gl, c) {
+  const w = gl.drawingBufferWidth, h = gl.drawingBufferHeight;
+  const px = new Uint8Array(w * h * 4);
+  gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, px);
+  let sx = 0, sy = 0, n = 0;
+  const [r, g, b] = c.map(x => Math.round(x * 255));
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const i = (y * w + x) * 4;
+    if (px[i] === r && px[i + 1] === g && px[i + 2] === b) { sx += x + 0.5; sy += (h - 1 - y) + 0.5; n++; }
+  }
+  return n ? { x: sx / n, y: sy / n, n, w, h } : { n: 0, w, h };
+}
+function pixelAt(gl, x, y) { const p = new Uint8Array(4); gl.readPixels(x, gl.drawingBufferHeight - 1 - y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, p); return Array.from(p); }
+
+const basemap = (extra) => ({
+  version: 8,
+  sources: {
+    a: { type: "geojson", data: { type: "Feature", geometry: { type: "Polygon", coordinates: [[[LNG - .01, LAT - .01], [LNG + .01, LAT - .01], [LNG + .01, LAT + .01], [LNG - .01, LAT + .01], [LNG - .01, LAT - .01]]] } } },
+    b: { type: "geojson", data: { type: "Feature", geometry: { type: "LineString", coordinates: [[LNG - .01, LAT], [LNG + .01, LAT]] } } },
+  },
+  layers: [
+    { id: "bg", type: "background", paint: { "background-color": "#ffffff" } },
+    { id: "fill", type: "fill", source: "a", paint: { "fill-color": "#ff0000", "fill-opacity": 1 } },
+    { id: "line", type: "line", source: "b", paint: { "line-color": "#00ff00", "line-width": 40 } },
+  ],
+});
+
+(async () => {
+  loadCss(`/${v}/dist/maplibre-gl.css`);
+  if (v === "v6") { const mod = await import(`/${v}/dist/maplibre-gl.mjs`); window.maplibregl = mod.default || mod; }
+  else await loadScript(`/${v}/dist/maplibre-gl.js`);
+  log.version = maplibregl.getVersion ? maplibregl.getVersion() : maplibregl.version;
+  const map = new maplibregl.Map({
+    container: "map", style: basemap(), center: [LNG, LAT], zoom: ZOOM, fadeDuration: 0,
+    canvasContextAttributes: { antialias: false, preserveDrawingBuffer: true }, preserveDrawingBuffer: true, antialias: false,
+  });
+  window.map = map; window.__makeLayer = makeLayer; window.__pixelAt = pixelAt;
+  map.on("webglcontextlost", () => log.hooks.push({ hook: "map:webglcontextlost", t: performance.now() }));
+  map.on("webglcontextrestored", () => log.hooks.push({ hook: "map:webglcontextrestored", t: performance.now() }));
+  await new Promise(r => map.once("load", r));
+  window.__ready = true;
+})().catch(e => { window.__error = String(e); });
+</script>

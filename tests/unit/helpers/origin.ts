@@ -186,9 +186,9 @@ export function corsFilteredFetch(inner: typeof fetch = fetch): typeof fetch {
 /** Counting fetch stub: records every call, including headers. */
 export function countingFetch(inner: typeof fetch = fetch): {
   fetch: typeof fetch;
-  calls: { url: string; headers: Record<string, string>; signal?: AbortSignal }[];
+  calls: { url: string; headers: Record<string, string>; signal?: AbortSignal | undefined }[];
 } {
-  const calls: { url: string; headers: Record<string, string>; signal?: AbortSignal }[] = [];
+  const calls: { url: string; headers: Record<string, string>; signal?: AbortSignal | undefined }[] = [];
   const f = ((input: RequestInfo | URL, init?: RequestInit) => {
     const headers: Record<string, string> = {};
     new Headers(init?.headers).forEach((v, k) => (headers[k] = v));

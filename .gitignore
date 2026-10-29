@@ -3,6 +3,9 @@ dist/
 test-results/
 playwright-report/
 *.superseded
+.types/
+*.tgz
+examples/out/
 .cache/
 job-reports/
 *.rejected.json
