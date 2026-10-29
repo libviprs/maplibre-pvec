@@ -1,0 +1,24 @@
+{
+  "name": "maplibre-pvec",
+  "version": "0.0.0",
+  "private": true,
+  "description": "MapLibre GL JS add-on that streams .pvec directly",
+  "license": "MIT",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "build": "tsc -p tsconfig.build.json"
+  },
+  "peerDependencies": {
+    "maplibre-gl": ">=4.7.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.48.2",
+    "maplibre-gl": "4.7.1",
+    "typescript": "5.6.3",
+    "vitest": "2.1.4"
+  }
+}
