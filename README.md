@@ -39,3 +39,5 @@ Eight phases and 64 issues under [#1](https://github.com/libviprs/maplibre-pvec/
 | [`libviprs/pvec`](https://github.com/libviprs/pvec) | the `.pvec` semantic profile, container and shared geometry evaluator |
 | [`libviprs/pvec-gold-fixtures`](https://github.com/libviprs/pvec-gold-fixtures) | the fixture corpus the browser conformance suite reads |
 | [`libviprs/libviprs`](https://github.com/libviprs/libviprs) | produces `.pvec` from DWG and vector PDF |
+
+Documentation starts at [docs/README.md](docs/README.md). The v1 freeze and what is still open are in [docs/v1-readiness.md](docs/v1-readiness.md).

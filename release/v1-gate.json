@@ -1,0 +1,84 @@
+{
+  "schema": 1,
+  "note": "Produced by tools/release-gate.mjs. The release step refuses to tag unless every condition is present and met.",
+  "conditions": [
+    {
+      "id": "conformance_green_every_browser_row",
+      "spec": "conformance suite green on every supported browser row (M2.8 / M7.7)",
+      "status": "deferred",
+      "measured": {
+        "supportedRows": 1,
+        "rows": 3
+      },
+      "evidence": "compatibility.json browsers: chromium supported, firefox and webkit pending",
+      "deferredIn": "docs/deferred.md#issue-40-v1-freeze-and-documentation"
+    },
+    {
+      "id": "gates_green_frozen_corpus",
+      "spec": "all gates green on the frozen corpus after tuning (M8.2 - M8.5, M8.6)",
+      "status": "deferred",
+      "measured": {
+        "casesWithPvecBytes": 0,
+        "cases": 30,
+        "varianceOk": true
+      },
+      "evidence": "bench/corpus/corpus.json pvec.status, latest bench/results file",
+      "deferredIn": "docs/deferred.md#issue-40-v1-freeze-and-documentation"
+    },
+    {
+      "id": "no_quarantined_in_pass_set",
+      "spec": "no QUARANTINED fixture in the pass set (EPIC O classes)",
+      "status": "deferred",
+      "measured": {
+        "quarantined": 0,
+        "passSetCases": 0
+      },
+      "evidence": "the pass set is empty until the corpus has real .pvec bytes, so the absence is not yet evidence",
+      "deferredIn": "docs/deferred.md#issue-40-v1-freeze-and-documentation"
+    },
+    {
+      "id": "wasm_blocked_paths_documented",
+      "spec": "WASM-blocked and non-isolated paths behave as documented (M7.6)",
+      "status": "deferred",
+      "measured": {
+        "documented": true,
+        "verifiedThroughLayer": false
+      },
+      "evidence": "documented and unit tested at the loader; the layer does not call the version and WebGL2 refusals yet",
+      "deferredIn": "docs/deferred.md#issue-40-v1-freeze-and-documentation"
+    },
+    {
+      "id": "lifecycle_leak_and_context_loss",
+      "spec": "lifecycle leak and context-loss tests green (M7.2)",
+      "status": "deferred",
+      "measured": {
+        "leakTests": "lifecycle.test.ts (structural)",
+        "contextLossSnapshot": false
+      },
+      "evidence": "the forced WEBGL_lose_context snapshot needs the wired renderer",
+      "deferredIn": "docs/deferred.md#issue-40-v1-freeze-and-documentation"
+    },
+    {
+      "id": "examples_pass_network_denied",
+      "spec": "examples pass with outbound network denied (M7.8)",
+      "status": "deferred",
+      "measured": {
+        "examplesWritten": 1,
+        "examplesPlanned": 6,
+        "deniedHosts": 0
+      },
+      "evidence": "examples/README.md: 01-minimal runs against its own 127.0.0.1 server, 02 to 06 are not written",
+      "deferredIn": "docs/deferred.md#issue-40-v1-freeze-and-documentation"
+    },
+    {
+      "id": "api_report_identical_to_baseline",
+      "spec": "API report identical to the committed baseline (M7.1)",
+      "status": "met",
+      "measured": {
+        "reportSha256": "dba22cb165fb3af29081fa83c770dbe79ce7527903d090bbd9eac67e5ceb9fe1",
+        "change": "none"
+      },
+      "evidence": "etc/maplibre-pvec.api.md regenerated from the sources and compared with release/v1-freeze.json"
+    }
+  ]
+}

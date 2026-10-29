@@ -1,0 +1,159 @@
+{
+  "schema": 1,
+  "status": "frozen values recorded, release not cut: see release/v1-gate.json and docs/v1-readiness.md",
+  "baselineVersion": "1.0.0",
+  "semver": {
+    "additions": "minor",
+    "removalsOrSignatureChanges": "major"
+  },
+  "conformanceProjection": "mercator",
+  "webgpu": "experimental",
+  "sharedArrayBuffer": "optional",
+  "compatibility": {
+    "peerRange": ">=4.7.1 <7.0.0",
+    "pvec": {
+      "readerVersion": "1.0.0",
+      "semanticProfile": "geometry major 1",
+      "requiredCapabilities": [
+        "cartesian_point",
+        "direction_vector",
+        "axis_placement_2d",
+        "line",
+        "polyline",
+        "circle",
+        "ellipse",
+        "trimmed_curve",
+        "composite_curve",
+        "bezier_curve",
+        "b_spline_curve",
+        "rational_b_spline_curve",
+        "affine_transform_2d"
+      ],
+      "optionalCapabilities": [
+        "layer",
+        "line_style",
+        "text",
+        "hatch",
+        "source_provenance",
+        "dwg_semantics",
+        "semantic_class"
+      ],
+      "acceptedCapabilityMajor": 1
+    }
+  },
+  "api": {
+    "reportSha256": "dba22cb165fb3af29081fa83c770dbe79ce7527903d090bbd9eac67e5ceb9fe1",
+    "symbols": {
+      ".": {
+        "Bounds": "5ed9f6166913eaa6f28ec7b2d7c6c3434940fdebf3dcebb5828145be81568949",
+        "BytesEvent": "190c40606b66cbe74f25316ee58612adfc8a36637d3606d4def5cb318fd881c9",
+        "CacheBudget": "a28837b2a3e247dc79c00b4fc0c459df6bd81df2c63e4f53f877bae380563a48",
+        "CapabilitiesEvent": "c9d715706267347408f73586dca4ad8d5605075f8b93f18876f3ac6641224344",
+        "CapabilityInfo": "4b72a64f7c42e08bea65ec69fe8d0f6718276e6b77a427e470358a6b0e60a0aa",
+        "CapabilityUnsupportedEvent": "c1c97e68948d03f445e79af156fc63584fb59c2665dc322aee8c06bbc5326fe9",
+        "ComponentKind": "2c3b86c68bcd99f0a6bf8c889593a84fc773ec8d82dfe6fd038336f65c74eeeb",
+        "ComponentMap": "b0ea8dc26ff4b30bce4238e23c97666c03439b97a8817f79fae56eb5202cf5e0",
+        "createPVecLayer": "31f6c390ac451e25cf797e1e78a9b7c07a45803749ded274f953e576fca0919e",
+        "DiagnosticsSnapshot": "35761ff1d1a4b9f2f4361a52617d3a3350c91d7dc13939512d3d8305c71b3e5d",
+        "EntityRef": "19e15d81640a34e5e6844f270c0c79a6ccc3f120a6db0426aadc4d8322a2655b",
+        "ErrorPolicy": "1abc183782031349a798028b1380c6f20281eb44fc51b4798591e13c187ed74b",
+        "GeoReference": "f394ebae6815c70092cdfac1642cd80e6a2a0219df66acafb069f8891bc5298a",
+        "GeoreferenceOptions": "6770374a725eec9bf2afebce9dca99e60c1c1d17b0386aac38c50864135e18c0",
+        "HatchRenderer": "31f3f6df5609a7772a9e55331f6eb0acdd17de3caff7f6cb02e9b463c00bcacc",
+        "LayerFilter": "32b91c6801961bb706d2a0d12df89a133477935b537fe3ca93f14120baece6dd",
+        "LngLat": "37cb6cd280388377ab91697aa6d71b14595b89a4bbc10d9435452d5eb7a7a3f5",
+        "PickOptions": "ea3f4c30a51a20e5dcd7d364b05e04c5be1c51c110e0a4b46302e744b03bc15f",
+        "PickResult": "48ec883aed58f97358485bb36b5ce8d298d082169c47eb48755afe0f5f36ef2d",
+        "PVecAbortError": "2b4d45d6aa5fd7fcc44ba8d3a225369b6bde43b25c875816ce321b475a4fadb3",
+        "PVecBackpressureError": "a4746fd2bd5d81f542cbc19230edcf0a3bf2bad8c192700c7c9d26cc28ce16d8",
+        "PVecCapabilityError": "672536fecaaa149197c55562887ca6ad02a940b4b806e93d0336b3363d783025",
+        "PVecError": "3194905c7d564912c27ea8b38bff27a68f116cc3537e508edd50608900e732e4",
+        "PVecErrorEvent": "523b798a71f02b78dbc2c3b64247380744f851065e57f820ee8083323d8438c2",
+        "PVecEventMap": "4d8dba8091f50e9aa90a485612d4fb9d700bd514dd06525665a9bdc0da189d8f",
+        "PVecEventName": "89a60ad0cf9faa1b247a12ebc336e76f16557ac8425a66fe55598f9e1e47420a",
+        "PVecFormatError": "818085b6a1db37bb591ff4c1112a1247b424e9a2ce5aa3d6b9bafc1ef4fe8cc3",
+        "PVecLayer": "a8059f67a05760ff4214b7e6993fae75d5266298cf3c645a6f99fcb27d33e11e",
+        "PVecLayerError": "56b72a4b50a3a693f43fe671d350864e4b42f80bd4f9831084a79c01e2909751",
+        "PVecLayerErrorCode": "2dfbc1abc4fe41d0357feafb098591d5e450b70292e926b4f55818b7ef47ab1e",
+        "PVecLayerOptions": "c9e7a9a260c046908a7df8cf110825186d4d438267e5a3a4aacf327b2e12ab2f",
+        "PVecLayerUpdate": "b29534a6cd66e584bac71e10fc131672ece86aa3055058fc887cc73a2b95ab0f",
+        "PVecListener": "a643ae718e1337172ddb870978f5f391c14e78c9070c229622083b6cc4f34682",
+        "PVecOptionError": "e66430b8d7e1a478b363dae25b781ffacf6c28415eb58f43b53eaaefd2eda0ee",
+        "PVecSourceOptions": "8e55ef07ac63ec4e83e93a994aa76f446baf7f1364dcf8b168af065be2e1d6b6",
+        "PVecTransportError": "1cf1b9c7a72bfc6f2ab7bbe804d027e7434ec63761df6b252164cc2db6c29863",
+        "PVecVersionError": "088465aefde81b4f7bea5f38c0af2deaa27e56fe8dff911208dc2585f5a80b5b",
+        "RefinementEvent": "612db627fbf74585c53b12158f6c313a2fc94795c3c612ea21fbe87e1fe59632",
+        "ResourceLimits": "6f2f0fada24997adfea3f1fedc2ba218c739196a0b88c7d933ab6179f7c2eccc",
+        "StrokeStyle": "9494ec86a6f39335305498bae3e63c21bce0fae0df0ee9b55e8da49fc239900f",
+        "StyleOptions": "c1f3c2264d1f57883eba2546696a0781010f31041cca05a103c35183b092edc3",
+        "StyleResolver": "8dbb766afdc45d25e5356b2cf6961b9a3f86953a072ae42c6cd000a16b22bfc3",
+        "TextRenderer": "993f02da301b6eab7e71e532a4a983eaefa18197c52ced7590fe2ed952e8566d",
+        "Tier0CompleteEvent": "c6de7fe8669ef06241e4774972396a2a7e6d4b89ba7b90eedcce936e2df286c1",
+        "WorkerOptions": "1a196304991f2cfdb5160859afbeaa8d85401283a3ebf8abe92715ea067457a3"
+      },
+      "./style": {
+        "monochromeStyleResolver": "1b9929e7d2103e0d85276c659acfc3d0b827c8f4348d7d03b415923710612582",
+        "registerStyle": "3356091591ced894c1aed7e881e3a781957a2b682637c0753a4ba6a1c460d635",
+        "StrokeStyle": "9494ec86a6f39335305498bae3e63c21bce0fae0df0ee9b55e8da49fc239900f",
+        "StyleResolver": "8dbb766afdc45d25e5356b2cf6961b9a3f86953a072ae42c6cd000a16b22bfc3"
+      },
+      "./text": {
+        "registerText": "8dc5f860f0a2ad448f779aead67848864a4c68eaa9da38c92f04e3e297d0b65d",
+        "TextRenderer": "993f02da301b6eab7e71e532a4a983eaefa18197c52ced7590fe2ed952e8566d"
+      },
+      "./hatch": {
+        "HatchRenderer": "31f3f6df5609a7772a9e55331f6eb0acdd17de3caff7f6cb02e9b463c00bcacc",
+        "registerHatch": "e91542c855b11b41ccd0fb4b658601f3a23ff2a37f9bb697fc3bad8d15039f11"
+      }
+    }
+  },
+  "budgets": {
+    "DEFAULTS": {
+      "maxEntitiesPerBlock": 200000,
+      "maxDecodeSliceMs": 8,
+      "previewBudgetPx": 2,
+      "previewMaxIterations": 12,
+      "arenaPageBytes": 4194304,
+      "uploadBudgetBytes": 4194304,
+      "uploadBudgetMs": 2,
+      "compactAboveFragmentation": 0.35,
+      "pickRadiusPx": 4,
+      "miterLimit": 4
+    },
+    "DISPLAY_FIDELITY_TARGET_PX": 0.5,
+    "MAX_SUBDIVISION_DEPTH": 24,
+    "PRECISION_ENVELOPE": {
+      "maxSourceMagnitude": 10000000,
+      "maxZoom": 22,
+      "maxLatitude": 84
+    },
+    "REFINE_DEFAULTS": {
+      "targetPx": 0.5,
+      "refinePx": 1,
+      "coarsenPx": 0.25,
+      "navigatingPx": 4,
+      "idleMs": 150,
+      "policyBudgetMs": 1,
+      "measureSamples": 96
+    },
+    "QUEUE_DEFAULTS": {
+      "maxInFlight": 8,
+      "perWorkerInFlight": 2,
+      "perWorkerBytes": 2097152,
+      "jobTargetMs": 20,
+      "maxDepth": 4096,
+      "scheduleBudgetMs": 0.5,
+      "nsPerCostUnit": 400
+    },
+    "CACHE_DEFAULTS": {
+      "maxBytes": 50331648,
+      "maxEntries": 4096,
+      "zoomBucketWidth": 0.25,
+      "dprBucketWidth": 0.25
+    },
+    "POOL_DEFAULTS": {
+      "minWorkers": 1,
+      "maxWorkers": 4
+    }
+  }
+}
