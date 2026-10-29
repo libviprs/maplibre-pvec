@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { checkVariance, relativeSpread } from "../../bench/lib/stats";
-import { evaluateMetrics, validateResult, type BenchResult } from "../../bench/lib/result";
+import { evaluateMetrics, validateResult, type BenchResult, type Metric } from "../../bench/lib/result";
 
 const env = {
   browser: "chromium",
@@ -11,7 +11,7 @@ const env = {
   crossOriginIsolated: false,
   platform: "linux/x86_64 native",
 };
-const metric = { case: "line-001", name: "p95_frame_ms", value: 12, baseline: 11, threshold: { op: "<=", limit: 16.7 } };
+const metric: Metric = { case: "line-001", name: "p95_frame_ms", value: 12, baseline: 11, threshold: { op: "<=", limit: 16.7 } };
 const good = (): BenchResult => ({
   schema: 1,
   commit: "abc1234",
@@ -27,7 +27,7 @@ const good = (): BenchResult => ({
 describe("#34 variance", () => {
   it("is the sample standard deviation over the mean", () => {
     expect(relativeSpread([10, 10, 10])).toBe(0);
-    expect(relativeSpread([8, 10, 12])).toBeCloseTo(0.2, 10);
+    expect(relativeSpread([8, 10, 12])).toBe(0.2);
   });
   it("fails when either named metric of any case exceeds 15 percent", () => {
     const ok = checkVariance({ "a/first_useful_drawing_ms": [100, 101, 99, 100, 100], "a/p95_frame_ms": [16, 16, 17, 16, 16] }, 0.15);

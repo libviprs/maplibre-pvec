@@ -20,7 +20,8 @@ export function viewportScript(caseId: string): ViewportScript {
   const panPath: [number, number][] = [];
   for (let i = 0; i < 24; i++) {
     const a = (i / 24) * 2 * Math.PI;
-    panPath.push([Math.round(radius * Math.cos(a)), Math.round(radius * Math.sin(a))]);
+    // + 0 turns -0 into 0 so the script compares equal after a JSON round trip.
+    panPath.push([Math.round(radius * Math.cos(a)) + 0, Math.round(radius * Math.sin(a)) + 0]);
   }
   return {
     start: { center: [0, 0], zoom: 14, bearing: 0, pitch: 0 },
