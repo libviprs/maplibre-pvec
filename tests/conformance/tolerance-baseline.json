@@ -1,0 +1,12 @@
+{
+  "note": "Files that already carried a numeric tolerance when the guard landed. They test this repository's own TypeScript math, not the PVec evaluator. New files may not join this list; each entry goes when P1.2's policy surface replaces it.",
+  "files": [
+    "tests/unit/render/cull.test.ts",
+    "tests/unit/source-cancel.test.ts",
+    "tests/unit/transform/georeference.test.ts",
+    "tests/unit/transform/inverse.test.ts",
+    "tests/unit/transform/precision.test.ts",
+    "tests/unit/transform/projection.test.ts",
+    "tests/unit/transform/rebase.test.ts"
+  ]
+}

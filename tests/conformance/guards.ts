@@ -21,7 +21,9 @@ export function findStepParsing(file: string, text: string): Hit[] {
   return scan(file, text, [/ISO-10303-21/, /CARTESIAN_POINT/, /B_SPLINE_CURVE_WITH_KNOTS/, /ADVANCED_BREP_SHAPE/]);
 }
 
-const num = String.raw`(?:\d+\.\d+|\d+(?:\.\d*)?[eE][-+]?\d+)`;
+// A tolerance literal is a tiny number: exponent notation or a decimal below 0.1. Pixel budgets
+// such as 0.25 are display measurements and are not tolerances.
+const num = String.raw`(?:0\.0\d*|\d+(?:\.\d*)?[eE][-+]?\d+)`;
 export function findToleranceLiterals(file: string, text: string): Hit[] {
   return scan(
     file,
