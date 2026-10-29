@@ -25,11 +25,13 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:e2e": "playwright test",
+    "test:e2e": "bash tools/run-jobs.sh",
     "build": "node scripts/build.mjs && tsc -p tsconfig.types.json && rollup -c rollup.types.mjs",
     "compat:generate": "node scripts/gen-compat.mjs",
     "compat:check": "node scripts/gen-compat.mjs --check",
-    "pack:check": "node scripts/pack-check.mjs"
+    "pack:check": "node scripts/pack-check.mjs",
+    "test:jobs": "node tools/check-jobs.mjs job-reports",
+    "api:report": "node tools/api-report.mjs --write"
   },
   "overrides": { "fflate": "0.8.2" },
   "peerDependencies": {

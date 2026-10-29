@@ -49,7 +49,7 @@ export function pickPoint(ctx: PickContext, at: LngLat, o: { radiusPx?: number }
   return { hits, complete: ctx.index.isLoaded(box) };
 }
 
-export function nearestEntity(ctx: PickContext, at: LngLat, o: { maxRadiusPx?: number } = {}): { hit?: PickHit; complete: boolean } {
+export function nearestEntity(ctx: PickContext, at: LngLat, o: { maxRadiusPx?: number } = {}): { hit?: PickHit | undefined; complete: boolean } {
   const res = pickPoint(ctx, at, { radiusPx: o.maxRadiusPx ?? DEFAULTS.pickRadiusPx });
   return { hit: res.hits[0], complete: res.complete };
 }

@@ -12,7 +12,7 @@ Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval
 - The package never uses `eval`, never injects an inline script and never creates a `blob:` script. It runs under `script-src 'self'` plus the one keyword above.
 - It never needs COOP or COEP headers. Shared memory is used only when `crossOriginIsolated` is true, otherwise buffers are transferred.
 
-I checked this with `examples/01-minimal` (`tools/examples.sh`): under exactly the policy above the example loads the evaluator and opens the fixture, and under the same policy without `'wasm-unsafe-eval'` it fails with `wasm_unavailable`.
+I checked this with `examples/01-minimal` (`tools/examples.sh`): under exactly the policy above the example loads the evaluator and builds a layer, and under the same policy without `'wasm-unsafe-eval'` it fails with `wasm_unavailable`.
 
 ## Three ways to get the module
 

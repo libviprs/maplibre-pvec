@@ -36,8 +36,8 @@ describe("#31 M7.7 compatibility matrix generation", () => {
 
   it("every supported browser row is in the Playwright grid", () => {
     const cfg = read("playwright.config.ts");
-    const declared = [...cfg.matchAll(/name:\s*["'](\w+)["']/g)].map((m) => m[1]);
-    const grid = declared.length > 0 ? declared : ["chromium"];
+    const list = /const browsers = \[([^\]]*)\]/.exec(cfg)?.[1] ?? '"chromium"';
+    const grid = [...list.matchAll(/["'](\w+)["']/g)].map((m) => m[1]);
     for (const row of COMPAT.browsers.filter((b) => b.status === "supported")) {
       expect(grid, `browser row ${row.engine} is not in the grid`).toContain(row.engine);
     }

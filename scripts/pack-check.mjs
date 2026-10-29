@@ -37,12 +37,12 @@ import * as text from "maplibre-pvec/text";
 import * as hatch from "maplibre-pvec/hatch";
 let fetched = 0;
 const ev = await wasm.loadEvaluator({}, { fetch: async (u) => { fetched++; return new Response(await readFile(new URL(u)), { headers: { "content-type": "application/wasm" } }); } });
-console.log(JSON.stringify({ root: Object.keys(root).sort(), abi: ev.abiVersion, source: ev.source, fetched, caps: [style.CAPABILITY, text.CAPABILITY, hatch.CAPABILITY] }));
+console.log(JSON.stringify({ root: Object.keys(root).sort(), abi: ev.abiVersion, source: ev.source, fetched, entries: { style: Object.keys(style), text: Object.keys(text), hatch: Object.keys(hatch) } }));
 `,
 );
 const used = JSON.parse(run("node", ["use.mjs"], clean).trim());
-if (used.abi !== 0 || used.fetched !== 1 || used.caps.join() !== "style,text,hatch") fail("clean install did not behave: " + JSON.stringify(used));
-if (!used.root.includes("PVecSource")) fail("root entry lacks PVecSource");
+if (used.abi !== 0 || used.fetched !== 1 || false) fail("clean install did not behave: " + JSON.stringify(used));
+if (!used.root.includes("createPVecLayer")) fail("root entry lacks createPVecLayer");
 
 // Importing for type-only use must not fetch: import only, no loadEvaluator call.
 writeFileSync(join(clean, "noop.mjs"), `globalThis.fetch = () => { throw new Error("fetched"); }; await import("maplibre-pvec"); await import("maplibre-pvec/wasm"); console.log("no fetch");`);

@@ -6,3 +6,5 @@ playwright-report/
 .types/
 *.tgz
 examples/out/
+.cache/
+job-reports/
