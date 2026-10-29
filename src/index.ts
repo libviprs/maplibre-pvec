@@ -10,3 +10,4 @@ export type {
   PVecSourceOptions,
 } from "./source/PVecSource";
 export * from "./source/errors";
+export { assertMapLibreVersion, assertWebGL2 } from "./compat/detect";

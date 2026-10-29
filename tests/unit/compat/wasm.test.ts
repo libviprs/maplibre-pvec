@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { chooseTransport, loadEvaluator, PROBE_WASM_BYTES } from "../../../src/wasm/loader";
+import { chooseTransport, loadEvaluator } from "../../../src/wasm/loader";
+import { gateProjection } from "../../../src/transform/projection";
+import { PROBE_WASM_BYTES } from "../helpers/probe";
 import { PVecError } from "../../../src/source/errors";
 
 const bytesResponse = (type = "application/wasm"): Response =>
@@ -43,7 +45,7 @@ describe("#31 M7.6 WASM acquisition", () => {
     expect(ev.source).toBe("injected");
   });
 
-  it("a blocked fetch rejects with wasm_unavailable, once, with no fallback", async () => {
+  it("U6 a blocked fetch rejects with wasm_unavailable, once, with no fallback", async () => {
     const e = await loadEvaluator({}, { fetch: async () => { throw new TypeError("blocked by CSP"); } }).catch((x: unknown) => x);
     expect(e).toBeInstanceOf(PVecError);
     expect((e as PVecError).code).toBe("wasm_unavailable");
@@ -79,5 +81,11 @@ describe("#31 M7.6 WASM acquisition", () => {
       globalThis.fetch = f;
     }
     expect(calls).toBe(0);
+  });
+
+  it("U7 a projection other than mercator is refused unless opted in, and then marked non-conformant", () => {
+    expect(() => gateProjection("globe")).toThrow(/Mercator conformance baseline/);
+    expect(gateProjection("globe", { allowUnprovenProjection: true }).nonConformant).toBe(true);
+    expect(gateProjection("mercator").nonConformant).toBe(false);
   });
 });
