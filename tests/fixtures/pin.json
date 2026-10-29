@@ -1,0 +1,12 @@
+{
+  "revision": "r0-open",
+  "manifestSha256": "aaa7fcac8eeecd5e0e60dd7084ca40601df9194967107cd0330ab3f515b98ace",
+  "quarantineSha256": "929c00b1560435b06987cfacaf80d8ce2e9a1fa3d1e38db14807b167a1512703",
+  "release": {
+    "name": "r0-open-1",
+    "manifestSha256": "cbc90282e14678cdb2fac44b6ba12409e07627c611b3cfd57070f481026fd1e2"
+  },
+  "goldRepo": "libviprs/pvec-gold-fixtures",
+  "goldCommit": "1df9d1b3e75047fa3978ebd809d0128cdfb28a68",
+  "remoteBase": "https://raw.githubusercontent.com/libviprs/pvec-gold-fixtures/1df9d1b3e75047fa3978ebd809d0128cdfb28a68/corpus"
+}

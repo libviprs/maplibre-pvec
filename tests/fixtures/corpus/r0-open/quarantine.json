@@ -1,0 +1,24 @@
+{
+  "corpus_revision": "r0-open",
+  "excluded": [
+    {
+      "evidence": "op 'matrix' (a general matrix) has no single INSERT form: one INSERT carries translation, one rotation about the normal and three scales, and no shear. A three-level nested INSERT chain (rotate, scale, rotate) could carry its 2x2 part through a singular value decomposition, but those factors would be derived values compared under policy and not EXACT, and the probe's own truth is a rejection outcome that no reader-mapping check can exercise, so that was not attempted",
+      "file": null,
+      "id": "general-affine-001",
+      "reason": "UNSUPPORTED_ENTITY"
+    },
+    {
+      "evidence": "op 'matrix' (a general matrix) has no single INSERT form: one INSERT carries translation, one rotation about the normal and three scales, and no shear. A three-level nested INSERT chain (rotate, scale, rotate) could carry its 2x2 part through a singular value decomposition, but those factors would be derived values compared under policy and not EXACT, and the probe's own truth is a rejection outcome that no reader-mapping check can exercise, so that was not attempted",
+      "file": null,
+      "id": "shear-001",
+      "reason": "UNSUPPORTED_ENTITY"
+    },
+    {
+      "evidence": "acadrust's Insert scale setters rewrite a scale below 1e-12 in magnitude (asked for [1.0, 0.0, 1.0], stored [1.0, 1e-12, 1.0]), so the file would carry a different transform from the one authored",
+      "file": null,
+      "id": "singular-001",
+      "reason": "UNSUPPORTED_ENTITY"
+    }
+  ],
+  "quarantined": []
+}

@@ -11,8 +11,9 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:e2e": "playwright test",
-    "build": "tsc -p tsconfig.build.json"
+    "test:e2e": "bash tools/run-jobs.sh",
+    "build": "tsc -p tsconfig.build.json",
+    "test:jobs": "node tools/check-jobs.mjs job-reports"
   },
   "peerDependencies": {
     "maplibre-gl": ">=4.7.1"
