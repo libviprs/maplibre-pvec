@@ -14,7 +14,7 @@ export interface DrawParams {
   dashes?: Array<[number, number, number, number]>;
   arcToPx?: number;
   color?: [number, number, number, number];
-  miterLimit?: number;
+  miterLimit?: number | undefined;
 }
 export interface Range { buffer: WebGLBuffer; offset: number; length: number }
 

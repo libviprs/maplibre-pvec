@@ -71,3 +71,16 @@ declared-pending gates. What follows could not be done for real yet.
 | Real-world dual-oracle fixtures (`M2.2`) | The corpus has no `DUAL_ORACLE_EQUIVALENT` or `REAL_WORLD_DIFFERENTIAL` fixture yet (a second converter has not run). The registry, gating rule and claim table already handle both classes and are tested with reclassified fixtures. | `libviprs/pvec-gold-fixtures` second-oracle route |
 | Snapshot baselines keyed by renderer string (`M2.8`) | There is nothing rendered to snapshot. The job exists and reports pending. | #50 |
 | Origin as a separate container, x64 labelling on arm64 default | The origin is a loopback Node process started and stopped by Playwright inside the same throw-away container as the run, which is hermetic but not a second container. The gate ran on the x64 docker host only, so results here are labelled x64. | an arm64 run on mercury |
+
+## #26 Public add-on API
+
+The TypeScript surface, the lifecycle, the events and diagnostics, the component hooks and the query API are done and tested in node against the hermetic range origin. What I could not do for real here:
+
+- **Rolled-up `dist/index.d.ts`.** The committed API report is built from the emitted per-module declarations of the public names, and a test scans it for `any` and for imports outside the package (only `maplibre-gl`, a peer, is allowed). A single rolled-up file needs a bundler step, which belongs to the packaging work (M7.6).
+- **Layer wiring.** `render`, the context-loss rebuild, worker termination, WASM drop and the query engine are hooks (`src/layer/internal.ts`) that the layer calls in the documented teardown order, and the tests drive them with stubs. The real decoder, buffer pool and stroke renderer are not connected to the layer yet, so the snapshot match after a forced `WEBGL_lose_context`, the 20 sequential maps with a heap ceiling and the live `Worker` and `WebGLBuffer` counts on a real map need that wiring and a browser run (Playwright through the lock, the harness from #10).
+- **`capabilities` payload.** It carries the reader floor and the capability list. The container version and profile version fields wait for the frozen layout (P1.8) and the profile in libviprs/pvec#1.
+- **Known-truth ids.** The query tests check ids against a table in the test, not against `expected.math.json`, because the shared evaluator and spatial index (`P5.1`, `P7.2`) have no released WASM artifact. The ids come through the `QueryEngine` seam, so swapping the real index is local.
+- **Registering a hook after `onAdd` re-renders only affected blocks.** The layer reports which kind changed (`onComponentChange`); counting updated GPU buffers needs the renderer.
+- **Example bundle scan.** `examples/01-minimal` and the emitted-bundle scan for text and hatch identifiers wait for the bundling work (M7.6). Today the test walks the import graph of `src/index.ts` and shows no file under `src/style`, `src/text` or `src/hatch` is reachable, and the package `exports` map lists them as separate entries.
+- **Weak-reference check after GC.** The emitter keeps no payloads by construction (it stores listeners only); the check runs without `--expose-gc` and is structural.
+- **CI regeneration of the API report.** Actions is off; the test rebuilds the report and fails on any diff, and the local gate runs it.
