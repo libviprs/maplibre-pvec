@@ -13,7 +13,8 @@
     "test": "vitest run",
     "test:e2e": "bash tools/run-jobs.sh",
     "build": "tsc -p tsconfig.build.json",
-    "test:jobs": "node tools/check-jobs.mjs job-reports"
+    "test:jobs": "node tools/check-jobs.mjs job-reports",
+    "bench": "node bench/run.mjs"
   },
   "peerDependencies": {
     "maplibre-gl": ">=4.7.1"
@@ -21,8 +22,8 @@
   "devDependencies": {
     "@playwright/test": "1.48.2",
     "@types/node": "22.9.0",
+    "ajv": "8.17.1",
     "esbuild": "0.24.0",
-
     "maplibre-gl": "4.7.1",
     "typescript": "5.6.3",
     "vitest": "2.1.4"
