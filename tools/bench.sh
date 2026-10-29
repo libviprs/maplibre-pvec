@@ -21,7 +21,9 @@ trap cleanup EXIT
 
 "$NASSH" push "$HERE" "$NAME"
 args=$(printf '%q ' "$@")
-"$NASSH" run "$NAME" "$PW_IMAGE" "npm ci --no-audit --no-fund >/dev/null && BENCH_NATIVE_X86_64=1 BENCH_COMMIT=$COMMIT node bench/run.mjs $args"
+status=0
+"$NASSH" run "$NAME" "$PW_IMAGE" "npm ci --no-audit --no-fund >/dev/null && BENCH_NATIVE_X86_64=1 BENCH_COMMIT=$COMMIT node bench/run.mjs $args" || status=$?
 
 # Copy the outputs back through ssh. The container wrote them as root, the group bit lets us read.
 ssh -o BatchMode=yes -o LogLevel=ERROR "$NAS" "cd /work/nas-work/$NAME && tar -cf - bench/results bench/corpus/corpus.json 2>/dev/null" | tar -xf - -C "$HERE"
+exit $status

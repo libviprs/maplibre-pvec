@@ -85,13 +85,18 @@ async function run(l) {
   try {
     for (const c of cases) {
       const rec = (runs[c.fixtureId] = { first_useful_drawing_ms: [], p95_frame_ms: [], max_frame_ms: [] });
-      for (let i = 0; i < repeat; i++) {
+      // Two unrecorded warm-ups per case (shader compile, page cache), then the recorded repeats.
+      for (let i = -2; i < repeat; i++) {
         const ctx = await browser.newContext({ viewport: { width: 1600, height: 1000 }, deviceScaleFactor: 2 });
         const denied = await l.denyExternal(ctx, "127.0.0.1");
         const page = await ctx.newPage();
         await page.goto(`http://127.0.0.1:${port}/app/index.html`);
         await page.waitForFunction(() => typeof window.benchRun === "function");
         const r = await page.evaluate((s) => window.benchRun(s), c.viewport);
+        if (i < 0) {
+          await ctx.close();
+          continue;
+        }
         rec.first_useful_drawing_ms.push(r.firstUsefulDrawingMs);
         rec.p95_frame_ms.push(r.p95FrameMs);
         rec.max_frame_ms.push(r.maxFrameMs);
