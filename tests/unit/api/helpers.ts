@@ -23,8 +23,9 @@ export function countingGl(): { gl: WebGL2RenderingContext; live: () => Record<s
   const del = (kind: string) => () => {
     live[kind] = (live[kind] ?? 0) - 1;
   };
-  class WebGL2RenderingContext {}
-  const gl = Object.assign(new WebGL2RenderingContext() as object, {
+  // The layer checks the constructor name, so the stand-in carries the real one.
+  const Ctx = { WebGL2RenderingContext: class {} }.WebGL2RenderingContext;
+  const gl = Object.assign(new Ctx(), {
     canvas,
     createBuffer: mk("buffer"), deleteBuffer: del("buffer"),
     createVertexArray: mk("vao"), deleteVertexArray: del("vao"),
