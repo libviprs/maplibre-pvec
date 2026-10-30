@@ -7,9 +7,104 @@ const FRONT = 0x0404, BACK = 0x0405, TEXTURE0 = 0x84c0;
 
 const norm = (v: unknown): unknown => (ArrayBuffer.isView(v) ? Array.from(v as unknown as ArrayLike<number>) : v);
 
+type Setter = (...a: any[]) => void; // eslint-disable-line @typescript-eslint/no-explicit-any
+
+/**
+ * Shadow of the GL state, kept current by wrapping the context's own setters. A getParameter is a round trip to the GPU
+ * process in Chromium (the first one waits for the whole previous frame), so the guard reads the real state once to seed
+ * the shadow and from then on only listens to the calls that change it, MapLibre's and ours alike.
+ */
+class Shadow {
+  readonly state: Snapshot = new Map();
+  seeded = false;
+  private installed = false;
+  private active = 0x84c0;
+
+  constructor(private readonly gl: Gl) {}
+
+  seed(snap: Snapshot): void {
+    this.state.clear();
+    for (const [k, v] of snap) this.state.set(k, { group: v.group, value: v.value });
+    const a = snap.get('ACTIVE_TEXTURE')?.value;
+    this.active = typeof a === 'number' ? a : TEXTURE0;
+    this.seeded = true;
+    this.install();
+  }
+
+  copy(): Snapshot {
+    const s: Snapshot = new Map();
+    for (const [k, v] of this.state) s.set(k, { group: v.group, value: v.value });
+    return s;
+  }
+
+  private set(name: string, value: unknown): void {
+    const e = this.state.get(name);
+    if (e) e.value = value;
+  }
+
+  /** Forget a deleted object, which GL unbinds implicitly. */
+  private drop(group: StateGroup, h: unknown): void {
+    if (h == null) return;
+    for (const e of this.state.values()) if (e.group === group && e.value === h) e.value = null;
+  }
+
+  private install(): void {
+    if (this.installed) return;
+    this.installed = true;
+    const gl = this.gl as unknown as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+    const wrap = (name: string, on: (...a: any[]) => void) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+      const orig = gl[name] as Setter | undefined;
+      if (typeof orig !== 'function') return;
+      gl[name] = function (this: unknown, ...a: unknown[]) { on(...a); return orig.apply(gl, a); };
+    };
+    const caps = new Map<number, string>();
+    for (const n of ['BLEND', 'DEPTH_TEST', 'STENCIL_TEST', 'CULL_FACE', 'SCISSOR_TEST']) if (gl[n] !== undefined) caps.set(gl[n] as number, n);
+    wrap('enable', (c) => { const n = caps.get(c); if (n) this.set(n, true); });
+    wrap('disable', (c) => { const n = caps.get(c); if (n) this.set(n, false); });
+    const blendFunc = (sr: number, dr: number, sa: number, da: number) => {
+      this.set('BLEND_SRC_RGB', sr); this.set('BLEND_DST_RGB', dr); this.set('BLEND_SRC_ALPHA', sa); this.set('BLEND_DST_ALPHA', da);
+    };
+    wrap('blendFunc', (s, d) => blendFunc(s, d, s, d));
+    wrap('blendFuncSeparate', blendFunc);
+    wrap('blendEquation', (m) => { this.set('BLEND_EQUATION_RGB', m); this.set('BLEND_EQUATION_ALPHA', m); });
+    wrap('blendEquationSeparate', (r, a) => { this.set('BLEND_EQUATION_RGB', r); this.set('BLEND_EQUATION_ALPHA', a); });
+    wrap('depthMask', (m) => this.set('DEPTH_WRITEMASK', m));
+    wrap('depthFunc', (f) => this.set('DEPTH_FUNC', f));
+    const faces = (face: number) => (face === FRONT ? [''] : face === BACK ? ['BACK_'] : ['', 'BACK_']);
+    wrap('stencilFuncSeparate', (face, f, r, m) => { for (const p of faces(face)) { this.set(`STENCIL_${p}FUNC`, f); this.set(`STENCIL_${p}REF`, r); this.set(`STENCIL_${p}VALUE_MASK`, m); } });
+    wrap('stencilFunc', (f, r, m) => { for (const p of ['', 'BACK_']) { this.set(`STENCIL_${p}FUNC`, f); this.set(`STENCIL_${p}REF`, r); this.set(`STENCIL_${p}VALUE_MASK`, m); } });
+    wrap('stencilMaskSeparate', (face, m) => { for (const p of faces(face)) this.set(`STENCIL_${p}WRITEMASK`, m); });
+    wrap('stencilMask', (m) => { for (const p of ['', 'BACK_']) this.set(`STENCIL_${p}WRITEMASK`, m); });
+    const ops = (face: number, f: number, zf: number, zp: number) => { for (const p of faces(face)) { this.set(`STENCIL_${p}FAIL`, f); this.set(`STENCIL_${p}PASS_DEPTH_FAIL`, zf); this.set(`STENCIL_${p}PASS_DEPTH_PASS`, zp); } };
+    wrap('stencilOpSeparate', ops);
+    wrap('stencilOp', (f, zf, zp) => ops(0x0408, f, zf, zp));
+    wrap('cullFace', (m) => this.set('CULL_FACE_MODE', m));
+    wrap('frontFace', (m) => this.set('FRONT_FACE', m));
+    wrap('scissor', (x, y, w, h) => this.set('SCISSOR_BOX', [x, y, w, h]));
+    wrap('viewport', (x, y, w, h) => this.set('VIEWPORT', [x, y, w, h]));
+    wrap('colorMask', (r, g, b, a) => this.set('COLOR_WRITEMASK', [r, g, b, a]));
+    const unpack = new Map<number, string>();
+    for (const [k, e] of this.state) if (e.group === 'unpack' && gl[k] !== undefined) unpack.set(gl[k] as number, k);
+    wrap('pixelStorei', (p, v) => { const n = unpack.get(p); if (n) this.set(n, v); });
+    wrap('useProgram', (p) => this.set('CURRENT_PROGRAM', p));
+    wrap('bindVertexArray', (v) => this.set('VERTEX_ARRAY_BINDING', v));
+    wrap('bindBuffer', (t, b) => { if (t === gl.ARRAY_BUFFER) this.set('ARRAY_BUFFER_BINDING', b); });
+    wrap('activeTexture', (u) => { this.active = u; this.set('ACTIVE_TEXTURE', u); });
+    wrap('bindTexture', (t, tex) => { if (t === gl.TEXTURE_2D) this.set(`TEXTURE_BINDING_2D[${this.active - TEXTURE0}]`, tex); });
+    wrap('deleteProgram', (h) => this.drop('program', h));
+    wrap('deleteVertexArray', (h) => this.drop('vao', h));
+    wrap('deleteBuffer', (h) => this.drop('buffer', h));
+    wrap('deleteTexture', (h) => { for (const [k, e] of this.state) if (k.startsWith('TEXTURE_BINDING_2D') && e.value === h) e.value = null; });
+  }
+}
+
+const shadows = new WeakMap<object, Shadow>();
+
 /**
  * Saves and restores exactly the GL state the add-on touches, so MapLibre's own layers see
- * the state they left. In debug mode the full captured vector is diffed before and after.
+ * the state they left. The first frame reads the state back once; after that the state comes from a shadow
+ * kept by the context's setters, so a steady-state frame issues no blocking reads. In debug mode the full
+ * captured vector is still queried and diffed before and after.
  */
 export class GlStateGuard {
   private readonly skip: ReadonlySet<StateGroup>;
@@ -22,11 +117,30 @@ export class GlStateGuard {
     this.units = o.textureUnits ?? [0];
   }
 
+  /** Forget the shadow, so the next frame reads the real state again (after a context restore, or any bypass of the setters). */
+  invalidate(): void {
+    const sh = shadows.get(this.gl);
+    if (sh) sh.seeded = false;
+  }
+
+  private shadow(): Shadow {
+    let sh = shadows.get(this.gl);
+    if (!sh) shadows.set(this.gl, (sh = new Shadow(this.gl)));
+    return sh;
+  }
+
   /** Run `fn`, restore the state, and return the debug diff (always empty when debug is off). */
   run(fn: () => void): StateDiff[] {
-    const before = this.capture();
+    if (this.debug) {
+      const before = this.capture();
+      try { fn(); } finally { this.restore(before); }
+      return diff(before, this.capture());
+    }
+    const sh = this.shadow();
+    if (!sh.seeded || this.units.some((u) => !sh.state.has(`TEXTURE_BINDING_2D[${u}]`))) sh.seed(this.capture());
+    const before = sh.copy();
     try { fn(); } finally { this.restore(before); }
-    return this.debug ? diff(before, this.capture()) : [];
+    return [];
   }
 
   capture(): Snapshot {
