@@ -9,7 +9,7 @@ import { dirname, extname, join, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const TYPES = { ".json": "application/json", ".js": "text/javascript", ".html": "text/html" };
+const TYPES = { ".json": "application/json", ".js": "text/javascript", ".mjs": "text/javascript", ".css": "text/css", ".html": "text/html" };
 const CORS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Expose-Headers": "Content-Range, Content-Length, Accept-Ranges",
@@ -30,7 +30,15 @@ function parseRange(header, size) {
   return start > end || start >= size ? "bad" : { start, end };
 }
 
-export function createOrigin({ corpusDir, appDir }) {
+const ISOLATION = {
+  "Cross-Origin-Opener-Policy": "same-origin",
+  "Cross-Origin-Embedder-Policy": "require-corp",
+  "Cross-Origin-Resource-Policy": "same-origin",
+};
+const MAPLIBRE = { v4: "maplibre-gl-v4", v5: "maplibre-gl-v5", v6: "maplibre-gl-v6" };
+
+/** `isolated` adds COOP and COEP to every response, for the informational isolated run (#81). */
+export function createOrigin({ corpusDir, appDir, isolated = false, nodeModules }) {
   const corpusRoot = resolve(corpusDir);
   const appRoot = appDir ? resolve(appDir) : null;
   return createServer(async (req, res) => {
@@ -59,6 +67,11 @@ export function createOrigin({ corpusDir, appDir }) {
       } else if (appRoot && path.startsWith("/app/")) {
         root = appRoot;
         rel = path.slice("/app/".length);
+      } else if (nodeModules && /^\/ml\/v[456]\//.test(path)) {
+        // The pinned MapLibre builds the browser grid drives, served from the dev dependencies.
+        const [, , v, ...parts] = path.split("/");
+        root = resolve(nodeModules, MAPLIBRE[v]);
+        rel = parts.join("/");
       } else {
         res.writeHead(404, CORS);
         return res.end("not found");
@@ -75,6 +88,7 @@ export function createOrigin({ corpusDir, appDir }) {
       }
       const headers = {
         ...CORS,
+        ...(isolated ? ISOLATION : {}),
         "Accept-Ranges": "bytes",
         "Content-Type": TYPES[extname(file)] ?? "application/octet-stream",
         "Cache-Control": "no-store",
@@ -111,11 +125,14 @@ async function main() {
     logLevel: "error",
   });
   await copyFile(join(root, "tests", "fixtures", "pin.json"), join(appDir, "pin.json"));
+  await copyFile(join(root, "tests", "fixtures", "grid.html"), join(appDir, "grid.html"));
   await writeFile(join(appDir, "index.html"), '<!doctype html><meta charset="utf-8"><title>origin</title><script type="module" src="loader.js"></script>');
   const port = Number(process.env.PORT ?? 4173);
-  createOrigin({ corpusDir: join(root, "tests", "fixtures", "corpus"), appDir }).listen(port, "127.0.0.1", () =>
-    console.log(`fixture origin on http://127.0.0.1:${port}`),
-  );
+  const opts = { corpusDir: join(root, "tests", "fixtures", "corpus"), appDir, nodeModules: join(root, "node_modules") };
+  createOrigin(opts).listen(port, "127.0.0.1", () => console.log(`fixture origin on http://127.0.0.1:${port}`));
+  // The same tree again with COOP and COEP, for the informational isolated run.
+  const isoPort = Number(process.env.ISOLATED_PORT ?? 4174);
+  createOrigin({ ...opts, isolated: true }).listen(isoPort, "127.0.0.1", () => console.log(`isolated origin on http://127.0.0.1:${isoPort}`));
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) await main();
