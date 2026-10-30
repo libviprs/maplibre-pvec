@@ -200,7 +200,7 @@ const standalone = {
   map: undefined as unknown,
 };
 
-export async function openStandalone(o: { fixture: string }): Promise<void> {
+export async function openStandalone(o: { fixture: string; debug?: boolean }): Promise<void> {
   state.errors = [];
   state.stateDiffs = [];
   document.body.replaceChildren();
@@ -232,7 +232,7 @@ export async function openStandalone(o: { fixture: string }): Promise<void> {
     loadEvaluator: () => Promise.resolve({ instance: {} as WebAssembly.Instance, abiVersion: 1, source: "injected" as const }),
     maplibreVersion: () => undefined,
     openCursor: async () => ({ next: () => (served ? null : ((served = true), entities())) }),
-    onStateDiff: (d: string[]) => void state.stateDiffs.push(...d),
+    ...(o.debug === false ? {} : { onStateDiff: (d: string[]) => void state.stateDiffs.push(...d) }),
   });
   layer.registerComponent("style", { resolve: () => ({ widthPx: WIDTH, dash: [], color: "#cc0000" }) });
   layer.onAdd(map as never, gl);
@@ -254,6 +254,22 @@ export function frameStandalone(name: string): { red: number } {
   let red = 0;
   for (let i = 0; i < SIZE * SIZE; i++) if (data[i * 4]! > 170 && data[i * 4 + 1]! < 60 && data[i * 4 + 2]! < 60) red++;
   return { red };
+}
+
+/** Synchronous GL reads (they wait for the GPU in Chromium) issued by `n` frames of the layer. */
+export function countReads(n: number): { frames: number; getParameter: number; isEnabled: number } {
+  const gl = standalone.gl!;
+  const out = { frames: n, getParameter: 0, isEnabled: 0 };
+  const gp = gl.getParameter.bind(gl), ie = gl.isEnabled.bind(gl);
+  gl.getParameter = ((p: number) => (out.getParameter++, gp(p))) as typeof gl.getParameter;
+  gl.isEnabled = ((c: number) => (out.isEnabled++, ie(c))) as typeof gl.isEnabled;
+  try {
+    for (let i = 0; i < n; i++) frameStandalone(`reads${i}`);
+  } finally {
+    gl.getParameter = gp;
+    gl.isEnabled = ie;
+  }
+  return out;
 }
 
 export async function loseAndRestoreStandalone(): Promise<void> {

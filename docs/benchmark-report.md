@@ -41,9 +41,9 @@ Stroke pipeline through the buffer pool, 1e6 segments per frame as ten 100k-segm
 
 | renderer | engine | arch | frame p50/p95/max (ms) | frames over 20 ms | draw calls | CPU submit p95 (ms) | GPU frame p50 (ms) | 1e6 sync draw p50 (ms) | 1e6 upload (ms) | 4 MiB upload p95 (ms) | 8 MiB upload p95 (ms) | source |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version) | chromium 149.0.7827.55 | arm64 | 9.6 / 17.5 / 18.6 | 0 of 4983 | 10 | 0.1 | 23.1 | 15.1 | 7.6 | 0.2 | 0.5 | `bench/results/hw/2026-10-30-macbook-m5-chromium.json` |
+| ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version) | chromium 149.0.7827.55 | arm64 | 8.3 / 16.5 / 18.7 | 0 of 6638 | 10 | 0.1 | 17.2 | 12.2 | 7.2 | 0.3 | 0.5 | `bench/results/hw/2026-10-30-macbook-m5-chromium.json` |
 | Apple GPU | webkit 26.5 | arm64 | 17 / 18 / 21 | 1 of 3601 | 10 | 1 | no timer query | 15 | 4 | 1 | 1 | `bench/results/hw/2026-10-30-macbook-m5-webkit.json` |
-| ANGLE (Intel, Mesa Intel(R) Graphics (ADL GT2), OpenGL ES 3.2) | chromium 130.0.6723.31 | x64 | 133.3 / 333.3 / 900 | 389 of 389 | 10 | 0.4 | 75.0 | 42.3 | 56.9 | 1.8 | 3.2 | `bench/results/hw/2026-10-30-nas-intel-adl-gt2-chromium.json` |
+| ANGLE (Intel, Mesa Intel(R) Graphics (ADL GT2), OpenGL ES 3.2) | chromium 130.0.6723.31 | x64 | 116.6 / 133.4 / 2383.3 | 503 of 503 | 10 | 0.4 | 69.2 | 42.2 | 61.1 | 1 | 3.3 | `bench/results/hw/2026-10-30-nas-intel-adl-gt2-chromium.json` |
 
 ### The same scene through the wired layer
 
@@ -51,11 +51,11 @@ The same 1e6 segments in ten style groups (ten draw calls), drawn by `createPVec
 
 | renderer | engine | frame p50/p95/max (ms) | frames over 20 ms | draw calls | render CPU p50/p95/max (ms) | GPU frame p50 (ms) | settle (frames / ms) | largest upload in a frame (MiB) | state diffs | errors |
 |---|---|---|---|---|---|---|---|---|---|---|
-| ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version) | chromium 149.0.7827.55 | 11.3 / 12.4 / 17.2 | 0 of 5336 | 10 | 11.2 / 12.2 / 16.7 | 20.4 | 15 / 257 | 4 | 0 | 0 |
+| ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version) | chromium 149.0.7827.55 | 10.1 / 11 / 13.3 | 0 of 6090 | 10 | 0.1 / 0.1 / 0.2 | 18.8 | 15 / 193 | 4 | 0 | 0 |
 | Apple GPU | webkit 26.5 | 17 / 18 / 20 | 0 of 3601 | 10 | 0 / 1 / 2 | no timer query | 14 / 290 | 4 | 0 | 0 |
-| ANGLE (Intel, Mesa Intel(R) Graphics (ADL GT2), OpenGL ES 3.2) | chromium 130.0.6723.31 | 138.6 / 184.7 / 1780.8 | 398 of 398 | 10 | 4.7 / 6.4 / 506.9 | 75.1 | 18 / 2291 | 4 | 0 | 0 |
+| ANGLE (Intel, Mesa Intel(R) Graphics (ADL GT2), OpenGL ES 3.2) | chromium 130.0.6723.31 | 118.8 / 138.4 / 3009.2 | 451 of 451 | 10 | 0.6 / 0.7 / 2081.5 | 70.0 | 18 / 2280 | 4 | 0 | 0 |
 
-In Chromium nearly all of the render CPU is the state guard's first `getParameter`, a round trip that waits for the GPU (`bench/hw/run.mjs --profile` prints the per-call breakdown); WebKit does not stall. That is #96. The pool kept to its upload budget on all three.
+The state guard used to read the GL state back every frame, and in Chromium the first `getParameter` waits for the GPU (11 ms of render CPU on the M5, about 5 ms on the Intel part). It now reads the state once to seed a shadow kept by the context's setters, so a steady-state frame does no blocking reads (#96); the debug diff still queries. The pool kept to its upload budget on all three.
 
 ## Real pvec evaluator and real .pvec bytes
 

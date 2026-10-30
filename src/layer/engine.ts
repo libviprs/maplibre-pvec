@@ -207,6 +207,7 @@ export class StrokeEngine {
   }
   onContextRestored(): void {
     this.lost = false;
+    this.guard.invalidate();
     this.pool?.rebind(this.tgl);
     this.o.map.triggerRepaint?.();
   }
