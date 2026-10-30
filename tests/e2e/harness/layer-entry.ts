@@ -195,8 +195,22 @@ export async function loseAndRestore(): Promise<{ stages: string[] }> {
   const restored = new Promise<void>((r) => canvas.addEventListener("webglcontextrestored", () => r(), { once: true }));
   ext.restoreContext();
   await within("restored", restored);
-  await within("idle1", idle(map));
-  await within("idle2", idle(map));
+  // MapLibre rebuilds its painter on restore (and may reload the style), so poll until it has painted again.
+  const painted = async () => {
+    for (let i = 0; i < 80; i++) {
+      await new Promise((r) => requestAnimationFrame(() => r(null)));
+      map.triggerRepaint();
+      const c = document.createElement("canvas");
+      c.width = canvas.width; c.height = canvas.height;
+      const x = c.getContext("2d")!;
+      x.drawImage(canvas, 0, 0);
+      if (map.loaded() && x.getImageData(2, 2, 1, 1).data[3] === 255) return;
+      await new Promise((r) => setTimeout(r, 50));
+    }
+    throw new Error("the map never painted again");
+  };
+  await within("painted", painted());
+  await within("idle", idle(map));
   return { stages };
 }
 
