@@ -6,7 +6,7 @@ Every example starts its own server (`examples/lib/serve.mjs`, bound to 127.0.0.
 
 | example | state | fixture | expected end state |
 |---|---|---|---|
-| `01-minimal` | runs | `smallFixture()`, the 4 x 4 structural container | under `default-src 'self'; script-src 'self' 'wasm-unsafe-eval'` a layer is built and the evaluator loads (`abi` 0); without the WASM keyword, or with the `.wasm` request aborted, one `wasm_unavailable` error |
+| `01-minimal` | runs | `smallFixture()`, the 4 x 4 structural container | under `default-src 'self'; script-src 'self' 'wasm-unsafe-eval'` a layer is built and the real evaluator loads (`abi` 1); without the WASM keyword, or with the `.wasm` request aborted, one `wasm_unavailable` error |
 | `02-georeferenced` to `06-georeference-update` | not written | | they need the MapLibre custom layer, see `docs/deferred.md` (issue 31) |
 
 `examples/generate-large.mjs` builds the large synthetic container at run time (`node examples/generate-large.mjs 4096 16384`).

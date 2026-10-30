@@ -51,6 +51,25 @@ export function classifyApiChange(frozen, current) {
   return level;
 }
 
+const SNAPSHOT_LIMIT = 0.001;
+/** Reads the measured run of the wired layer (tests/e2e/83-*.spec.ts) and says which conditions it supports. */
+export function wiredLayerEvidence(root) {
+  const file = path.join(root, "release/evidence/83-wired-layer.json");
+  const none = { wasmOk: false, lossOk: false, wasmMeasured: {}, lossMeasured: {} };
+  if (!existsSync(file)) return none;
+  const e = JSON.parse(readFileSync(file, "utf8"));
+  const w = e.wasmBlocked, c = e.contextLoss, k = e.coexistence, t = e.tarball;
+  const wasmOk = w?.errorEvents === 1 && w.code === "wasm_unavailable" && w.rangeRequests === 0 && w.mapLibrePixelDiff <= SNAPSHOT_LIMIT
+    && t?.blockedErrorEvents === 1 && t.blockedRangeRequests === 0 && t.installed === true;
+  const lossOk = c?.forced === true && c.contextLosses === 1 && c.newRangeRequests === 0 && c.snapshotDiff <= SNAPSHOT_LIMIT
+    && k?.stateDiffs === 0 && k.outsideStrokeDiff <= SNAPSHOT_LIMIT && k.symbolLayerDiff <= SNAPSHOT_LIMIT;
+  return {
+    wasmOk, lossOk,
+    wasmMeasured: { errorEvents: w?.errorEvents, rangeRequests: w?.rangeRequests, mapLibrePixelDiff: w?.mapLibrePixelDiff, tarballBlockedErrorEvents: t?.blockedErrorEvents },
+    lossMeasured: { newRangeRequests: c?.newRangeRequests, snapshotDiff: c?.snapshotDiff, outsideStrokeDiff: k?.outsideStrokeDiff, symbolLayerDiff: k?.symbolLayerDiff, stateDiffs: k?.stateDiffs },
+  };
+}
+
 export function buildGate(root = root0) {
   const compat = readJson(root, "compatibility.json");
   const corpus = readJson(root, "bench/corpus/corpus.json");
@@ -60,7 +79,10 @@ export function buildGate(root = root0) {
   const latest = readJson(root, `bench/results/${results.at(-1)}`);
 
   const rows = compat.browsers;
-  const supported = rows.filter((b) => b.status === "supported").length;
+  const grid = readJson(root, "release/browser-grid.json");
+  const gridGreen = grid.unannotated === 0 && grid.runs.length > 0 && grid.runs.every((r) => r.total > 0 && r.passed === r.total);
+  // A row only counts when it is supported and the grid evidence has a fully passing run for its engine.
+  const supported = rows.filter((b) => b.status === "supported" && gridGreen && grid.runs.some((r) => r.kind === "grid" && r.engine === b.engine && r.version === b.tested)).length;
   const pending = corpus.cases.filter((c) => c.pvec.status === "PENDING").length;
   const present = corpus.cases.filter((c) => c.pvec.status === "PRESENT");
   const notEmitted = corpus.cases.filter((c) => c.pvec.status === "NOT_EMITTED").length;
@@ -70,6 +92,7 @@ export function buildGate(root = root0) {
   const change = classifyApiChange(freeze.api.symbols, apiSymbols(live));
   const apiSame = live === report && sha256(live) === freeze.api.reportSha256;
 
+  const layer = wiredLayerEvidence(root);
   const cond = (id, spec, met, measured, evidence) => ({
     id, spec, status: met ? "met" : "deferred", measured, evidence, ...(met ? {} : { deferredIn: DEFERRED }),
   });
@@ -78,15 +101,17 @@ export function buildGate(root = root0) {
     note: "Produced by tools/release-gate.mjs. The release step refuses to tag unless every condition is present and met.",
     conditions: [
       cond(REQUIRED_CONDITIONS[0], "conformance suite green on every supported browser row (M2.8 / M7.7)", supported === rows.length,
-        { supportedRows: supported, rows: rows.length }, "compatibility.json browsers: chromium supported, firefox and webkit pending"),
+        { supportedRows: supported, rows: rows.length }, "compatibility.json browsers against release/browser-grid.json (tools/run-grid.sh): every row supported and every grid run passed"),
       cond(REQUIRED_CONDITIONS[1], "all gates green on the frozen corpus after tuning (M8.2 - M8.5, M8.6)", present.length === corpus.cases.length && latest.variance.ok,
         { casesWithPvecBytes: present.length, notEmittedByPvec: notEmitted, cases: corpus.cases.length, varianceOk: latest.variance.ok }, "bench/corpus/corpus.json pvec.status, latest bench/results file"),
       cond(REQUIRED_CONDITIONS[2], "no QUARANTINED fixture in the pass set (EPIC O classes)", inPassSet === 0 && present.length > 0 && pending === 0,
         { quarantined: inPassSet, passSetCases: present.length }, "the pass set is the corpus cases with real .pvec bytes from pvec's generator; none of them is QUARANTINED"),
-      cond(REQUIRED_CONDITIONS[3], "WASM-blocked and non-isolated paths behave as documented (M7.6)", false,
-        { documented: existsSync(path.join(root, "docs/wasm-worker-deployment.md")), verifiedThroughLayer: false }, "documented and unit tested at the loader; the layer does not call the version and WebGL2 refusals yet"),
-      cond(REQUIRED_CONDITIONS[4], "lifecycle leak and context-loss tests green (M7.2)", false,
-        { leakTests: "lifecycle.test.ts (structural)", contextLossSnapshot: false }, "the forced WEBGL_lose_context snapshot needs the wired renderer"),
+      cond(REQUIRED_CONDITIONS[3], "WASM-blocked and non-isolated paths behave as documented (M7.6)", layer.wasmOk,
+        { documented: existsSync(path.join(root, "docs/wasm-worker-deployment.md")), verifiedThroughLayer: layer.wasmOk, ...layer.wasmMeasured },
+        layer.wasmOk ? "release/evidence/83-wired-layer.json, measured in Chromium through the wired layer and through the installed tarball" : "no evidence from the wired layer: release/evidence/83-wired-layer.json is missing or outside its limits"),
+      cond(REQUIRED_CONDITIONS[4], "lifecycle leak and context-loss tests green (M7.2)", layer.lossOk,
+        { leakTests: "lifecycle.test.ts (structural)", contextLossSnapshot: layer.lossOk, ...layer.lossMeasured },
+        layer.lossOk ? "release/evidence/83-wired-layer.json: forced WEBGL_lose_context on a WebGL2 canvas through the layer, zero new range requests, snapshot within 0.1 percent; coexistence with MapLibre's own layers on a real map" : "no evidence from the wired layer: release/evidence/83-wired-layer.json is missing or outside its limits"),
       cond(REQUIRED_CONDITIONS[5], "examples pass with outbound network denied (M7.8)", exampleDirs >= 6 && latest.deniedHosts.length === 0,
         { examplesWritten: exampleDirs, examplesPlanned: 6, deniedHosts: latest.deniedHosts.length }, "examples/README.md: 01-minimal runs against its own 127.0.0.1 server, 02 to 06 are not written"),
       cond(REQUIRED_CONDITIONS[6], "API report identical to the committed baseline (M7.1)", apiSame && change === "none",

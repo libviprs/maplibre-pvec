@@ -106,7 +106,7 @@ function results(root) {
 
 function benchmarkReport(root) {
   const corpusPin = JSON.parse(readFileSync(path.join(root, "bench/corpus/corpus.json"), "utf8")).revision;
-  const out = [`${GEN("bench/results/*.json and spikes/pvec-real/*.json")}# Benchmark report\n`];
+  const out = [`${GEN("bench/results/*.json, bench/baselines/renderer-baselines.json, spikes/pvec-real/*.json")}# Benchmark report\n`];
   out.push("These are display-fidelity and frame-behaviour measurements of the benchmark subject named under each result. They are not claims about geometric accuracy; the mathematical tolerances belong to the shared numeric policy (libviprs/pvec#1, P1.2), and this report cites none.\n");
   for (const { file, r } of results(root)) {
     out.push(`## ${file}\n`);
@@ -123,8 +123,19 @@ function benchmarkReport(root) {
     }
     out.push("");
   }
+  out.push("The runs above used software GL, so they are relative costs.\n");
+  const hwFile = path.join(root, "bench/baselines/renderer-baselines.json");
+  const hw = JSON.parse(readFileSync(hwFile, "utf8"));
+  out.push("## Real hardware (renderer-keyed baselines)\n");
+  out.push("Stroke pipeline through the buffer pool, 1e6 segments per frame as ten 100k-segment ranges (ten draw calls), 1600x1000 css px at dpr 2, 60 s of rAF frames after a 3 s warm-up. Each row comes from the result file named in its last column; the pixel hash of the fixed snapshot scene is stored per renderer in `bench/baselines/renderer-baselines.json`. The CPU column is JavaScript submit time per frame; the GPU column is the timer-query time where the engine offers one. A 120 Hz display makes the frame interval 8.3 ms, so the interval is capped by the display, not by the work.\n");
+  out.push("| renderer | engine | arch | frame p50/p95/max (ms) | frames over 20 ms | draw calls | CPU submit p95 (ms) | GPU frame p50 (ms) | 1e6 sync draw p50 (ms) | 1e6 upload (ms) | 4 MiB upload p95 (ms) | 8 MiB upload p95 (ms) | source |", "|---|---|---|---|---|---|---|---|---|---|---|---|---|");
+  for (const [key, e] of Object.entries(hw.entries)) {
+    const up = (b) => fmt(e.upload.find((u) => u.bytes === b).p95Ms);
+    out.push(`| ${key.split(" | ")[0]} | ${e.engine} ${e.browserVersion} | ${e.arch} | ${fmt(e.frames.p50Ms)} / ${fmt(e.frames.p95Ms)} / ${fmt(e.frames.maxMs)} | ${e.frames.over20Ms} of ${e.frames.count} | ${e.drawCalls.perFrame} | ${fmt(e.cpu.submitP95Ms)} | ${e.gpu ? fmt(e.gpu.frameP50Ms) : "no timer query"} | ${fmt(e.draw1e6.syncDrawP50Ms)} | ${fmt(e.draw1e6.uploadMs)} | ${up(4 << 20)} | ${up(8 << 20)} | \`${e.source}\` |`);
+  }
+  out.push("");
   out.push(...realEvaluatorSection(root));
-  out.push("Software GL means these are relative costs. Hardware numbers, the add-on's own runs and the thresholds for them are listed in [deferred work](deferred.md).\n");
+  out.push("Software GL means these are relative costs. The add-on's own runs and the thresholds for them are listed in [deferred work](deferred.md).\n");
   return out.join("\n");
 }
 

@@ -23,14 +23,16 @@ export function countingGl(): { gl: WebGL2RenderingContext; live: () => Record<s
   const del = (kind: string) => () => {
     live[kind] = (live[kind] ?? 0) - 1;
   };
-  const gl = {
+  // The layer checks the constructor name, so the stand-in carries the real one.
+  const Ctx = { WebGL2RenderingContext: class {} }.WebGL2RenderingContext;
+  const gl = Object.assign(new Ctx(), {
     canvas,
     createBuffer: mk("buffer"), deleteBuffer: del("buffer"),
     createVertexArray: mk("vao"), deleteVertexArray: del("vao"),
     createTexture: mk("texture"), deleteTexture: del("texture"),
     createProgram: mk("program"), deleteProgram: del("program"),
     createFramebuffer: mk("framebuffer"), deleteFramebuffer: del("framebuffer"),
-  } as unknown as WebGL2RenderingContext;
+  }) as unknown as WebGL2RenderingContext;
   return { gl, live: () => ({ ...live }), canvas };
 }
 export const fakeMap = {} as never;

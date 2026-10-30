@@ -6,11 +6,11 @@ I have not tagged or published anything. The package is `private` at `0.0.0`, an
 
 | condition | state | measured | where |
 |---|---|---|---|
-| conformance suite green on every supported browser row | deferred | 1 of 3 rows supported (chromium 130). Firefox returned no WebGL2 in the container, WebKit has no row | [deferred work](deferred.md), issue 2 and issue 40 |
+| conformance suite green on every supported browser row | deferred | 3 of 3 rows supported (chromium 111 to 130, firefox 131, webkit 18.0), each across MapLibre 4.7.1, 5.24.0 and 6.16.0, evidence in release/browser-grid.json | [deferred work](deferred.md), issue 2 and issue 40 |
 | all gates green on the frozen corpus after tuning | deferred | 22 of 30 corpus cases have `.pvec` bytes from pvec's generator, 8 are not emitted by pvec; no gate has run on those bytes through the add-on; the baseline run's variance is within its limit | [deferred work](deferred.md), issue 34 and issue 40 |
 | no QUARANTINED fixture in the pass set | met | 0 quarantined among the 22 cases with bytes | `release/v1-gate.json` |
-| WASM-blocked and non-isolated paths behave as documented | deferred | documented and tested at the loader (`wasm_unavailable`); not through a wired layer | [deferred work](deferred.md), issues 31 and 50 |
-| lifecycle leak and context-loss tests green | deferred | structural leak checks pass; the forced context-loss snapshot needs the wired renderer | [deferred work](deferred.md), issue 50 |
+| WASM-blocked and non-isolated paths behave as documented | met | through the real layer: one `wasm_unavailable` error event, zero range requests, MapLibre's pixels unchanged (0 of 102400 differ), also from the installed tarball. Evidence in `release/evidence/83-wired-layer.json` | [deferred work](deferred.md), issue 83 |
+| lifecycle leak and context-loss tests green | met | forced `WEBGL_lose_context` then restore on a WebGL2 canvas through the layer: zero new range requests, snapshot identical (0 differing pixels), strokes back; with MapLibre's own layers the pixels outside the strokes match (0 differing) and the guard saw no leaked state in any frame. Measured on SwiftShader, with a stand-in evaluator and cursor | [deferred work](deferred.md), issue 83 |
 | examples pass with outbound network denied | deferred | 1 of 6 examples written; `01-minimal` passes against its own 127.0.0.1 server | [deferred work](deferred.md), issue 31 |
 | API report identical to the committed baseline | met | report regenerates with no diff and matches the frozen hash | `etc/maplibre-pvec.api.md` |
 
@@ -21,7 +21,7 @@ I have not tagged or published anything. The package is `private` at `0.0.0`, an
 | The release step refuses to tag unless every condition is present and met; removing an entry blocks it | met (`tools/release-gate.mjs --tag-check`, tested with a synthetic green gate and a gate with an entry removed) |
 | The frozen API report is committed and a later change is caught | met locally: the surface test and `release/v1-freeze.json` fail on any difference, and `classifyApiChange` states whether the change needs a minor or a major bump. Actions is off, so the local gate is what runs it |
 | `compatibility.json` has exactly one conformance-baseline projection, `mercator`; WebGPU only experimental; `SharedArrayBuffer` only optional | met (tested) |
-| Frozen budgets equal the tuned values, checked by equality between `defaults.ts` and `release/v1-freeze.json` | met (tested). The values were tuned on software GL, so a hardware retune is deferred |
+| Frozen budgets equal the tuned values, checked by equality between `defaults.ts` and `release/v1-freeze.json` | met (tested). Checked against real hardware in #82 (Apple M5 Metal, Apple GPU WebKit, Intel ADL GT2), no value needed to change, see [deferred work](deferred.md) |
 | Release notes describe benchmark results as display fidelity | met in `CHANGELOG.md`; the docs check also rejects calling a display-fidelity result exact |
 | `1.0.0` bump and the tag | deferred on purpose: the gate is not green and publishing is out of scope |
 
@@ -42,4 +42,4 @@ I have not tagged or published anything. The package is `private` at `0.0.0`, an
 
 ## What would turn the deferred rows green
 
-The 8 corpus fixtures pvec does not emit and a released `libviprs/pvec` WASM artifact (the evaluator and 22 sets of bytes are in), a Firefox and a WebKit build with WebGL2 in the container, a GPU-backed runner, the wired custom layer with context-loss handling, and examples 02 to 06. Each is written up in [deferred work](deferred.md).
+The 8 corpus fixtures pvec does not emit and a released `libviprs/pvec` WASM artifact (the evaluator and 22 sets of bytes are in), an NVIDIA and an arm64 Linux GPU runner, the evaluator wired into the layer in place of the stand-in (the layer and its context-loss handling are done), and examples 02 to 06. Each is written up in [deferred work](deferred.md).

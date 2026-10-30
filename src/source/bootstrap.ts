@@ -208,13 +208,16 @@ function negotiate(m: PVecManifest): { id: number; name: string }[] {
     if (supported) continue;
     if (cap.required) {
       const known = SUPPORTED_MAJOR[cap.id] !== undefined;
-      throw new PVecCapabilityError(
-        known ? "required-version" : "required-unsupported",
+      const err = new PVecCapabilityError(
+        "unsupported_required_capability",
         cap.name,
         known
           ? `required capability ${cap.name} is declared at major ${cap.major}, this reader implements major ${SUPPORTED_MAJOR[cap.id]}`
           : `required capability ${cap.name} is not supported`,
       );
+      // The one name covers both; the reason says which. `detail` is a plain object, so the typed error's shape is unchanged.
+      Object.assign(err.detail, { reason: known ? "version" : "unsupported" });
+      throw err;
     }
     unsupportedOptional.push({ id: cap.id, name: cap.name });
   }

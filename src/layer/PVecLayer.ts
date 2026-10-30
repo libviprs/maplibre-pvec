@@ -15,7 +15,11 @@ import type { PVecHandle } from "../source/bootstrap";
 import { PVecCapabilityError, PVecError, PVecOptionError } from "../source/errors";
 import { PVecSource } from "../source/PVecSource";
 import { GlResources } from "./glresources";
-import { registerControl, type EngineHooks, type LayerControl, type QueryEngine } from "./internal";
+import { StrokeEngine } from "./engine";
+import { assertMapLibreVersion, assertWebGL2 } from "../compat/detect";
+import { Tier0Decoder } from "../decode/tier0";
+import type { Evaluator } from "../wasm/loader";
+import { engineDepsOf, registerControl, type EngineHooks, type LayerControl, type QueryEngine } from "./internal";
 import { watchContextLoss } from "../render/gl_state";
 
 type Gl = WebGLRenderingContext | WebGL2RenderingContext;
@@ -35,6 +39,19 @@ export interface PickOptions {
   /** Extra reach in CSS pixels, added to the rendered stroke half width. A display tolerance, not a geometric one. */
   tolerancePx?: number;
 }
+
+/** Wiring state kept out of the class so the frozen API report does not list it. */
+interface Wiring {
+  strokes?: StrokeEngine | undefined;
+  evaluator?: Evaluator | undefined;
+  map?: MapLibreMap | undefined;
+}
+const wiring = new WeakMap<object, Wiring>();
+const wired = (layer: object): Wiring => {
+  let w = wiring.get(layer);
+  if (!w) wiring.set(layer, (w = {}));
+  return w;
+};
 
 type Phase = "idle" | "added" | "removed";
 
@@ -126,6 +143,7 @@ export class PVecLayer implements CustomLayerInterface {
     this.phase = "added";
     this.blocked = false;
     this.handle = undefined;
+    wired(this).map = _map;
     this.addedAt = performance.now();
     const controller = (this.controller = new AbortController());
     const source = (this.source = new PVecSource(toSource(this.options, this.wrapFetch(controller.signal))));
@@ -135,13 +153,17 @@ export class PVecLayer implements CustomLayerInterface {
         onLost: () => {
           this.n.losses++;
           this.glRes.forgetAll();
+          this.guard(() => wired(this).strokes?.onContextLost(), "context_lost");
           this.guard(() => this.hooks.onContextLost?.(), "context_lost");
         },
-        onRestored: () => this.guard(() => this.hooks.onContextRestored?.(gl), "context_restored"),
-        repaint: () => undefined,
+        onRestored: () => {
+          this.guard(() => wired(this).strokes?.onContextRestored(), "context_restored");
+          this.guard(() => this.hooks.onContextRestored?.(gl), "context_restored");
+        },
+        repaint: () => wired(this).map?.triggerRepaint?.(),
       });
     }
-    this.ready = this.load(source, controller.signal);
+    this.ready = this.load(source, controller.signal, gl);
   }
 
   onRemove(_map: MapLibreMap, gl: Gl): void {
@@ -152,8 +174,21 @@ export class PVecLayer implements CustomLayerInterface {
     const steps: Array<[string, () => void]> = [
       ["abort", () => this.controller?.abort()],
       ["workers", () => this.hooks.terminateWorkers?.()],
-      ["gl", () => this.glRes.disposeAll(gl)],
-      ["wasm", () => this.hooks.dropWasm?.()],
+      [
+        "gl",
+        () => {
+          wired(this).strokes?.dispose();
+          wired(this).strokes = undefined;
+          this.glRes.disposeAll(gl);
+        },
+      ],
+      [
+        "wasm",
+        () => {
+          wired(this).evaluator = undefined;
+          this.hooks.dropWasm?.();
+        },
+      ],
       [
         "cache",
         () => {
@@ -168,12 +203,14 @@ export class PVecLayer implements CustomLayerInterface {
     this.query = undefined;
     this.source = undefined;
     this.controller = undefined;
+    wired(this).map = undefined;
   }
 
   render(gl: Gl, args: unknown): void {
     if (this.phase !== "added" || this.blocked) return;
     this.n.frames++;
-    this.guard(() => this.hooks.render?.(gl, args), "render");
+    const custom = this.hooks.render;
+    this.guard(() => (custom ? custom(gl, args) : wired(this).strokes?.render()), "render");
   }
 
   /** Resolves when the first bootstrap has finished, whether it worked or not. Never rejects. */
@@ -312,8 +349,16 @@ export class PVecLayer implements CustomLayerInterface {
     return this.query;
   }
 
-  private async load(source: PVecSource, signal: AbortSignal): Promise<void> {
+  private async load(source: PVecSource, signal: AbortSignal, gl: Gl): Promise<void> {
+    const deps = engineDepsOf(this);
     try {
+      // Everything that can refuse does so before the first range request.
+      const version = deps.maplibreVersion();
+      if (version !== undefined) assertMapLibreVersion(version);
+      assertWebGL2(gl);
+      const evaluator = await deps.loadEvaluator();
+      if (signal.aborted) return;
+      wired(this).evaluator = evaluator;
       const h = await source.bootstrap();
       if (signal.aborted) return;
       this.handle = h;
@@ -335,6 +380,23 @@ export class PVecLayer implements CustomLayerInterface {
         bytesDecoded: 0,
         cacheTier: "network",
       });
+      const cursor = await deps.openCursor(h, evaluator);
+      const map = wired(this).map;
+      if (signal.aborted || !cursor || !map) return;
+      const engine = (wired(this).strokes = new StrokeEngine({
+        gl: gl as WebGL2RenderingContext,
+        map,
+        res: this.glRes,
+        reference: this.options.georeference?.reference,
+        style: (entityId) => this.resolveStyle({ entityId }),
+        visible: (entityId) => this.isEntityVisible({ entityId }),
+        onStateDiff: deps.onStateDiff,
+        onError: (where, err) => this.emitter.emit("error", { code: "layer_failed", message: `${where}: ${String(err)}`, context: { where } }),
+      }));
+      const t0 = performance.now();
+      const draws = new Tier0Decoder().decodeAll(cursor);
+      this.n.decodeMs += performance.now() - t0;
+      this.guard(() => engine.setDraws(draws), "upload");
     } catch (e) {
       if (signal.aborted) return;
       this.blocked = true;
@@ -342,7 +404,7 @@ export class PVecLayer implements CustomLayerInterface {
         this.emitter.emit("capabilityunsupported", { capability: e.capability, required: true, action: "refused" });
         this.emitter.emit("error", { code: "unsupported_required_capability", message: e.message, context: { capability: e.capability, cause: e.code } });
       } else {
-        this.emitter.emit("error", { code: e instanceof PVecError ? e.code : "load_failed", message: String(e instanceof Error ? e.message : e), context: {} });
+        this.emitter.emit("error", { code: e instanceof PVecError ? e.code : "load_failed", message: String(e instanceof Error ? e.message : e), context: e instanceof PVecError ? { ...e.detail } : {} });
       }
     }
   }

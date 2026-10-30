@@ -15,9 +15,9 @@ The `maplibre-gl` peer range is `>=4.7.1 <7.0.0`, derived from the lowest and hi
 
 | Engine | Status | Tested | Note |
 | --- | --- | --- | --- |
-| chromium | supported | 130.0.6723.31 | WebGL2 through ANGLE on SwiftShader in CI; module workers; no COOP/COEP needed |
-| firefox | pending | none | the CI container's Firefox returned no WebGL2 context, so no minimum is claimed until the M2.8 grid has a Firefox row |
-| webkit | pending | none | no minimum is claimed until the M2.8 grid has a WebKit row |
+| chromium | supported | 111.0.5563.19 | lowest passing build, from Playwright 1.31; 120.0.6099.28 and the pinned 130.0.6723.31 also pass; WebGL2 through ANGLE on SwiftShader; module workers; no COOP/COEP needed |
+| firefox | supported | 131.0 | Playwright's pinned build with WebGL2 on Mesa llvmpipe under an X display (xvfb); without a display it returns no WebGL2 context; older builds not run, so 131.0 is the lowest measured |
+| webkit | supported | 18.0 | Playwright's pinned build with its software WebGL2 path; older builds not run, so 18.0 is the lowest measured |
 
 - webgl2: required, no canvas2D fallback
 - wasmFeatures: WebAssembly MVP only; no threads, no SIMD, no bulk memory required by the shipped module
@@ -45,7 +45,7 @@ The `maplibre-gl` peer range is `>=4.7.1 <7.0.0`, derived from the lowest and hi
 | --- | --- | --- | --- |
 | U1 | MapLibre outside the tested range | `unsupported_maplibre_version` | refuse at attach; the message names the tested range |
 | U2 | no WebGL2 context | `webgl2_required` | refuse at attach; no canvas2D fallback |
-| U3 | required PVec capability not implemented | `required-unsupported` | refuse before any payload byte; a wrong major is required-version |
+| U3 | required PVec capability not implemented | `unsupported_required_capability` | refuse before any payload byte; a wrong major of a known capability uses the same code with detail.reason set to version |
 | U4 | optional PVec capability not implemented | `degrade` | skip the blocks and list the capability in the bootstrap report |
 | U5 | file needs a newer reader than 1.0.0 | `reader-too-old` | refuse before any payload byte |
 | U6 | WASM fetch or compile blocked | `wasm_unavailable` | onAdd rejects, one error event, MapLibre layers keep rendering, no TypeScript geometry fallback |
