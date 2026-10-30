@@ -15,7 +15,11 @@ import type { PVecHandle } from "../source/bootstrap";
 import { PVecCapabilityError, PVecError, PVecOptionError } from "../source/errors";
 import { PVecSource } from "../source/PVecSource";
 import { GlResources } from "./glresources";
-import { registerControl, type EngineHooks, type LayerControl, type QueryEngine } from "./internal";
+import { StrokeEngine } from "./engine";
+import { assertMapLibreVersion, assertWebGL2 } from "../compat/detect";
+import { Tier0Decoder } from "../decode/tier0";
+import type { Evaluator } from "../wasm/loader";
+import { engineDepsOf, registerControl, type EngineHooks, type LayerControl, type QueryEngine } from "./internal";
 import { watchContextLoss } from "../render/gl_state";
 
 type Gl = WebGLRenderingContext | WebGL2RenderingContext;
@@ -97,6 +101,9 @@ export class PVecLayer implements CustomLayerInterface {
   private unwatch: (() => void) | undefined;
   private ready: Promise<void> = Promise.resolve();
   private blocked = false;
+  private engine: StrokeEngine | undefined;
+  private evaluator: Evaluator | undefined;
+  private map: MapLibreMap | undefined;
   private addedAt = 0;
   private gens = new Map<string, number>();
   private n = {
@@ -121,11 +128,12 @@ export class PVecLayer implements CustomLayerInterface {
     registerControl(this, this.control());
   }
 
-  onAdd(_map: MapLibreMap, gl: Gl): void {
+  onAdd(map: MapLibreMap, gl: Gl): void {
     if (this.phase === "added") throw new PVecLayerError("already_added", `layer ${this.id} is already on a map`);
     this.phase = "added";
     this.blocked = false;
     this.handle = undefined;
+    this.map = map;
     this.addedAt = performance.now();
     const controller = (this.controller = new AbortController());
     const source = (this.source = new PVecSource(toSource(this.options, this.wrapFetch(controller.signal))));
@@ -135,13 +143,17 @@ export class PVecLayer implements CustomLayerInterface {
         onLost: () => {
           this.n.losses++;
           this.glRes.forgetAll();
+          this.guard(() => this.engine?.onContextLost(), "context_lost");
           this.guard(() => this.hooks.onContextLost?.(), "context_lost");
         },
-        onRestored: () => this.guard(() => this.hooks.onContextRestored?.(gl), "context_restored"),
-        repaint: () => undefined,
+        onRestored: () => {
+          this.guard(() => this.engine?.onContextRestored(), "context_restored");
+          this.guard(() => this.hooks.onContextRestored?.(gl), "context_restored");
+        },
+        repaint: () => this.map?.triggerRepaint?.(),
       });
     }
-    this.ready = this.load(source, controller.signal);
+    this.ready = this.load(source, controller.signal, gl);
   }
 
   onRemove(_map: MapLibreMap, gl: Gl): void {
@@ -152,8 +164,21 @@ export class PVecLayer implements CustomLayerInterface {
     const steps: Array<[string, () => void]> = [
       ["abort", () => this.controller?.abort()],
       ["workers", () => this.hooks.terminateWorkers?.()],
-      ["gl", () => this.glRes.disposeAll(gl)],
-      ["wasm", () => this.hooks.dropWasm?.()],
+      [
+        "gl",
+        () => {
+          this.engine?.dispose();
+          this.engine = undefined;
+          this.glRes.disposeAll(gl);
+        },
+      ],
+      [
+        "wasm",
+        () => {
+          this.evaluator = undefined;
+          this.hooks.dropWasm?.();
+        },
+      ],
       [
         "cache",
         () => {
@@ -168,12 +193,14 @@ export class PVecLayer implements CustomLayerInterface {
     this.query = undefined;
     this.source = undefined;
     this.controller = undefined;
+    this.map = undefined;
   }
 
   render(gl: Gl, args: unknown): void {
     if (this.phase !== "added" || this.blocked) return;
     this.n.frames++;
-    this.guard(() => this.hooks.render?.(gl, args), "render");
+    const custom = this.hooks.render;
+    this.guard(() => (custom ? custom(gl, args) : this.engine?.render()), "render");
   }
 
   /** Resolves when the first bootstrap has finished, whether it worked or not. Never rejects. */
@@ -312,8 +339,16 @@ export class PVecLayer implements CustomLayerInterface {
     return this.query;
   }
 
-  private async load(source: PVecSource, signal: AbortSignal): Promise<void> {
+  private async load(source: PVecSource, signal: AbortSignal, gl: Gl): Promise<void> {
+    const deps = engineDepsOf(this);
     try {
+      // Everything that can refuse does so before the first range request.
+      const version = deps.maplibreVersion();
+      if (version !== undefined) assertMapLibreVersion(version);
+      assertWebGL2(gl);
+      const evaluator = await deps.loadEvaluator();
+      if (signal.aborted) return;
+      this.evaluator = evaluator;
       const h = await source.bootstrap();
       if (signal.aborted) return;
       this.handle = h;
@@ -335,6 +370,22 @@ export class PVecLayer implements CustomLayerInterface {
         bytesDecoded: 0,
         cacheTier: "network",
       });
+      const cursor = await deps.openCursor(h, evaluator);
+      if (signal.aborted || !cursor || !this.map) return;
+      const engine = (this.engine = new StrokeEngine({
+        gl: gl as WebGL2RenderingContext,
+        map: this.map,
+        res: this.glRes,
+        reference: this.options.georeference?.reference,
+        style: (entityId) => this.resolveStyle({ entityId }),
+        visible: (entityId) => this.isEntityVisible({ entityId }),
+        onStateDiff: deps.onStateDiff,
+        onError: (where, err) => this.emitter.emit("error", { code: "layer_failed", message: `${where}: ${String(err)}`, context: { where } }),
+      }));
+      const t0 = performance.now();
+      const draws = new Tier0Decoder().decodeAll(cursor);
+      this.n.decodeMs += performance.now() - t0;
+      this.guard(() => engine.setDraws(draws), "upload");
     } catch (e) {
       if (signal.aborted) return;
       this.blocked = true;
@@ -342,7 +393,7 @@ export class PVecLayer implements CustomLayerInterface {
         this.emitter.emit("capabilityunsupported", { capability: e.capability, required: true, action: "refused" });
         this.emitter.emit("error", { code: "unsupported_required_capability", message: e.message, context: { capability: e.capability, cause: e.code } });
       } else {
-        this.emitter.emit("error", { code: e instanceof PVecError ? e.code : "load_failed", message: String(e instanceof Error ? e.message : e), context: {} });
+        this.emitter.emit("error", { code: e instanceof PVecError ? e.code : "load_failed", message: String(e instanceof Error ? e.message : e), context: e instanceof PVecError ? { ...e.detail } : {} });
       }
     }
   }

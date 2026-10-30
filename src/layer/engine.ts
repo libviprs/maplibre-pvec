@@ -1,0 +1,219 @@
+import type { Map as MapLibreMap } from "maplibre-gl";
+import type { StrokeStyle } from "../components/hooks";
+import type { EntityDraw } from "../decode/tier0";
+import { BufferPool } from "../render/buffer_pool";
+import { packPolyline, splitHiLo } from "../render/buffer_layout";
+import { GlStateGuard } from "../render/gl_state";
+import { StrokeRenderer } from "../render/stroke/renderer";
+import { createGeoTransform, type GeoReference } from "../transform/georeference";
+import { lngLatToMercator, mercatorToLngLat } from "../transform/projection";
+import { sourceToWorld } from "../transform/rebase";
+import type { GlResources } from "./glresources";
+
+type Gl2 = WebGL2RenderingContext;
+
+export interface EngineInit {
+  gl: Gl2;
+  map: MapLibreMap;
+  res: GlResources;
+  reference: GeoReference | undefined;
+  style(entityId: string): StrokeStyle;
+  visible(entityId: string): boolean;
+  /** Present only when a test wants the guard's debug diff for every frame. */
+  onStateDiff: ((names: string[]) => void) | undefined;
+  onError(where: string, e: unknown): void;
+}
+
+interface Group {
+  key: string;
+  color: [number, number, number, number];
+  widthCss: number;
+  dash: [number, number] | undefined;
+}
+
+const KINDS = { createBuffer: "buffer", createVertexArray: "vao", createProgram: "program", createTexture: "texture" } as const;
+const DELETES = { deleteBuffer: "buffer", deleteVertexArray: "vao", deleteProgram: "program", deleteTexture: "texture" } as const;
+
+/** The GL context with every object the add-on creates tracked in `res`, so teardown is one loop. */
+function tracked(gl: Gl2, res: GlResources): Gl2 {
+  return new Proxy(gl, {
+    get(target, prop) {
+      const v = (target as unknown as Record<string | symbol, unknown>)[prop];
+      if (typeof v !== "function") return v;
+      const f = v as (...a: unknown[]) => unknown;
+      if (prop in KINDS) {
+        const kind = KINDS[prop as keyof typeof KINDS];
+        return () => {
+          const h = f.call(target) as object | null;
+          if (h) res.track(kind, h);
+          return h;
+        };
+      }
+      if (prop in DELETES) {
+        const kind = DELETES[prop as keyof typeof DELETES];
+        return (h: object | null) => {
+          if (h) res.untrack(kind, h);
+          return f.call(target, h);
+        };
+      }
+      return f.bind(target);
+    },
+  });
+}
+
+const NAMED: Record<string, [number, number, number]> = { black: [0, 0, 0], white: [1, 1, 1], red: [1, 0, 0] };
+/** #rgb, #rrggbb, #rrggbbaa, rgb() and rgba(). Anything else is black, which is also the default style. */
+export function parseColor(s: string): [number, number, number, number] {
+  const t = s.trim().toLowerCase();
+  const hex = /^#([0-9a-f]{3,8})$/.exec(t)?.[1];
+  if (hex && [3, 6, 8].includes(hex.length)) {
+    const h = hex.length === 3 ? [...hex].map((c) => c + c).join("") : hex;
+    const n = (i: number) => parseInt(h.slice(i, i + 2), 16) / 255;
+    return [n(0), n(2), n(4), h.length === 8 ? n(6) : 1];
+  }
+  const fn = /^rgba?\(([^)]*)\)$/.exec(t)?.[1]?.split(",").map((x) => parseFloat(x));
+  if (fn && fn.length >= 3 && fn.every(Number.isFinite)) return [fn[0]! / 255, fn[1]! / 255, fn[2]! / 255, fn[3] ?? 1];
+  const named = NAMED[t];
+  return named ? [...named, 1] : [0, 0, 0, 1];
+}
+
+/** Decoder output to the pool and onto the screen: the real buffer pool, stroke renderer and state guard. */
+export class StrokeEngine {
+  private readonly gl: Gl2;
+  private readonly tgl: Gl2;
+  private readonly guard: GlStateGuard;
+  private pool: BufferPool | undefined;
+  private renderer: StrokeRenderer | undefined;
+  private groups: Group[] = [];
+  private frame = 0;
+  private lost = false;
+  skipped = 0;
+
+  constructor(private readonly o: EngineInit) {
+    this.gl = o.gl;
+    this.tgl = tracked(o.gl, o.res);
+    this.guard = new GlStateGuard(o.gl, { debug: o.onStateDiff !== undefined });
+  }
+
+  /** Pack the draws per style group into the pool. Only straight and polyline geometry is drawn here. */
+  setDraws(draws: readonly EntityDraw[]): void {
+    const pool = (this.pool ??= new BufferPool(this.tgl, { guardBytes: 40 }));
+    for (const g of this.groups) pool.remove(g.key);
+    this.groups = [];
+    if (!this.o.reference) return;
+    const geo = createGeoTransform(this.o.reference);
+    const byKey = new Map<string, { g: Group; parts: Uint8Array[] }>();
+    for (const d of draws) {
+      if (d.geometry.type !== "line" && d.geometry.type !== "polyline") {
+        this.skipped++;
+        continue;
+      }
+      if (!this.o.visible(d.entityId)) continue;
+      const st = this.o.style(d.entityId);
+      const key = JSON.stringify([st.color, st.widthPx, st.dash]);
+      let e = byKey.get(key);
+      if (!e) {
+        const dash = st.dash.length >= 2 ? ([st.dash[0]!, st.dash[1]!] as [number, number]) : undefined;
+        byKey.set(key, (e = { g: { key: `g${byKey.size}`, color: parseColor(st.color), widthCss: st.widthPx, dash }, parts: [] }));
+      }
+      const src = d.geometry.points;
+      const world: number[] = [];
+      for (let i = 0; i + 1 < src.length; i += 2) world.push(...sourceToWorld(geo, src[i]!, src[i + 1]!));
+      const packed = packPolyline(world, { widthIndex: 0, dashIndex: e.g.dash ? 1 : 0, flags: 0 });
+      if (packed.count) e.parts.push(new Uint8Array(packed.data));
+    }
+    for (const { g, parts } of byKey.values()) {
+      if (!parts.length) continue;
+      const all = new Uint8Array(parts.reduce((n, p) => n + p.byteLength, 0));
+      let at = 0;
+      for (const p of parts) (all.set(p, at), (at += p.byteLength));
+      pool.add(g.key, all);
+      this.groups.push(g);
+    }
+    this.o.map.triggerRepaint?.();
+  }
+
+  render(): void {
+    const { gl, map } = this;
+    if (this.lost || !this.groups.length || gl.isContextLost()) return;
+    if (typeof map.project !== "function" || typeof map.unproject !== "function") return;
+    const view = this.view();
+    if (!view) return;
+    const diffs = this.guard.run(() => {
+      this.renderer ??= new StrokeRenderer(this.tgl);
+      const pool = this.pool!;
+      pool.beginFrame(++this.frame);
+      pool.flush();
+      gl.disable(gl.DEPTH_TEST);
+      gl.disable(gl.STENCIL_TEST);
+      gl.disable(gl.SCISSOR_TEST);
+      gl.disable(gl.CULL_FACE);
+      gl.colorMask(true, true, true, true);
+      gl.enable(gl.BLEND);
+      gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+      for (const g of this.groups) {
+        const range = pool.range(g.key);
+        if (!range) continue;
+        this.renderer.draw(range, {
+          centerHi: [view.cx.hi, view.cy.hi],
+          centerLo: [view.cx.lo, view.cy.lo],
+          linear: view.linear,
+          viewport: [gl.drawingBufferWidth, gl.drawingBufferHeight],
+          dpr: view.dpr,
+          widthsPx: [g.widthCss * view.dpr],
+          dashes: g.dash ? [[g.dash[0] * view.dpr, g.dash[1] * view.dpr, 0, 0]] : [],
+          arcToPx: view.arcToPx,
+          color: g.color,
+        });
+      }
+      pool.completeFrame(this.frame);
+    });
+    if (this.o.onStateDiff) this.o.onStateDiff(diffs.map((d) => d.name));
+    if ((this.pool?.accounting().queuedBytes ?? 0) > 0) map.triggerRepaint?.();
+  }
+
+  /** Centre of the viewport in mercator, and device px (y up) per mercator unit, from the map's own projection. */
+  private view() {
+    const { gl, map } = this;
+    const cssW = map.getCanvas().clientWidth, cssH = map.getCanvas().clientHeight;
+    if (!(cssW > 0 && cssH > 0)) return undefined;
+    const c = map.unproject([cssW / 2, cssH / 2]);
+    const [cx, cy] = lngLatToMercator(c.lng, c.lat);
+    const step = 64 / (512 * 2 ** map.getZoom());
+    const at = (mx: number, my: number): [number, number] => {
+      const p = map.project(mercatorToLngLat(mx, my));
+      return [p.x, p.y];
+    };
+    const o = at(cx, cy), ex = at(cx + step, cy), ey = at(cx, cy + step);
+    const dpr = gl.drawingBufferWidth / cssW;
+    const a = (ex[0] - o[0]) / step, b = (ex[1] - o[1]) / step, cc = (ey[0] - o[0]) / step, d = (ey[1] - o[1]) / step;
+    if (![a, b, cc, d].every(Number.isFinite)) return undefined;
+    return {
+      cx: splitHiLo(cx),
+      cy: splitHiLo(cy),
+      dpr,
+      linear: [dpr * a, -dpr * b, dpr * cc, -dpr * d] as [number, number, number, number],
+      arcToPx: dpr * Math.hypot(a, b),
+    };
+  }
+
+  /** The GL objects are gone; decoded bytes stay in the pool, so nothing is fetched or decoded again. */
+  onContextLost(): void {
+    this.lost = true;
+    this.renderer = undefined;
+    this.pool?.dropGlHandles();
+  }
+  onContextRestored(): void {
+    this.lost = false;
+    this.pool?.rebind(this.tgl);
+    this.o.map.triggerRepaint?.();
+  }
+
+  dispose(): void {
+    this.renderer?.dispose();
+    this.pool?.dispose();
+    this.renderer = undefined;
+    this.pool = undefined;
+    this.groups = [];
+  }
+}

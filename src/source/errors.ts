@@ -24,8 +24,9 @@ export class PVecCapabilityError extends PVecError {
     code: string,
     readonly capability: string,
     message: string,
+    reason?: "unsupported" | "version",
   ) {
-    super(code, message, { capability });
+    super(code, message, reason ? { capability, reason } : { capability });
   }
 }
 

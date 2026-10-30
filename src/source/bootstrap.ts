@@ -209,11 +209,12 @@ function negotiate(m: PVecManifest): { id: number; name: string }[] {
     if (cap.required) {
       const known = SUPPORTED_MAJOR[cap.id] !== undefined;
       throw new PVecCapabilityError(
-        known ? "required-version" : "required-unsupported",
+        "unsupported_required_capability",
         cap.name,
         known
           ? `required capability ${cap.name} is declared at major ${cap.major}, this reader implements major ${SUPPORTED_MAJOR[cap.id]}`
           : `required capability ${cap.name} is not supported`,
+        known ? "version" : "unsupported",
       );
     }
     unsupportedOptional.push({ id: cap.id, name: cap.name });
