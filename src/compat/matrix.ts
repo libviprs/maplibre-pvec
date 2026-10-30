@@ -63,7 +63,7 @@ export const COMPAT = {
 export const UNSUPPORTED_ROWS: readonly UnsupportedRow[] = [
   { id: "U1", combination: "MapLibre outside the tested range", code: "unsupported_maplibre_version", outcome: "refuse at attach; the message names the tested range" },
   { id: "U2", combination: "no WebGL2 context", code: "webgl2_required", outcome: "refuse at attach; no canvas2D fallback" },
-  { id: "U3", combination: "required PVec capability not implemented", code: "required-unsupported", outcome: "refuse before any payload byte; a wrong major is required-version" },
+  { id: "U3", combination: "required PVec capability not implemented", code: "unsupported_required_capability", outcome: "refuse before any payload byte; a wrong major of a known capability uses the same code with detail.reason set to version" },
   { id: "U4", combination: "optional PVec capability not implemented", code: "degrade", outcome: "skip the blocks and list the capability in the bootstrap report" },
   { id: "U5", combination: "file needs a newer reader than 1.0.0", code: "reader-too-old", outcome: "refuse before any payload byte" },
   { id: "U6", combination: "WASM fetch or compile blocked", code: "wasm_unavailable", outcome: "onAdd rejects, one error event, MapLibre layers keep rendering, no TypeScript geometry fallback" },

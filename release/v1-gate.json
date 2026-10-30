@@ -38,24 +38,31 @@
     {
       "id": "wasm_blocked_paths_documented",
       "spec": "WASM-blocked and non-isolated paths behave as documented (M7.6)",
-      "status": "deferred",
+      "status": "met",
       "measured": {
         "documented": true,
-        "verifiedThroughLayer": false
+        "verifiedThroughLayer": true,
+        "errorEvents": 1,
+        "rangeRequests": 0,
+        "mapLibrePixelDiff": 0,
+        "tarballBlockedErrorEvents": 1
       },
-      "evidence": "documented and unit tested at the loader; the layer does not call the version and WebGL2 refusals yet",
-      "deferredIn": "docs/deferred.md#issue-40-v1-freeze-and-documentation"
+      "evidence": "release/evidence/83-wired-layer.json, measured in Chromium through the wired layer and through the installed tarball"
     },
     {
       "id": "lifecycle_leak_and_context_loss",
       "spec": "lifecycle leak and context-loss tests green (M7.2)",
-      "status": "deferred",
+      "status": "met",
       "measured": {
         "leakTests": "lifecycle.test.ts (structural)",
-        "contextLossSnapshot": false
+        "contextLossSnapshot": true,
+        "newRangeRequests": 0,
+        "snapshotDiff": 0,
+        "outsideStrokeDiff": 0,
+        "symbolLayerDiff": 0,
+        "stateDiffs": 0
       },
-      "evidence": "the forced WEBGL_lose_context snapshot needs the wired renderer",
-      "deferredIn": "docs/deferred.md#issue-40-v1-freeze-and-documentation"
+      "evidence": "release/evidence/83-wired-layer.json: forced WEBGL_lose_context on a WebGL2 canvas through the layer, zero new range requests, snapshot within 0.1 percent; coexistence with MapLibre's own layers on a real map"
     },
     {
       "id": "examples_pass_network_denied",
