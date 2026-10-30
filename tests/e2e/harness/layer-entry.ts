@@ -118,7 +118,7 @@ export async function open(o: OpenOptions): Promise<void> {
   await idle(map);
 }
 
-export function snap(name: string): { w: number; h: number } {
+export function snap(name: string): { w: number; h: number; corner: number[]; centre: number[] } {
   const src = state.map!.getCanvas();
   const c = document.createElement("canvas");
   c.width = src.width;
@@ -127,7 +127,8 @@ export function snap(name: string): { w: number; h: number } {
   ctx.drawImage(src, 0, 0);
   const d = ctx.getImageData(0, 0, c.width, c.height);
   state.snaps[name] = { w: c.width, h: c.height, data: d.data };
-  return { w: c.width, h: c.height };
+  const at = (x: number, y: number) => Array.from(d.data.slice((y * c.width + x) * 4, (y * c.width + x) * 4 + 4));
+  return { w: c.width, h: c.height, corner: at(2, 2), centre: at(Math.floor(c.width / 2), Math.floor(c.height / 2)) };
 }
 
 /** Screen-space (device px) distance from a pixel to the nearest drawn segment. */
