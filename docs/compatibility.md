@@ -45,7 +45,7 @@ The `maplibre-gl` peer range is `>=4.7.1 <7.0.0`, derived from the lowest and hi
 | --- | --- | --- | --- |
 | U1 | MapLibre outside the tested range | `unsupported_maplibre_version` | refuse at attach; the message names the tested range |
 | U2 | no WebGL2 context | `webgl2_required` | refuse at attach; no canvas2D fallback |
-| U3 | required PVec capability not implemented | `required-unsupported` | refuse before any payload byte; a wrong major is required-version |
+| U3 | required PVec capability not implemented | `unsupported_required_capability` | refuse before any payload byte; a wrong major of a known capability uses the same code with detail.reason "version" |
 | U4 | optional PVec capability not implemented | `degrade` | skip the blocks and list the capability in the bootstrap report |
 | U5 | file needs a newer reader than 1.0.0 | `reader-too-old` | refuse before any payload byte |
 | U6 | WASM fetch or compile blocked | `wasm_unavailable` | onAdd rejects, one error event, MapLibre layers keep rendering, no TypeScript geometry fallback |

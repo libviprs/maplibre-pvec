@@ -106,8 +106,8 @@
     {
       "id": "U3",
       "combination": "required PVec capability not implemented",
-      "code": "required-unsupported",
-      "outcome": "refuse before any payload byte; a wrong major is required-version"
+      "code": "unsupported_required_capability",
+      "outcome": "refuse before any payload byte; a wrong major of a known capability uses the same code with detail.reason "version""
     },
     {
       "id": "U4",
