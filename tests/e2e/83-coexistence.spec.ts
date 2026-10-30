@@ -4,6 +4,9 @@ import { H, launch, rig } from "./harness/layer-run";
 // Issue 83: the wired layer next to MapLibre's own layers. Run via /Users/rom/workspace/xdg-pw-lock.sh.
 test.use({ launchOptions: launch });
 
+const evidence: Record<string, number> = {};
+test.afterAll(() => console.log("EVIDENCE83 " + JSON.stringify({ coexistence: evidence })));
+
 type Diff = { pixels: number; differing: number; outsideBand: number };
 type Probe = { red: number; atMidpoint: number[] };
 
@@ -30,6 +33,8 @@ test.describe("issue 83 coexistence with MapLibre's own layers", () => {
       expect(info.mapErrors).toBe(0);
       expect(info.frames).toBeGreaterThan(0);
       expect(info.stateDiffs, "GlStateGuard saw no state left behind in any frame").toEqual([]);
+      evidence.outsideStrokeDiff = d.outsideBand / d.pixels;
+      evidence.stateDiffs = info.stateDiffs.length;
     } finally {
       await r.stop();
     }
@@ -48,6 +53,7 @@ test.describe("issue 83 coexistence with MapLibre's own layers", () => {
       const info = await H<{ stateDiffs: string[]; errors: unknown[] }>(page, "info");
       expect(info.errors).toEqual([]);
       expect(info.stateDiffs).toEqual([]);
+      evidence.symbolLayerDiff = d.differing / d.pixels;
     } finally {
       await r.stop();
     }

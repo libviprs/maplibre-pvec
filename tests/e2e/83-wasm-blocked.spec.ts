@@ -22,6 +22,7 @@ test.describe("issue 83 WASM-blocked path through the real layer", () => {
 
       const d = await H<{ pixels: number; differing: number }>(page, "diff", ["without", "blocked"]);
       expect(d.differing / d.pixels).toBeLessThanOrEqual(0.001);
+      console.log("EVIDENCE83 " + JSON.stringify({ wasmBlocked: { code: info.errors[0]!.code, errorEvents: info.errors.length, rangeRequests: r.gets(), mapLibrePixelDiff: d.differing / d.pixels } }));
     } finally {
       await r.stop();
     }

@@ -15,6 +15,8 @@ test.use({ launchOptions: launch });
 test.setTimeout(300_000);
 
 let app = "";
+const tarball: Record<string, unknown> = {};
+test.afterAll(() => console.log("EVIDENCE83 " + JSON.stringify({ tarball })));
 test.beforeAll(() => {
   const run = (cmd: string, args: string[], cwd: string) => execFileSync(cmd, args, { cwd, stdio: ["ignore", "pipe", "inherit"], encoding: "utf8" });
   const here = process.cwd();
@@ -100,6 +102,9 @@ test.describe("issue 83 the installed tarball on a real map", () => {
       expect(r.line.slice(0, 3)).toEqual([0x11, 0x22, 0x33]);
       expect(origin.log.filter((l) => l.method === "GET").length).toBeGreaterThan(0);
       expect([...outbound].every((h) => h.startsWith("127.0.0.1:"))).toBe(true);
+      tarball.installed = true;
+      tarball.errorEvents = r.errors.length;
+      tarball.rangesIssued = r.diag.ranges.issued;
     } finally {
       s.server.close();
       await origin.stop();
@@ -116,6 +121,8 @@ test.describe("issue 83 the installed tarball on a real map", () => {
       const r = (await page.evaluate("window.__result")) as { errors: string[]; corner: number[]; line: number[] };
       expect(r.errors).toEqual(["wasm_unavailable"]);
       expect(origin.log.filter((l) => l.method === "GET")).toHaveLength(0);
+      tarball.blockedErrorEvents = r.errors.length;
+      tarball.blockedRangeRequests = origin.log.filter((l) => l.method === "GET").length;
       expect(r.corner.slice(0, 3)).toEqual([0xdf, 0xe7, 0xee]);
       expect(r.line.slice(0, 3)).toEqual([0x11, 0x22, 0x33]);
     } finally {

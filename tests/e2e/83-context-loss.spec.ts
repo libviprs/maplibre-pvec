@@ -24,6 +24,7 @@ test.describe("issue 83 context loss", () => {
       const info = await H<{ errors: unknown[]; diagnostics: { contextLosses: number } }>(page, "info");
       expect(info.errors).toEqual([]);
       expect(info.diagnostics.contextLosses).toBe(1);
+      console.log("EVIDENCE83 " + JSON.stringify({ contextLoss: { forced: true, contextLosses: info.diagnostics.contextLosses, newRangeRequests: r.gets() - requestsBefore, snapshotDiff: d.differing / d.pixels } }));
     } finally {
       await r.stop();
     }
