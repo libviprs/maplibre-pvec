@@ -23,6 +23,10 @@ export function bindPacked(ev: Evaluator) {
   const x = ev.instance.exports as unknown as Record<string, Fn> & { memory: WebAssembly.Memory };
   const call = (name: string, ...a: number[]): number => (x[name] as Fn)(...a);
   const mem = (): WebAssembly.Memory => x.memory;
+  // A handle is an i32 on the wire. The ABI's error codes are -1 to -5; pvec-wasm lets a handle's
+  // generation grow into the sign bit after 32768 reuses of a slot (libviprs/pvec#203), which reads as a
+  // large negative number. Anything below -5 is such a handle, so give it back as the unsigned number it is.
+  const handle = (r: number): number => (r < -5 ? r >>> 0 : r);
   const put = (src: Uint8Array | Float64Array, align: number): [number, number] => {
     const bytes = new Uint8Array(src.buffer, src.byteOffset, src.byteLength);
     const ptr = call("__wbindgen_malloc", bytes.length, align) >>> 0;
@@ -42,17 +46,17 @@ export function bindPacked(ev: Evaluator) {
     /** A file handle, or a negative ABI code. The module copies nothing it does not need: pass the whole file. */
     open(bytes: Uint8Array): number {
       const [ptr, len] = put(bytes, 1);
-      return call("open", ptr, len);
+      return handle(call("open", ptr, len));
     },
     queryViewport(file: number, minX: number, minY: number, maxX: number, maxY: number, budget: number): number {
-      return call("query_viewport", file, minX, minY, maxX, maxY, budget);
+      return handle(call("query_viewport", file, minX, minY, maxX, maxY, budget));
     },
     batchLength: (batch: number): number => call("batch_len", batch),
     batchTruncated: (batch: number): boolean => call("batch_truncated", batch) === 1,
     /** `chain` is the 15 numbers of the ABI: two affine maps, pixel ratio, screen error, world error. */
     tessellate(batch: number, chain: readonly number[], maxSegments: number, precision: "f64" | "f32"): number {
       const [ptr, len] = put(new Float64Array(chain), 8);
-      return call("tessellate_batch", batch, ptr, len, maxSegments, precision === "f64" ? 0 : 1);
+      return handle(call("tessellate_batch", batch, ptr, len, maxSegments, precision === "f64" ? 0 : 1));
     },
     views(result: number): PackedViews {
       const epoch = call("memory_epoch");

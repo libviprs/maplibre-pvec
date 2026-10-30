@@ -31,9 +31,15 @@ async function main(p) {
     const v = rt.views(r);
     const verts = v.offsets[v.offsets.length - 1];
     const failed = rt.failed(r);
-    rt.release(r);
+    // Released in groups of 256 so one slot is not recycled on every call: pvec-wasm handles carry a 16 bit
+    // generation, and from generation 0x8000 on a handle no longer fits the i32 the exports return
+    // (libviprs/pvec, handle generation overflow). Spreading the reuse keeps this run clear of it.
+    held.push(r);
+    if (held.length >= 256) flush();
     return { verts, failed };
   };
+  const held = [];
+  const flush = () => { while (held.length) rt.release(held.pop()); };
   const timeIt = (fn, minMs, minReps) => {
     for (let i = 0; i < 3; i++) fn();
     const samples = [];
@@ -71,6 +77,7 @@ async function main(p) {
       const t = ok ? timeIt(() => tess(batch, worldChain(best.eps), 2e6), 30, 5) : null;
       row.amortised.push({ targetVertices: N, reachable: ok, vertices: best.verts, failed: best.failed, eps: best.eps, ...(t ? { nsPerVertex: r3(t.medianNsPerCall / best.verts), nsPerCall: Math.round(t.medianNsPerCall) } : {}) });
     }
+    flush();
     rt.release(batch); rt.release(file);
     out.fixtures.push(row);
   }
@@ -131,6 +138,92 @@ async function main(p) {
     rt.release(all); rt.release(file);
     out.large.push(row);
   }
+
+  // ---- M1.5: preview error accounting and viewport coverage, against a tight reference tessellation ----
+  const polys = (v) => {
+    const o = [];
+    for (let i = 0; i + 1 < v.offsets.length; i++) {
+      const pts = [];
+      for (let k = v.offsets[i]; k < v.offsets[i + 1]; k++) pts.push([v.vertices[2 * k], v.vertices[2 * k + 1]]);
+      o.push({ id: v.entityIds[i], pts });
+    }
+    return o;
+  };
+  const segDist = (px, py, ax, ay, bx, by) => {
+    const dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy;
+    let t = l2 === 0 ? 0 : ((px - ax) * dx + (py - ay) * dy) / l2;
+    t = Math.max(0, Math.min(1, t));
+    return Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
+  };
+  const distToPoly = (p, pts) => {
+    let d = Infinity;
+    if (pts.length === 1) return Math.hypot(p[0] - pts[0][0], p[1] - pts[0][1]);
+    for (let i = 0; i + 1 < pts.length; i++) d = Math.min(d, segDist(p[0], p[1], pts[i][0], pts[i][1], pts[i + 1][0], pts[i + 1][1]));
+    return d;
+  };
+  const hausdorff = (a, b) => {
+    let d = 0;
+    for (const p of a) d = Math.max(d, distToPoly(p, b));
+    for (const p of b) d = Math.max(d, distToPoly(p, a));
+    return d;
+  };
+  const segHitsBox = (a, b, [x0, y0, x1, y1]) => {
+    if (Math.max(a[0], b[0]) < x0 || Math.min(a[0], b[0]) > x1 || Math.max(a[1], b[1]) < y0 || Math.min(a[1], b[1]) > y1) return false;
+    const inside = (p) => p[0] >= x0 && p[0] <= x1 && p[1] >= y0 && p[1] <= y1;
+    if (inside(a) || inside(b)) return true;
+    const edges = [[[x0, y0], [x1, y0]], [[x1, y0], [x1, y1]], [[x1, y1], [x0, y1]], [[x0, y1], [x0, y0]]];
+    const cross = (o, p, q) => (p[0] - o[0]) * (q[1] - o[1]) - (p[1] - o[1]) * (q[0] - o[0]);
+    return edges.some(([c, d]) => cross(a, b, c) * cross(a, b, d) <= 0 && cross(c, d, a) * cross(c, d, b) <= 0);
+  };
+  const polyHitsBox = (pts, box) => pts.length === 1 ? pts[0][0] >= box[0] && pts[0][0] <= box[2] && pts[0][1] >= box[1] && pts[0][1] <= box[3] : pts.some((q, i) => i > 0 && segHitsBox(pts[i - 1], q, box));
+  let seed = 12345;
+  const rnd = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296);
+  const account = (id, bytes, boxes, refRel, previewRels, hausMax) => {
+    const { file, batch, n } = prep(bytes);
+    const row = { id, entities: n };
+    const grab = (b, eps) => { const r = rt.tessellate(b, worldChain(eps), 5e6, "f64"); const v = rt.views(r); const o = polys(v); rt.release(r); return o; };
+    const probe = grab(batch, 1e30);
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const e of probe) for (const [x, y] of e.pts) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+    const ext = Math.max(x1 - x0, y1 - y0, 1e-9);
+    row.extent = [x0, y0, x1, y1];
+    const ref = grab(batch, ext * refRel);
+    row.referenceBudget = ext * refRel;
+    // preview error accounting
+    row.previews = [];
+    for (const rel of previewRels) {
+      const eps = ext * rel;
+      const pv = grab(batch, eps);
+      let worst = 0, total = 0, vertsRef = 0, vertsPv = 0;
+      const sample = ref.length > hausMax ? ref.map((_, i) => i).filter((i) => i % Math.ceil(ref.length / hausMax) === 0) : ref.map((_, i) => i);
+      for (const i of sample) {
+        const d = hausdorff(pv[i].pts, ref[i].pts);
+        worst = Math.max(worst, d); total++;
+      }
+      for (const e of ref) vertsRef += e.pts.length;
+      for (const e of pv) vertsPv += e.pts.length;
+      row.previews.push({ declaredErrorWorld: eps, measuredMaxWorld: worst, ratio: eps > 0 ? +(worst / eps).toFixed(4) : null, entitiesChecked: total, withinDeclared: worst <= eps * 1.0000001 + row.referenceBudget, vertices: vertsPv, referenceVertices: vertsRef });
+    }
+    // viewport coverage: every entity whose reference polyline meets the box has to be in the batch
+    row.coverage = { boxes: 0, entitiesMeetingBox: 0, missing: 0, extraKept: 0 };
+    for (const f of boxes) {
+      const bw = (x1 - x0) * f, bh = (y1 - y0) * f;
+      const bx = x0 + rnd() * ((x1 - x0) - bw), by = y0 + rnd() * ((y1 - y0) - bh);
+      const box = f >= 1 ? [x0 - 1, y0 - 1, x1 + 1, y1 + 1] : [bx, by, bx + bw, by + bh];
+      const vb = rt.queryViewport(file, ...box, 1e7);
+      const got = new Set(grab(vb, ext * 1e-2).map((e) => e.id));
+      rt.release(vb);
+      const want = new Set(ref.filter((e) => polyHitsBox(e.pts, box)).map((e) => e.id));
+      let missing = 0; for (const w of want) if (!got.has(w)) missing++;
+      row.coverage.boxes++; row.coverage.entitiesMeetingBox += want.size; row.coverage.missing += missing; row.coverage.extraKept += got.size - (want.size - missing);
+    }
+    rt.release(batch); rt.release(file);
+    return row;
+  };
+  out.previewAccounting = [];
+  for (const [id, b64] of Object.entries(p.small)) out.previewAccounting.push(account(id, u8(b64), [1, 0.5, 0.25, 0.1, 0.1, 0.05, 0.05, 0.02], 1e-7, [1e-1, 1e-2, 1e-3], 1000));
+  out.previewAccountingLarge = [];
+  for (const [id, b64] of Object.entries(p.large)) out.previewAccountingLarge.push(account(id, u8(b64), [1, 0.25, 0.05, 0.01], 1e-6, [1e-3], 300));
 
   // ---- leaks: the module's own memory across open/tessellate/release cycles ----
   {

@@ -118,6 +118,16 @@ describe("#80 every corpus artifact through the real evaluator", () => {
     }
   });
 
+  it("gives back a handle whose generation has grown into the sign bit as the unsigned number it is (pvec#203)", async () => {
+    const real = await evaluator();
+    const wrapped = { ...(real.instance.exports as Record<string, unknown>), open: () => -2147483646, query_viewport: () => -2147483645, release: (h: number) => (h === 2147483650 || h === -2147483646 ? 0 : -1) };
+    const rt = bindPacked({ ...real, instance: { exports: wrapped } as unknown as WebAssembly.Instance });
+    const file = rt.open(new Uint8Array([0]));
+    expect(file).toBe(2147483650);
+    expect(rt.queryViewport(file, 0, 0, 1, 1, 1)).toBe(2147483651);
+    expect(rt.release(file)).toBe(0);
+  });
+
   it("returns a negative code and no object for bytes that are not a PVec file", async () => {
     const rt = bindPacked(await evaluator());
     expect(rt.open(new Uint8Array([1, 2, 3, 4]))).toBe(-4);
