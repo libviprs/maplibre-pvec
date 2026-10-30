@@ -2,7 +2,6 @@ import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-// @ts-expect-error plain ES module without declarations
 import { wiredLayerEvidence } from "../../../tools/release-gate.mjs";
 
 const real = path.resolve("release/evidence/83-wired-layer.json");
