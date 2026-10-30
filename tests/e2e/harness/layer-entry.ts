@@ -218,6 +218,18 @@ export async function loseAndRestore(): Promise<{ stages: string[] }> {
   return { stages };
 }
 
+export async function probeFrames(): Promise<unknown[]> {
+  const map = state.map!;
+  const gl = map.getCanvas().getContext("webgl2") as WebGL2RenderingContext;
+  const out: unknown[] = [{ lost: gl.isContextLost(), attrs: gl.getContextAttributes() }];
+  for (let i = 0; i < 5; i++) {
+    const f = await frame(map);
+    out.push({ corner: Array.from(f.data.slice(2 * f.w * 4 + 8, 2 * f.w * 4 + 12)), loaded: map.loaded() });
+    await new Promise((r) => setTimeout(r, 100));
+  }
+  return out;
+}
+
 export function info() {
   return {
     errors: state.errors,

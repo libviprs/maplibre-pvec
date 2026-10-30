@@ -36,6 +36,7 @@ test.describe("issue 83 context loss", () => {
       await H(page, "open", { fixture: r.url, layer: false, cursor: false, wasm: "ok" });
       const a = await H(page, "snap", "before");
       await H(page, "loseAndRestore");
+      console.log("CONTROL frames " + JSON.stringify(await H(page, "probeFrames")));
       const b = await H(page, "snap", "after");
       console.log("CONTROL snaps " + JSON.stringify([a, b]));
       const d = await H<{ pixels: number; differing: number }>(page, "diff", ["before", "after"]);
