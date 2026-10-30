@@ -158,18 +158,30 @@ export async function run(o: { durationMs: number; warmupMs: number; profile?: b
     if (timer) poll();
   };
 
-  map.addLayer(layer as never);
-  await layer.whenReady();
+  // Count the bytes the pool uploads inside layer.render, so the settle phase can say when the whole scene is on the GPU.
+  let uploadedNow = 0, uploadedTotal = 0, maxUploadFrame = 0;
+  const bsd = gl.bufferSubData.bind(gl) as (...a: unknown[]) => void;
+  gl.bufferSubData = ((...a: unknown[]) => { if (inRender) uploadedNow += (a[2] as ArrayBufferView).byteLength; bsd(...a); }) as typeof gl.bufferSubData;
+  const bd = gl.bufferData.bind(gl) as (...a: unknown[]) => void;
+  gl.bufferData = ((...a: unknown[]) => { if (inRender) uploadedNow += typeof a[1] === "number" ? a[1] : (a[1] as ArrayBufferView).byteLength; bd(...a); }) as typeof gl.bufferData;
 
-  // Settle: the pool uploads the 40 MB within its per-frame budget. Count frames until ten ranges draw every frame.
+  // Settle: the pool uploads the scene within its per-frame budget. Count frames from addLayer until all ten ranges draw,
+  // nothing is left to upload, and that has held for three frames.
   const t0 = performance.now();
+  map.addLayer(layer as never);
   let settleFrames = 0, settleMax = 0, steady = 0;
-  await frames(rig, undefined, 120_000, () => {
+  const settling = frames(rig, undefined, 180_000, () => {
     settleFrames++;
     settleMax = Math.max(settleMax, lastRenderMs);
-    steady = lastCalls === POLYLINES ? steady + 1 : 0;
-    return steady >= 5;
+    uploadedTotal += uploadedNow;
+    maxUploadFrame = Math.max(maxUploadFrame, uploadedNow);
+    const quiet = uploadedNow === 0 && uploadedTotal > 0 && lastCalls === POLYLINES;
+    uploadedNow = 0;
+    steady = quiet ? steady + 1 : 0;
+    return steady >= 3;
   });
+  await layer.whenReady();
+  await settling;
   const settleMs = performance.now() - t0;
 
   const interval: number[] = [], render: number[] = [], perFrameCalls: number[] = [];
@@ -205,7 +217,7 @@ export async function run(o: { durationMs: number; warmupMs: number; profile?: b
       drawCalls: { perFrame: percentile(perFrameCalls, 50) },
       cpu: { renderP50Ms: cs.p50, renderP95Ms: cs.p95, renderMaxMs: cs.max },
       gpu: gpuMs.length ? { frameP50Ms: percentile(gpuMs, 50), frameP95Ms: percentile(gpuMs, 95) } : null,
-      settle: { frames: settleFrames, ms: Math.round(settleMs), renderMaxMs: settleMax },
+      settle: { frames: settleFrames, ms: Math.round(settleMs), renderMaxMs: settleMax, uploadedBytes: uploadedTotal, maxUploadBytesPerFrame: maxUploadFrame },
     },
   };
 }

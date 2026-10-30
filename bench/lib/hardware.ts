@@ -28,8 +28,8 @@ export interface LayerRun {
   /** JavaScript time inside layer.render per frame. */
   cpu: { renderP50Ms: number; renderP95Ms: number; renderMaxMs: number };
   gpu: { frameP50Ms: number; frameP95Ms: number } | null;
-  /** Frames from the first draw until every range is uploaded and drawn. */
-  settle: { frames: number; ms: number; renderMaxMs: number };
+  /** From addLayer until every range is uploaded and drawn: frames, time, the slowest render and the pool's upload bytes. */
+  settle: { frames: number; ms: number; renderMaxMs: number; uploadedBytes: number; maxUploadBytesPerFrame: number };
 }
 export interface HardwareResult {
   schema: 1;

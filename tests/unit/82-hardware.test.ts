@@ -65,7 +65,7 @@ const goodLayer = (): NonNullable<HardwareResult["layer"]> => ({
   drawCalls: { perFrame: 10 },
   cpu: { renderP50Ms: 0.2, renderP95Ms: 0.4, renderMaxMs: 1.1 },
   gpu: { frameP50Ms: 2, frameP95Ms: 3 },
-  settle: { frames: 12, ms: 300, renderMaxMs: 3 },
+  settle: { frames: 12, ms: 300, renderMaxMs: 3, uploadedBytes: 40_000_400, maxUploadBytesPerFrame: 4 << 20 },
 });
 
 describe("#82 layer runs (the wired custom layer on a real map)", () => {
@@ -134,6 +134,13 @@ describe("#82 retuned budgets", () => {
       expect(l.drawCalls.perFrame, k).toBe(10);
       expect(l.segments, k).toBeGreaterThanOrEqual(1_000_000);
       expect(l.stateDiffs, k).toBe(0);
+    }
+  });
+  it("the pool uploads the whole 1e6-segment scene through the layer at no more than uploadBudgetBytes a frame", () => {
+    for (const k of baselines.tunedFrom) {
+      const s = baselines.entries[k].layer.settle;
+      expect(s.uploadedBytes, k).toBeGreaterThanOrEqual(40_000_000);
+      expect(s.maxUploadBytesPerFrame, k).toBeLessThanOrEqual(DEFAULTS.uploadBudgetBytes);
     }
   });
   it("records which hardware the budgets were tuned on", () => {
