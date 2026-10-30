@@ -1,13 +1,9 @@
 {
   "schema": 1,
   "tunedFrom": [
-    "ANGLE (Apple",
-    " ANGLE Metal Renderer: Apple M5",
-    " Unspecified Version) | chromium",
+    "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version) | chromium",
     "Apple GPU | webkit",
-    "ANGLE (Intel",
-    " Mesa Intel(R) Graphics (ADL GT2)",
-    " OpenGL ES 3.2) | chromium"
+    "ANGLE (Intel, Mesa Intel(R) Graphics (ADL GT2), OpenGL ES 3.2) | chromium"
   ],
   "entries": {
     "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version) | chromium": {

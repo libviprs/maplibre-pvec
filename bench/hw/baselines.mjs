@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Merge hardware result files into the renderer-keyed baselines (#82).
-//   node bench/hw/baselines.mjs --bundle <dir> --tuned "<renderer> | <engine>,..." bench/results/hw/a.json ...
+//   node bench/hw/baselines.mjs --bundle <dir> --tuned all bench/results/hw/a.json ...
 // Existing entries for other renderers are kept; software results are refused.
 import { readFile, writeFile } from "node:fs/promises";
 import { dirname, join, relative, resolve } from "node:path";
@@ -24,7 +24,7 @@ for (const f of inputs) {
     source: relative(root, resolve(f)), frames: r.frames, drawCalls: r.drawCalls, cpu: r.cpu, gpu: r.gpu, draw1e6: r.draw1e6, upload: r.upload, snapshot: r.snapshot,
   };
 }
-if (arg("tuned")) base.tunedFrom = arg("tuned").split(",");
+if (arg("tuned") === "all") base.tunedFrom = Object.keys(base.entries);
 const errors = validateBaselines(base);
 if (errors.length) throw new Error(errors.join("\n"));
 await writeFile(file, JSON.stringify(base, null, 2) + "\n");
