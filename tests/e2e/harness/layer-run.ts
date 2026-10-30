@@ -14,6 +14,8 @@ const bundle = buildSync({
   logLevel: "silent",
 }).outputFiles[0]!.text;
 
+/** The issue asks for a match within 0.1 percent of the pixels. A display measurement, not a mathematical tolerance. */
+export const SNAPSHOT_MATCH = 0.001;
 export const launch = { args: ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] };
 
 export interface Rig { origin: RangeOrigin; url: string; stop(): Promise<void>; gets(): number }

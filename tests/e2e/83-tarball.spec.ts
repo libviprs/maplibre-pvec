@@ -33,7 +33,7 @@ const MIME: Record<string, string> = { ".js": "text/javascript", ".wasm": "appli
 function serve(blockWasm: boolean): Promise<{ server: Server; base: string; hits: string[] }> {
   const hits: string[] = [];
   const server = createServer((req, res) => {
-    const url = new URL(req.url ?? "/", "http://x");
+    const url = new URL(req.url ?? "/", "http://127.0.0.1");
     hits.push(url.pathname);
     const file =
       url.pathname === "/page.html" ? undefined

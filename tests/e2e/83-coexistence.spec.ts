@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { H, launch, rig } from "./harness/layer-run";
+import { H, launch, rig, SNAPSHOT_MATCH } from "./harness/layer-run";
 
 // Issue 83: the wired layer next to MapLibre's own layers. Run via /Users/rom/workspace/xdg-pw-lock.sh.
 test.use({ launchOptions: launch });
@@ -26,7 +26,7 @@ test.describe("issue 83 coexistence with MapLibre's own layers", () => {
 
       const d = await H<Diff>(page, "diff", ["without", "with"]);
       expect(d.differing, "the add-on changed pixels").toBeGreaterThan(0);
-      expect(d.outsideBand / d.pixels).toBeLessThanOrEqual(0.001);
+      expect(d.outsideBand / d.pixels).toBeLessThanOrEqual(SNAPSHOT_MATCH);
 
       const info = await H<{ errors: unknown[]; mapErrors: number; stateDiffs: string[]; frames: number }>(page, "info");
       expect(info.errors).toEqual([]);
@@ -49,7 +49,7 @@ test.describe("issue 83 coexistence with MapLibre's own layers", () => {
       await H(page, "open", { fixture: r.url, layer: true, cursor: false, wasm: "ok", debugState: true });
       await H(page, "snap", "with");
       const d = await H<Diff>(page, "diff", ["without", "with"]);
-      expect(d.differing / d.pixels).toBeLessThanOrEqual(0.001);
+      expect(d.differing / d.pixels).toBeLessThanOrEqual(SNAPSHOT_MATCH);
       const info = await H<{ stateDiffs: string[]; errors: unknown[] }>(page, "info");
       expect(info.errors).toEqual([]);
       expect(info.stateDiffs).toEqual([]);

@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { H, launch, rig } from "./harness/layer-run";
+import { H, launch, rig, SNAPSHOT_MATCH } from "./harness/layer-run";
 
 // Issue 83 (M7.2): a forced WEBGL_lose_context, then a restore, rebuilds from retained bytes.
 test.use({ launchOptions: launch });
@@ -20,7 +20,7 @@ test.describe("issue 83 context loss", () => {
 
       expect(r.gets() - requestsBefore, "new range requests after the restore").toBe(0);
       const d = await H<{ pixels: number; differing: number }>(page, "diff", ["before", "after"]);
-      expect(d.differing / d.pixels).toBeLessThanOrEqual(0.001);
+      expect(d.differing / d.pixels).toBeLessThanOrEqual(SNAPSHOT_MATCH);
       const info = await H<{ errors: unknown[]; diagnostics: { contextLosses: number } }>(page, "info");
       expect(info.errors).toEqual([]);
       expect(info.diagnostics.contextLosses).toBe(1);
