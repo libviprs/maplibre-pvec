@@ -90,7 +90,7 @@ test.describe("issue 83 the installed tarball on a real map", () => {
     const s = await serve(false);
     try {
       const outbound = new Set<string>();
-      page.on("request", (q) => outbound.add(new URL(q.url()).host));
+      page.on("request", (q) => void (q.url().startsWith("http") && outbound.add(new URL(q.url()).host)));
       await page.goto(`${s.base}/page.html?fixture=${encodeURIComponent(`${fx}/p.pvec`)}`);
       await page.waitForFunction("document.title === 'done'", undefined, { timeout: 60_000 });
       const r = (await page.evaluate("window.__result")) as { errors: string[]; diag: { ranges: { issued: number }; frames: number }; corner: number[]; line: number[] };
