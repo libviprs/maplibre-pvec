@@ -1,0 +1,62 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>grid</title>
+<style>html,body,#map{margin:0;width:512px;height:512px}</style>
+<div id="map"></div>
+<script>
+// Loads the MapLibre build named in ?v= (a directory under /ml/), adds a custom layer that draws a
+// 60 m quad at a known coordinate and reports what the layer saw. No tiles, no network beyond this origin.
+const LNG = 8.5417, LAT = 47.3769;
+const VS = "#version 300 es\nuniform mat4 u_matrix; in vec2 a_pos; void main(){ gl_Position = u_matrix * vec4(a_pos, 0.0, 1.0); }";
+const FS = "#version 300 es\nprecision mediump float; out vec4 o; void main(){ o = vec4(0.0, 0.0, 1.0, 1.0); }";
+window.runMapLibre = async (v) => {
+  const log = { hooks: [], renders: 0, glErrors: [] };
+  const css = document.createElement("link"); css.rel = "stylesheet"; css.href = `/ml/${v}/dist/maplibre-gl.css`; document.head.appendChild(css);
+  let lib;
+  if (v === "v6") { const m = await import(`/ml/${v}/dist/maplibre-gl.mjs`); lib = m.default || m; }
+  else { await new Promise((res, rej) => { const s = document.createElement("script"); s.src = `/ml/${v}/dist/maplibre-gl.js`; s.onload = res; s.onerror = rej; document.head.appendChild(s); }); lib = window.maplibregl; }
+  log.version = lib.getVersion ? lib.getVersion() : lib.version;
+  const map = new lib.Map({
+    container: "map", center: [LNG, LAT], zoom: 14, fadeDuration: 0, antialias: false, preserveDrawingBuffer: true,
+    canvasContextAttributes: { antialias: false, preserveDrawingBuffer: true },
+    style: { version: 8, sources: {}, layers: [{ id: "bg", type: "background", paint: { "background-color": "#ffffff" } }] },
+  });
+  const mc = lib.MercatorCoordinate.fromLngLat([LNG, LAT]);
+  const h = 30 * mc.meterInMercatorCoordinateUnits();
+  const verts = new Float32Array([mc.x - h, mc.y - h, mc.x + h, mc.y - h, mc.x - h, mc.y + h, mc.x + h, mc.y + h]);
+  const st = {};
+  const layer = {
+    id: "probe", type: "custom", renderingMode: "2d",
+    onAdd(m, gl) {
+      log.hooks.push({ ctor: gl.constructor.name, isWebGL2: gl instanceof WebGL2RenderingContext });
+      const mk = (t, s) => { const sh = gl.createShader(t); gl.shaderSource(sh, s); gl.compileShader(sh); return sh; };
+      st.prog = gl.createProgram(); gl.attachShader(st.prog, mk(gl.VERTEX_SHADER, VS)); gl.attachShader(st.prog, mk(gl.FRAGMENT_SHADER, FS)); gl.linkProgram(st.prog);
+      st.m = gl.getUniformLocation(st.prog, "u_matrix"); st.a = gl.getAttribLocation(st.prog, "a_pos");
+      st.buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, st.buf); gl.bufferData(gl.ARRAY_BUFFER, verts, gl.STATIC_DRAW);
+      st.vao = gl.createVertexArray(); gl.bindVertexArray(st.vao); gl.enableVertexAttribArray(st.a); gl.vertexAttribPointer(st.a, 2, gl.FLOAT, false, 0, 0); gl.bindVertexArray(null);
+    },
+    render(gl, a) {
+      log.renders++;
+      const isArr = Array.isArray(a) || ArrayBuffer.isView(a);
+      log.renderArgs = isArr ? `number[${a.length}]` : "object with defaultProjectionData.mainMatrix";
+      const mat = isArr ? a : a.defaultProjectionData.mainMatrix;
+      gl.useProgram(st.prog); gl.uniformMatrix4fv(st.m, false, mat); gl.bindVertexArray(st.vao); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); gl.bindVertexArray(null);
+      const w = gl.drawingBufferWidth, hh = gl.drawingBufferHeight, px = new Uint8Array(w * hh * 4);
+      gl.readPixels(0, 0, w, hh, gl.RGBA, gl.UNSIGNED_BYTE, px);
+      let sx = 0, sy = 0, n = 0;
+      for (let y = 0; y < hh; y++) for (let x = 0; x < w; x++) { const i = (y * w + x) * 4; if (px[i] === 0 && px[i + 1] === 0 && px[i + 2] === 255) { sx += x + 0.5; sy += hh - 1 - y + 0.5; n++; } }
+      log.centroid = n ? { x: sx / n, y: sy / n, n } : { n: 0 };
+      const e = gl.getError(); if (e) log.glErrors.push(e);
+    },
+  };
+  await new Promise((r) => map.once("load", r));
+  map.addLayer(layer);
+  await new Promise((r) => map.once("idle", r));
+  const p = map.project([LNG, LAT]), dpr = window.devicePixelRatio;
+  log.expected = { x: p.x * dpr, y: p.y * dpr };
+  const gl = map.getCanvas().getContext("webgl2");
+  log.renderer = gl ? gl.getParameter(gl.RENDERER) : null;
+  map.remove();
+  return log;
+};
+</script>

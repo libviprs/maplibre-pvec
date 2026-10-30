@@ -58,7 +58,7 @@ describe("#81 the matrix claims only what the grid measured", () => {
   });
 
   it("flips the freeze row exactly when every row is supported and the grid evidence is green", () => {
-    const c = buildGate().conditions.find((x) => x.id === "conformance_green_every_browser_row")!;
+    const c = (buildGate().conditions as Array<{ id: string; status: string; measured: unknown }>).find((x) => x.id === "conformance_green_every_browser_row")!;
     expect(c.status).toBe("met");
     expect(c.measured).toMatchObject({ supportedRows: 3, rows: 3 });
   });
