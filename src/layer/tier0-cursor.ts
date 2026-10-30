@@ -26,70 +26,100 @@ const boundsOf = (p: ArrayLike<number>) => {
 };
 
 /**
- * The default `openCursor` of a layer: the evaluator's own Tier 0 stream for the whole source extent. Previews
- * the file stores (codes 1 and 2) come from the stream with their declared error; everything else, which is every
- * entity of a file with no spatial directory, is the evaluator's tessellation at the asked error. All of it is
- * display fidelity, so every entity is a `preview`.
+ * A cursor over the evaluator's Tier 0 stream of a file held in memory, one directory leaf at a time, so that
+ * each `next` call costs the evaluator a few cells and the decoder's slices stay short. Previews the file stores
+ * (codes 1 and 2) come from the stream with their declared error; everything else, which is every entity of a file
+ * with no spatial directory, is the evaluator's tessellation at the asked error. All of it is display fidelity,
+ * so every entity is a `preview`. `window` is the source extent as `[minX, minY, maxX, maxY]`. The cursor owns
+ * the file handle until it is drained; call `close` to give it back early.
+ */
+export function tier0CursorOver(evaluator: Evaluator, bytes: Uint8Array, window: readonly [number, number, number, number]): BlockCursor & { close(): void } {
+  const rt = bindPacked(evaluator);
+  const file = rt.open(bytes);
+  if (file < 0) throw new PVecError("load_failed", `the evaluator refused the file (code ${file})`);
+  let open = true;
+  const close = (): void => {
+    if (open) (open = false, rt.release(file));
+  };
+  // The windows to walk: every leaf box of the directory, then the advanced curves' own box, or the extent when the file has no directory.
+  const windows: [number, number, number, number][] = [];
+  if (rt.directoryStat(file, 0) === 1) {
+    const q = rt.directoryQuery(file, ...window);
+    if (typeof q !== "number") {
+      for (let i = 0; i < q.cells.length; i++) windows.push([q.boxes[4 * i]!, q.boxes[4 * i + 1]!, q.boxes[4 * i + 2]!, q.boxes[4 * i + 3]!]);
+      rt.release(q.handle);
+    }
+    const adv = [4, 5, 6, 7].map((n) => rt.directoryBound(file, n));
+    if (adv.every(Number.isFinite)) windows.push(adv as [number, number, number, number]);
+  } else {
+    windows.push([...window]);
+  }
+  const seen = new Set<number>();
+  const pending: RawEntity[] = [];
+  let at = 0;
+  const entity = (id: number, points: number[], declaredErrorPx: number): RawEntity => ({
+    entityId: String(id),
+    kind: "preview",
+    geometry: { type: "polyline", points },
+    bounds: boundsOf(points),
+    declaredErrorPx,
+  });
+  const walk = (w: readonly [number, number, number, number]): void => {
+    const held: number[] = [];
+    try {
+      if (rt.directoryStat(file, 0) === 1) {
+        const t = rt.tier0Viewport(file, ...w);
+        if (t >= 0) {
+          held.push(t);
+          const v = rt.tier0Views(t);
+          for (let i = 0; i < v.ids.length; i++) {
+            const id = v.ids[i]!, code = v.codes[i]!;
+            if (seen.has(id) || (code !== 1 && code !== 2)) continue;
+            const points = Array.from(v.vertices.subarray(2 * v.offsets[i]!, 2 * v.offsets[i + 1]!));
+            if (points.length >= 4) (seen.add(id), pending.push(entity(id, points, v.errors[i]!)));
+          }
+        }
+      }
+      const batch = rt.queryViewport(file, ...w, MAX_ENTITIES);
+      if (batch < 0) return;
+      held.push(batch);
+      const tess = rt.tessellate(batch, CHAIN, MAX_ENTITIES, "f64");
+      if (tess < 0) return;
+      held.push(tess);
+      const v = rt.views(tess);
+      for (let i = 0; i < v.entityIds.length; i++) {
+        const id = v.entityIds[i]!;
+        if (seen.has(id)) continue;
+        const points = Array.from(v.vertices.subarray(2 * v.offsets[i]!, 2 * v.offsets[i + 1]!));
+        if (points.length >= 4) (seen.add(id), pending.push(entity(id, points, ASKED_ERROR)));
+      }
+    } finally {
+      for (const h of held.reverse()) rt.release(h);
+    }
+  };
+  let cell = 0;
+  return {
+    close,
+    next(max: number): RawEntity[] | null {
+      while (pending.length - at < max && cell < windows.length) walk(windows[cell++]!);
+      if (at >= pending.length) return (close(), null);
+      const slice = pending.slice(at, at + max);
+      at += slice.length;
+      if (at > 4096) (pending.splice(0, at), (at = 0));
+      return slice;
+    },
+  };
+}
+
+/**
+ * The default `openCursor` of a layer: reads the artifact in ranges, opens it in the evaluator and walks its Tier 0
+ * stream over the manifest's source extent.
  */
 export async function openTier0Cursor(handle: PVecHandle, evaluator: Evaluator, source: PVecSource, signal?: AbortSignal): Promise<BlockCursor> {
   const bytes = new Uint8Array(handle.artifactLength);
   for (let at = 0; at < bytes.length; at += CHUNK) {
     bytes.set(await source.readRange(at, Math.min(CHUNK, bytes.length - at), signal ? { signal } : {}), at);
   }
-  const rt = bindPacked(evaluator);
-  const held: number[] = [];
-  const file = rt.open(bytes);
-  if (file < 0) throw new PVecError("load_failed", `the evaluator refused the file (code ${file})`);
-  held.push(file);
-  try {
-    const { minX, minY, maxX, maxY } = handle.manifest.sourceBounds;
-    const out = new Map<number, RawEntity>();
-    const entity = (id: number, points: number[], declaredErrorPx: number): RawEntity => ({
-      entityId: String(id),
-      kind: "preview",
-      geometry: { type: "polyline", points },
-      bounds: boundsOf(points),
-      declaredErrorPx,
-    });
-    if (rt.directoryStat(file, 0) === 1) {
-      const t = rt.tier0Viewport(file, minX, minY, maxX, maxY);
-      if (t >= 0) {
-        held.push(t);
-        const v = rt.tier0Views(t);
-        for (let i = 0; i < v.ids.length; i++) {
-          const code = v.codes[i]!;
-          if (code !== 1 && code !== 2) continue;
-          const points = Array.from(v.vertices.subarray(2 * v.offsets[i]!, 2 * v.offsets[i + 1]!));
-          if (points.length >= 4) out.set(v.ids[i]!, entity(v.ids[i]!, points, v.errors[i]!));
-        }
-      }
-    }
-    const batch = rt.queryViewport(file, minX, minY, maxX, maxY, MAX_ENTITIES);
-    if (batch >= 0) {
-      held.push(batch);
-      const tess = rt.tessellate(batch, CHAIN, MAX_ENTITIES, "f64");
-      if (tess >= 0) {
-        held.push(tess);
-        const v = rt.views(tess);
-        for (let i = 0; i < v.entityIds.length; i++) {
-          const id = v.entityIds[i]!;
-          if (out.has(id)) continue;
-          const points = Array.from(v.vertices.subarray(2 * v.offsets[i]!, 2 * v.offsets[i + 1]!));
-          if (points.length >= 4) out.set(id, entity(id, points, ASKED_ERROR));
-        }
-      }
-    }
-    const all = [...out.entries()].sort((a, b) => a[0] - b[0]).map(([, e]) => e);
-    let at = 0;
-    return {
-      next(max: number): RawEntity[] | null {
-        if (at >= all.length) return null;
-        const slice = all.slice(at, at + max);
-        at += slice.length;
-        return slice;
-      },
-    };
-  } finally {
-    for (const h of held.reverse()) rt.release(h);
-  }
+  const b = handle.manifest.sourceBounds;
+  return tier0CursorOver(evaluator, bytes, [b.minX, b.minY, b.maxX, b.maxY]);
 }

@@ -81,6 +81,8 @@ export function bindPacked(ev: Evaluator) {
       };
       return { handle: r, cells: v(Uint32Array, 0), entities: v(Uint32Array, 1), hasTier0: v(Uint32Array, 2), bytes: v(Float64Array, 3), boxes: v(Float64Array, 4) };
     },
+    /** One corner of a box of the directory: 0 to 3 the whole tree, 4 to 7 the advanced curves. NaN when there is none. */
+    directoryBound: (file: number, which: number): number => call("directory_bound", file, which),
     /** The Tier 0 stream of a window (P5.4): entity ids, codes, declared world error, vertex offsets, vertices. */
     tier0Viewport(file: number, minX: number, minY: number, maxX: number, maxY: number): number {
       return handle(call("tier0_viewport", file, minX, minY, maxX, maxY));

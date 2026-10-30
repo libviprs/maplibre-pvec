@@ -229,6 +229,72 @@ async function main(p) {
   out.previewAccountingLarge = [];
   for (const [id, b64] of want('previews') ? Object.entries(p.large) : []) out.previewAccountingLarge.push(account(id, u8(b64), [1, 0.25, 0.05, 0.01], 1e-6, [1e-3], 300));
 
+  // ---- M1.5 with the real Tier 0 stream and the spatial directory (ABI 2) ----
+  // Slices: the layer's own cursor under the production decoder with its real clock. A slice is what decodeSlice
+  // returns after its 8 ms budget, so the longest slice is the number the freeze condition asks about. The cost
+  // of opening the file in the evaluator is the cursor's own first step and is reported on its own.
+  out.tier0Slices = [];
+  out.tier0Stream = [];
+  for (const [id, b64] of want('tier0') ? Object.entries(p.tier0) : []) {
+    const bytes = u8(b64);
+    const s0 = performance.now();
+    const cursor = PvecMlp.tier0CursorOver(ev, bytes, WORLD);
+    const openMs = performance.now() - s0;
+    const dec = new PvecMlp.Tier0Decoder();
+    const times = [];
+    let entities = 0;
+    for (;;) {
+      const a = performance.now();
+      const slice = dec.decodeSlice(cursor);
+      times.push(performance.now() - a);
+      if (!slice) break;
+      entities += slice.draws.length;
+    }
+    cursor.close();
+    out.tier0Slices.push({ id, entities, slices: times.length - 1, maxSliceMs: r3(Math.max(...times)), medianSliceMs: r3(median(times)), totalMs: r3(times.reduce((x, y) => x + y, 0)), openMs: r3(openMs), platform: 'chromium, ' + navigator.userAgent.slice(0, 60) });
+
+    // Stream audit: entries + uncovered is the window's entity count, and every preview stays within its declared error of a tight reference.
+    const file = rt.open(bytes);
+    const row = { id, directory: rt.directoryStat(file, 0) === 1, windows: [], coverageMissing: 0, previews: [] };
+    const all = rt.queryViewport(file, ...WORLD, 1e7);
+    const refT = rt.tessellate(all, worldChain(1e-6), 5e6, 'f64');
+    const rv = rt.views(refT);
+    const refById = new Map(polys(rv).map((e) => [e.id, e.pts]));
+    rt.release(refT); rt.release(all);
+    const b = [0, 1, 2, 3].map((n) => rt.directoryBound(file, n));
+    const w = b[2] - b[0], h = b[3] - b[1];
+    let worst = 0, checked = 0, within = true;
+    for (const f of [1, 0.25, 0.05]) {
+      const box = f >= 1 ? [b[0] - 1, b[1] - 1, b[2] + 1, b[3] + 1] : [b[0] + w * (0.5 - f / 2), b[1] + h * (0.5 - f / 2), b[0] + w * (0.5 + f / 2), b[1] + h * (0.5 + f / 2)];
+      const t = rt.tier0Viewport(file, ...box);
+      const q = rt.queryViewport(file, ...box, 1e7);
+      const entries = rt.tier0Stat(t, 0), uncovered = rt.tier0Stat(t, 4);
+      const n = rt.batchLength(q);
+      const missing = Math.abs(entries + uncovered - n);
+      row.coverageMissing += missing;
+      row.windows.push({ fraction: f, entries, exact: rt.tier0Stat(t, 1), previews: rt.tier0Stat(t, 2), infeasible: rt.tier0Stat(t, 3), uncovered, leavesRead: rt.tier0Stat(t, 5), leavesWithoutBlock: rt.tier0Stat(t, 6), entities: n, missing });
+      const v = rt.tier0Views(t);
+      const step = Math.max(1, Math.ceil(v.ids.length / 300));
+      for (let i = 0; i < v.ids.length; i += step) {
+        if (v.codes[i] !== 1 && v.codes[i] !== 2) continue;
+        const pv = [];
+        for (let k = v.offsets[i]; k < v.offsets[i + 1]; k++) pv.push([v.vertices[2 * k], v.vertices[2 * k + 1]]);
+        const ref = refById.get(v.ids[i]);
+        if (!ref) continue;
+        // one way: every point of the curve is within the declared error of the preview polyline
+        let d = 0;
+        for (const q of ref) d = Math.max(d, distToPoly(q, pv));
+        checked++;
+        worst = Math.max(worst, d / Math.max(v.errors[i], 1e-300));
+        if (d > v.errors[i] * 1.0000001 + 1e-5) within = false;
+      }
+      rt.release(t); rt.release(q);
+    }
+    row.previews.push({ entitiesChecked: checked, worstMeasuredOverDeclared: r3(worst), withinDeclared: within });
+    rt.release(file);
+    out.tier0Stream.push(row);
+  }
+
   // ---- leaks: the module's own memory across open/tessellate/release cycles ----
   if (want('leak')) {
     const bytes = u8(p.small["polyline-001"]);

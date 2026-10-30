@@ -10,8 +10,8 @@ interface Run {
   name: string;
   fileBytes: number;
   rttMs: number;
-  bootstrap: { spatialDirectory: boolean };
-  viewports: { preset: string; bytes: number }[];
+  spatialDirectory?: boolean;
+  viewports: { preset: string; bytes: number; spatial?: { cells: number; bytes: number } }[];
 }
 interface Audit {
   tier0Stream?: { id: string; coverageMissing: number; previews: { withinDeclared: boolean }[] }[];
@@ -32,9 +32,10 @@ describe("#80 M1.5 audit with the real Tier 0 stream and the spatial directory",
     it(`${arch}: a 5 percent window on architectural-1e5 reads far less than the 96 percent of the block directory`, () => {
       const runs = read<{ runs: Run[] }>(`spikes/pvec-real/range-results-${arch}.json`).runs;
       const run = runs.find((x) => x.name === "architectural-1e5" && x.rttMs === 0)!;
-      expect(run.bootstrap.spatialDirectory).toBe(true);
+      expect(run.spatialDirectory, "the file carries a spatial directory the evaluator reads").toBe(true);
       const small = run.viewports.find((v) => v.preset === "small")!;
-      const fraction = small.bytes / run.fileBytes;
+      expect(small.spatial, "the window is answered by the directory").toBeDefined();
+      const fraction = small.spatial!.bytes / run.fileBytes;
       expect(fraction).toBeLessThan(0.5);
       // The old number this replaces.
       expect(fraction).toBeLessThan(0.96);
