@@ -144,7 +144,7 @@ function benchmarkReport(root) {
       out.push(`| ${key.split(" | ")[0]} | ${e.engine} ${e.browserVersion} | ${fmt(l.frames.p50Ms)} / ${fmt(l.frames.p95Ms)} / ${fmt(l.frames.maxMs)} | ${l.frames.over20Ms} of ${l.frames.count} | ${l.drawCalls.perFrame} | ${fmt(l.cpu.renderP50Ms)} / ${fmt(l.cpu.renderP95Ms)} / ${fmt(l.cpu.renderMaxMs)} | ${l.gpu ? fmt(l.gpu.frameP50Ms) : "no timer query"} | ${l.settle.frames} / ${l.settle.ms} | ${fmt(l.settle.maxUploadBytesPerFrame / (1 << 20))} | ${l.stateDiffs} | ${l.errors} |`);
     }
     out.push("");
-    out.push("In Chromium nearly all of the render CPU is the state guard's first `getParameter`, a round trip that waits for the GPU (`bench/hw/run.mjs --profile` prints the per-call breakdown); WebKit does not stall. That is #96. The pool kept to its upload budget on all three.\n");
+    out.push("The state guard used to read the GL state back every frame, and in Chromium the first `getParameter` waits for the GPU (11 ms of render CPU on the M5, about 5 ms on the Intel part). It now reads the state once to seed a shadow kept by the context's setters, so a steady-state frame does no blocking reads (#96); the debug diff still queries. The pool kept to its upload budget on all three.\n");
   }
   out.push(...realEvaluatorSection(root));
   out.push("Software GL means these are relative costs. The add-on's own runs and the thresholds for them are listed in [deferred work](deferred.md).\n");
