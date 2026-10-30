@@ -86,12 +86,12 @@ describe("#31 unsupported-combination rows, detection stubbed", () => {
     expect(() => assertWebGL2(new (class WebGL2RenderingContext {})() as never)).not.toThrow();
   });
 
-  it("U3 a required capability the reader lacks refuses with required-unsupported", async () => {
+  it("U3 a required capability the reader lacks refuses with unsupported_required_capability", async () => {
     const origin = new RangeOrigin(buildPvec(gridSpec({ capabilities: [{ id: 1 }, { id: 99 }] })).bytes);
     const base = await origin.start();
     const err = await new PVecSource({ url: `${base}/p.pvec` }).bootstrap().catch((e: unknown) => e);
     await origin.stop();
-    expect((err as PVecError).code).toBe("required-unsupported");
+    expect((err as PVecError).code).toBe("unsupported_required_capability");
   });
 
   it("U4 an optional capability the reader lacks degrades and is reported", async () => {
