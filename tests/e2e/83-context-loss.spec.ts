@@ -29,4 +29,19 @@ test.describe("issue 83 context loss", () => {
       await r.stop();
     }
   });
+
+  test("control: MapLibre alone comes back to the same picture, so the comparison above means something", async ({ page }) => {
+    const r = await rig(page);
+    try {
+      await H(page, "open", { fixture: r.url, layer: false, cursor: false, wasm: "ok" });
+      await H(page, "snap", "before");
+      await H(page, "loseAndRestore");
+      await H(page, "snap", "after");
+      const d = await H<{ pixels: number; differing: number }>(page, "diff", ["before", "after"]);
+      console.log("CONTROL differing fraction " + d.differing / d.pixels);
+      expect(d.differing / d.pixels).toBeLessThanOrEqual(SNAPSHOT_MATCH);
+    } finally {
+      await r.stop();
+    }
+  });
 });
