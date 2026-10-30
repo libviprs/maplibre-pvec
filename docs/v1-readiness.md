@@ -21,7 +21,7 @@ I have not tagged or published anything. The package is `private` at `0.0.0`, an
 | The release step refuses to tag unless every condition is present and met; removing an entry blocks it | met (`tools/release-gate.mjs --tag-check`, tested with a synthetic green gate and a gate with an entry removed) |
 | The frozen API report is committed and a later change is caught | met locally: the surface test and `release/v1-freeze.json` fail on any difference, and `classifyApiChange` states whether the change needs a minor or a major bump. Actions is off, so the local gate is what runs it |
 | `compatibility.json` has exactly one conformance-baseline projection, `mercator`; WebGPU only experimental; `SharedArrayBuffer` only optional | met (tested) |
-| Frozen budgets equal the tuned values, checked by equality between `defaults.ts` and `release/v1-freeze.json` | met (tested). The values were tuned on software GL, so a hardware retune is deferred |
+| Frozen budgets equal the tuned values, checked by equality between `defaults.ts` and `release/v1-freeze.json` | met (tested). Checked against real hardware in #82 (Apple M5 Metal, Apple GPU WebKit, Intel ADL GT2), no value needed to change, see [deferred work](deferred.md) |
 | Release notes describe benchmark results as display fidelity | met in `CHANGELOG.md`; the docs check also rejects calling a display-fidelity result exact |
 | `1.0.0` bump and the tag | deferred on purpose: the gate is not green and publishing is out of scope |
 
@@ -42,4 +42,4 @@ I have not tagged or published anything. The package is `private` at `0.0.0`, an
 
 ## What would turn the deferred rows green
 
-A released `libviprs/pvec` WASM artifact and real `.pvec` bytes for the corpus, a GPU-backed runner, the wired custom layer with context-loss handling, and examples 02 to 06. Each is written up in [deferred work](deferred.md).
+A released `libviprs/pvec` WASM artifact and real `.pvec` bytes for the corpus, an NVIDIA and an arm64 Linux GPU runner, the wired custom layer with context-loss handling, and examples 02 to 06. Each is written up in [deferred work](deferred.md).

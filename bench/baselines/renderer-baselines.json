@@ -1,0 +1,223 @@
+{
+  "schema": 1,
+  "tunedFrom": [
+    "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version) | chromium",
+    "Apple GPU | webkit",
+    "ANGLE (Intel, Mesa Intel(R) Graphics (ADL GT2), OpenGL ES 3.2) | chromium"
+  ],
+  "entries": {
+    "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version) | chromium": {
+      "engine": "chromium",
+      "arch": "arm64",
+      "os": "darwin 27.0.0",
+      "softwareRenderer": false,
+      "browserVersion": "149.0.7827.55",
+      "source": "bench/results/hw/2026-10-30-macbook-m5-chromium.json",
+      "frames": {
+        "durationMs": 60033,
+        "count": 5801,
+        "p50Ms": 8.400000000001455,
+        "p95Ms": 17,
+        "p99Ms": 17.900000000001455,
+        "maxMs": 18.600000000000364,
+        "over20Ms": 0
+      },
+      "drawCalls": {
+        "perFrame": 10,
+        "segmentsPerFrame": 1000000
+      },
+      "cpu": {
+        "submitP50Ms": 0.09999996423721313,
+        "submitP95Ms": 0.10000002384185791,
+        "submitMaxMs": 0.20000004768371582
+      },
+      "gpu": {
+        "frameP50Ms": 19.903249,
+        "frameP95Ms": 21.821625
+      },
+      "draw1e6": {
+        "segments": 1000000,
+        "uploadMs": 8,
+        "syncDrawP50Ms": 12.400000035762787,
+        "syncDrawP95Ms": 13.099999964237213
+      },
+      "upload": [
+        {
+          "bytes": 262144,
+          "p50Ms": 0,
+          "p95Ms": 0.09999996423721313
+        },
+        {
+          "bytes": 1048576,
+          "p50Ms": 0,
+          "p95Ms": 0.19999998807907104
+        },
+        {
+          "bytes": 2097152,
+          "p50Ms": 0.09999996423721313,
+          "p95Ms": 0.10000002384185791
+        },
+        {
+          "bytes": 4194304,
+          "p50Ms": 0.19999998807907104,
+          "p95Ms": 0.20000004768371582
+        },
+        {
+          "bytes": 8388608,
+          "p50Ms": 0.3999999761581421,
+          "p95Ms": 0.5999999642372131
+        },
+        {
+          "bytes": 16777216,
+          "p50Ms": 0.800000011920929,
+          "p95Ms": 0.9000000357627869
+        }
+      ],
+      "snapshot": {
+        "scene": "walk-400-seed77-256px-v1",
+        "sha256": "71006430a15707f45b521f17e40c6a393c3e376c4cd0b18ebef968b7a8d73aaf"
+      }
+    },
+    "Apple GPU | webkit": {
+      "engine": "webkit",
+      "arch": "arm64",
+      "os": "darwin 27.0.0",
+      "softwareRenderer": false,
+      "browserVersion": "26.5",
+      "source": "bench/results/hw/2026-10-30-macbook-m5-webkit.json",
+      "frames": {
+        "durationMs": 60016,
+        "count": 3601,
+        "p50Ms": 17,
+        "p95Ms": 19,
+        "p99Ms": 20,
+        "maxMs": 31,
+        "over20Ms": 29
+      },
+      "drawCalls": {
+        "perFrame": 10,
+        "segmentsPerFrame": 1000000
+      },
+      "cpu": {
+        "submitP50Ms": 0,
+        "submitP95Ms": 1,
+        "submitMaxMs": 1
+      },
+      "gpu": null,
+      "draw1e6": {
+        "segments": 1000000,
+        "uploadMs": 3,
+        "syncDrawP50Ms": 15,
+        "syncDrawP95Ms": 16
+      },
+      "upload": [
+        {
+          "bytes": 262144,
+          "p50Ms": 0,
+          "p95Ms": 0
+        },
+        {
+          "bytes": 1048576,
+          "p50Ms": 0,
+          "p95Ms": 1
+        },
+        {
+          "bytes": 2097152,
+          "p50Ms": 0,
+          "p95Ms": 1
+        },
+        {
+          "bytes": 4194304,
+          "p50Ms": 0,
+          "p95Ms": 1
+        },
+        {
+          "bytes": 8388608,
+          "p50Ms": 1,
+          "p95Ms": 1
+        },
+        {
+          "bytes": 16777216,
+          "p50Ms": 1,
+          "p95Ms": 2
+        }
+      ],
+      "snapshot": {
+        "scene": "walk-400-seed77-256px-v1",
+        "sha256": "71006430a15707f45b521f17e40c6a393c3e376c4cd0b18ebef968b7a8d73aaf"
+      }
+    },
+    "ANGLE (Intel, Mesa Intel(R) Graphics (ADL GT2), OpenGL ES 3.2) | chromium": {
+      "engine": "chromium",
+      "arch": "x64",
+      "os": "linux 6.12.30+",
+      "softwareRenderer": false,
+      "browserVersion": "130.0.6723.31",
+      "source": "bench/results/hw/2026-10-30-nas-intel-adl-gt2-chromium.json",
+      "frames": {
+        "durationMs": 60081,
+        "count": 495,
+        "p50Ms": 133.20000000000073,
+        "p95Ms": 133.40000000000146,
+        "p99Ms": 150,
+        "maxMs": 250,
+        "over20Ms": 495
+      },
+      "drawCalls": {
+        "perFrame": 10,
+        "segmentsPerFrame": 1000000
+      },
+      "cpu": {
+        "submitP50Ms": 0.2999997138977051,
+        "submitP95Ms": 0.40000009536743164,
+        "submitMaxMs": 25
+      },
+      "gpu": {
+        "frameP50Ms": 74.954583,
+        "frameP95Ms": 75.572083
+      },
+      "draw1e6": {
+        "segments": 1000000,
+        "uploadMs": 46.60000038146973,
+        "syncDrawP50Ms": 42.30000019073486,
+        "syncDrawP95Ms": 42.5
+      },
+      "upload": [
+        {
+          "bytes": 262144,
+          "p50Ms": 0.19999980926513672,
+          "p95Ms": 0.20000028610229492
+        },
+        {
+          "bytes": 1048576,
+          "p50Ms": 0.3000001907348633,
+          "p95Ms": 0.5999999046325684
+        },
+        {
+          "bytes": 2097152,
+          "p50Ms": 0.5,
+          "p95Ms": 1.1999998092651367
+        },
+        {
+          "bytes": 4194304,
+          "p50Ms": 0.6000003814697266,
+          "p95Ms": 0.7999997138977051
+        },
+        {
+          "bytes": 8388608,
+          "p50Ms": 2.5,
+          "p95Ms": 2.700000286102295
+        },
+        {
+          "bytes": 16777216,
+          "p50Ms": 5.200000286102295,
+          "p95Ms": 5.800000190734863
+        }
+      ],
+      "snapshot": {
+        "scene": "walk-400-seed77-256px-v1",
+        "sha256": "1bc47f79c5cab8c7d85ff27e8aeecf2d9ffef98deadc83bf5aac06e69a6ab2b1"
+      }
+    }
+  }
+}
