@@ -118,17 +118,25 @@ export async function open(o: OpenOptions): Promise<void> {
   await idle(map);
 }
 
-export function snap(name: string): { w: number; h: number; corner: number[]; centre: number[] } {
-  const src = state.map!.getCanvas();
-  const c = document.createElement("canvas");
-  c.width = src.width;
-  c.height = src.height;
-  const ctx = c.getContext("2d")!;
-  ctx.drawImage(src, 0, 0);
-  const d = ctx.getImageData(0, 0, c.width, c.height);
-  state.snaps[name] = { w: c.width, h: c.height, data: d.data };
-  const at = (x: number, y: number) => Array.from(d.data.slice((y * c.width + x) * 4, (y * c.width + x) * 4 + 4));
-  return { w: c.width, h: c.height, corner: at(2, 2), centre: at(Math.floor(c.width / 2), Math.floor(c.height / 2)) };
+/** Copy of the map canvas taken at the end of a frame, the only point where a restored context still holds its pixels. */
+const frame = (map: maplibregl.Map) =>
+  new Promise<Snap>((resolve) => {
+    map.once("render", () => {
+      const src = map.getCanvas();
+      const c = document.createElement("canvas");
+      c.width = src.width;
+      c.height = src.height;
+      const ctx = c.getContext("2d")!;
+      ctx.drawImage(src, 0, 0);
+      resolve({ w: c.width, h: c.height, data: ctx.getImageData(0, 0, c.width, c.height).data });
+    });
+    map.triggerRepaint();
+  });
+
+export async function snap(name: string): Promise<{ w: number; h: number; corner: number[]; centre: number[] }> {
+  const s = (state.snaps[name] = await frame(state.map!));
+  const at = (x: number, y: number) => Array.from(s.data.slice((y * s.w + x) * 4, (y * s.w + x) * 4 + 4));
+  return { w: s.w, h: s.h, corner: at(2, 2), centre: at(Math.floor(s.w / 2), Math.floor(s.h / 2)) };
 }
 
 /** Screen-space (device px) distance from a pixel to the nearest drawn segment. */
@@ -199,13 +207,8 @@ export async function loseAndRestore(): Promise<{ stages: string[] }> {
   // MapLibre rebuilds its painter on restore (and may reload the style), so poll until it has painted again.
   const painted = async () => {
     for (let i = 0; i < 80; i++) {
-      await new Promise((r) => requestAnimationFrame(() => r(null)));
-      map.triggerRepaint();
-      const c = document.createElement("canvas");
-      c.width = canvas.width; c.height = canvas.height;
-      const x = c.getContext("2d")!;
-      x.drawImage(canvas, 0, 0);
-      if (map.loaded() && x.getImageData(2, 2, 1, 1).data[3] === 255) return;
+      const f = await frame(map);
+      if (map.loaded() && f.data[2 * f.w * 4 + 2 * 4 + 3] === 255) return;
       await new Promise((r) => setTimeout(r, 50));
     }
     throw new Error("the map never painted again");
