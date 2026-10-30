@@ -14,4 +14,6 @@ for dir in examples/0*/; do
   [ -f "$dir/run.mjs" ] || continue
   node "$dir/run.mjs" --pkg "$PKG" --out /work/examples-out || status=1
 done
+# one summary.json over all six, failing unless each passed with no denied host
+node examples/lib/summary.mjs /work/examples-out || status=1
 exit $status

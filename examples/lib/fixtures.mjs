@@ -11,3 +11,6 @@ const { buildPvec, gridSpec } = await import("data:text/javascript;base64," + Bu
 export const smallFixture = () => buildPvec(gridSpec()).bytes;
 
 export { buildPvec, gridSpec };
+
+/** What the documentation samples fetch, by URL path. The same bytes whichever port the samples name. */
+export const docsFixtures = () => ({ "/plan.pvec": smallFixture() });

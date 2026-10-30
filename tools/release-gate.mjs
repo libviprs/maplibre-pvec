@@ -64,6 +64,9 @@ export function buildGate(root = root0) {
   const pending = corpus.cases.filter((c) => c.pvec.status === "PENDING").length;
   const quarantined = corpus.cases.filter((c) => /QUARANTINED/.test(c.evidenceClass)).length;
   const exampleDirs = readdirSync(path.join(root, "examples")).filter((d) => /^\d\d-/.test(d)).length;
+  const runFile = path.join(root, "release/examples-run.json");
+  const run = existsSync(runFile) ? readJson(root, "release/examples-run.json") : { results: [], deniedHosts: ["no run record"] };
+  const examplesPassed = run.results.filter((r) => r.ok).length;
   const live = buildApiReport(root).text;
   const change = classifyApiChange(freeze.api.symbols, apiSymbols(live));
   const apiSame = live === report && sha256(live) === freeze.api.reportSha256;
@@ -85,8 +88,8 @@ export function buildGate(root = root0) {
         { documented: existsSync(path.join(root, "docs/wasm-worker-deployment.md")), verifiedThroughLayer: false }, "documented and unit tested at the loader; the layer does not call the version and WebGL2 refusals yet"),
       cond(REQUIRED_CONDITIONS[4], "lifecycle leak and context-loss tests green (M7.2)", false,
         { leakTests: "lifecycle.test.ts (structural)", contextLossSnapshot: false }, "the forced WEBGL_lose_context snapshot needs the wired renderer"),
-      cond(REQUIRED_CONDITIONS[5], "examples pass with outbound network denied (M7.8)", exampleDirs >= 6 && latest.deniedHosts.length === 0,
-        { examplesWritten: exampleDirs, examplesPlanned: 6, deniedHosts: latest.deniedHosts.length }, "examples/README.md: 01-minimal runs against its own 127.0.0.1 server, 02 to 06 are not written"),
+      cond(REQUIRED_CONDITIONS[5], "examples pass with outbound network denied (M7.8)", exampleDirs >= 6 && examplesPassed === 6 && run.deniedHosts.length === 0 && latest.deniedHosts.length === 0,
+        { examplesWritten: exampleDirs, examplesPassed, examplesPlanned: 6, deniedHosts: run.deniedHosts.length + latest.deniedHosts.length }, "release/examples-run.json: the summary of tools/examples.sh, six examples against their own 127.0.0.1 server with outbound network denied"),
       cond(REQUIRED_CONDITIONS[6], "API report identical to the committed baseline (M7.1)", apiSame && change === "none",
         { reportSha256: sha256(live), change }, "etc/maplibre-pvec.api.md regenerated from the sources and compared with release/v1-freeze.json"),
     ],
