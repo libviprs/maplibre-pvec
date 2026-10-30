@@ -122,13 +122,13 @@ export async function open(o: OpenOptions): Promise<void> {
 const frame = (map: maplibregl.Map) =>
   new Promise<Snap>((resolve) => {
     map.once("render", () => {
-      const src = map.getCanvas();
-      const c = document.createElement("canvas");
-      c.width = src.width;
-      c.height = src.height;
-      const ctx = c.getContext("2d")!;
-      ctx.drawImage(src, 0, 0);
-      resolve({ w: c.width, h: c.height, data: ctx.getImageData(0, 0, c.width, c.height).data });
+      const gl = map.getCanvas().getContext("webgl2") as WebGL2RenderingContext;
+      const w = gl.drawingBufferWidth, h = gl.drawingBufferHeight;
+      const raw = new Uint8Array(w * h * 4);
+      gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, raw);
+      const data = new Uint8ClampedArray(w * h * 4);
+      for (let y = 0; y < h; y++) data.set(raw.subarray((h - 1 - y) * w * 4, (h - y) * w * 4), y * w * 4);
+      resolve({ w, h, data });
     });
     map.triggerRepaint();
   });

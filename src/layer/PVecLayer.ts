@@ -40,6 +40,19 @@ export interface PickOptions {
   tolerancePx?: number;
 }
 
+/** Wiring state kept out of the class so the frozen API report does not list it. */
+interface Wiring {
+  strokes?: StrokeEngine | undefined;
+  evaluator?: Evaluator | undefined;
+  map?: MapLibreMap | undefined;
+}
+const wiring = new WeakMap<object, Wiring>();
+const wired = (layer: object): Wiring => {
+  let w = wiring.get(layer);
+  if (!w) wiring.set(layer, (w = {}));
+  return w;
+};
+
 type Phase = "idle" | "added" | "removed";
 
 function toSource(o: PVecLayerOptions, fetchImpl: typeof fetch) {
@@ -101,9 +114,6 @@ export class PVecLayer implements CustomLayerInterface {
   private unwatch: (() => void) | undefined;
   private ready: Promise<void> = Promise.resolve();
   private blocked = false;
-  private strokes: StrokeEngine | undefined;
-  private evaluator: Evaluator | undefined;
-  private map: MapLibreMap | undefined;
   private addedAt = 0;
   private gens = new Map<string, number>();
   private n = {
@@ -133,7 +143,7 @@ export class PVecLayer implements CustomLayerInterface {
     this.phase = "added";
     this.blocked = false;
     this.handle = undefined;
-    this.map = _map;
+    wired(this).map = _map;
     this.addedAt = performance.now();
     const controller = (this.controller = new AbortController());
     const source = (this.source = new PVecSource(toSource(this.options, this.wrapFetch(controller.signal))));
@@ -143,14 +153,14 @@ export class PVecLayer implements CustomLayerInterface {
         onLost: () => {
           this.n.losses++;
           this.glRes.forgetAll();
-          this.guard(() => this.strokes?.onContextLost(), "context_lost");
+          this.guard(() => wired(this).strokes?.onContextLost(), "context_lost");
           this.guard(() => this.hooks.onContextLost?.(), "context_lost");
         },
         onRestored: () => {
-          this.guard(() => this.strokes?.onContextRestored(), "context_restored");
+          this.guard(() => wired(this).strokes?.onContextRestored(), "context_restored");
           this.guard(() => this.hooks.onContextRestored?.(gl), "context_restored");
         },
-        repaint: () => this.map?.triggerRepaint?.(),
+        repaint: () => wired(this).map?.triggerRepaint?.(),
       });
     }
     this.ready = this.load(source, controller.signal, gl);
@@ -167,15 +177,15 @@ export class PVecLayer implements CustomLayerInterface {
       [
         "gl",
         () => {
-          this.strokes?.dispose();
-          this.strokes = undefined;
+          wired(this).strokes?.dispose();
+          wired(this).strokes = undefined;
           this.glRes.disposeAll(gl);
         },
       ],
       [
         "wasm",
         () => {
-          this.evaluator = undefined;
+          wired(this).evaluator = undefined;
           this.hooks.dropWasm?.();
         },
       ],
@@ -193,14 +203,14 @@ export class PVecLayer implements CustomLayerInterface {
     this.query = undefined;
     this.source = undefined;
     this.controller = undefined;
-    this.map = undefined;
+    wired(this).map = undefined;
   }
 
   render(gl: Gl, args: unknown): void {
     if (this.phase !== "added" || this.blocked) return;
     this.n.frames++;
     const custom = this.hooks.render;
-    this.guard(() => (custom ? custom(gl, args) : this.strokes?.render()), "render");
+    this.guard(() => (custom ? custom(gl, args) : wired(this).strokes?.render()), "render");
   }
 
   /** Resolves when the first bootstrap has finished, whether it worked or not. Never rejects. */
@@ -348,7 +358,7 @@ export class PVecLayer implements CustomLayerInterface {
       assertWebGL2(gl);
       const evaluator = await deps.loadEvaluator();
       if (signal.aborted) return;
-      this.evaluator = evaluator;
+      wired(this).evaluator = evaluator;
       const h = await source.bootstrap();
       if (signal.aborted) return;
       this.handle = h;
@@ -371,10 +381,11 @@ export class PVecLayer implements CustomLayerInterface {
         cacheTier: "network",
       });
       const cursor = await deps.openCursor(h, evaluator);
-      if (signal.aborted || !cursor || !this.map) return;
-      const engine = (this.strokes = new StrokeEngine({
+      const map = wired(this).map;
+      if (signal.aborted || !cursor || !map) return;
+      const engine = (wired(this).strokes = new StrokeEngine({
         gl: gl as WebGL2RenderingContext,
-        map: this.map,
+        map,
         res: this.glRes,
         reference: this.options.georeference?.reference,
         style: (entityId) => this.resolveStyle({ entityId }),
