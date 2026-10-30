@@ -4,6 +4,7 @@ import { configureEngine } from "../../../src/layer/internal";
 import { loadEvaluator } from "../../../src/wasm/loader";
 import { Epsg4326Adapter } from "../../../src/transform/crs";
 import { createGeoTransform } from "../../../src/transform/georeference";
+import { lngLatToMercator, mercatorToLngLat } from "../../../src/transform/projection";
 import type { RawEntity } from "../../../src/decode/tier0";
 
 // Stand-in cursor and evaluator: the real ones come with libviprs/pvec (issue 80). Everything else, the
@@ -188,46 +189,94 @@ export function strokeProbe(name: string): { red: number; atMidpoint: number[] }
   return { red, atMidpoint: [s.data[o]!, s.data[o + 1]!, s.data[o + 2]!, s.data[o + 3]!] };
 }
 
-export async function loseAndRestore(): Promise<{ stages: string[] }> {
-  const map = state.map!;
-  const canvas = map.getCanvas();
-  const gl = canvas.getContext("webgl2") as WebGL2RenderingContext;
+// The context-loss specs drive the layer on a bare WebGL2 canvas with a small camera of their own. MapLibre's own
+// recovery after a forced loss is not what is under test here, and it does not repaint in headless SwiftShader.
+const SIZE = 320;
+const cam = { zoom: 17 };
+const world = () => 512 * 2 ** cam.zoom;
+const standalone = {
+  canvas: undefined as HTMLCanvasElement | undefined,
+  gl: undefined as WebGL2RenderingContext | undefined,
+  map: undefined as unknown,
+};
+
+export async function openStandalone(o: { fixture: string }): Promise<void> {
+  state.errors = [];
+  state.stateDiffs = [];
+  document.body.replaceChildren();
+  const canvas = (standalone.canvas = document.createElement("canvas"));
+  canvas.width = SIZE;
+  canvas.height = SIZE;
+  canvas.style.cssText = `width:${SIZE}px;height:${SIZE}px`;
+  document.body.appendChild(canvas);
+  const gl = (standalone.gl = canvas.getContext("webgl2", { alpha: true, premultipliedAlpha: true, preserveDrawingBuffer: true, stencil: true })!);
+  const [cx, cy] = lngLatToMercator(CENTER[0], CENTER[1]);
+  const map = {
+    getCanvas: () => canvas,
+    getZoom: () => cam.zoom,
+    triggerRepaint: () => undefined,
+    project: ([lng, lat]: [number, number]) => {
+      const [mx, my] = lngLatToMercator(lng, lat);
+      return { x: (mx - cx) * world() + SIZE / 2, y: (my - cy) * world() + SIZE / 2 };
+    },
+    unproject: ([x, y]: [number, number]) => {
+      const [lng, lat] = mercatorToLngLat(cx + (x - SIZE / 2) / world(), cy + (y - SIZE / 2) / world());
+      return { lng, lat };
+    },
+  };
+  standalone.map = map;
+  const layer = (state.layer = createPVecLayer({ id: "pvec", source: { url: o.fixture }, georeference: { reference } }));
+  layer.on("error", (e) => state.errors.push({ code: e.code, message: e.message }));
+  let served = false;
+  configureEngine(layer, {
+    loadEvaluator: () => Promise.resolve({ instance: {} as WebAssembly.Instance, abiVersion: 1, source: "injected" as const }),
+    maplibreVersion: () => undefined,
+    openCursor: async () => ({ next: () => (served ? null : ((served = true), entities())) }),
+    onStateDiff: (d: string[]) => void state.stateDiffs.push(...d),
+  });
+  layer.registerComponent("style", { resolve: () => ({ widthPx: WIDTH, dash: [], color: "#cc0000" }) });
+  layer.onAdd(map as never, gl);
+  await layer.whenReady();
+}
+
+/** One frame the way MapLibre drives it: clear, render, read the pixels in the same task. */
+export function frameStandalone(name: string): { red: number } {
+  const gl = standalone.gl!;
+  gl.viewport(0, 0, SIZE, SIZE);
+  gl.clearColor(0.875, 0.906, 0.933, 1);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  state.layer!.render(gl, {});
+  const raw = new Uint8Array(SIZE * SIZE * 4);
+  gl.readPixels(0, 0, SIZE, SIZE, gl.RGBA, gl.UNSIGNED_BYTE, raw);
+  const data = new Uint8ClampedArray(raw.length);
+  for (let y = 0; y < SIZE; y++) data.set(raw.subarray((SIZE - 1 - y) * SIZE * 4, (SIZE - y) * SIZE * 4), y * SIZE * 4);
+  state.snaps[name] = { w: SIZE, h: SIZE, data };
+  let red = 0;
+  for (let i = 0; i < SIZE * SIZE; i++) if (data[i * 4]! > 170 && data[i * 4 + 1]! < 60 && data[i * 4 + 2]! < 60) red++;
+  return { red };
+}
+
+export async function loseAndRestoreStandalone(): Promise<void> {
+  const canvas = standalone.canvas!, gl = standalone.gl!;
   const ext = gl.getExtension("WEBGL_lose_context")!;
-  const stages: string[] = [];
-  const within = <T>(what: string, p: Promise<T>) =>
-    Promise.race([p.then((v) => (stages.push(what), v)), new Promise<never>((_, rej) => setTimeout(() => rej(new Error(`${what} timed out after ${stages.join(",")}`)), 8000))]);
   const lost = new Promise<void>((r) => canvas.addEventListener("webglcontextlost", () => r(), { once: true }));
   ext.loseContext();
-  await within("lost", lost);
+  await lost;
   // restoreContext() is ignored unless the loss event has finished dispatching and was cancelled, so leave this task first.
   await new Promise((r) => setTimeout(r, 50));
   const restored = new Promise<void>((r) => canvas.addEventListener("webglcontextrestored", () => r(), { once: true }));
   ext.restoreContext();
-  await within("restored", restored);
-  // MapLibre rebuilds its painter on restore (and may reload the style), so poll until it has painted again.
-  const painted = async () => {
-    for (let i = 0; i < 80; i++) {
-      const f = await frame(map);
-      if (map.loaded() && f.data[2 * f.w * 4 + 2 * 4 + 3] === 255) return;
-      await new Promise((r) => setTimeout(r, 50));
-    }
-    throw new Error("the map never painted again");
-  };
-  await within("painted", painted());
-  await within("idle", idle(map));
-  return { stages };
+  await Promise.race([restored, new Promise<never>((_, rej) => setTimeout(() => rej(new Error("the context was not restored")), 8000))]);
+  // the layer's own listener ran before ours; give any queued upload a frame
+  await new Promise((r) => requestAnimationFrame(() => r(null)));
 }
 
-export async function probeFrames(): Promise<unknown[]> {
-  const map = state.map!;
-  const gl = map.getCanvas().getContext("webgl2") as WebGL2RenderingContext;
-  const out: unknown[] = [{ lost: gl.isContextLost(), attrs: gl.getContextAttributes() }];
-  for (let i = 0; i < 5; i++) {
-    const f = await frame(map);
-    out.push({ corner: Array.from(f.data.slice(2 * f.w * 4 + 8, 2 * f.w * 4 + 12)), loaded: map.loaded() });
-    await new Promise((r) => setTimeout(r, 100));
-  }
-  return out;
+/** Pixels that differ by more than 2 in any channel. */
+export function compare([a, b]: [string, string]): { pixels: number; differing: number } {
+  const A = state.snaps[a]!, B = state.snaps[b]!;
+  let differing = 0;
+  for (let i = 0; i < A.w * A.h; i++) for (let k = 0; k < 4; k++) if (Math.abs(A.data[i * 4 + k]! - B.data[i * 4 + k]!) > 2) { differing++; break; }
+  return { pixels: A.w * A.h, differing };
 }
 
 export function info() {
