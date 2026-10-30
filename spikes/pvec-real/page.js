@@ -5,7 +5,8 @@ const WORLD = [-1e12, -1e12, 1e12, 1e12];
 const r3 = (x) => +x.toFixed(3);
 
 async function main(p) {
-  const out = { notes: [] };
+  const out = {};
+  const want = (name) => !p.sections || p.sections.includes(name);
   const t0 = performance.now();
   const module = await WebAssembly.compile(u8(p.wasm));
   out.compileMs = r3(performance.now() - t0);
@@ -55,7 +56,7 @@ async function main(p) {
   // ---- M1.3: the named fixtures ----
   const TARGETS = [1e2, 1e3, 1e4, 1e5];
   out.fixtures = [];
-  for (const [id, b64] of Object.entries(p.small)) {
+  for (const [id, b64] of want('fixtures') ? Object.entries(p.small) : []) {
     const { file, batch, n } = prep(u8(b64));
     const row = { id, entities: n };
     const base = tess(batch, worldChain(1e-3), 2e6);
@@ -84,7 +85,7 @@ async function main(p) {
 
   // ---- packed output, large batches ----
   out.large = [];
-  for (const [id, b64] of Object.entries(p.large)) {
+  for (const [id, b64] of want('large') ? Object.entries(p.large) : []) {
     const bytes = u8(b64);
     const row = { id, fileBytes: bytes.length };
     let s = performance.now();
@@ -182,9 +183,12 @@ async function main(p) {
     const { file, batch, n } = prep(bytes);
     const row = { id, entities: n };
     const grab = (b, eps) => { const r = rt.tessellate(b, worldChain(eps), 5e6, "f64"); const v = rt.views(r); const o = polys(v); rt.release(r); return o; };
-    const probe = grab(batch, 1e30);
+    // The extent comes from the union of a few coarse-to-moderate tessellations: at a huge budget a full circle is
+    // a single point, which would make the extent zero.
     let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
-    for (const e of probe) for (const [x, y] of e.pts) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+    for (const eps of [1e30, 1e3, 1, 1e-2]) {
+      for (const e of grab(batch, eps)) for (const [x, y] of e.pts) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+    }
     const ext = Math.max(x1 - x0, y1 - y0, 1e-9);
     row.extent = [x0, y0, x1, y1];
     const ref = grab(batch, ext * refRel);
@@ -221,12 +225,12 @@ async function main(p) {
     return row;
   };
   out.previewAccounting = [];
-  for (const [id, b64] of Object.entries(p.small)) out.previewAccounting.push(account(id, u8(b64), [1, 0.5, 0.25, 0.1, 0.1, 0.05, 0.05, 0.02], 1e-7, [1e-1, 1e-2, 1e-3], 1000));
+  for (const [id, b64] of want('previews') ? Object.entries(p.small) : []) out.previewAccounting.push(account(id, u8(b64), [1, 0.5, 0.25, 0.1, 0.1, 0.05, 0.05, 0.02], 1e-7, [1e-1, 1e-2, 1e-3], 1000));
   out.previewAccountingLarge = [];
-  for (const [id, b64] of Object.entries(p.large)) out.previewAccountingLarge.push(account(id, u8(b64), [1, 0.25, 0.05, 0.01], 1e-6, [1e-3], 300));
+  for (const [id, b64] of want('previews') ? Object.entries(p.large) : []) out.previewAccountingLarge.push(account(id, u8(b64), [1, 0.25, 0.05, 0.01], 1e-6, [1e-3], 300));
 
   // ---- leaks: the module's own memory across open/tessellate/release cycles ----
-  {
+  if (want('leak')) {
     const bytes = u8(p.small["polyline-001"]);
     const p0 = pages();
     for (let i = 0; i < 3000; i++) { const f = rt.open(bytes); const b = rt.queryViewport(f, ...WORLD, 100); const r = rt.tessellate(b, worldChain(1e-3), 1e5, "f64"); rt.release(r); rt.release(b); rt.release(f); }

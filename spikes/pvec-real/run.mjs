@@ -22,7 +22,10 @@ const bundle = await build({
 });
 const code = bundle.outputFiles[0].text;
 
+// --sections=previews,leak reruns only those parts and merges them into the existing results.json
+const sections = process.argv.find((a) => a.startsWith("--sections="))?.slice(11).split(",");
 const payload = {
+  sections,
   wasm: b64(path.join(root, "wasm/pvec_eval.wasm")),
   small: Object.fromEntries(Object.keys(index.artifacts).map((id) => [id, b64(path.join(fixtures, `${id}.pvec`))])),
   large: Object.fromEntries(large.map((id) => [id, b64(path.join(largeDir, `${id}.pvec`))])),
@@ -35,12 +38,15 @@ await page.setContent("<body>");
 await page.addScriptTag({ content: code });
 const body = fs.readFileSync(path.join(here, "page.js"), "utf8");
 const measured = await page.evaluate(`(async (payload) => { ${body}\n return await main(payload); })(${JSON.stringify(payload)})`);
+const prior = sections && fs.existsSync(path.join(here, "results.json")) ? JSON.parse(fs.readFileSync(path.join(here, "results.json"), "utf8")) : {};
+const kept = Object.fromEntries(Object.entries(measured).filter(([k, v]) => !sections || (Array.isArray(v) ? v.length > 0 : true)));
 const results = {
+  ...prior,
   browser: `chromium ${browser.version()}`,
   platform: `${process.platform}/${process.arch}`,
   pvecCommit: index.pvecCommit,
   wasmBytes: Buffer.from(payload.wasm, "base64").length,
-  ...measured,
+  ...kept,
 };
 await browser.close();
 fs.writeFileSync(path.join(here, "results.json"), JSON.stringify(results, null, 2) + "\n");

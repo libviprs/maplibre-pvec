@@ -17,20 +17,20 @@ NAS=${NAS:-devshell@192.168.0.100}
 ARM=${ARM:-mercury}
 SRC=${PVEC_SRC:?set PVEC_SRC to a libviprs/pvec checkout}
 NAME=mlp-spike-real-$$
+STEPS=${STEPS:-"browser range arm"}
+SECTIONS=${SECTIONS:-}
 RUST_IMAGE=${RUST_IMAGE:-rust:1.99.0-bookworm}
 PW_IMAGE=${PW_IMAGE:-mcr.microsoft.com/playwright:v1.48.2-jammy}
 NODE_IMAGE=${NODE_IMAGE:-node:22-bookworm-slim}
 ENTRIES=${ENTRIES:-"pathological-1e3 architectural-1e5 mep-1e5 spline-heavy-1e5 architectural-1e6"}
 SSHX=(ssh -o BatchMode=yes -o LogLevel=ERROR)
 ARMDOCKER=/opt/homebrew/bin/docker
-ARMDIR=workspace/nas-work/$NAME
 
 want=$(node -e 'process.stdout.write(JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")).pvecCommit)' "$HERE/wasm/pvec.pin.json")
 [ "$(git -C "$SRC" rev-parse HEAD)" = "$want" ] || { echo "PVEC_SRC is not at $want" >&2; exit 1; }
 
 cleanup() {
   "$NASSH" clean "$NAME" >/dev/null 2>&1 || true
-  "${SSHX[@]}" "$ARM" "rm -rf \"\$HOME/$ARMDIR\"" >/dev/null 2>&1 || true
 }
 trap cleanup EXIT
 
@@ -53,18 +53,24 @@ else
   echo "== reusing .cache/pvec-large (delete it to regenerate)"
 fi
 
+if [[ " $STEPS " == *" browser "* ]]; then
 echo "== M1.3 and M1.5 in Chromium, M1.2 on x86_64"
 "$NASSH" run "$NAME" "$PW_IMAGE" "
 set -e
 npm install --no-audit --no-fund >/dev/null 2>&1
-node spikes/pvec-real/run.mjs
-node spikes/pvec-real/range.mjs spikes/pvec-real/range-results-x86_64.json | tail -3
+node spikes/pvec-real/run.mjs ${SECTIONS:+--sections=$SECTIONS}
+[ -n \"$SECTIONS\" ] || node spikes/pvec-real/range.mjs spikes/pvec-real/range-results-x86_64.json | tail -3
 "
 for f in results.json range-results-x86_64.json; do
   "${SSHX[@]}" "$NAS" "cat /work/nas-work/$NAME/spikes/pvec-real/$f" > "$HERE/spikes/pvec-real/$f.new" && mv "$HERE/spikes/pvec-real/$f.new" "$HERE/spikes/pvec-real/$f"
 done
+fi
 
+if [[ " $STEPS " == *" arm "* ]]; then
 echo "== M1.2 on arm64 ($ARM)"
-"${SSHX[@]}" "$NAS" "tar -C /work/nas-work/$NAME -cf - .cache/pvec-large wasm tests/fixtures/pvec spikes/pvec-real src package.json package-lock.json" | "${SSHX[@]}" "$ARM" "mkdir -p \"\$HOME/$ARMDIR\" && tar -xf - -C \"\$HOME/$ARMDIR\""
-"${SSHX[@]}" "$ARM" "$ARMDOCKER run --rm --platform linux/arm64 -v \"\$HOME/$ARMDIR\":/work -w /work $NODE_IMAGE sh -c 'npm ci --no-audit --no-fund >/dev/null 2>&1; uname -m; node spikes/pvec-real/range.mjs spikes/pvec-real/range-results-arm64.json | tail -3'"
-"${SSHX[@]}" "$ARM" "cat \"\$HOME/$ARMDIR/spikes/pvec-real/range-results-arm64.json\"" > "$HERE/spikes/pvec-real/range-results-arm64.json"
+# No bind mount: the arm64 host's docker VM cannot see its workspace directory, so the tree is streamed into
+# the container's own filesystem and only the result comes back. Nothing is left on that host.
+"${SSHX[@]}" "$NAS" "tar -C /work/nas-work/$NAME -cf - .cache/pvec-large wasm tests/fixtures/pvec spikes/pvec-real src package.json package-lock.json" |
+  "${SSHX[@]}" "$ARM" "$ARMDOCKER run -i --rm --platform linux/arm64 $NODE_IMAGE sh -c 'mkdir /work && tar -xf - -C /work && cd /work && npm ci --no-audit --no-fund >/dev/null 2>&1 && uname -m >&2 && node spikes/pvec-real/range.mjs /tmp/arm64.json >&2 && cat /tmp/arm64.json'" > "$HERE/spikes/pvec-real/range-results-arm64.json.new"
+mv "$HERE/spikes/pvec-real/range-results-arm64.json.new" "$HERE/spikes/pvec-real/range-results-arm64.json"
+fi

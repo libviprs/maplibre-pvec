@@ -3,7 +3,7 @@
 //   node tools/docs.mjs --check   fail when a generated page differs from its sources
 // Generated: docs/README.md, docs/adr/README.md, docs/api/reference.md, docs/benchmark-report.md, docs/slo.md.
 // The numbers come from etc/maplibre-pvec.api.md and bench/results/*.json, so prose cannot drift from them.
-import { readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -106,7 +106,7 @@ function results(root) {
 
 function benchmarkReport(root) {
   const corpusPin = JSON.parse(readFileSync(path.join(root, "bench/corpus/corpus.json"), "utf8")).revision;
-  const out = [`${GEN("bench/results/*.json")}# Benchmark report\n`];
+  const out = [`${GEN("bench/results/*.json and spikes/pvec-real/*.json")}# Benchmark report\n`];
   out.push("These are display-fidelity and frame-behaviour measurements of the benchmark subject named under each result. They are not claims about geometric accuracy; the mathematical tolerances belong to the shared numeric policy (libviprs/pvec#1, P1.2), and this report cites none.\n");
   for (const { file, r } of results(root)) {
     out.push(`## ${file}\n`);
@@ -123,8 +123,70 @@ function benchmarkReport(root) {
     }
     out.push("");
   }
+  out.push(...realEvaluatorSection(root));
   out.push("Software GL means these are relative costs. Hardware numbers, the add-on's own runs and the thresholds for them are listed in [deferred work](deferred.md).\n");
   return out.join("\n");
+}
+
+const fr = (n) => (n === null || n === undefined ? "n/a" : n.toFixed(2));
+const kb = (n) => (n >= 1e6 ? `${(n / 1e6).toFixed(2)} MB` : n >= 1e3 ? `${(n / 1e3).toFixed(1)} kB` : `${n} B`);
+
+/** The real evaluator and real container numbers from spikes/pvec-real, when they have been run. */
+function realEvaluatorSection(root) {
+  const file = path.join(root, "spikes/pvec-real/results.json");
+  if (!existsSync(file)) return [];
+  const r = JSON.parse(readFileSync(file, "utf8"));
+  const out = ["## Real pvec evaluator and real .pvec bytes\n"];
+  out.push(`- \`spikes/pvec-real/results.json\`: ${r.browser}, ${r.platform} container, \`libviprs/pvec\` \`${r.pvecCommit.slice(0, 7)}\`, ABI version ${r.abiVersion}`);
+  out.push(`- module ${r.wasmBytes} bytes, compile ${fmt(r.compileMs)} ms, instantiate ${fmt(r.instantiateMs)} ms`);
+  out.push("- the docker host was shared and loaded while this ran, so every time here is an upper bound and only the shape is a result");
+  out.push("- the subject is the shipped evaluator through the packed binding; the arrays are views over linear memory, nothing is copied\n");
+  out.push("### Evaluation cost per named fixture\n");
+  out.push("One evaluation is a batch of the fixture's entities tessellated to a drawing-sized budget, including the four views and the release. Per vertex is at a budget chosen to give about that many vertices from one curve (n/a: the fixture has fewer vertices than that at any budget).\n");
+  out.push("| fixture | entities | one evaluation (ns) | vertices | ns/vertex at 1e2 | 1e3 | 1e4 | 1e5 |", "|---|---|---|---|---|---|---|---|");
+  for (const f of r.fixtures) {
+    const cell = (n) => { const a = f.amortised.find((x) => x.targetVertices === n); return a && a.nsPerVertex !== undefined ? fmt(a.nsPerVertex) : "n/a"; };
+    out.push(`| ${f.id} | ${f.entities} | ${fmt(Math.round(f.singleEvaluation.medianNsPerCall))} | ${f.singleEvaluation.vertices} | ${cell(1e2)} | ${cell(1e3)} | ${cell(1e4)} | ${cell(1e5)} |`);
+  }
+  out.push("");
+  if (r.large?.length) {
+    out.push("### Packed output on the generated corpus entries\n");
+    out.push("| entry | file | entities | open (ms) | whole drawing (ms) | ns/entity | ns/vertex | 25 percent window (ms) | 5 percent window (ms) | JS heap bytes/entity |", "|---|---|---|---|---|---|---|---|---|---|");
+    for (const l of r.large) {
+      const [full, q, sm] = l.viewports;
+      out.push(`| ${l.id} | ${kb(l.fileBytes)} | ${l.entities} | ${fmt(l.openMs)} | ${fmt(full.f64.tessellateMs)} | ${fmt(full.f64.nsPerEntity)} | ${fmt(full.f64.nsPerVertex)} | ${fmt(q.f64.tessellateMs)} | ${fmt(sm.f64.tessellateMs)} | ${full.heap ? fr(full.heap.bytesPerEntity) : "n/a"} |`);
+    }
+    out.push("");
+  }
+  if (r.leak) out.push(`Leak check: ${r.leak.cycles} open, query, tessellate and release cycles left linear memory at ${r.leak.pagesAfter6000} pages (${r.leak.pagesBefore} before, ${r.leak.pagesAfterFirst3000} after the first half).\n`);
+  if (r.previewAccounting?.length) {
+    out.push("### Preview error accounting and viewport coverage\n");
+    out.push("Measured is the largest distance between the preview and a reference tessellation at a hundred thousandth of the extent or tighter (both directions); declared is the budget asked for. The ratio is measured over declared. Coverage counts entities whose reference curve meets a window and are missing from the viewport batch.\n");
+    out.push("| fixture | ratio at 1e-1 | 1e-2 | 1e-3 of extent | all within declared | windows | entities meeting a window | missing |", "|---|---|---|---|---|---|---|---|");
+    const rows = [...r.previewAccounting, ...(r.previewAccountingLarge ?? [])];
+    for (const a of rows) {
+      const p = a.previews;
+      const three = p.length === 3 ? p.map((x) => fr(x.ratio)) : ["", "", fr(p[0]?.ratio)];
+      out.push(`| ${a.id} | ${three.join(" | ")} | ${p.every((x) => x.withinDeclared) ? "yes" : "NO"} | ${a.coverage.boxes} | ${a.coverage.entitiesMeetingBox} | ${a.coverage.missing} |`);
+    }
+    out.push("");
+  }
+  for (const [name, label] of [["x86_64", "x86_64"], ["arm64", "arm64"]]) {
+    const rf = path.join(root, `spikes/pvec-real/range-results-${name}.json`);
+    if (!existsSync(rf)) continue;
+    const rr = JSON.parse(readFileSync(rf, "utf8"));
+    out.push(`### Range bootstrap on real files, ${label}\n`);
+    out.push(`\`spikes/pvec-real/range-results-${name}.json\`: ${rr.platform}. The production source and bootstrap against files from pvec's writer over a loopback range origin; the ceiling is ${rr.bootstrapMaxRequests} bootstrap requests. A window is a share of the extent around its centre; ranges are coalesced when adjacent.\n`);
+    out.push("| file | bytes | blocks | RTT (ms) | bootstrap requests | bootstrap bytes | bootstrap (ms) | full: requests / bytes / ms | 25 percent: requests / bytes / ms | 5 percent: requests / bytes / ms |", "|---|---|---|---|---|---|---|---|---|---|");
+    const show = new Set(["line-001", "nurbs-d3-001", "pathological-1e3", "architectural-1e5", "mep-1e5", "spline-heavy-1e5", "architectural-1e6"]);
+    for (const x of rr.runs.filter((y) => show.has(y.name) && (y.rttMs === 0 || y.rttMs === 100))) {
+      if (x.error) { out.push(`| ${x.name} | ${x.fileBytes} | | ${x.rttMs} | ${x.error} | | | | | |`); continue; }
+      const v = (p) => { const w = x.viewports.find((q) => q.preset === p); return `${w.requests} / ${kb(w.bytes)} / ${fmt(w.ms)}`; };
+      out.push(`| ${x.name} | ${kb(x.fileBytes)} | ${x.bootstrap.blocks} | ${x.rttMs} | ${x.bootstrap.requests} | ${kb(x.bootstrap.bytes)} | ${fmt(x.bootstrap.ms)} | ${v("fullExtent")} | ${v("quarter")} | ${v("small")} |`);
+    }
+    out.push("");
+  }
+  return out;
 }
 
 function sloPage(root) {

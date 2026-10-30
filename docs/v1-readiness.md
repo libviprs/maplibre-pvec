@@ -7,8 +7,8 @@ I have not tagged or published anything. The package is `private` at `0.0.0`, an
 | condition | state | measured | where |
 |---|---|---|---|
 | conformance suite green on every supported browser row | deferred | 1 of 3 rows supported (chromium 130). Firefox returned no WebGL2 in the container, WebKit has no row | [deferred work](deferred.md), issue 2 and issue 40 |
-| all gates green on the frozen corpus after tuning | deferred | 0 of 6 corpus cases have `.pvec` bytes yet; the baseline run's variance is within its limit | [deferred work](deferred.md), issue 34 and issue 40 |
-| no QUARANTINED fixture in the pass set | deferred | 0 quarantined, but the pass set is empty, so this is not evidence yet | [deferred work](deferred.md), issue 40 |
+| all gates green on the frozen corpus after tuning | deferred | 22 of 30 corpus cases have `.pvec` bytes from pvec's generator, 8 are not emitted by pvec; no gate has run on those bytes through the add-on; the baseline run's variance is within its limit | [deferred work](deferred.md), issue 34 and issue 40 |
+| no QUARANTINED fixture in the pass set | met | 0 quarantined among the 22 cases with bytes | `release/v1-gate.json` |
 | WASM-blocked and non-isolated paths behave as documented | deferred | documented and tested at the loader (`wasm_unavailable`); not through a wired layer | [deferred work](deferred.md), issues 31 and 50 |
 | lifecycle leak and context-loss tests green | deferred | structural leak checks pass; the forced context-loss snapshot needs the wired renderer | [deferred work](deferred.md), issue 50 |
 | examples pass with outbound network denied | deferred | 1 of 6 examples written; `01-minimal` passes against its own 127.0.0.1 server | [deferred work](deferred.md), issue 31 |
@@ -42,4 +42,4 @@ I have not tagged or published anything. The package is `private` at `0.0.0`, an
 
 ## What would turn the deferred rows green
 
-A released `libviprs/pvec` WASM artifact and real `.pvec` bytes for the corpus, a Firefox and a WebKit build with WebGL2 in the container, a GPU-backed runner, the wired custom layer with context-loss handling, and examples 02 to 06. Each is written up in [deferred work](deferred.md).
+The 8 corpus fixtures pvec does not emit and a released `libviprs/pvec` WASM artifact (the evaluator and 22 sets of bytes are in), a Firefox and a WebKit build with WebGL2 in the container, a GPU-backed runner, the wired custom layer with context-loss handling, and examples 02 to 06. Each is written up in [deferred work](deferred.md).
