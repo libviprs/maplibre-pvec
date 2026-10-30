@@ -59,6 +59,38 @@ describe("#82 hardware result files", () => {
   });
 });
 
+const goodLayer = (): NonNullable<HardwareResult["layer"]> => ({
+  durationMs: 60000, segments: 1_000_000, stateDiffs: 0, errors: 0,
+  frames: { count: 3600, p50Ms: 16.7, p95Ms: 17.2, p99Ms: 18, maxMs: 25, over20Ms: 0 },
+  drawCalls: { perFrame: 10 },
+  cpu: { renderP50Ms: 0.2, renderP95Ms: 0.4, renderMaxMs: 1.1 },
+  gpu: { frameP50Ms: 2, frameP95Ms: 3 },
+  settle: { frames: 12, ms: 300, renderMaxMs: 3, uploadedBytes: 40_000_400, maxUploadBytesPerFrame: 4 << 20 },
+});
+
+describe("#82 layer runs (the wired custom layer on a real map)", () => {
+  it("accept a complete layer block", () => expect(validateHardwareResult({ ...good(), layer: goodLayer() })).toEqual([]));
+  it("accept a result with no layer block (the raw pipeline run)", () => expect(validateHardwareResult(good())).toEqual([]));
+  it("reject a layer run shorter than 60 s", () => {
+    expect(validateHardwareResult({ ...good(), layer: { ...goodLayer(), durationMs: 20000 } }).join()).toMatch(/layer.*60/);
+  });
+  it("reject a layer run that drew fewer than 1e6 segments", () => {
+    expect(validateHardwareResult({ ...good(), layer: { ...goodLayer(), segments: 1000 } }).join()).toMatch(/layer.*1e6/);
+  });
+  it("reject a layer run with no draw calls", () => {
+    expect(validateHardwareResult({ ...good(), layer: { ...goodLayer(), drawCalls: { perFrame: 0 } } }).join()).toMatch(/layer.*drawCalls/);
+  });
+  it("reject a layer run that left GL state behind or raised an error", () => {
+    expect(validateHardwareResult({ ...good(), layer: { ...goodLayer(), stateDiffs: 2 } }).join()).toMatch(/layer.*state/);
+    expect(validateHardwareResult({ ...good(), layer: { ...goodLayer(), errors: 1 } }).join()).toMatch(/layer.*error/);
+  });
+  it("reject a layer run with a missing CPU number", () => {
+    const l = goodLayer() as unknown as { cpu: Record<string, number> };
+    delete l.cpu.renderP95Ms;
+    expect(validateHardwareResult({ ...good(), layer: l as never }).join()).toMatch(/layer.*cpu/);
+  });
+});
+
 describe("#82 upload budget derivation", () => {
   const curve = good().upload;
   it("is the largest measured size whose p95 fits the time budget", () => {
@@ -93,6 +125,22 @@ describe("#82 retuned budgets", () => {
   it("the upload byte budget fits uploadBudgetMs on every hardware entry", () => {
     for (const [k, e] of Object.entries<{ upload: HardwareResult["upload"] }>(baselines.entries)) {
       expect(uploadBytesWithin(e.upload, DEFAULTS.uploadBudgetMs), k).toBeGreaterThanOrEqual(DEFAULTS.uploadBudgetBytes);
+    }
+  });
+  it("every tuning entry carries a layer run with ten draw calls and a held 1e6-segment frame", () => {
+    for (const k of baselines.tunedFrom) {
+      const l = baselines.entries[k].layer;
+      expect(l, k).toBeDefined();
+      expect(l.drawCalls.perFrame, k).toBe(10);
+      expect(l.segments, k).toBeGreaterThanOrEqual(1_000_000);
+      expect(l.stateDiffs, k).toBe(0);
+    }
+  });
+  it("the pool uploads the whole 1e6-segment scene through the layer at no more than uploadBudgetBytes a frame", () => {
+    for (const k of baselines.tunedFrom) {
+      const s = baselines.entries[k].layer.settle;
+      expect(s.uploadedBytes, k).toBeGreaterThanOrEqual(40_000_000);
+      expect(s.maxUploadBytesPerFrame, k).toBeLessThanOrEqual(DEFAULTS.uploadBudgetBytes);
     }
   });
   it("records which hardware the budgets were tuned on", () => {

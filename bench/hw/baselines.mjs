@@ -22,6 +22,7 @@ for (const f of inputs) {
   base.entries[baselineKey(e.gpuRenderer, e.engine)] = {
     engine: e.engine, arch: e.arch, os: e.os, softwareRenderer: false, browserVersion: e.browserVersion,
     source: relative(root, resolve(f)), frames: r.frames, drawCalls: r.drawCalls, cpu: r.cpu, gpu: r.gpu, draw1e6: r.draw1e6, upload: r.upload, snapshot: r.snapshot,
+    ...(r.layer ? { layer: r.layer } : {}),
   };
 }
 if (arg("tuned") === "all") base.tunedFrom = Object.keys(base.entries);

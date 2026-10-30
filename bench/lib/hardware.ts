@@ -15,6 +15,22 @@ export interface HardwareEnvironment {
   timerQuery: boolean;
 }
 export interface UploadPoint { bytes: number; p50Ms: number; p95Ms: number }
+/** The same 1e6-segment scene driven through the wired MapLibre custom layer on a real map (#82 addendum). */
+export interface LayerRun {
+  durationMs: number;
+  segments: number;
+  /** GL state names the state guard found changed after a frame, summed over the run. */
+  stateDiffs: number;
+  /** Layer error events plus map errors. */
+  errors: number;
+  frames: { count: number; p50Ms: number; p95Ms: number; p99Ms: number; maxMs: number; over20Ms: number };
+  drawCalls: { perFrame: number };
+  /** JavaScript time inside layer.render per frame. */
+  cpu: { renderP50Ms: number; renderP95Ms: number; renderMaxMs: number };
+  gpu: { frameP50Ms: number; frameP95Ms: number } | null;
+  /** From addLayer until every range is uploaded and drawn: frames, time, the slowest render and the pool's upload bytes. */
+  settle: { frames: number; ms: number; renderMaxMs: number; uploadedBytes: number; maxUploadBytesPerFrame: number };
+}
 export interface HardwareResult {
   schema: 1;
   commit: string;
@@ -27,6 +43,7 @@ export interface HardwareResult {
   draw1e6: { segments: number; uploadMs: number; syncDrawP50Ms: number; syncDrawP95Ms: number };
   upload: UploadPoint[];
   snapshot: { scene: string; sha256: string };
+  layer?: LayerRun;
 }
 export interface BaselineEntry {
   engine: string;
@@ -42,6 +59,7 @@ export interface BaselineEntry {
   draw1e6: HardwareResult["draw1e6"];
   upload: UploadPoint[];
   snapshot: HardwareResult["snapshot"];
+  layer?: LayerRun;
 }
 export interface Baselines {
   schema: 1;
@@ -89,6 +107,19 @@ export function validateHardwareResult(r: unknown): string[] {
   if (!res.draw1e6 || res.draw1e6.segments < DRAW_SEGMENTS) errors.push(`draw1e6.segments must be at least 1e6 (${DRAW_SEGMENTS})`);
   if (!res.upload || res.upload.length < 3) errors.push("upload curve needs at least three sizes");
   if (!/^[0-9a-f]{64}$/.test(res.snapshot?.sha256 ?? "")) errors.push("snapshot.sha256 is missing");
+  if (res.layer) errors.push(...validateLayerRun(res.layer));
+  return errors;
+}
+
+function validateLayerRun(l: LayerRun): string[] {
+  const errors: string[] = [];
+  if (!(l.durationMs >= MIN_RUN_MS)) errors.push(`layer.durationMs must be at least ${MIN_RUN_MS} (the 60 s run)`);
+  if (!(l.segments >= DRAW_SEGMENTS)) errors.push(`layer.segments must be at least 1e6 (${DRAW_SEGMENTS})`);
+  if (!finite(l.drawCalls?.perFrame) || !(l.drawCalls.perFrame > 0)) errors.push("layer.drawCalls.perFrame is missing");
+  for (const k of ["count", "p50Ms", "p95Ms", "p99Ms", "maxMs"] as const) if (!finite(l.frames?.[k])) errors.push(`layer.frames.${k} is missing`);
+  for (const k of ["renderP50Ms", "renderP95Ms", "renderMaxMs"] as const) if (!finite(l.cpu?.[k])) errors.push(`layer.cpu.${k} is missing`);
+  if (l.stateDiffs !== 0) errors.push(`layer left GL state behind in ${l.stateDiffs} frame diffs`);
+  if (l.errors !== 0) errors.push(`layer run raised ${l.errors} errors`);
   return errors;
 }
 

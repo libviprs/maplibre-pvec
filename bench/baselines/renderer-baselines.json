@@ -14,12 +14,12 @@
       "browserVersion": "149.0.7827.55",
       "source": "bench/results/hw/2026-10-30-macbook-m5-chromium.json",
       "frames": {
-        "durationMs": 60033,
-        "count": 5801,
-        "p50Ms": 8.400000000001455,
-        "p95Ms": 17,
-        "p99Ms": 17.900000000001455,
-        "maxMs": 18.600000000000364,
+        "durationMs": 60016,
+        "count": 4983,
+        "p50Ms": 9.599999999998545,
+        "p95Ms": 17.5,
+        "p99Ms": 18.200000000000728,
+        "maxMs": 18.60000000000582,
         "over20Ms": 0
       },
       "drawCalls": {
@@ -29,28 +29,28 @@
       "cpu": {
         "submitP50Ms": 0.09999996423721313,
         "submitP95Ms": 0.10000002384185791,
-        "submitMaxMs": 0.20000004768371582
+        "submitMaxMs": 0.30000001192092896
       },
       "gpu": {
-        "frameP50Ms": 19.903249,
-        "frameP95Ms": 21.821625
+        "frameP50Ms": 23.145666,
+        "frameP95Ms": 24.495
       },
       "draw1e6": {
         "segments": 1000000,
-        "uploadMs": 8,
-        "syncDrawP50Ms": 12.400000035762787,
-        "syncDrawP95Ms": 13.099999964237213
+        "uploadMs": 7.600000023841858,
+        "syncDrawP50Ms": 15.100000023841858,
+        "syncDrawP95Ms": 15.399999976158142
       },
       "upload": [
         {
           "bytes": 262144,
           "p50Ms": 0,
-          "p95Ms": 0.09999996423721313
+          "p95Ms": 0.10000002384185791
         },
         {
           "bytes": 1048576,
           "p50Ms": 0,
-          "p95Ms": 0.19999998807907104
+          "p95Ms": 0.10000002384185791
         },
         {
           "bytes": 2097152,
@@ -65,17 +65,50 @@
         {
           "bytes": 8388608,
           "p50Ms": 0.3999999761581421,
-          "p95Ms": 0.5999999642372131
+          "p95Ms": 0.5
         },
         {
           "bytes": 16777216,
-          "p50Ms": 0.800000011920929,
-          "p95Ms": 0.9000000357627869
+          "p50Ms": 0.699999988079071,
+          "p95Ms": 0.800000011920929
         }
       ],
       "snapshot": {
         "scene": "walk-400-seed77-256px-v1",
         "sha256": "71006430a15707f45b521f17e40c6a393c3e376c4cd0b18ebef968b7a8d73aaf"
+      },
+      "layer": {
+        "durationMs": 60012,
+        "segments": 1000000,
+        "stateDiffs": 0,
+        "errors": 0,
+        "frames": {
+          "count": 5336,
+          "p50Ms": 11.300000011920929,
+          "p95Ms": 12.399999976158142,
+          "p99Ms": 12.800000011920929,
+          "maxMs": 17.19999998807907,
+          "over20Ms": 0
+        },
+        "drawCalls": {
+          "perFrame": 10
+        },
+        "cpu": {
+          "renderP50Ms": 11.199999988079071,
+          "renderP95Ms": 12.199999988079071,
+          "renderMaxMs": 16.69999998807907
+        },
+        "gpu": {
+          "frameP50Ms": 20.393291,
+          "frameP95Ms": 21.794708
+        },
+        "settle": {
+          "frames": 15,
+          "ms": 257,
+          "renderMaxMs": 14.599999964237213,
+          "uploadedBytes": 40000000,
+          "maxUploadBytesPerFrame": 4194304
+        }
       }
     },
     "Apple GPU | webkit": {
@@ -89,10 +122,10 @@
         "durationMs": 60016,
         "count": 3601,
         "p50Ms": 17,
-        "p95Ms": 19,
-        "p99Ms": 20,
-        "maxMs": 31,
-        "over20Ms": 29
+        "p95Ms": 18,
+        "p99Ms": 18,
+        "maxMs": 21,
+        "over20Ms": 1
       },
       "drawCalls": {
         "perFrame": 10,
@@ -106,7 +139,7 @@
       "gpu": null,
       "draw1e6": {
         "segments": 1000000,
-        "uploadMs": 3,
+        "uploadMs": 4,
         "syncDrawP50Ms": 15,
         "syncDrawP95Ms": 16
       },
@@ -139,12 +172,42 @@
         {
           "bytes": 16777216,
           "p50Ms": 1,
-          "p95Ms": 2
+          "p95Ms": 1
         }
       ],
       "snapshot": {
         "scene": "walk-400-seed77-256px-v1",
         "sha256": "71006430a15707f45b521f17e40c6a393c3e376c4cd0b18ebef968b7a8d73aaf"
+      },
+      "layer": {
+        "durationMs": 60019,
+        "segments": 1000000,
+        "stateDiffs": 0,
+        "errors": 0,
+        "frames": {
+          "count": 3601,
+          "p50Ms": 17,
+          "p95Ms": 18,
+          "p99Ms": 19,
+          "maxMs": 20,
+          "over20Ms": 0
+        },
+        "drawCalls": {
+          "perFrame": 10
+        },
+        "cpu": {
+          "renderP50Ms": 0,
+          "renderP95Ms": 1,
+          "renderMaxMs": 2
+        },
+        "gpu": null,
+        "settle": {
+          "frames": 14,
+          "ms": 290,
+          "renderMaxMs": 4,
+          "uploadedBytes": 40000000,
+          "maxUploadBytesPerFrame": 4194304
+        }
       }
     },
     "ANGLE (Intel, Mesa Intel(R) Graphics (ADL GT2), OpenGL ES 3.2) | chromium": {
@@ -155,13 +218,13 @@
       "browserVersion": "130.0.6723.31",
       "source": "bench/results/hw/2026-10-30-nas-intel-adl-gt2-chromium.json",
       "frames": {
-        "durationMs": 60081,
-        "count": 495,
-        "p50Ms": 133.20000000000073,
-        "p95Ms": 133.40000000000146,
-        "p99Ms": 150,
-        "maxMs": 250,
-        "over20Ms": 495
+        "durationMs": 60048,
+        "count": 389,
+        "p50Ms": 133.29999999999927,
+        "p95Ms": 333.29999999999563,
+        "p99Ms": 500,
+        "maxMs": 900,
+        "over20Ms": 389
       },
       "drawCalls": {
         "perFrame": 10,
@@ -170,53 +233,86 @@
       "cpu": {
         "submitP50Ms": 0.2999997138977051,
         "submitP95Ms": 0.40000009536743164,
-        "submitMaxMs": 25
+        "submitMaxMs": 109.19999980926514
       },
       "gpu": {
-        "frameP50Ms": 74.954583,
-        "frameP95Ms": 75.572083
+        "frameP50Ms": 74.992864,
+        "frameP95Ms": 78.19677
       },
       "draw1e6": {
         "segments": 1000000,
-        "uploadMs": 46.60000038146973,
+        "uploadMs": 56.90000009536743,
         "syncDrawP50Ms": 42.30000019073486,
         "syncDrawP95Ms": 42.5
       },
       "upload": [
         {
           "bytes": 262144,
-          "p50Ms": 0.19999980926513672,
+          "p50Ms": 0.10000038146972656,
           "p95Ms": 0.20000028610229492
         },
         {
           "bytes": 1048576,
-          "p50Ms": 0.3000001907348633,
-          "p95Ms": 0.5999999046325684
+          "p50Ms": 0.39999961853027344,
+          "p95Ms": 0.7999997138977051
         },
         {
           "bytes": 2097152,
           "p50Ms": 0.5,
-          "p95Ms": 1.1999998092651367
+          "p95Ms": 1.4000000953674316
         },
         {
           "bytes": 4194304,
-          "p50Ms": 0.6000003814697266,
-          "p95Ms": 0.7999997138977051
+          "p50Ms": 0.7000002861022949,
+          "p95Ms": 1.799999713897705
         },
         {
           "bytes": 8388608,
-          "p50Ms": 2.5,
-          "p95Ms": 2.700000286102295
+          "p50Ms": 2.8999996185302734,
+          "p95Ms": 3.200000286102295
         },
         {
           "bytes": 16777216,
-          "p50Ms": 5.200000286102295,
-          "p95Ms": 5.800000190734863
+          "p50Ms": 5.599999904632568,
+          "p95Ms": 5.700000286102295
         }
       ],
       "snapshot": {
         "scene": "walk-400-seed77-256px-v1",
         "sha256": "1bc47f79c5cab8c7d85ff27e8aeecf2d9ffef98deadc83bf5aac06e69a6ab2b1"
+      },
+      "layer": {
+        "durationMs": 60512,
+        "segments": 1000000,
+        "stateDiffs": 0,
+        "errors": 0,
+        "frames": {
+          "count": 398,
+          "p50Ms": 138.59999990463257,
+          "p95Ms": 184.69999980926514,
+          "p99Ms": 645.4000000953674,
+          "maxMs": 1780.8000001907349,
+          "over20Ms": 398
+        },
+        "drawCalls": {
+          "perFrame": 10
+        },
+        "cpu": {
+          "renderP50Ms": 4.700000286102295,
+          "renderP95Ms": 6.400000095367432,
+          "renderMaxMs": 506.90000009536743
+        },
+        "gpu": {
+          "frameP50Ms": 75.131718,
+          "frameP95Ms": 75.81375
+        },
+        "settle": {
+          "frames": 18,
+          "ms": 2291,
+          "renderMaxMs": 13.099999904632568,
+          "uploadedBytes": 40000000,
+          "maxUploadBytesPerFrame": 4194304
+        }
       }
     }
   }

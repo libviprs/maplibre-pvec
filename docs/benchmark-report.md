@@ -41,9 +41,21 @@ Stroke pipeline through the buffer pool, 1e6 segments per frame as ten 100k-segm
 
 | renderer | engine | arch | frame p50/p95/max (ms) | frames over 20 ms | draw calls | CPU submit p95 (ms) | GPU frame p50 (ms) | 1e6 sync draw p50 (ms) | 1e6 upload (ms) | 4 MiB upload p95 (ms) | 8 MiB upload p95 (ms) | source |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version) | chromium 149.0.7827.55 | arm64 | 8.4 / 17 / 18.6 | 0 of 5801 | 10 | 0.1 | 19.9 | 12.4 | 8 | 0.2 | 0.6 | `bench/results/hw/2026-10-30-macbook-m5-chromium.json` |
-| Apple GPU | webkit 26.5 | arm64 | 17 / 19 / 31 | 29 of 3601 | 10 | 1 | no timer query | 15 | 3 | 1 | 1 | `bench/results/hw/2026-10-30-macbook-m5-webkit.json` |
-| ANGLE (Intel, Mesa Intel(R) Graphics (ADL GT2), OpenGL ES 3.2) | chromium 130.0.6723.31 | x64 | 133.2 / 133.4 / 250 | 495 of 495 | 10 | 0.4 | 75.0 | 42.3 | 46.6 | 0.8 | 2.7 | `bench/results/hw/2026-10-30-nas-intel-adl-gt2-chromium.json` |
+| ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version) | chromium 149.0.7827.55 | arm64 | 9.6 / 17.5 / 18.6 | 0 of 4983 | 10 | 0.1 | 23.1 | 15.1 | 7.6 | 0.2 | 0.5 | `bench/results/hw/2026-10-30-macbook-m5-chromium.json` |
+| Apple GPU | webkit 26.5 | arm64 | 17 / 18 / 21 | 1 of 3601 | 10 | 1 | no timer query | 15 | 4 | 1 | 1 | `bench/results/hw/2026-10-30-macbook-m5-webkit.json` |
+| ANGLE (Intel, Mesa Intel(R) Graphics (ADL GT2), OpenGL ES 3.2) | chromium 130.0.6723.31 | x64 | 133.3 / 333.3 / 900 | 389 of 389 | 10 | 0.4 | 75.0 | 42.3 | 56.9 | 1.8 | 3.2 | `bench/results/hw/2026-10-30-nas-intel-adl-gt2-chromium.json` |
+
+### The same scene through the wired layer
+
+The same 1e6 segments in ten style groups (ten draw calls), drawn by `createPVecLayer` on a real MapLibre map with the stand-in cursor (real `.pvec` strokes come with the shared decoder), panned every frame, 60 s after a 3 s warm-up, in the same browser session as the row above. Render CPU is the JavaScript time inside `layer.render`; frame interval is the time between map renders. Settle is from `addLayer` until the pool has uploaded all of it (at most `uploadBudgetBytes` a frame) and every range draws. State diffs come from a separate 400-frame run with the guard's debug diff on.
+
+| renderer | engine | frame p50/p95/max (ms) | frames over 20 ms | draw calls | render CPU p50/p95/max (ms) | GPU frame p50 (ms) | settle (frames / ms) | largest upload in a frame (MiB) | state diffs | errors |
+|---|---|---|---|---|---|---|---|---|---|---|
+| ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version) | chromium 149.0.7827.55 | 11.3 / 12.4 / 17.2 | 0 of 5336 | 10 | 11.2 / 12.2 / 16.7 | 20.4 | 15 / 257 | 4 | 0 | 0 |
+| Apple GPU | webkit 26.5 | 17 / 18 / 20 | 0 of 3601 | 10 | 0 / 1 / 2 | no timer query | 14 / 290 | 4 | 0 | 0 |
+| ANGLE (Intel, Mesa Intel(R) Graphics (ADL GT2), OpenGL ES 3.2) | chromium 130.0.6723.31 | 138.6 / 184.7 / 1780.8 | 398 of 398 | 10 | 4.7 / 6.4 / 506.9 | 75.1 | 18 / 2291 | 4 | 0 | 0 |
+
+In Chromium nearly all of the render CPU is the state guard's first `getParameter`, a round trip that waits for the GPU (`bench/hw/run.mjs --profile` prints the per-call breakdown); WebKit does not stall. That is #96. The pool kept to its upload budget on all three.
 
 ## Real pvec evaluator and real .pvec bytes
 
