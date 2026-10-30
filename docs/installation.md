@@ -24,7 +24,7 @@ npm pack
 ## Requirements
 
 - `maplibre-gl` as a peer, `>=4.7.1 <7.0.0`. The tested rows are in [compatibility](compatibility.md).
-- A browser with WebGL2 and module workers. There is no canvas fallback. Firefox and WebKit rows are pending, so no minimum is claimed for them.
+- A browser with WebGL2 and module workers. There is no canvas fallback. Tested minimums are Chromium 111, Firefox 131 and WebKit 18.0 (see [compatibility](compatibility.md)); Firefox needs a display (or a software GL stack) to get WebGL2 in a headless container.
 - A way to let the page fetch and compile one `.wasm` file, see [WASM, worker and CSP deployment](wasm-worker-deployment.md).
 - An origin that answers `Range` requests with a stable `ETag` or version.
 

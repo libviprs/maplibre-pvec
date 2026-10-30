@@ -79,7 +79,10 @@ export function buildGate(root = root0) {
   const latest = readJson(root, `bench/results/${results.at(-1)}`);
 
   const rows = compat.browsers;
-  const supported = rows.filter((b) => b.status === "supported").length;
+  const grid = readJson(root, "release/browser-grid.json");
+  const gridGreen = grid.unannotated === 0 && grid.runs.length > 0 && grid.runs.every((r) => r.total > 0 && r.passed === r.total);
+  // A row only counts when it is supported and the grid evidence has a fully passing run for its engine.
+  const supported = rows.filter((b) => b.status === "supported" && gridGreen && grid.runs.some((r) => r.kind === "grid" && r.engine === b.engine && r.version === b.tested)).length;
   const pending = corpus.cases.filter((c) => c.pvec.status === "PENDING").length;
   const quarantined = corpus.cases.filter((c) => /QUARANTINED/.test(c.evidenceClass)).length;
   const exampleDirs = readdirSync(path.join(root, "examples")).filter((d) => /^\d\d-/.test(d)).length;
@@ -96,7 +99,7 @@ export function buildGate(root = root0) {
     note: "Produced by tools/release-gate.mjs. The release step refuses to tag unless every condition is present and met.",
     conditions: [
       cond(REQUIRED_CONDITIONS[0], "conformance suite green on every supported browser row (M2.8 / M7.7)", supported === rows.length,
-        { supportedRows: supported, rows: rows.length }, "compatibility.json browsers: chromium supported, firefox and webkit pending"),
+        { supportedRows: supported, rows: rows.length }, "compatibility.json browsers against release/browser-grid.json (tools/run-grid.sh): every row supported and every grid run passed"),
       cond(REQUIRED_CONDITIONS[1], "all gates green on the frozen corpus after tuning (M8.2 - M8.5, M8.6)", pending === 0 && latest.variance.ok,
         { casesWithPvecBytes: corpus.cases.length - pending, cases: corpus.cases.length, varianceOk: latest.variance.ok }, "bench/corpus/corpus.json pvec.status, latest bench/results file"),
       cond(REQUIRED_CONDITIONS[2], "no QUARANTINED fixture in the pass set (EPIC O classes)", quarantined === 0 && pending === 0,

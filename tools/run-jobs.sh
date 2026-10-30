@@ -7,6 +7,6 @@ mkdir -p job-reports
 for job in math range rendering interaction; do
   PLAYWRIGHT_JSON_OUTPUT_NAME="job-reports/$job.json" \
     npx playwright test --reporter=json,list --pass-with-no-tests \
-    --project="$job-chromium" --project="$job-firefox" || true
+    --project="$job-chromium" --project="$job-firefox" --project="$job-webkit" || true
 done
 node tools/check-jobs.mjs job-reports

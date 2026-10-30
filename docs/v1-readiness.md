@@ -6,7 +6,7 @@ I have not tagged or published anything. The package is `private` at `0.0.0`, an
 
 | condition | state | measured | where |
 |---|---|---|---|
-| conformance suite green on every supported browser row | deferred | 1 of 3 rows supported (chromium 130). Firefox returned no WebGL2 in the container, WebKit has no row | [deferred work](deferred.md), issue 2 and issue 40 |
+| conformance suite green on every supported browser row | deferred | 3 of 3 rows supported (chromium 111 to 130, firefox 131, webkit 18.0), each across MapLibre 4.7.1, 5.24.0 and 6.16.0, evidence in release/browser-grid.json | [deferred work](deferred.md), issue 2 and issue 40 |
 | all gates green on the frozen corpus after tuning | deferred | 0 of 6 corpus cases have `.pvec` bytes yet; the baseline run's variance is within its limit | [deferred work](deferred.md), issue 34 and issue 40 |
 | no QUARANTINED fixture in the pass set | deferred | 0 quarantined, but the pass set is empty, so this is not evidence yet | [deferred work](deferred.md), issue 40 |
 | WASM-blocked and non-isolated paths behave as documented | met | through the real layer: one `wasm_unavailable` error event, zero range requests, MapLibre's pixels unchanged (0 of 102400 differ), also from the installed tarball. Evidence in `release/evidence/83-wired-layer.json` | [deferred work](deferred.md), issue 83 |
@@ -21,7 +21,7 @@ I have not tagged or published anything. The package is `private` at `0.0.0`, an
 | The release step refuses to tag unless every condition is present and met; removing an entry blocks it | met (`tools/release-gate.mjs --tag-check`, tested with a synthetic green gate and a gate with an entry removed) |
 | The frozen API report is committed and a later change is caught | met locally: the surface test and `release/v1-freeze.json` fail on any difference, and `classifyApiChange` states whether the change needs a minor or a major bump. Actions is off, so the local gate is what runs it |
 | `compatibility.json` has exactly one conformance-baseline projection, `mercator`; WebGPU only experimental; `SharedArrayBuffer` only optional | met (tested) |
-| Frozen budgets equal the tuned values, checked by equality between `defaults.ts` and `release/v1-freeze.json` | met (tested). The values were tuned on software GL, so a hardware retune is deferred |
+| Frozen budgets equal the tuned values, checked by equality between `defaults.ts` and `release/v1-freeze.json` | met (tested). Checked against real hardware in #82 (Apple M5 Metal, Apple GPU WebKit, Intel ADL GT2), no value needed to change, see [deferred work](deferred.md) |
 | Release notes describe benchmark results as display fidelity | met in `CHANGELOG.md`; the docs check also rejects calling a display-fidelity result exact |
 | `1.0.0` bump and the tag | deferred on purpose: the gate is not green and publishing is out of scope |
 
@@ -42,4 +42,4 @@ I have not tagged or published anything. The package is `private` at `0.0.0`, an
 
 ## What would turn the deferred rows green
 
-A released `libviprs/pvec` WASM artifact and real `.pvec` bytes for the corpus, a Firefox and a WebKit build with WebGL2 in the container, a GPU-backed runner, the evaluator's Tier 0 decoder wired into the layer (the layer and its context-loss handling are done), and examples 02 to 06. Each is written up in [deferred work](deferred.md).
+A released `libviprs/pvec` WASM artifact and real `.pvec` bytes for the corpus, an NVIDIA and an arm64 Linux GPU runner, the evaluator's Tier 0 decoder wired into the layer (the layer and its context-loss handling are done), and examples 02 to 06. Each is written up in [deferred work](deferred.md).
