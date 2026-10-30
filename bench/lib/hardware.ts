@@ -1,0 +1,108 @@
+// Hardware GPU result files (#82). Unlike bench/lib/result.ts these never accept a software
+// rasteriser: a run on SwiftShader or llvmpipe is a relative cost, not a hardware number.
+export interface HardwareEnvironment {
+  host: string;
+  os: string;
+  arch: "arm64" | "x64";
+  cpu: string;
+  engine: "chromium" | "webkit";
+  browserVersion: string;
+  gpuRenderer: string;
+  gpuVendor: string;
+  softwareRenderer: boolean;
+  dpr: number;
+  viewport: [number, number];
+  timerQuery: boolean;
+}
+export interface UploadPoint { bytes: number; p50Ms: number; p95Ms: number }
+export interface HardwareResult {
+  schema: 1;
+  commit: string;
+  date: string;
+  environment: HardwareEnvironment;
+  frames: { durationMs: number; count: number; p50Ms: number; p95Ms: number; p99Ms: number; maxMs: number; over20Ms: number };
+  drawCalls: { perFrame: number; segmentsPerFrame: number };
+  cpu: { submitP50Ms: number; submitP95Ms: number; submitMaxMs: number };
+  gpu: { frameP50Ms: number; frameP95Ms: number } | null;
+  draw1e6: { segments: number; uploadMs: number; syncDrawP50Ms: number; syncDrawP95Ms: number };
+  upload: UploadPoint[];
+  snapshot: { scene: string; sha256: string };
+}
+export interface BaselineEntry {
+  engine: string;
+  arch: string;
+  os: string;
+  softwareRenderer: boolean;
+  browserVersion: string;
+  source: string;
+  frames: HardwareResult["frames"];
+  drawCalls: HardwareResult["drawCalls"];
+  cpu: HardwareResult["cpu"];
+  gpu: HardwareResult["gpu"];
+  draw1e6: HardwareResult["draw1e6"];
+  upload: UploadPoint[];
+  snapshot: HardwareResult["snapshot"];
+}
+export interface Baselines {
+  schema: 1;
+  /** Renderer strings the frozen budgets were tuned from. */
+  tunedFrom: string[];
+  /** Keyed by the unmasked renderer string, then engine, e.g. "<renderer> | chromium". */
+  entries: Record<string, BaselineEntry>;
+}
+
+export const MIN_RUN_MS = 60_000;
+export const DRAW_SEGMENTS = 1_000_000;
+
+export function isSoftwareRenderer(renderer: string): boolean {
+  return /swiftshader|llvmpipe|softpipe|software|microsoft basic render/i.test(renderer);
+}
+
+export const baselineKey = (renderer: string, engine: string): string => `${renderer} | ${engine}`;
+
+/** Largest measured upload size whose p95 fits the time budget, 0 when none does. */
+export function uploadBytesWithin(curve: UploadPoint[], budgetMs: number): number {
+  let best = 0;
+  for (const p of curve) if (p.p95Ms <= budgetMs && p.bytes > best) best = p.bytes;
+  return best;
+}
+
+const finite = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v) && v >= 0;
+
+export function validateHardwareResult(r: unknown): string[] {
+  const res = r as Partial<HardwareResult> | null;
+  const env = res?.environment;
+  if (!env) return ["result has no environment block"];
+  const errors: string[] = [];
+  for (const k of ["host", "os", "cpu", "engine", "browserVersion", "gpuRenderer", "gpuVendor"] as const) {
+    if (!env[k]) errors.push(`environment.${k} is missing`);
+  }
+  if (env.arch !== "arm64" && env.arch !== "x64") errors.push(`environment.arch ${JSON.stringify(env.arch)} must be arm64 or x64, native only`);
+  if (isSoftwareRenderer(`${env.gpuRenderer ?? ""} ${env.gpuVendor ?? ""}`) || env.softwareRenderer !== false) {
+    errors.push(`environment says software rendering (${env.gpuRenderer}), numbers are not hardware numbers`);
+  }
+  const f = res.frames;
+  if (!f || !(f.durationMs >= MIN_RUN_MS)) errors.push(`frames.durationMs must be at least ${MIN_RUN_MS} (the 60 s run)`);
+  for (const k of ["count", "p50Ms", "p95Ms", "p99Ms", "maxMs"] as const) if (!finite(f?.[k])) errors.push(`frames.${k} is missing`);
+  if (!finite(res.drawCalls?.perFrame) || !(res.drawCalls.perFrame > 0)) errors.push("drawCalls.perFrame is missing");
+  for (const k of ["submitP50Ms", "submitP95Ms", "submitMaxMs"] as const) if (!finite(res.cpu?.[k])) errors.push(`cpu.${k} is missing`);
+  if (!res.draw1e6 || res.draw1e6.segments < DRAW_SEGMENTS) errors.push(`draw1e6.segments must be at least 1e6 (${DRAW_SEGMENTS})`);
+  if (!res.upload || res.upload.length < 3) errors.push("upload curve needs at least three sizes");
+  if (!/^[0-9a-f]{64}$/.test(res.snapshot?.sha256 ?? "")) errors.push("snapshot.sha256 is missing");
+  return errors;
+}
+
+export function validateBaselines(b: unknown): string[] {
+  const x = b as Partial<Baselines> | null;
+  if (!x || x.schema !== 1 || !x.entries) return ["baselines need schema 1 and entries"];
+  const errors: string[] = [];
+  for (const [key, e] of Object.entries(x.entries)) {
+    const [renderer, engine] = key.split(" | ");
+    if (!renderer || !engine) errors.push(`${key}: key must be "<renderer> | <engine>"`);
+    if (isSoftwareRenderer(key) || e.softwareRenderer !== false) errors.push(`${key}: software renderers do not get hardware entries`);
+    if (e.engine !== engine) errors.push(`${key}: engine ${e.engine} does not match the key`);
+    if (!/^[0-9a-f]{64}$/.test(e.snapshot?.sha256 ?? "")) errors.push(`${key}: snapshot hash missing`);
+    if (!e.source) errors.push(`${key}: source result file missing`);
+  }
+  return errors;
+}
