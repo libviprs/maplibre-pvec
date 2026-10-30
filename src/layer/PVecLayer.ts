@@ -128,12 +128,12 @@ export class PVecLayer implements CustomLayerInterface {
     registerControl(this, this.control());
   }
 
-  onAdd(map: MapLibreMap, gl: Gl): void {
+  onAdd(_map: MapLibreMap, gl: Gl): void {
     if (this.phase === "added") throw new PVecLayerError("already_added", `layer ${this.id} is already on a map`);
     this.phase = "added";
     this.blocked = false;
     this.handle = undefined;
-    this.map = map;
+    this.map = _map;
     this.addedAt = performance.now();
     const controller = (this.controller = new AbortController());
     const source = (this.source = new PVecSource(toSource(this.options, this.wrapFetch(controller.signal))));

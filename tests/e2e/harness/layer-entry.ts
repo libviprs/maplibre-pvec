@@ -190,6 +190,8 @@ export async function loseAndRestore(): Promise<{ stages: string[] }> {
   const lost = new Promise<void>((r) => canvas.addEventListener("webglcontextlost", () => r(), { once: true }));
   ext.loseContext();
   await within("lost", lost);
+  // restoreContext() is ignored unless the loss event has finished dispatching and was cancelled, so leave this task first.
+  await new Promise((r) => setTimeout(r, 50));
   const restored = new Promise<void>((r) => canvas.addEventListener("webglcontextrestored", () => r(), { once: true }));
   ext.restoreContext();
   await within("restored", restored);
