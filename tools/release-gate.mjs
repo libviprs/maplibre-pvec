@@ -106,7 +106,7 @@ export function buildGate(root = root0) {
         layer.wasmOk ? "release/evidence/83-wired-layer.json, measured in Chromium through the wired layer and through the installed tarball" : "no evidence from the wired layer: release/evidence/83-wired-layer.json is missing or outside its limits"),
       cond(REQUIRED_CONDITIONS[4], "lifecycle leak and context-loss tests green (M7.2)", layer.lossOk,
         { leakTests: "lifecycle.test.ts (structural)", contextLossSnapshot: layer.lossOk, ...layer.lossMeasured },
-        layer.lossOk ? "release/evidence/83-wired-layer.json: forced WEBGL_lose_context on a real map, zero new range requests, snapshot within 0.1 percent" : "no evidence from the wired layer: release/evidence/83-wired-layer.json is missing or outside its limits"),
+        layer.lossOk ? "release/evidence/83-wired-layer.json: forced WEBGL_lose_context on a WebGL2 canvas through the layer, zero new range requests, snapshot within 0.1 percent; coexistence with MapLibre's own layers on a real map" : "no evidence from the wired layer: release/evidence/83-wired-layer.json is missing or outside its limits"),
       cond(REQUIRED_CONDITIONS[5], "examples pass with outbound network denied (M7.8)", exampleDirs >= 6 && latest.deniedHosts.length === 0,
         { examplesWritten: exampleDirs, examplesPlanned: 6, deniedHosts: latest.deniedHosts.length }, "examples/README.md: 01-minimal runs against its own 127.0.0.1 server, 02 to 06 are not written"),
       cond(REQUIRED_CONDITIONS[6], "API report identical to the committed baseline (M7.1)", apiSame && change === "none",
