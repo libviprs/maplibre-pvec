@@ -62,7 +62,7 @@
         "symbolLayerDiff": 0,
         "stateDiffs": 0
       },
-      "evidence": "release/evidence/83-wired-layer.json: forced WEBGL_lose_context on a real map, zero new range requests, snapshot within 0.1 percent"
+      "evidence": "release/evidence/83-wired-layer.json: forced WEBGL_lose_context on a WebGL2 canvas through the layer, zero new range requests, snapshot within 0.1 percent; coexistence with MapLibre's own layers on a real map"
     },
     {
       "id": "examples_pass_network_denied",
