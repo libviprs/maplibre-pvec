@@ -9,8 +9,8 @@ I have not tagged or published anything. The package is `private` at `0.0.0`, an
 | conformance suite green on every supported browser row | deferred | 1 of 3 rows supported (chromium 130). Firefox returned no WebGL2 in the container, WebKit has no row | [deferred work](deferred.md), issue 2 and issue 40 |
 | all gates green on the frozen corpus after tuning | deferred | 0 of 6 corpus cases have `.pvec` bytes yet; the baseline run's variance is within its limit | [deferred work](deferred.md), issue 34 and issue 40 |
 | no QUARANTINED fixture in the pass set | deferred | 0 quarantined, but the pass set is empty, so this is not evidence yet | [deferred work](deferred.md), issue 40 |
-| WASM-blocked and non-isolated paths behave as documented | deferred | documented and tested at the loader (`wasm_unavailable`); not through a wired layer | [deferred work](deferred.md), issues 31 and 50 |
-| lifecycle leak and context-loss tests green | deferred | structural leak checks pass; the forced context-loss snapshot needs the wired renderer | [deferred work](deferred.md), issue 50 |
+| WASM-blocked and non-isolated paths behave as documented | met | through the real layer: one `wasm_unavailable` error event, zero range requests, MapLibre's pixels unchanged (0 of 102400 differ), also from the installed tarball. Evidence in `release/evidence/83-wired-layer.json` | [deferred work](deferred.md), issue 83 |
+| lifecycle leak and context-loss tests green | met | forced `WEBGL_lose_context` then restore on a WebGL2 canvas through the layer: zero new range requests, snapshot identical (0 differing pixels), strokes back; with MapLibre's own layers the pixels outside the strokes match (0 differing) and the guard saw no leaked state in any frame. Measured on SwiftShader, with a stand-in evaluator and cursor | [deferred work](deferred.md), issue 83 |
 | examples pass with outbound network denied | deferred | 1 of 6 examples written; `01-minimal` passes against its own 127.0.0.1 server | [deferred work](deferred.md), issue 31 |
 | API report identical to the committed baseline | met | report regenerates with no diff and matches the frozen hash | `etc/maplibre-pvec.api.md` |
 
@@ -42,4 +42,4 @@ I have not tagged or published anything. The package is `private` at `0.0.0`, an
 
 ## What would turn the deferred rows green
 
-A released `libviprs/pvec` WASM artifact and real `.pvec` bytes for the corpus, a Firefox and a WebKit build with WebGL2 in the container, a GPU-backed runner, the wired custom layer with context-loss handling, and examples 02 to 06. Each is written up in [deferred work](deferred.md).
+A released `libviprs/pvec` WASM artifact and real `.pvec` bytes for the corpus, a Firefox and a WebKit build with WebGL2 in the container, a GPU-backed runner, the evaluator's Tier 0 decoder wired into the layer (the layer and its context-loss handling are done), and examples 02 to 06. Each is written up in [deferred work](deferred.md).
