@@ -36,9 +36,9 @@ export const COMPAT = {
     { version: "6.16.0", renderArgs: "object with defaultProjectionData.mainMatrix (plus getProjectionData)", context: "WebGL2RenderingContext", verified: "onAdd context, matrix convention within 1 device px, state left set" },
   ] as readonly MapLibreRow[],
   browsers: [
-    { engine: "chromium", status: "supported", tested: "130.0.6723.31", note: "WebGL2 through ANGLE on SwiftShader in CI; module workers; no COOP/COEP needed" },
-    { engine: "firefox", status: "pending", tested: "none", note: "the CI container's Firefox returned no WebGL2 context, so no minimum is claimed until the M2.8 grid has a Firefox row" },
-    { engine: "webkit", status: "pending", tested: "none", note: "no minimum is claimed until the M2.8 grid has a WebKit row" },
+    { engine: "chromium", status: "supported", tested: "111.0.5563.19", note: "lowest passing build, from Playwright 1.31; 120.0.6099.28 and the pinned 130.0.6723.31 also pass; WebGL2 through ANGLE on SwiftShader; module workers; no COOP/COEP needed" },
+    { engine: "firefox", status: "supported", tested: "131.0", note: "Playwright's pinned build with WebGL2 on Mesa llvmpipe under an X display (xvfb); without a display it returns no WebGL2 context; older builds not run, so 131.0 is the lowest measured" },
+    { engine: "webkit", status: "supported", tested: "18.0", note: "Playwright's pinned build with its software WebGL2 path; older builds not run, so 18.0 is the lowest measured" },
   ] as readonly BrowserRow[],
   browserRequirements: {
     webgl2: "required, no canvas2D fallback",
