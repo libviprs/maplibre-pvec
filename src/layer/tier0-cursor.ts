@@ -8,7 +8,9 @@ import { bindPacked } from "../wasm/packed";
 // The evaluator opens a whole file from memory (its range-callback open waits on pvec's `http` feature), so
 // the artifact is read in ranges and handed over in one piece.
 const CHUNK = 4 << 20;
-const MAX_ENTITIES = 2 ** 31 - 1;
+// The evaluator sizes its buffers from these, so they are bounds a leaf never reaches rather than the largest number.
+const MAX_ENTITIES = 1e7;
+const MAX_SEGMENTS = 5e6;
 // Identity transforms, pixel ratio 1: the screen error and the world error are then the same number, in source units.
 const ASKED_ERROR = 0.01;
 const CHAIN = [1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1e9, ASKED_ERROR];
@@ -83,7 +85,7 @@ export function tier0CursorOver(evaluator: Evaluator, bytes: Uint8Array, window:
       const batch = rt.queryViewport(file, ...w, MAX_ENTITIES);
       if (batch < 0) return;
       held.push(batch);
-      const tess = rt.tessellate(batch, CHAIN, MAX_ENTITIES, "f64");
+      const tess = rt.tessellate(batch, CHAIN, MAX_SEGMENTS, "f64");
       if (tess < 0) return;
       held.push(tess);
       const v = rt.views(tess);
