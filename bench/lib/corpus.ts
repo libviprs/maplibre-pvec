@@ -13,13 +13,23 @@ export interface Case {
   evidenceClass: string;
   entities: Record<string, number>;
   curves: { total: number; byClass: Record<string, number> };
-  pvec: { status: "PENDING"; bytes: null; waitsOn: string };
+  /** PRESENT: pvec emitted the artifact. NOT_EMITTED: pvec refused, `note` is its reason. PENDING: no index yet. */
+  pvec:
+    | { status: "PENDING"; bytes: null; sha256: null; note: string }
+    | { status: "PRESENT"; bytes: number; sha256: string; note: string }
+    | { status: "NOT_EMITTED"; bytes: null; sha256: null; note: string };
   viewport: ViewportScript;
 }
 export interface Corpus {
   revision: string;
   manifestSha256: string;
   cases: Case[];
+}
+
+function pvecOf(c: Registry["fixtures"][number]["canonicalPvec"]): Case["pvec"] {
+  if (c.status === "PRESENT") return { status: "PRESENT", bytes: c.bytes, sha256: c.sha256, note: c.path };
+  if (c.status === "NOT_EMITTED") return { status: "NOT_EMITTED", bytes: null, sha256: null, note: c.reason };
+  return { status: "PENDING", bytes: null, sha256: null, note: c.waitsOn };
 }
 
 export function buildCorpus(reg: Registry): Corpus {
@@ -37,7 +47,7 @@ export function buildCorpus(reg: Registry): Corpus {
         evidenceClass: f.evidenceClass,
         entities,
         curves: { total: Object.values(byClass).reduce((a, b) => a + b, 0), byClass },
-        pvec: { status: "PENDING", bytes: null, waitsOn: f.canonicalPvec.waitsOn },
+        pvec: pvecOf(f.canonicalPvec),
         viewport: viewportScript(f.id),
       };
     });
@@ -75,7 +85,10 @@ export function validateCorpus(corpus: Corpus, reg: Registry): { errors: string[
     if (!sameCounts(want.curves.byClass, c.curves.byClass) || want.curves.total !== c.curves.total) {
       errors.push(`${id}: curve counts differ from the fixture record`);
     }
-    if (c.pvec.bytes !== null) errors.push(`${id}: pvec byte size ${c.pvec.bytes} was invented, the canonical pvec does not exist yet`);
+    const wantPvec = want.pvec;
+    if (c.pvec.status !== wantPvec.status || c.pvec.bytes !== wantPvec.bytes || c.pvec.sha256 !== wantPvec.sha256) {
+      errors.push(`${id}: pvec ${c.pvec.status} ${c.pvec.bytes} differs from what pvec's index pins (${wantPvec.status} ${wantPvec.bytes})`);
+    }
   }
   return { errors, missingClasses: CLASSES.filter((k) => !corpus.cases.some((c) => c.class === k)) };
 }

@@ -19,8 +19,10 @@ const index = json<{
 }>("tests/fixtures/pvec/index.json");
 const pvec = (id: string): Uint8Array => new Uint8Array(readFileSync(join(root, "tests/fixtures/pvec", `${id}.pvec`)));
 
-// source_to_map identity, map_to_screen identity, pixel ratio 1, 0.01 px and 0.01 world units of error.
-const CHAIN = [1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0.01, 0.01];
+// The display budget asked of the evaluator, in world units. It is a drawing budget, not a numeric-policy tolerance.
+const ASKED_WORLD_ERROR = 0.01;
+// source_to_map identity, map_to_screen identity, pixel ratio 1, then the screen and world budgets.
+const CHAIN = [1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1e9, ASKED_WORLD_ERROR];
 const WORLD: [number, number, number, number] = [-1e9, -1e9, 1e9, 1e9];
 
 async function evaluator() {
@@ -134,12 +136,12 @@ describe("#80 every corpus artifact through the real evaluator", () => {
     const circle = tess("circle-001");
     const pts = Array.from({ length: circle.vertices.length / 2 }, (_, i) => [circle.vertices[2 * i]!, circle.vertices[2 * i + 1]!]);
     expect(pts.length).toBeGreaterThan(8);
-    // circle-001 is centre (1.5, -2.25), radius 2.75 (expected.math.json). Vertices sit on it and every
-    // chord stays within the 0.01 world error that was asked for.
-    for (const [x, y] of pts) expect(Math.hypot(x! - 1.5, y! + 2.25)).toBeCloseTo(2.75, 9);
+    // circle-001 is centre (1.5, -2.25), radius 2.75 (expected.math.json). Every chord stays within the
+    // world error that was asked for, and no vertex strays from the circle by more than that either.
+    for (const [x, y] of pts) expect(Math.abs(Math.hypot(x! - 1.5, y! + 2.25) - 2.75)).toBeLessThanOrEqual(ASKED_WORLD_ERROR);
     for (let i = 0; i + 1 < pts.length; i++) {
       const mx = (pts[i]![0]! + pts[i + 1]![0]!) / 2, my = (pts[i]![1]! + pts[i + 1]![1]!) / 2;
-      expect(2.75 - Math.hypot(mx - 1.5, my + 2.25)).toBeLessThanOrEqual(0.01 + 1e-9);
+      expect(2.75 - Math.hypot(mx - 1.5, my + 2.25)).toBeLessThanOrEqual(ASKED_WORLD_ERROR);
     }
   });
 

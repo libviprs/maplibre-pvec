@@ -34,7 +34,7 @@ async function lib() {
 
 async function registry(l) {
   const pin = JSON.parse(await readFile(join(root, "tests/fixtures/pin.json"), "utf8"));
-  return l.loadRegistry(l.fsSource(join(root, "tests/fixtures/corpus")), pin);
+  return l.loadRegistry(l.fsSource(join(root, "tests/fixtures/corpus")), pin, await l.loadPvecIndex(join(root, "tests/fixtures/pvec")));
 }
 
 function platform() {
