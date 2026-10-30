@@ -16,9 +16,10 @@
         }
       },
       "pvec": {
-        "status": "PENDING",
-        "bytes": null,
-        "waitsOn": "libviprs/pvec#1 P2.4"
+        "status": "PRESENT",
+        "bytes": 416,
+        "sha256": "e4aef7971f0a9aac81db82fd89e4b17871937958a5b35f2a1e626be561958b96",
+        "note": "pvec/arc-seam-001.pvec"
       },
       "viewport": {
         "start": {
@@ -164,9 +165,10 @@
         }
       },
       "pvec": {
-        "status": "PENDING",
-        "bytes": null,
-        "waitsOn": "libviprs/pvec#1 P2.4"
+        "status": "PRESENT",
+        "bytes": 944,
+        "sha256": "10cc6b8fa7f42f1896750d8d944cc6ce0c6f5473afb4ae7428a4e2c97a309229",
+        "note": "pvec/bezier-d3-001.pvec"
       },
       "viewport": {
         "start": {
@@ -312,9 +314,10 @@
         }
       },
       "pvec": {
-        "status": "PENDING",
-        "bytes": null,
-        "waitsOn": "libviprs/pvec#1 P2.4"
+        "status": "PRESENT",
+        "bytes": 984,
+        "sha256": "a4666c3325a3158b16d8e837d17b69d652c226bd0238898bfd89efcdd4755f83",
+        "note": "pvec/bspline-d3-001.pvec"
       },
       "viewport": {
         "start": {
@@ -460,9 +463,10 @@
         }
       },
       "pvec": {
-        "status": "PENDING",
-        "bytes": null,
-        "waitsOn": "libviprs/pvec#1 P2.4"
+        "status": "PRESENT",
+        "bytes": 1000,
+        "sha256": "99e0ec8d6d7bbef146b7359886a58b480b7f218a22e59191ede41ac5f43e9b81",
+        "note": "pvec/bspline-d5-001.pvec"
       },
       "viewport": {
         "start": {
@@ -609,9 +613,10 @@
         }
       },
       "pvec": {
-        "status": "PENDING",
-        "bytes": null,
-        "waitsOn": "libviprs/pvec#1 P2.4"
+        "status": "PRESENT",
+        "bytes": 472,
+        "sha256": "8f934527426b71ef802e795a23048fbbd7a02443d5b7f0dbb29b2cb47245f041",
+        "note": "pvec/bulge-arc-001.pvec"
       },
       "viewport": {
         "start": {
@@ -758,9 +763,10 @@
         }
       },
       "pvec": {
-        "status": "PENDING",
-        "bytes": null,
-        "waitsOn": "libviprs/pvec#1 P2.4"
+        "status": "PRESENT",
+        "bytes": 488,
+        "sha256": "60b5593984277042619f6d023eea4970224e8b47535463e61306a494479dbeb7",
+        "note": "pvec/bulge-arc-neg-001.pvec"
       },
       "viewport": {
         "start": {
@@ -906,9 +912,10 @@
         }
       },
       "pvec": {
-        "status": "PENDING",
-        "bytes": null,
-        "waitsOn": "libviprs/pvec#1 P2.4"
+        "status": "PRESENT",
+        "bytes": 416,
+        "sha256": "c13d018d3fa6c48a93011a03f1ef70c6f629867a0fb8672d076c038cb8568126",
+        "note": "pvec/circle-001.pvec"
       },
       "viewport": {
         "start": {
@@ -1054,9 +1061,10 @@
         }
       },
       "pvec": {
-        "status": "PENDING",
-        "bytes": null,
-        "waitsOn": "libviprs/pvec#1 P2.4"
+        "status": "PRESENT",
+        "bytes": 976,
+        "sha256": "5b9c046febd3ab91062139cbed95e2735e4dea0679f170127f5fe6b9dfd0917c",
+        "note": "pvec/closed-by-endpoint-001.pvec"
       },
       "viewport": {
         "start": {
@@ -1202,9 +1210,10 @@
         }
       },
       "pvec": {
-        "status": "PENDING",
-        "bytes": null,
-        "waitsOn": "libviprs/pvec#1 P2.4"
+        "status": "PRESENT",
+        "bytes": 1040,
+        "sha256": "04f1579eb4da5247ba205eb5f1561e2ff23348635dfc736ec09da643d2443554",
+        "note": "pvec/closed-periodic-001.pvec"
       },
       "viewport": {
         "start": {
@@ -1350,9 +1359,10 @@
         }
       },
       "pvec": {
-        "status": "PENDING",
-        "bytes": null,
-        "waitsOn": "libviprs/pvec#1 P2.4"
+        "status": "PRESENT",
+        "bytes": 440,
+        "sha256": "2bd423ec3e12983ce9bd3fb2e20dfe06f90e66852ec4f9e8bec3e4e1b25a3190",
+        "note": "pvec/ellipse-001.pvec"
       },
       "viewport": {
         "start": {
@@ -1498,9 +1508,10 @@
         }
       },
       "pvec": {
-        "status": "PENDING",
-        "bytes": null,
-        "waitsOn": "libviprs/pvec#1 P2.4"
+        "status": "PRESENT",
+        "bytes": 464,
+        "sha256": "5e13752994740e6dce4bc8e978210f6c9a89c7761227932a1d5e4ca4f6338a52",
+        "note": "pvec/elliptical-arc-001.pvec"
       },
       "viewport": {
         "start": {
@@ -1644,9 +1655,10 @@
         "byClass": {}
       },
       "pvec": {
-        "status": "PENDING",
-        "bytes": null,
-        "waitsOn": "libviprs/pvec#1 P2.4"
+        "status": "PRESENT",
+        "bytes": 432,
+        "sha256": "83d2666fe916ae5ab7b5d95d02464f305938238e515c79dd35e80ba8f290ac0b",
+        "note": "pvec/large-coords-001.pvec"
       },
       "viewport": {
         "start": {
@@ -1790,9 +1802,10 @@
         "byClass": {}
       },
       "pvec": {
-        "status": "PENDING",
-        "bytes": null,
-        "waitsOn": "libviprs/pvec#1 P2.4"
+        "status": "PRESENT",
+        "bytes": 616,
+        "sha256": "b0bbd3fade3322a4fb3a119114306d0e208a91716e47e92e50fef55f337634e0",
+        "note": "pvec/layer-state-001.pvec"
       },
       "viewport": {
         "start": {
@@ -1936,9 +1949,10 @@
         "byClass": {}
       },
       "pvec": {
-        "status": "PENDING",
-        "bytes": null,
-        "waitsOn": "libviprs/pvec#1 P2.4"
+        "status": "PRESENT",
+        "bytes": 400,
+        "sha256": "67c75f0dc58e45cafa6b6226c91a7f5b99024acfa18107993b037c8ed4977773",
+        "note": "pvec/line-001.pvec"
       },
       "viewport": {
         "start": {
@@ -2082,9 +2096,10 @@
         "byClass": {}
       },
       "pvec": {
-        "status": "PENDING",
-        "bytes": null,
-        "waitsOn": "libviprs/pvec#1 P2.4"
+        "status": "PRESENT",
+        "bytes": 432,
+        "sha256": "c2204532fcbe46fe4e7f89df32b9d0f75bd52940e1ffa093f27d67cf3ec24fe9",
+        "note": "pvec/lwpolyline-closed-001.pvec"
       },
       "viewport": {
         "start": {
@@ -2228,9 +2243,10 @@
         "byClass": {}
       },
       "pvec": {
-        "status": "PENDING",
+        "status": "NOT_EMITTED",
         "bytes": null,
-        "waitsOn": "libviprs/pvec#1 P2.4"
+        "sha256": null,
+        "note": "near-singular-001: the corpus says no curve may be emitted for it"
       },
       "viewport": {
         "start": {
@@ -2374,9 +2390,10 @@
         "byClass": {}
       },
       "pvec": {
-        "status": "PENDING",
+        "status": "NOT_EMITTED",
         "bytes": null,
-        "waitsOn": "libviprs/pvec#1 P2.4"
+        "sha256": null,
+        "note": "nested-blocks-001/nested-blocks-001: missing capability `affine_transform_2d`: the record keeps an instance plus a transform, and the container stores neither (ADR 0017: PVec is curve-only); emitting the world-space result would pass a geometry check and fail the structural one"
       },
       "viewport": {
         "start": {
@@ -2522,9 +2539,10 @@
         }
       },
       "pvec": {
-        "status": "PENDING",
+        "status": "NOT_EMITTED",
         "bytes": null,
-        "waitsOn": "libviprs/pvec#1 P2.4"
+        "sha256": null,
+        "note": "nonuniform-scale-circle-001/nonuniform-scale-circle-001: missing capability `affine_transform_2d`: the record keeps an instance plus a transform, and the container stores neither (ADR 0017: PVec is curve-only); emitting the world-space result would pass a geometry check and fail the structural one"
       },
       "viewport": {
         "start": {
@@ -2670,9 +2688,10 @@
         }
       },
       "pvec": {
-        "status": "PENDING",
+        "status": "NOT_EMITTED",
         "bytes": null,
-        "waitsOn": "libviprs/pvec#1 P2.4"
+        "sha256": null,
+        "note": "nonuniform-scale-rotated-001/nonuniform-scale-rotated-001: missing capability `affine_transform_2d`: the record keeps an instance plus a transform, and the container stores neither (ADR 0017: PVec is curve-only); emitting the world-space result would pass a geometry check and fail the structural one"
       },
       "viewport": {
         "start": {
@@ -2818,9 +2837,10 @@
         }
       },
       "pvec": {
-        "status": "PENDING",
-        "bytes": null,
-        "waitsOn": "libviprs/pvec#1 P2.4"
+        "status": "PRESENT",
+        "bytes": 992,
+        "sha256": "34b4bb5a501a753cbbef2d249638206ec3e5e6a485d6932c762b52aa8ad2d071",
+        "note": "pvec/nonunit-weight-001.pvec"
       },
       "viewport": {
         "start": {
@@ -2966,9 +2986,10 @@
         }
       },
       "pvec": {
-        "status": "PENDING",
-        "bytes": null,
-        "waitsOn": "libviprs/pvec#1 P2.4"
+        "status": "PRESENT",
+        "bytes": 1000,
+        "sha256": "c9e56187efe13bd96b5dc2dc93d3485ea6a8d3de281548698e5a5ca0cafe3192",
+        "note": "pvec/nurbs-d2-offconic-001.pvec"
       },
       "viewport": {
         "start": {
@@ -3114,9 +3135,10 @@
         }
       },
       "pvec": {
-        "status": "PENDING",
-        "bytes": null,
-        "waitsOn": "libviprs/pvec#1 P2.4"
+        "status": "PRESENT",
+        "bytes": 1008,
+        "sha256": "0b40ac91e4c9541e52996909b1a75157be05c6eecb1e696d546008ea0f48f4c7",
+        "note": "pvec/nurbs-d3-001.pvec"
       },
       "viewport": {
         "start": {
@@ -3260,9 +3282,10 @@
         "byClass": {}
       },
       "pvec": {
-        "status": "PENDING",
-        "bytes": null,
-        "waitsOn": "libviprs/pvec#1 P2.4"
+        "status": "PRESENT",
+        "bytes": 424,
+        "sha256": "def6d347e8637bee3fabeba13e6a3a9a795686a84d6a2c17c3b9309dd9a441c5",
+        "note": "pvec/polyline-001.pvec"
       },
       "viewport": {
         "start": {
@@ -3406,9 +3429,10 @@
         "byClass": {}
       },
       "pvec": {
-        "status": "PENDING",
-        "bytes": null,
-        "waitsOn": "libviprs/pvec#1 P2.4"
+        "status": "PRESENT",
+        "bytes": 432,
+        "sha256": "fdcf05e688e784c09b4ef658eecf7c457dccd969cb61c16768873b159a84f073",
+        "note": "pvec/polyline2d-001.pvec"
       },
       "viewport": {
         "start": {
@@ -3554,9 +3578,10 @@
         }
       },
       "pvec": {
-        "status": "PENDING",
+        "status": "NOT_EMITTED",
         "bytes": null,
-        "waitsOn": "libviprs/pvec#1 P2.4"
+        "sha256": null,
+        "note": "reflection-001/reflection-001: missing capability `affine_transform_2d`: the record keeps an instance plus a transform, and the container stores neither (ADR 0017: PVec is curve-only); emitting the world-space result would pass a geometry check and fail the structural one"
       },
       "viewport": {
         "start": {
@@ -3702,9 +3727,10 @@
         }
       },
       "pvec": {
-        "status": "PENDING",
-        "bytes": null,
-        "waitsOn": "libviprs/pvec#1 P2.4"
+        "status": "PRESENT",
+        "bytes": 984,
+        "sha256": "8de83a751d50bae81099ad8b8820056a61feefa21f2babd44a3b2d88c5658209",
+        "note": "pvec/repeated-knot-c0-001.pvec"
       },
       "viewport": {
         "start": {
@@ -3848,9 +3874,10 @@
         "byClass": {}
       },
       "pvec": {
-        "status": "PENDING",
+        "status": "NOT_EMITTED",
         "bytes": null,
-        "waitsOn": "libviprs/pvec#1 P2.4"
+        "sha256": null,
+        "note": "rotation-irrational-001/rotation-irrational-001: missing capability `affine_transform_2d`: the record keeps an instance plus a transform, and the container stores neither (ADR 0017: PVec is curve-only); emitting the world-space result would pass a geometry check and fail the structural one"
       },
       "viewport": {
         "start": {
@@ -3996,9 +4023,10 @@
         }
       },
       "pvec": {
-        "status": "PENDING",
-        "bytes": null,
-        "waitsOn": "libviprs/pvec#1 P2.4"
+        "status": "PRESENT",
+        "bytes": 432,
+        "sha256": "0efe3ff1828571cf314e157d3451f140e610627ec4c49b17f2e83347b3bd63e3",
+        "note": "pvec/tiny-radius-001.pvec"
       },
       "viewport": {
         "start": {
@@ -4142,9 +4170,10 @@
         "byClass": {}
       },
       "pvec": {
-        "status": "PENDING",
+        "status": "NOT_EMITTED",
         "bytes": null,
-        "waitsOn": "libviprs/pvec#1 P2.4"
+        "sha256": null,
+        "note": "translation-001/translation-001: missing capability `affine_transform_2d`: the record keeps an instance plus a transform, and the container stores neither (ADR 0017: PVec is curve-only); emitting the world-space result would pass a geometry check and fail the structural one"
       },
       "viewport": {
         "start": {
@@ -4290,9 +4319,10 @@
         }
       },
       "pvec": {
-        "status": "PENDING",
+        "status": "NOT_EMITTED",
         "bytes": null,
-        "waitsOn": "libviprs/pvec#1 P2.4"
+        "sha256": null,
+        "note": "uniform-scale-001/uniform-scale-001: missing capability `affine_transform_2d`: the record keeps an instance plus a transform, and the container stores neither (ADR 0017: PVec is curve-only); emitting the world-space result would pass a geometry check and fail the structural one"
       },
       "viewport": {
         "start": {

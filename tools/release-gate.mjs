@@ -84,7 +84,9 @@ export function buildGate(root = root0) {
   // A row only counts when it is supported and the grid evidence has a fully passing run for its engine.
   const supported = rows.filter((b) => b.status === "supported" && gridGreen && grid.runs.some((r) => r.kind === "grid" && r.engine === b.engine && r.version === b.tested)).length;
   const pending = corpus.cases.filter((c) => c.pvec.status === "PENDING").length;
-  const quarantined = corpus.cases.filter((c) => /QUARANTINED/.test(c.evidenceClass)).length;
+  const present = corpus.cases.filter((c) => c.pvec.status === "PRESENT");
+  const notEmitted = corpus.cases.filter((c) => c.pvec.status === "NOT_EMITTED").length;
+  const inPassSet = corpus.cases.filter((c) => c.pvec.status === "PRESENT" && /QUARANTINED/.test(c.evidenceClass)).length;
   const exampleDirs = readdirSync(path.join(root, "examples")).filter((d) => /^\d\d-/.test(d)).length;
   const live = buildApiReport(root).text;
   const change = classifyApiChange(freeze.api.symbols, apiSymbols(live));
@@ -100,10 +102,10 @@ export function buildGate(root = root0) {
     conditions: [
       cond(REQUIRED_CONDITIONS[0], "conformance suite green on every supported browser row (M2.8 / M7.7)", supported === rows.length,
         { supportedRows: supported, rows: rows.length }, "compatibility.json browsers against release/browser-grid.json (tools/run-grid.sh): every row supported and every grid run passed"),
-      cond(REQUIRED_CONDITIONS[1], "all gates green on the frozen corpus after tuning (M8.2 - M8.5, M8.6)", pending === 0 && latest.variance.ok,
-        { casesWithPvecBytes: corpus.cases.length - pending, cases: corpus.cases.length, varianceOk: latest.variance.ok }, "bench/corpus/corpus.json pvec.status, latest bench/results file"),
-      cond(REQUIRED_CONDITIONS[2], "no QUARANTINED fixture in the pass set (EPIC O classes)", quarantined === 0 && pending === 0,
-        { quarantined, passSetCases: corpus.cases.length - pending }, "the pass set is empty until the corpus has real .pvec bytes, so the absence is not yet evidence"),
+      cond(REQUIRED_CONDITIONS[1], "all gates green on the frozen corpus after tuning (M8.2 - M8.5, M8.6)", present.length === corpus.cases.length && latest.variance.ok,
+        { casesWithPvecBytes: present.length, notEmittedByPvec: notEmitted, cases: corpus.cases.length, varianceOk: latest.variance.ok }, "bench/corpus/corpus.json pvec.status, latest bench/results file"),
+      cond(REQUIRED_CONDITIONS[2], "no QUARANTINED fixture in the pass set (EPIC O classes)", inPassSet === 0 && present.length > 0 && pending === 0,
+        { quarantined: inPassSet, passSetCases: present.length }, "the pass set is the corpus cases with real .pvec bytes from pvec's generator; none of them is QUARANTINED"),
       cond(REQUIRED_CONDITIONS[3], "WASM-blocked and non-isolated paths behave as documented (M7.6)", layer.wasmOk,
         { documented: existsSync(path.join(root, "docs/wasm-worker-deployment.md")), verifiedThroughLayer: layer.wasmOk, ...layer.wasmMeasured },
         layer.wasmOk ? "release/evidence/83-wired-layer.json, measured in Chromium through the wired layer and through the installed tarball" : "no evidence from the wired layer: release/evidence/83-wired-layer.json is missing or outside its limits"),

@@ -1,0 +1,2437 @@
+{
+  "platform": "arm64 Linux container, node v22.23.4",
+  "note": "production PVecSource.bootstrap and queryBounds over real files from pvec's writer; Tier 0 here means the geometry blocks the directory lists for the viewport",
+  "bootstrapMaxRequests": 3,
+  "runs": [
+    {
+      "name": "arc-seam-001",
+      "fileBytes": 416,
+      "rttMs": 0,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 480,
+        "ms": 16.7,
+        "blocks": 1,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:arc-seam-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 38,
+          "serialRoundTrips": 1,
+          "ms": 2.9,
+          "msTotalFromColdStart": 19.6
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 38,
+          "serialRoundTrips": 1,
+          "ms": 2.2,
+          "msTotalFromColdStart": 18.9
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 38,
+          "serialRoundTrips": 1,
+          "ms": 3.3,
+          "msTotalFromColdStart": 20
+        }
+      ]
+    },
+    {
+      "name": "bezier-d3-001",
+      "fileBytes": 944,
+      "rttMs": 0,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 1328,
+        "ms": 7.9,
+        "blocks": 6,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:bezier-d3-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 38,
+          "serialRoundTrips": 1,
+          "ms": 2,
+          "msTotalFromColdStart": 9.9
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 38,
+          "serialRoundTrips": 1,
+          "ms": 4.7,
+          "msTotalFromColdStart": 12.6
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 38,
+          "serialRoundTrips": 1,
+          "ms": 2.6,
+          "msTotalFromColdStart": 10.5
+        }
+      ]
+    },
+    {
+      "name": "bspline-d3-001",
+      "fileBytes": 984,
+      "rttMs": 0,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 1368,
+        "ms": 5.5,
+        "blocks": 6,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:bspline-d3-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 38,
+          "serialRoundTrips": 1,
+          "ms": 2.1,
+          "msTotalFromColdStart": 7.6
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 38,
+          "serialRoundTrips": 1,
+          "ms": 2.1,
+          "msTotalFromColdStart": 7.6
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 38,
+          "serialRoundTrips": 1,
+          "ms": 2.2,
+          "msTotalFromColdStart": 7.7
+        }
+      ]
+    },
+    {
+      "name": "bspline-d5-001",
+      "fileBytes": 1000,
+      "rttMs": 0,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 1384,
+        "ms": 5.7,
+        "blocks": 6,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:bspline-d5-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 38,
+          "serialRoundTrips": 1,
+          "ms": 1.8,
+          "msTotalFromColdStart": 7.5
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 38,
+          "serialRoundTrips": 1,
+          "ms": 1.9,
+          "msTotalFromColdStart": 7.6
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 38,
+          "serialRoundTrips": 1,
+          "ms": 2.2,
+          "msTotalFromColdStart": 7.9
+        }
+      ]
+    },
+    {
+      "name": "bulge-arc-001",
+      "fileBytes": 472,
+      "rttMs": 0,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 536,
+        "ms": 4.9,
+        "blocks": 1,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:bulge-arc-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 90,
+          "serialRoundTrips": 1,
+          "ms": 1.8,
+          "msTotalFromColdStart": 6.7
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 90,
+          "serialRoundTrips": 1,
+          "ms": 2,
+          "msTotalFromColdStart": 6.9
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 90,
+          "serialRoundTrips": 1,
+          "ms": 2,
+          "msTotalFromColdStart": 6.9
+        }
+      ]
+    },
+    {
+      "name": "bulge-arc-neg-001",
+      "fileBytes": 488,
+      "rttMs": 0,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 552,
+        "ms": 4.8,
+        "blocks": 1,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:bulge-arc-neg-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 98,
+          "serialRoundTrips": 1,
+          "ms": 2,
+          "msTotalFromColdStart": 6.8
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 98,
+          "serialRoundTrips": 1,
+          "ms": 2.4,
+          "msTotalFromColdStart": 7.2
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 98,
+          "serialRoundTrips": 1,
+          "ms": 1.6,
+          "msTotalFromColdStart": 6.4
+        }
+      ]
+    },
+    {
+      "name": "circle-001",
+      "fileBytes": 416,
+      "rttMs": 0,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 480,
+        "ms": 4,
+        "blocks": 1,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:circle-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 53,
+          "serialRoundTrips": 1,
+          "ms": 1.5,
+          "msTotalFromColdStart": 5.5
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 53,
+          "serialRoundTrips": 1,
+          "ms": 1.8,
+          "msTotalFromColdStart": 5.8
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 53,
+          "serialRoundTrips": 1,
+          "ms": 1.7,
+          "msTotalFromColdStart": 5.7
+        }
+      ]
+    },
+    {
+      "name": "closed-by-endpoint-001",
+      "fileBytes": 976,
+      "rttMs": 0,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 1360,
+        "ms": 4.5,
+        "blocks": 6,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:closed-by-endpoint-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 39,
+          "serialRoundTrips": 1,
+          "ms": 2,
+          "msTotalFromColdStart": 6.5
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 39,
+          "serialRoundTrips": 1,
+          "ms": 2,
+          "msTotalFromColdStart": 6.5
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 39,
+          "serialRoundTrips": 1,
+          "ms": 2,
+          "msTotalFromColdStart": 6.5
+        }
+      ]
+    },
+    {
+      "name": "closed-periodic-001",
+      "fileBytes": 1040,
+      "rttMs": 0,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 1424,
+        "ms": 4.7,
+        "blocks": 6,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:closed-periodic-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 39,
+          "serialRoundTrips": 1,
+          "ms": 1.9,
+          "msTotalFromColdStart": 6.5
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 39,
+          "serialRoundTrips": 1,
+          "ms": 2,
+          "msTotalFromColdStart": 6.7
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 39,
+          "serialRoundTrips": 1,
+          "ms": 0.5,
+          "msTotalFromColdStart": 5.1
+        }
+      ]
+    },
+    {
+      "name": "ellipse-001",
+      "fileBytes": 440,
+      "rttMs": 0,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 504,
+        "ms": 4.3,
+        "blocks": 1,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:ellipse-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 79,
+          "serialRoundTrips": 1,
+          "ms": 2,
+          "msTotalFromColdStart": 6.3
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 79,
+          "serialRoundTrips": 1,
+          "ms": 2,
+          "msTotalFromColdStart": 6.3
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 79,
+          "serialRoundTrips": 1,
+          "ms": 0.4,
+          "msTotalFromColdStart": 4.7
+        }
+      ]
+    },
+    {
+      "name": "elliptical-arc-001",
+      "fileBytes": 464,
+      "rttMs": 0,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 528,
+        "ms": 4.1,
+        "blocks": 1,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:elliptical-arc-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 74,
+          "serialRoundTrips": 1,
+          "ms": 2,
+          "msTotalFromColdStart": 6.2
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 74,
+          "serialRoundTrips": 1,
+          "ms": 2.1,
+          "msTotalFromColdStart": 6.2
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 74,
+          "serialRoundTrips": 1,
+          "ms": 2.1,
+          "msTotalFromColdStart": 6.2
+        }
+      ]
+    },
+    {
+      "name": "large-coords-001",
+      "fileBytes": 432,
+      "rttMs": 0,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 496,
+        "ms": 4.5,
+        "blocks": 1,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:large-coords-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 61,
+          "serialRoundTrips": 1,
+          "ms": 2.2,
+          "msTotalFromColdStart": 6.8
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 61,
+          "serialRoundTrips": 1,
+          "ms": 1.9,
+          "msTotalFromColdStart": 6.4
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 61,
+          "serialRoundTrips": 1,
+          "ms": 2,
+          "msTotalFromColdStart": 6.6
+        }
+      ]
+    },
+    {
+      "name": "layer-state-001",
+      "fileBytes": 616,
+      "rttMs": 0,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 744,
+        "ms": 3.7,
+        "blocks": 2,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:layer-state-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 56,
+          "serialRoundTrips": 1,
+          "ms": 2,
+          "msTotalFromColdStart": 5.7
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 56,
+          "serialRoundTrips": 1,
+          "ms": 2.1,
+          "msTotalFromColdStart": 5.8
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 56,
+          "serialRoundTrips": 1,
+          "ms": 2,
+          "msTotalFromColdStart": 5.7
+        }
+      ]
+    },
+    {
+      "name": "line-001",
+      "fileBytes": 400,
+      "rttMs": 0,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 464,
+        "ms": 3.7,
+        "blocks": 1,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:line-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 40,
+          "serialRoundTrips": 1,
+          "ms": 2,
+          "msTotalFromColdStart": 5.7
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 40,
+          "serialRoundTrips": 1,
+          "ms": 2,
+          "msTotalFromColdStart": 5.8
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 40,
+          "serialRoundTrips": 1,
+          "ms": 2,
+          "msTotalFromColdStart": 5.8
+        }
+      ]
+    },
+    {
+      "name": "lwpolyline-closed-001",
+      "fileBytes": 432,
+      "rttMs": 0,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 496,
+        "ms": 3.7,
+        "blocks": 1,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:lwpolyline-closed-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 60,
+          "serialRoundTrips": 1,
+          "ms": 1.9,
+          "msTotalFromColdStart": 5.5
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 60,
+          "serialRoundTrips": 1,
+          "ms": 1.7,
+          "msTotalFromColdStart": 5.4
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 60,
+          "serialRoundTrips": 1,
+          "ms": 1.5,
+          "msTotalFromColdStart": 5.1
+        }
+      ]
+    },
+    {
+      "name": "nonunit-weight-001",
+      "fileBytes": 992,
+      "rttMs": 0,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 1376,
+        "ms": 4.1,
+        "blocks": 6,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:nonunit-weight-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 34,
+          "serialRoundTrips": 1,
+          "ms": 1.6,
+          "msTotalFromColdStart": 5.7
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 34,
+          "serialRoundTrips": 1,
+          "ms": 2,
+          "msTotalFromColdStart": 6.1
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 34,
+          "serialRoundTrips": 1,
+          "ms": 1.8,
+          "msTotalFromColdStart": 5.9
+        }
+      ]
+    },
+    {
+      "name": "nurbs-d2-offconic-001",
+      "fileBytes": 1000,
+      "rttMs": 0,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 1384,
+        "ms": 4.1,
+        "blocks": 6,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:nurbs-d2-offconic-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 34,
+          "serialRoundTrips": 1,
+          "ms": 1.9,
+          "msTotalFromColdStart": 6
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 34,
+          "serialRoundTrips": 1,
+          "ms": 1.8,
+          "msTotalFromColdStart": 5.9
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 34,
+          "serialRoundTrips": 1,
+          "ms": 1.6,
+          "msTotalFromColdStart": 5.7
+        }
+      ]
+    },
+    {
+      "name": "nurbs-d3-001",
+      "fileBytes": 1008,
+      "rttMs": 0,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 1392,
+        "ms": 4.7,
+        "blocks": 6,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:nurbs-d3-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 34,
+          "serialRoundTrips": 1,
+          "ms": 2,
+          "msTotalFromColdStart": 6.7
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 34,
+          "serialRoundTrips": 1,
+          "ms": 2,
+          "msTotalFromColdStart": 6.7
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 34,
+          "serialRoundTrips": 1,
+          "ms": 1.9,
+          "msTotalFromColdStart": 6.7
+        }
+      ]
+    },
+    {
+      "name": "polyline-001",
+      "fileBytes": 424,
+      "rttMs": 0,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 488,
+        "ms": 4,
+        "blocks": 1,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:polyline-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 62,
+          "serialRoundTrips": 1,
+          "ms": 2,
+          "msTotalFromColdStart": 6
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 62,
+          "serialRoundTrips": 1,
+          "ms": 1.9,
+          "msTotalFromColdStart": 5.9
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 62,
+          "serialRoundTrips": 1,
+          "ms": 1.9,
+          "msTotalFromColdStart": 5.9
+        }
+      ]
+    },
+    {
+      "name": "polyline2d-001",
+      "fileBytes": 432,
+      "rttMs": 0,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 496,
+        "ms": 4,
+        "blocks": 1,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:polyline2d-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 66,
+          "serialRoundTrips": 1,
+          "ms": 2,
+          "msTotalFromColdStart": 6.1
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 66,
+          "serialRoundTrips": 1,
+          "ms": 1.9,
+          "msTotalFromColdStart": 6
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 66,
+          "serialRoundTrips": 1,
+          "ms": 1.9,
+          "msTotalFromColdStart": 6
+        }
+      ]
+    },
+    {
+      "name": "repeated-knot-c0-001",
+      "fileBytes": 984,
+      "rttMs": 0,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 1368,
+        "ms": 2.4,
+        "blocks": 6,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:repeated-knot-c0-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 38,
+          "serialRoundTrips": 1,
+          "ms": 1.7,
+          "msTotalFromColdStart": 4.1
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 38,
+          "serialRoundTrips": 1,
+          "ms": 1.9,
+          "msTotalFromColdStart": 4.4
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 38,
+          "serialRoundTrips": 1,
+          "ms": 1.9,
+          "msTotalFromColdStart": 4.3
+        }
+      ]
+    },
+    {
+      "name": "tiny-radius-001",
+      "fileBytes": 432,
+      "rttMs": 0,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 496,
+        "ms": 3.8,
+        "blocks": 1,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:tiny-radius-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 60,
+          "serialRoundTrips": 1,
+          "ms": 2,
+          "msTotalFromColdStart": 5.8
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 60,
+          "serialRoundTrips": 1,
+          "ms": 2,
+          "msTotalFromColdStart": 5.8
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 60,
+          "serialRoundTrips": 1,
+          "ms": 1.9,
+          "msTotalFromColdStart": 5.7
+        }
+      ]
+    },
+    {
+      "name": "architectural-1e5",
+      "fileBytes": 1810416,
+      "rttMs": 0,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 5568,
+        "ms": 4.1,
+        "blocks": 23,
+        "spatialDirectory": false,
+        "producer": "pvec-bench"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 17,
+          "ranges": 14,
+          "requests": 14,
+          "bytes": 1747678,
+          "serialRoundTrips": 1,
+          "ms": 16.9,
+          "msTotalFromColdStart": 21
+        },
+        {
+          "preset": "quarter",
+          "chunks": 13,
+          "ranges": 11,
+          "requests": 11,
+          "bytes": 1733435,
+          "serialRoundTrips": 1,
+          "ms": 9.9,
+          "msTotalFromColdStart": 14
+        },
+        {
+          "preset": "small",
+          "chunks": 13,
+          "ranges": 11,
+          "requests": 11,
+          "bytes": 1733435,
+          "serialRoundTrips": 1,
+          "ms": 9.9,
+          "msTotalFromColdStart": 14.1
+        }
+      ]
+    },
+    {
+      "name": "architectural-1e6",
+      "fileBytes": 17824896,
+      "rttMs": 0,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 14784,
+        "ms": 5.2,
+        "blocks": 167,
+        "spatialDirectory": false,
+        "producer": "pvec-bench"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 131,
+          "ranges": 115,
+          "requests": 115,
+          "bytes": 17197844,
+          "serialRoundTrips": 1,
+          "ms": 95.5,
+          "msTotalFromColdStart": 100.6
+        },
+        {
+          "preset": "quarter",
+          "chunks": 51,
+          "ranges": 48,
+          "requests": 48,
+          "bytes": 6786219,
+          "serialRoundTrips": 1,
+          "ms": 26.6,
+          "msTotalFromColdStart": 31.8
+        },
+        {
+          "preset": "small",
+          "chunks": 26,
+          "ranges": 26,
+          "requests": 26,
+          "bytes": 3371198,
+          "serialRoundTrips": 1,
+          "ms": 11,
+          "msTotalFromColdStart": 16.1
+        }
+      ]
+    },
+    {
+      "name": "mep-1e5",
+      "fileBytes": 2370104,
+      "rttMs": 0,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 6080,
+        "ms": 10,
+        "blocks": 31,
+        "spatialDirectory": false,
+        "producer": "pvec-bench"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 15,
+          "ranges": 12,
+          "requests": 12,
+          "bytes": 2084765,
+          "serialRoundTrips": 1,
+          "ms": 12.6,
+          "msTotalFromColdStart": 22.6
+        },
+        {
+          "preset": "quarter",
+          "chunks": 14,
+          "ranges": 12,
+          "requests": 12,
+          "bytes": 2071645,
+          "serialRoundTrips": 1,
+          "ms": 8.9,
+          "msTotalFromColdStart": 18.9
+        },
+        {
+          "preset": "small",
+          "chunks": 13,
+          "ranges": 11,
+          "requests": 11,
+          "bytes": 2059805,
+          "serialRoundTrips": 1,
+          "ms": 6,
+          "msTotalFromColdStart": 16
+        }
+      ]
+    },
+    {
+      "name": "pathological-1e3",
+      "fileBytes": 757488,
+      "rttMs": 0,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 6464,
+        "ms": 5.1,
+        "blocks": 37,
+        "spatialDirectory": false,
+        "producer": "pvec-bench"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 10,
+          "ranges": 10,
+          "requests": 10,
+          "bytes": 17857,
+          "serialRoundTrips": 1,
+          "ms": 5,
+          "msTotalFromColdStart": 10.1
+        },
+        {
+          "preset": "quarter",
+          "chunks": 10,
+          "ranges": 10,
+          "requests": 10,
+          "bytes": 17857,
+          "serialRoundTrips": 1,
+          "ms": 4.6,
+          "msTotalFromColdStart": 9.7
+        },
+        {
+          "preset": "small",
+          "chunks": 10,
+          "ranges": 10,
+          "requests": 10,
+          "bytes": 17857,
+          "serialRoundTrips": 1,
+          "ms": 4,
+          "msTotalFromColdStart": 9.1
+        }
+      ]
+    },
+    {
+      "name": "spline-heavy-1e5",
+      "fileBytes": 12341936,
+      "rttMs": 0,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 42688,
+        "ms": 5.4,
+        "blocks": 603,
+        "spatialDirectory": false,
+        "producer": "pvec-bench"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 107,
+          "ranges": 106,
+          "requests": 106,
+          "bytes": 1641677,
+          "serialRoundTrips": 1,
+          "ms": 42.3,
+          "msTotalFromColdStart": 47.7
+        },
+        {
+          "preset": "quarter",
+          "chunks": 35,
+          "ranges": 34,
+          "requests": 34,
+          "bytes": 1091556,
+          "serialRoundTrips": 1,
+          "ms": 11.3,
+          "msTotalFromColdStart": 16.7
+        },
+        {
+          "preset": "small",
+          "chunks": 15,
+          "ranges": 14,
+          "requests": 14,
+          "bytes": 939400,
+          "serialRoundTrips": 1,
+          "ms": 5.9,
+          "msTotalFromColdStart": 11.3
+        }
+      ]
+    },
+    {
+      "name": "arc-seam-001",
+      "fileBytes": 416,
+      "rttMs": 100,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 480,
+        "ms": 220.6,
+        "blocks": 1,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:arc-seam-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 38,
+          "serialRoundTrips": 1,
+          "ms": 113.1,
+          "msTotalFromColdStart": 333.6
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 38,
+          "serialRoundTrips": 1,
+          "ms": 107.1,
+          "msTotalFromColdStart": 327.6
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 38,
+          "serialRoundTrips": 1,
+          "ms": 110.8,
+          "msTotalFromColdStart": 331.4
+        }
+      ]
+    },
+    {
+      "name": "bezier-d3-001",
+      "fileBytes": 944,
+      "rttMs": 100,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 1328,
+        "ms": 223,
+        "blocks": 6,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:bezier-d3-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 38,
+          "serialRoundTrips": 1,
+          "ms": 103.2,
+          "msTotalFromColdStart": 326.2
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 38,
+          "serialRoundTrips": 1,
+          "ms": 108.6,
+          "msTotalFromColdStart": 331.6
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 38,
+          "serialRoundTrips": 1,
+          "ms": 106.9,
+          "msTotalFromColdStart": 329.9
+        }
+      ]
+    },
+    {
+      "name": "bspline-d3-001",
+      "fileBytes": 984,
+      "rttMs": 100,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 1368,
+        "ms": 214.4,
+        "blocks": 6,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:bspline-d3-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 38,
+          "serialRoundTrips": 1,
+          "ms": 104.8,
+          "msTotalFromColdStart": 319.2
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 38,
+          "serialRoundTrips": 1,
+          "ms": 106,
+          "msTotalFromColdStart": 320.4
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 38,
+          "serialRoundTrips": 1,
+          "ms": 105.5,
+          "msTotalFromColdStart": 319.8
+        }
+      ]
+    },
+    {
+      "name": "bspline-d5-001",
+      "fileBytes": 1000,
+      "rttMs": 100,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 1384,
+        "ms": 217.1,
+        "blocks": 6,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:bspline-d5-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 38,
+          "serialRoundTrips": 1,
+          "ms": 104.4,
+          "msTotalFromColdStart": 321.5
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 38,
+          "serialRoundTrips": 1,
+          "ms": 110.8,
+          "msTotalFromColdStart": 327.9
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 38,
+          "serialRoundTrips": 1,
+          "ms": 103.9,
+          "msTotalFromColdStart": 321
+        }
+      ]
+    },
+    {
+      "name": "bulge-arc-001",
+      "fileBytes": 472,
+      "rttMs": 100,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 536,
+        "ms": 223,
+        "blocks": 1,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:bulge-arc-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 90,
+          "serialRoundTrips": 1,
+          "ms": 103.3,
+          "msTotalFromColdStart": 326.3
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 90,
+          "serialRoundTrips": 1,
+          "ms": 112.7,
+          "msTotalFromColdStart": 335.7
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 90,
+          "serialRoundTrips": 1,
+          "ms": 106.2,
+          "msTotalFromColdStart": 329.2
+        }
+      ]
+    },
+    {
+      "name": "bulge-arc-neg-001",
+      "fileBytes": 488,
+      "rttMs": 100,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 552,
+        "ms": 222.9,
+        "blocks": 1,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:bulge-arc-neg-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 98,
+          "serialRoundTrips": 1,
+          "ms": 107.3,
+          "msTotalFromColdStart": 330.2
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 98,
+          "serialRoundTrips": 1,
+          "ms": 104.6,
+          "msTotalFromColdStart": 327.6
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 98,
+          "serialRoundTrips": 1,
+          "ms": 102.1,
+          "msTotalFromColdStart": 325.1
+        }
+      ]
+    },
+    {
+      "name": "circle-001",
+      "fileBytes": 416,
+      "rttMs": 100,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 480,
+        "ms": 220.5,
+        "blocks": 1,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:circle-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 53,
+          "serialRoundTrips": 1,
+          "ms": 108.6,
+          "msTotalFromColdStart": 329.1
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 53,
+          "serialRoundTrips": 1,
+          "ms": 106.1,
+          "msTotalFromColdStart": 326.6
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 53,
+          "serialRoundTrips": 1,
+          "ms": 107.9,
+          "msTotalFromColdStart": 328.4
+        }
+      ]
+    },
+    {
+      "name": "closed-by-endpoint-001",
+      "fileBytes": 976,
+      "rttMs": 100,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 1360,
+        "ms": 221.2,
+        "blocks": 6,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:closed-by-endpoint-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 39,
+          "serialRoundTrips": 1,
+          "ms": 104,
+          "msTotalFromColdStart": 325.2
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 39,
+          "serialRoundTrips": 1,
+          "ms": 110.3,
+          "msTotalFromColdStart": 331.5
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 39,
+          "serialRoundTrips": 1,
+          "ms": 105.4,
+          "msTotalFromColdStart": 326.7
+        }
+      ]
+    },
+    {
+      "name": "closed-periodic-001",
+      "fileBytes": 1040,
+      "rttMs": 100,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 1424,
+        "ms": 222.7,
+        "blocks": 6,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:closed-periodic-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 39,
+          "serialRoundTrips": 1,
+          "ms": 104.6,
+          "msTotalFromColdStart": 327.3
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 39,
+          "serialRoundTrips": 1,
+          "ms": 112.3,
+          "msTotalFromColdStart": 335
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 39,
+          "serialRoundTrips": 1,
+          "ms": 108.4,
+          "msTotalFromColdStart": 331.1
+        }
+      ]
+    },
+    {
+      "name": "ellipse-001",
+      "fileBytes": 440,
+      "rttMs": 100,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 504,
+        "ms": 220.2,
+        "blocks": 1,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:ellipse-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 79,
+          "serialRoundTrips": 1,
+          "ms": 114.6,
+          "msTotalFromColdStart": 334.8
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 79,
+          "serialRoundTrips": 1,
+          "ms": 115.2,
+          "msTotalFromColdStart": 335.4
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 79,
+          "serialRoundTrips": 1,
+          "ms": 110.2,
+          "msTotalFromColdStart": 330.5
+        }
+      ]
+    },
+    {
+      "name": "elliptical-arc-001",
+      "fileBytes": 464,
+      "rttMs": 100,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 528,
+        "ms": 223.4,
+        "blocks": 1,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:elliptical-arc-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 74,
+          "serialRoundTrips": 1,
+          "ms": 103.9,
+          "msTotalFromColdStart": 327.3
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 74,
+          "serialRoundTrips": 1,
+          "ms": 106.5,
+          "msTotalFromColdStart": 329.9
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 74,
+          "serialRoundTrips": 1,
+          "ms": 105.8,
+          "msTotalFromColdStart": 329.3
+        }
+      ]
+    },
+    {
+      "name": "large-coords-001",
+      "fileBytes": 432,
+      "rttMs": 100,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 496,
+        "ms": 227.3,
+        "blocks": 1,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:large-coords-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 61,
+          "serialRoundTrips": 1,
+          "ms": 105.4,
+          "msTotalFromColdStart": 332.7
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 61,
+          "serialRoundTrips": 1,
+          "ms": 107.1,
+          "msTotalFromColdStart": 334.5
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 61,
+          "serialRoundTrips": 1,
+          "ms": 107.1,
+          "msTotalFromColdStart": 334.4
+        }
+      ]
+    },
+    {
+      "name": "layer-state-001",
+      "fileBytes": 616,
+      "rttMs": 100,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 744,
+        "ms": 223.4,
+        "blocks": 2,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:layer-state-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 56,
+          "serialRoundTrips": 1,
+          "ms": 106.6,
+          "msTotalFromColdStart": 330
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 56,
+          "serialRoundTrips": 1,
+          "ms": 105.9,
+          "msTotalFromColdStart": 329.3
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 56,
+          "serialRoundTrips": 1,
+          "ms": 103.8,
+          "msTotalFromColdStart": 327.2
+        }
+      ]
+    },
+    {
+      "name": "line-001",
+      "fileBytes": 400,
+      "rttMs": 100,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 464,
+        "ms": 221.2,
+        "blocks": 1,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:line-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 40,
+          "serialRoundTrips": 1,
+          "ms": 107.8,
+          "msTotalFromColdStart": 329
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 40,
+          "serialRoundTrips": 1,
+          "ms": 104.1,
+          "msTotalFromColdStart": 325.3
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 40,
+          "serialRoundTrips": 1,
+          "ms": 105,
+          "msTotalFromColdStart": 326.2
+        }
+      ]
+    },
+    {
+      "name": "lwpolyline-closed-001",
+      "fileBytes": 432,
+      "rttMs": 100,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 496,
+        "ms": 222.6,
+        "blocks": 1,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:lwpolyline-closed-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 60,
+          "serialRoundTrips": 1,
+          "ms": 105,
+          "msTotalFromColdStart": 327.6
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 60,
+          "serialRoundTrips": 1,
+          "ms": 105.3,
+          "msTotalFromColdStart": 327.8
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 60,
+          "serialRoundTrips": 1,
+          "ms": 108,
+          "msTotalFromColdStart": 330.6
+        }
+      ]
+    },
+    {
+      "name": "nonunit-weight-001",
+      "fileBytes": 992,
+      "rttMs": 100,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 1376,
+        "ms": 220.5,
+        "blocks": 6,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:nonunit-weight-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 34,
+          "serialRoundTrips": 1,
+          "ms": 112.4,
+          "msTotalFromColdStart": 332.9
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 34,
+          "serialRoundTrips": 1,
+          "ms": 104.3,
+          "msTotalFromColdStart": 324.8
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 34,
+          "serialRoundTrips": 1,
+          "ms": 115.5,
+          "msTotalFromColdStart": 336
+        }
+      ]
+    },
+    {
+      "name": "nurbs-d2-offconic-001",
+      "fileBytes": 1000,
+      "rttMs": 100,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 1384,
+        "ms": 221.8,
+        "blocks": 6,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:nurbs-d2-offconic-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 34,
+          "serialRoundTrips": 1,
+          "ms": 110.6,
+          "msTotalFromColdStart": 332.4
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 34,
+          "serialRoundTrips": 1,
+          "ms": 103.4,
+          "msTotalFromColdStart": 325.2
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 34,
+          "serialRoundTrips": 1,
+          "ms": 112.4,
+          "msTotalFromColdStart": 334.2
+        }
+      ]
+    },
+    {
+      "name": "nurbs-d3-001",
+      "fileBytes": 1008,
+      "rttMs": 100,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 1392,
+        "ms": 221.5,
+        "blocks": 6,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:nurbs-d3-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 34,
+          "serialRoundTrips": 1,
+          "ms": 106.1,
+          "msTotalFromColdStart": 327.7
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 34,
+          "serialRoundTrips": 1,
+          "ms": 111.2,
+          "msTotalFromColdStart": 332.7
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 34,
+          "serialRoundTrips": 1,
+          "ms": 107,
+          "msTotalFromColdStart": 328.5
+        }
+      ]
+    },
+    {
+      "name": "polyline-001",
+      "fileBytes": 424,
+      "rttMs": 100,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 488,
+        "ms": 219.3,
+        "blocks": 1,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:polyline-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 62,
+          "serialRoundTrips": 1,
+          "ms": 103.2,
+          "msTotalFromColdStart": 322.6
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 62,
+          "serialRoundTrips": 1,
+          "ms": 112.6,
+          "msTotalFromColdStart": 332
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 62,
+          "serialRoundTrips": 1,
+          "ms": 104.5,
+          "msTotalFromColdStart": 323.9
+        }
+      ]
+    },
+    {
+      "name": "polyline2d-001",
+      "fileBytes": 432,
+      "rttMs": 100,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 496,
+        "ms": 222.3,
+        "blocks": 1,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:polyline2d-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 66,
+          "serialRoundTrips": 1,
+          "ms": 105.9,
+          "msTotalFromColdStart": 328.1
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 66,
+          "serialRoundTrips": 1,
+          "ms": 112.7,
+          "msTotalFromColdStart": 334.9
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 66,
+          "serialRoundTrips": 1,
+          "ms": 104.8,
+          "msTotalFromColdStart": 327.1
+        }
+      ]
+    },
+    {
+      "name": "repeated-knot-c0-001",
+      "fileBytes": 984,
+      "rttMs": 100,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 1368,
+        "ms": 219.5,
+        "blocks": 6,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:repeated-knot-c0-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 38,
+          "serialRoundTrips": 1,
+          "ms": 107.3,
+          "msTotalFromColdStart": 326.8
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 38,
+          "serialRoundTrips": 1,
+          "ms": 104.5,
+          "msTotalFromColdStart": 324
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 38,
+          "serialRoundTrips": 1,
+          "ms": 104.6,
+          "msTotalFromColdStart": 324.1
+        }
+      ]
+    },
+    {
+      "name": "tiny-radius-001",
+      "fileBytes": 432,
+      "rttMs": 100,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 496,
+        "ms": 218.1,
+        "blocks": 1,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:tiny-radius-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 60,
+          "serialRoundTrips": 1,
+          "ms": 103.9,
+          "msTotalFromColdStart": 321.9
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 60,
+          "serialRoundTrips": 1,
+          "ms": 106.6,
+          "msTotalFromColdStart": 324.6
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 60,
+          "serialRoundTrips": 1,
+          "ms": 110.2,
+          "msTotalFromColdStart": 328.3
+        }
+      ]
+    },
+    {
+      "name": "architectural-1e5",
+      "fileBytes": 1810416,
+      "rttMs": 100,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 5568,
+        "ms": 228.1,
+        "blocks": 23,
+        "spatialDirectory": false,
+        "producer": "pvec-bench"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 17,
+          "ranges": 14,
+          "requests": 14,
+          "bytes": 1747678,
+          "serialRoundTrips": 1,
+          "ms": 144.9,
+          "msTotalFromColdStart": 373
+        },
+        {
+          "preset": "quarter",
+          "chunks": 13,
+          "ranges": 11,
+          "requests": 11,
+          "bytes": 1733435,
+          "serialRoundTrips": 1,
+          "ms": 134.9,
+          "msTotalFromColdStart": 363
+        },
+        {
+          "preset": "small",
+          "chunks": 13,
+          "ranges": 11,
+          "requests": 11,
+          "bytes": 1733435,
+          "serialRoundTrips": 1,
+          "ms": 143.2,
+          "msTotalFromColdStart": 371.3
+        }
+      ]
+    },
+    {
+      "name": "architectural-1e6",
+      "fileBytes": 17824896,
+      "rttMs": 100,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 14784,
+        "ms": 225.1,
+        "blocks": 167,
+        "spatialDirectory": false,
+        "producer": "pvec-bench"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 131,
+          "ranges": 115,
+          "requests": 115,
+          "bytes": 17197844,
+          "serialRoundTrips": 1,
+          "ms": 236,
+          "msTotalFromColdStart": 461.1
+        },
+        {
+          "preset": "quarter",
+          "chunks": 51,
+          "ranges": 48,
+          "requests": 48,
+          "bytes": 6786219,
+          "serialRoundTrips": 1,
+          "ms": 132.7,
+          "msTotalFromColdStart": 357.8
+        },
+        {
+          "preset": "small",
+          "chunks": 26,
+          "ranges": 26,
+          "requests": 26,
+          "bytes": 3371198,
+          "serialRoundTrips": 1,
+          "ms": 130.3,
+          "msTotalFromColdStart": 355.4
+        }
+      ]
+    },
+    {
+      "name": "mep-1e5",
+      "fileBytes": 2370104,
+      "rttMs": 100,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 6080,
+        "ms": 229.8,
+        "blocks": 31,
+        "spatialDirectory": false,
+        "producer": "pvec-bench"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 15,
+          "ranges": 12,
+          "requests": 12,
+          "bytes": 2084765,
+          "serialRoundTrips": 1,
+          "ms": 129.8,
+          "msTotalFromColdStart": 359.7
+        },
+        {
+          "preset": "quarter",
+          "chunks": 14,
+          "ranges": 12,
+          "requests": 12,
+          "bytes": 2071645,
+          "serialRoundTrips": 1,
+          "ms": 139.3,
+          "msTotalFromColdStart": 369.2
+        },
+        {
+          "preset": "small",
+          "chunks": 13,
+          "ranges": 11,
+          "requests": 11,
+          "bytes": 2059805,
+          "serialRoundTrips": 1,
+          "ms": 138.9,
+          "msTotalFromColdStart": 368.8
+        }
+      ]
+    },
+    {
+      "name": "pathological-1e3",
+      "fileBytes": 757488,
+      "rttMs": 100,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 6464,
+        "ms": 216.7,
+        "blocks": 37,
+        "spatialDirectory": false,
+        "producer": "pvec-bench"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 10,
+          "ranges": 10,
+          "requests": 10,
+          "bytes": 17857,
+          "serialRoundTrips": 1,
+          "ms": 121.2,
+          "msTotalFromColdStart": 337.9
+        },
+        {
+          "preset": "quarter",
+          "chunks": 10,
+          "ranges": 10,
+          "requests": 10,
+          "bytes": 17857,
+          "serialRoundTrips": 1,
+          "ms": 121.8,
+          "msTotalFromColdStart": 338.5
+        },
+        {
+          "preset": "small",
+          "chunks": 10,
+          "ranges": 10,
+          "requests": 10,
+          "bytes": 17857,
+          "serialRoundTrips": 1,
+          "ms": 119.3,
+          "msTotalFromColdStart": 336
+        }
+      ]
+    },
+    {
+      "name": "spline-heavy-1e5",
+      "fileBytes": 12341936,
+      "rttMs": 100,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 42688,
+        "ms": 224.1,
+        "blocks": 603,
+        "spatialDirectory": false,
+        "producer": "pvec-bench"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 107,
+          "ranges": 106,
+          "requests": 106,
+          "bytes": 1641677,
+          "serialRoundTrips": 1,
+          "ms": 179,
+          "msTotalFromColdStart": 403.1
+        },
+        {
+          "preset": "quarter",
+          "chunks": 35,
+          "ranges": 34,
+          "requests": 34,
+          "bytes": 1091556,
+          "serialRoundTrips": 1,
+          "ms": 133.2,
+          "msTotalFromColdStart": 357.3
+        },
+        {
+          "preset": "small",
+          "chunks": 15,
+          "ranges": 14,
+          "requests": 14,
+          "bytes": 939400,
+          "serialRoundTrips": 1,
+          "ms": 126.9,
+          "msTotalFromColdStart": 351
+        }
+      ]
+    }
+  ]
+}

@@ -30,6 +30,6 @@ The package also exports the asset as `maplibre-pvec/wasm/pvec_eval.wasm`, so a 
 
 ## When the fetch or compile is blocked
 
-`loadEvaluator` rejects with a `PVecError` whose `code` is `wasm_unavailable`. The message says why (CSP, a non-2xx status, a compile error, a module without `pvec_abi_version`). There is no TypeScript geometry fallback: geometry semantics come from the shared evaluator or not at all. When the custom layer exists, `onAdd` surfaces this as a rejection and one `error` event, and MapLibre's own layers keep rendering (see `docs/deferred.md`, issue 31, for what is still missing there).
+`loadEvaluator` rejects with a `PVecError` whose `code` is `wasm_unavailable`. The message says why (CSP, a non-2xx status, a compile error, a module without the packed export set or with an ABI version this package does not drive). There is no TypeScript geometry fallback: geometry semantics come from the shared evaluator or not at all. When the custom layer exists, `onAdd` surfaces this as a rejection and one `error` event, and MapLibre's own layers keep rendering (see `docs/deferred.md`, issue 31, for what is still missing there).
 
 A response with the wrong `Content-Type` is not an error: it falls back to compiling the bytes.

@@ -17,7 +17,8 @@
       "spec": "all gates green on the frozen corpus after tuning (M8.2 - M8.5, M8.6)",
       "status": "deferred",
       "measured": {
-        "casesWithPvecBytes": 0,
+        "casesWithPvecBytes": 22,
+        "notEmittedByPvec": 8,
         "cases": 30,
         "varianceOk": true
       },
@@ -27,13 +28,12 @@
     {
       "id": "no_quarantined_in_pass_set",
       "spec": "no QUARANTINED fixture in the pass set (EPIC O classes)",
-      "status": "deferred",
+      "status": "met",
       "measured": {
         "quarantined": 0,
-        "passSetCases": 0
+        "passSetCases": 22
       },
-      "evidence": "the pass set is empty until the corpus has real .pvec bytes, so the absence is not yet evidence",
-      "deferredIn": "docs/deferred.md#issue-40-v1-freeze-and-documentation"
+      "evidence": "the pass set is the corpus cases with real .pvec bytes from pvec's generator; none of them is QUARANTINED"
     },
     {
       "id": "wasm_blocked_paths_documented",

@@ -19,7 +19,8 @@ await build({
   logLevel: "warning",
   absWorkingDir: root,
 });
-// PVEC_WASM points at the evaluator artifact from libviprs/pvec once it exists. Until then the
-// committed boundary probe is shipped under the same name so the acquisition paths are real.
-const artifact = process.env.PVEC_WASM && existsSync(process.env.PVEC_WASM) ? process.env.PVEC_WASM : join(root, "wasm/probe.wasm");
+// The evaluator is the pvec-wasm build committed under wasm/ (pinned by wasm/pvec.pin.json, rebuilt by
+// tools/pvec-artifacts.sh). PVEC_WASM overrides it to try another build; the loader's export check
+// refuses anything that is not the packed evaluator.
+const artifact = process.env.PVEC_WASM && existsSync(process.env.PVEC_WASM) ? process.env.PVEC_WASM : join(root, "wasm/pvec_eval.wasm");
 copyFileSync(artifact, join(dist, "pvec_eval.wasm"));

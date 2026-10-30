@@ -41,7 +41,7 @@ console.log(JSON.stringify({ root: Object.keys(root).sort(), abi: ev.abiVersion,
 `,
 );
 const used = JSON.parse(run("node", ["use.mjs"], clean).trim());
-if (used.abi !== 0 || used.fetched !== 1 || false) fail("clean install did not behave: " + JSON.stringify(used));
+if (used.abi !== 1 || used.fetched !== 1 || false) fail("clean install did not behave: " + JSON.stringify(used));
 if (!used.root.includes("createPVecLayer")) fail("root entry lacks createPVecLayer");
 
 // Importing for type-only use must not fetch: import only, no loadEvaluator call.

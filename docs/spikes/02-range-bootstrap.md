@@ -63,3 +63,14 @@ Bytes are split by category: header+manifest, directory, Tier 0 payload. RTT is 
 4. Directory layout must keep the root node first and nodes contiguous, so that the whole-directory read is a single range.
 
 Not measured here, and so not decided: merging the first two reads by speculatively fetching header+manifest+directory in one range (it would save one more round trip), CDN behaviour (`M3.8`), and any decode or draw cost.
+
+## Re-run on the real container (#80)
+
+The layout is frozen and `libviprs/pvec` writes it, so I re-ran the request pattern with the production `PVecSource.bootstrap()` and `queryBounds()` over real files, instead of the synthetic container above. Harness `spikes/pvec-real/range.mjs` (`tools/spike-real.sh`), a loopback range origin, no network. Raw numbers: `spikes/pvec-real/range-results-x86_64.json` and `range-results-arm64.json` (arm64 Linux container on Apple silicon, the default platform, node 22), tables in `docs/benchmark-report.md`. Files: the 22 corpus artifacts and `pathological-1e3`, `architectural-1e5`, `mep-1e5`, `spline-heavy-1e5` and `architectural-1e6` from pvec's writer.
+
+- **Bootstrap is 2 requests, under the ceiling of 3, on every file:** the 4 KiB prefix (header and manifest) and the block directory. Directory sizes are small: 64 bytes per block, 23 blocks for `architectural-1e5` (5.6 kB of bootstrap in all), 167 for `architectural-1e6` (14.8 kB), 603 for `spline-heavy-1e5` (42.7 kB). The corpus artifacts fit in the prefix entirely.
+- **Round trips match the synthetic run:** with 100 ms injected latency, bootstrap took about 202 ms (two serial requests) and the viewport ranges one more round trip in parallel, so 303 to 346 ms to a complete set of bytes for every large file. Three serial round trips, the number the synthetic container predicted for a whole-directory read.
+- **None of the files has a spatial directory (kind 3)**, so `queryBounds` works from per-block bounds, and those narrow a viewport weakly. `architectural-1e5`: a 5 percent window still asks for 11 ranges and 1,733,435 of 1,810,416 bytes. `architectural-1e6`: the full extent is 115 ranges and 17.2 MB, a 25 percent window 48 ranges and 6.8 MB, a 5 percent window 26 ranges and 3.4 MB (19 percent of the file). `spline-heavy-1e5` narrows best: 106 ranges and 1.6 MB for the full extent against 14 ranges and 0.9 MB for 5 percent. This is the reason `libviprs/pvec#201` matters, and it is the first thing the synthetic container could not say.
+- **x86_64 and arm64 agree on every request and byte count** (they are the same arithmetic over the same bytes); the times differ by host load and architecture, so I do not compare them.
+
+Provisional thresholds from #18 and ADR 0003 stay PROVISIONAL: the request count and the round trips are measured on the real layout now, and the thresholds themselves are tuned in M8.2 and M8.6.

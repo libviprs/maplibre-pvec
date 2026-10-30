@@ -7,8 +7,8 @@ I have not tagged or published anything. The package is `private` at `0.0.0`, an
 | condition | state | measured | where |
 |---|---|---|---|
 | conformance suite green on every supported browser row | deferred | 3 of 3 rows supported (chromium 111 to 130, firefox 131, webkit 18.0), each across MapLibre 4.7.1, 5.24.0 and 6.16.0, evidence in release/browser-grid.json | [deferred work](deferred.md), issue 2 and issue 40 |
-| all gates green on the frozen corpus after tuning | deferred | 0 of 6 corpus cases have `.pvec` bytes yet; the baseline run's variance is within its limit | [deferred work](deferred.md), issue 34 and issue 40 |
-| no QUARANTINED fixture in the pass set | deferred | 0 quarantined, but the pass set is empty, so this is not evidence yet | [deferred work](deferred.md), issue 40 |
+| all gates green on the frozen corpus after tuning | deferred | 22 of 30 corpus cases have `.pvec` bytes from pvec's generator, 8 are not emitted by pvec; no gate has run on those bytes through the add-on; the baseline run's variance is within its limit | [deferred work](deferred.md), issue 34 and issue 40 |
+| no QUARANTINED fixture in the pass set | met | 0 quarantined among the 22 cases with bytes | `release/v1-gate.json` |
 | WASM-blocked and non-isolated paths behave as documented | met | through the real layer: one `wasm_unavailable` error event, zero range requests, MapLibre's pixels unchanged (0 of 102400 differ), also from the installed tarball. Evidence in `release/evidence/83-wired-layer.json` | [deferred work](deferred.md), issue 83 |
 | lifecycle leak and context-loss tests green | met | forced `WEBGL_lose_context` then restore on a WebGL2 canvas through the layer: zero new range requests, snapshot identical (0 differing pixels), strokes back; with MapLibre's own layers the pixels outside the strokes match (0 differing) and the guard saw no leaked state in any frame. Measured on SwiftShader, with a stand-in evaluator and cursor | [deferred work](deferred.md), issue 83 |
 | examples pass with outbound network denied | deferred | 1 of 6 examples written; `01-minimal` passes against its own 127.0.0.1 server | [deferred work](deferred.md), issue 31 |
@@ -42,4 +42,4 @@ I have not tagged or published anything. The package is `private` at `0.0.0`, an
 
 ## What would turn the deferred rows green
 
-A released `libviprs/pvec` WASM artifact and real `.pvec` bytes for the corpus, an NVIDIA and an arm64 Linux GPU runner, the evaluator's Tier 0 decoder wired into the layer (the layer and its context-loss handling are done), and examples 02 to 06. Each is written up in [deferred work](deferred.md).
+The 8 corpus fixtures pvec does not emit and a released `libviprs/pvec` WASM artifact (the evaluator and 22 sets of bytes are in), an NVIDIA and an arm64 Linux GPU runner, the evaluator wired into the layer in place of the stand-in (the layer and its context-loss handling are done), and examples 02 to 06. Each is written up in [deferred work](deferred.md).
