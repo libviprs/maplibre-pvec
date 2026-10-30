@@ -134,7 +134,8 @@ export class StrokeEngine {
   }
 
   render(): void {
-    const { gl, map } = this;
+    const { gl } = this;
+    const map = this.o.map;
     if (this.lost || !this.groups.length || gl.isContextLost()) return;
     if (typeof map.project !== "function" || typeof map.unproject !== "function") return;
     const view = this.view();
@@ -174,7 +175,8 @@ export class StrokeEngine {
 
   /** Centre of the viewport in mercator, and device px (y up) per mercator unit, from the map's own projection. */
   private view() {
-    const { gl, map } = this;
+    const { gl } = this;
+    const map = this.o.map;
     const cssW = map.getCanvas().clientWidth, cssH = map.getCanvas().clientHeight;
     if (!(cssW > 0 && cssH > 0)) return undefined;
     const c = map.unproject([cssW / 2, cssH / 2]);

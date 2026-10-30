@@ -101,7 +101,7 @@ export class PVecLayer implements CustomLayerInterface {
   private unwatch: (() => void) | undefined;
   private ready: Promise<void> = Promise.resolve();
   private blocked = false;
-  private engine: StrokeEngine | undefined;
+  private strokes: StrokeEngine | undefined;
   private evaluator: Evaluator | undefined;
   private map: MapLibreMap | undefined;
   private addedAt = 0;
@@ -143,11 +143,11 @@ export class PVecLayer implements CustomLayerInterface {
         onLost: () => {
           this.n.losses++;
           this.glRes.forgetAll();
-          this.guard(() => this.engine?.onContextLost(), "context_lost");
+          this.guard(() => this.strokes?.onContextLost(), "context_lost");
           this.guard(() => this.hooks.onContextLost?.(), "context_lost");
         },
         onRestored: () => {
-          this.guard(() => this.engine?.onContextRestored(), "context_restored");
+          this.guard(() => this.strokes?.onContextRestored(), "context_restored");
           this.guard(() => this.hooks.onContextRestored?.(gl), "context_restored");
         },
         repaint: () => this.map?.triggerRepaint?.(),
@@ -167,8 +167,8 @@ export class PVecLayer implements CustomLayerInterface {
       [
         "gl",
         () => {
-          this.engine?.dispose();
-          this.engine = undefined;
+          this.strokes?.dispose();
+          this.strokes = undefined;
           this.glRes.disposeAll(gl);
         },
       ],
@@ -200,7 +200,7 @@ export class PVecLayer implements CustomLayerInterface {
     if (this.phase !== "added" || this.blocked) return;
     this.n.frames++;
     const custom = this.hooks.render;
-    this.guard(() => (custom ? custom(gl, args) : this.engine?.render()), "render");
+    this.guard(() => (custom ? custom(gl, args) : this.strokes?.render()), "render");
   }
 
   /** Resolves when the first bootstrap has finished, whether it worked or not. Never rejects. */
@@ -372,7 +372,7 @@ export class PVecLayer implements CustomLayerInterface {
       });
       const cursor = await deps.openCursor(h, evaluator);
       if (signal.aborted || !cursor || !this.map) return;
-      const engine = (this.engine = new StrokeEngine({
+      const engine = (this.strokes = new StrokeEngine({
         gl: gl as WebGL2RenderingContext,
         map: this.map,
         res: this.glRes,
