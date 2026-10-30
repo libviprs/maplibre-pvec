@@ -7,6 +7,8 @@ import type { GlResources } from "./glresources";
 import type { Evaluator } from "../wasm/loader";
 import type { BlockCursor } from "../decode/tier0";
 import type { PVecHandle } from "../source/bootstrap";
+import type { PVecSource } from "../source/PVecSource";
+import { openTier0Cursor } from "./tier0-cursor";
 
 /** Everything the query API needs beyond the pick context. */
 export interface QueryEngine extends PickContext {
@@ -61,8 +63,7 @@ export type { BytesEvent };
 const engineDefaults: EngineDeps = {
   loadEvaluator: () => loadEvaluator(),
   maplibreVersion: () => (globalThis as { maplibregl?: { getVersion?: () => string } }).maplibregl?.getVersion?.(),
-  // The packed Tier 0 decoder is part of the shared evaluator (libviprs/pvec#1, P7.2). Until it ships there is nothing to drive.
-  openCursor: () => Promise.resolve(null),
+  openCursor: (handle, evaluator, source) => openTier0Cursor(handle, evaluator, source),
 };
 const engineOverrides = new WeakMap<object, Partial<EngineDeps>>();
 /** Replace parts of the engine's dependencies for one layer. Call before `onAdd`. */
@@ -89,7 +90,7 @@ export interface EngineDeps {
   /** The MapLibre version string, or undefined when it cannot be read (the check is then skipped). */
   maplibreVersion(): string | undefined;
   /** A cursor over the Tier 0 blocks, or null when the evaluator offers no decoder to drive. */
-  openCursor(handle: PVecHandle, evaluator: Evaluator): Promise<BlockCursor | null>;
+  openCursor(handle: PVecHandle, evaluator: Evaluator, source: PVecSource): Promise<BlockCursor | null>;
   /** Debug hook: names of GL state the guard found changed after a frame. Turns the guard's debug mode on. */
   onStateDiff?: (names: string[]) => void;
 }

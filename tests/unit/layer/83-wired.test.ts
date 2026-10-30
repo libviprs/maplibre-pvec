@@ -66,7 +66,7 @@ describe("#83 the layer refuses before it touches the network", () => {
   it("a working evaluator and a WebGL2 context emit no error and do bootstrap", async () => {
     const c = countingFetch();
     const layer = createPVecLayer({ id: "a", source: { url: r.url, fetch: c.fetch } });
-    configureEngine(layer, { loadEvaluator: () => Promise.resolve(evaluator) });
+    configureEngine(layer, { loadEvaluator: () => Promise.resolve(evaluator), openCursor: () => Promise.resolve(null) });
     const errors: unknown[] = [];
     layer.on("error", (e) => errors.push(e));
     const { gl } = countingGl();

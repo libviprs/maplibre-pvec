@@ -69,6 +69,32 @@ export function bindPacked(ev: Evaluator) {
         current: () => call("memory_epoch") === epoch,
       };
     },
+    /** The spatial directory of a file: stat 0 is 1 when it has one (P5.1). A negative number is an ABI code. */
+    directoryStat: (file: number, which: number): number => call("directory_stat", file, which),
+    /** Leaves of the directory that touch the window: cell ids, hot entities, Tier 0 flags, stored bytes, boxes. */
+    directoryQuery(file: number, minX: number, minY: number, maxX: number, maxY: number): { handle: number; cells: Uint32Array; entities: Uint32Array; hasTier0: Uint32Array; bytes: Float64Array; boxes: Float64Array } | number {
+      const r = handle(call("directory_query", file, minX, minY, maxX, maxY));
+      if (r < 0) return r;
+      const v = <T extends Float64Array | Uint32Array>(ctor: { new (b: ArrayBufferLike, o: number, n: number): T }, which: number): T => {
+        const len = call("cells_len", r, which);
+        return new ctor(mem().buffer, len === 0 ? 0 : call("cells_ptr", r, which) >>> 0, len);
+      };
+      return { handle: r, cells: v(Uint32Array, 0), entities: v(Uint32Array, 1), hasTier0: v(Uint32Array, 2), bytes: v(Float64Array, 3), boxes: v(Float64Array, 4) };
+    },
+    /** The Tier 0 stream of a window (P5.4): entity ids, codes, declared world error, vertex offsets, vertices. */
+    tier0Viewport(file: number, minX: number, minY: number, maxX: number, maxY: number): number {
+      return handle(call("tier0_viewport", file, minX, minY, maxX, maxY));
+    },
+    /** 0 entries, 1 exact, 2 previews, 3 infeasible, 4 uncovered, 5 leaves read, 6 leaves with no block, 7 advanced bounds meet the window. */
+    tier0Stat: (result: number, which: number): number => call("tier0_stat", result, which),
+    tier0Views(result: number): { ids: Uint32Array; codes: Uint32Array; errors: Float64Array; offsets: Uint32Array; vertices: Float64Array } {
+      const v = <T extends Float64Array | Uint32Array>(ctor: { new (b: ArrayBufferLike, o: number, n: number): T }, which: number): T => {
+        const len = call("tier0_buffer_len", result, which);
+        if (len < 0) throw new Error(`pvec tier0_buffer_len returned ${len}`);
+        return new ctor(mem().buffer, len === 0 ? 0 : call("tier0_buffer_ptr", result, which) >>> 0, len);
+      };
+      return { ids: v(Uint32Array, 0), codes: v(Uint32Array, 1), errors: v(Float64Array, 2), offsets: v(Uint32Array, 3), vertices: v(Float64Array, 4) };
+    },
     failed: (result: number): number => call("tessellation_failed", result),
     conformance: (result: number): number => call("tessellation_conformance", result),
     origin: (result: number): [number, number] => [call("tessellation_origin_x", result), call("tessellation_origin_y", result)],

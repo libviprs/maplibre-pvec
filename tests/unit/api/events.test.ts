@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { createPVecLayer, type PVecEventName } from "../../../src/index";
 import { EVENT_NAMES } from "../../../src/diagnostics/events";
-import { controlOf } from "../../../src/layer/internal";
+import { configureEngine, controlOf } from "../../../src/layer/internal";
 import { buildPvec, gridSpec } from "../helpers/fixture";
 import { countingFetch } from "../helpers/origin";
 import { countingGl, fakeMap, rig, type Rig } from "./helpers";
@@ -87,6 +87,8 @@ describe("#26 M7.3 events and diagnostics", () => {
     const errors: { code: string }[] = [];
     let drawn = 0;
     controlOf(layer).setHooks({ render: () => void drawn++ });
+    // This test is about listeners, not strokes: the map here is empty, so no cursor is opened.
+    configureEngine(layer, { openCursor: () => Promise.resolve(null) });
     layer.on("error", (e) => errors.push(e));
     layer.on("tier0complete", () => {
       throw new Error("boom");

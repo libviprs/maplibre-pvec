@@ -67,10 +67,10 @@ describe("#80 loadEvaluator guards the real export set", () => {
 
   it("refuses an ABI version it does not know", async () => {
     const real = await evaluator();
-    const exports = { ...(real.instance.exports as Record<string, unknown>), wasm_abi_version: () => 2 };
+    const exports = { ...(real.instance.exports as Record<string, unknown>), wasm_abi_version: () => 3 };
     const e = await loadEvaluator({ instantiate: async () => ({ exports }) as unknown as WebAssembly.Instance }).catch((x: unknown) => x);
     expect((e as PVecError).code).toBe("wasm_unavailable");
-    expect((e as PVecError).message).toMatch(/2/);
+    expect((e as PVecError).message).toMatch(/3/);
   });
 });
 

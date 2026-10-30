@@ -2,25 +2,24 @@ import maplibregl from "maplibre-gl";
 import { createPVecLayer, type PVecLayer } from "../../../src/index";
 import { configureEngine } from "../../../src/layer/internal";
 import { loadEvaluator } from "../../../src/wasm/loader";
+import { openTier0Cursor } from "../../../src/layer/tier0-cursor";
+import { PVecSource } from "../../../src/source/PVecSource";
 import { Epsg4326Adapter } from "../../../src/transform/crs";
 import { createGeoTransform } from "../../../src/transform/georeference";
 import { lngLatToMercator, mercatorToLngLat } from "../../../src/transform/projection";
-import type { RawEntity } from "../../../src/decode/tier0";
 
-// Stand-in cursor and evaluator: the real ones come with libviprs/pvec (issue 80). Everything else, the
-// layer, the pool, the stroke renderer and the state guard, is the real code on a real map.
+// The real evaluator and the layer's own default cursor read a real .pvec. The harness only reads the same
+// strokes once itself, to know where on the screen to look.
 const CENTER: [number, number] = [8.54, 47.37];
-const reference = {
+const referenceFor = (midX: number, midY: number, scale: number) => ({
   kind: "affine" as const,
   unit: "m" as const,
   crs: Epsg4326Adapter,
-  calibration: [1e-5, 0, 0, 1e-5, CENTER[0] - 0.0005, CENTER[1] - 0.0005] as const,
-};
-const LINES: number[][] = [
-  [10, 10, 90, 10, 90, 50],
-  [10, 90, 90, 60],
-  [20, 30, 20, 70],
-];
+  calibration: [scale, 0, 0, scale, CENTER[0] - scale * midX, CENTER[1] - scale * midY] as const,
+});
+let reference = referenceFor(0, 0, 1e-5);
+// The strokes of the fixture in source units, as the layer's default cursor yields them.
+let LINES: number[][] = [];
 const WIDTH = 4;
 
 export interface OpenOptions {
@@ -42,18 +41,27 @@ const state = {
   snaps: {} as Record<string, Snap>,
 };
 
-function entities(): RawEntity[] {
-  return LINES.map((points, i) => ({
-    entityId: `e${i}`,
-    kind: "exact" as const,
-    geometry: { type: "polyline" as const, points },
-    bounds: { minX: 0, minY: 0, maxX: 100, maxY: 100 },
-  }));
+/** Reads the fixture once through the real evaluator and fits the calibration so its extent spans about 0.001 degrees. */
+async function prepare(fixture: string): Promise<void> {
+  const source = new PVecSource({ url: fixture });
+  const cursor = await openTier0Cursor(await source.bootstrap(), await loadEvaluator(), source);
+  LINES = [];
+  for (let b = cursor.next(1000); b; b = cursor.next(1000)) {
+    for (const e of b) if (e.geometry.type === "polyline" || e.geometry.type === "line") LINES.push(e.geometry.points);
+  }
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const p of LINES) for (let i = 0; i + 1 < p.length; i += 2) {
+    minX = Math.min(minX, p[i]!); maxX = Math.max(maxX, p[i]!); minY = Math.min(minY, p[i + 1]!); maxY = Math.max(maxY, p[i + 1]!);
+  }
+  const span = Math.max(maxX - minX, maxY - minY) || 1;
+  reference = referenceFor((minX + maxX) / 2, (minY + maxY) / 2, 0.001 / span);
 }
 
 const idle = (map: maplibregl.Map) => new Promise<void>((r) => (map.triggerRepaint(), map.once("idle", () => r())));
 
 export async function open(o: OpenOptions): Promise<void> {
+  // Only a map with a working layer reads the fixture here, so a blocked evaluator still means zero range requests.
+  if (o.layer && o.wasm === "ok") await prepare(o.fixture);
   state.map?.remove();
   document.body.replaceChildren();
   state.layer = undefined;
@@ -94,15 +102,12 @@ export async function open(o: OpenOptions): Promise<void> {
   if (o.layer) {
     const layer = (state.layer = createPVecLayer({ id: "pvec", source: { url: o.fixture }, georeference: { reference } }));
     layer.on("error", (e) => state.errors.push({ code: e.code, message: e.message }));
-    const loader =
-      o.wasm === "ok"
-        ? () => Promise.resolve({ instance: {} as WebAssembly.Instance, abiVersion: 1, source: "injected" as const })
-        : () => loadEvaluator({ wasmUrl: new URL("/83-missing.wasm", location.href).href });
-    let served = !o.cursor;
     configureEngine(layer, {
-      loadEvaluator: loader,
+      // "blocked" points the evaluator at a path that answers 404, the default is the shipped module.
+      ...(o.wasm === "ok" ? {} : { loadEvaluator: () => loadEvaluator({ wasmUrl: new URL("/83-missing.wasm", location.href).href }) }),
       maplibreVersion: () => maplibregl.getVersion(),
-      openCursor: async () => (o.cursor ? { next: () => (served ? null : ((served = true), entities())) } : null),
+      // "cursor: false" draws nothing, to compare against a map that has no layer at all.
+      ...(o.cursor ? {} : { openCursor: async () => null }),
       ...(o.debugState ? { onStateDiff: (d: string[]) => void (state.stateDiffs.push(...d), state.frames++) } : {}),
     });
     layer.registerComponent("style", { resolve: () => ({ widthPx: WIDTH, dash: [], color: "#cc0000" }) });
@@ -184,7 +189,8 @@ export function strokeProbe(name: string): { red: number; atMidpoint: number[] }
   for (let i = 0; i < s.w * s.h; i++) if (s.data[i * 4]! > 170 && s.data[i * 4 + 1]! < 60 && s.data[i * 4 + 2]! < 60) red++;
   const map = state.map!;
   const dpr = s.w / map.getCanvas().clientWidth;
-  const p = map.project(createGeoTransform(reference).forward(50, 10));
+  const first = LINES[0]!;
+  const p = map.project(createGeoTransform(reference).forward((first[0]! + first[2]!) / 2, (first[1]! + first[3]!) / 2));
   const o = (Math.floor(p.y * dpr) * s.w + Math.floor(p.x * dpr)) * 4;
   return { red, atMidpoint: [s.data[o]!, s.data[o + 1]!, s.data[o + 2]!, s.data[o + 3]!] };
 }
@@ -201,6 +207,7 @@ const standalone = {
 };
 
 export async function openStandalone(o: { fixture: string }): Promise<void> {
+  await prepare(o.fixture);
   state.errors = [];
   state.stateDiffs = [];
   document.body.replaceChildren();
@@ -227,11 +234,8 @@ export async function openStandalone(o: { fixture: string }): Promise<void> {
   standalone.map = map;
   const layer = (state.layer = createPVecLayer({ id: "pvec", source: { url: o.fixture }, georeference: { reference } }));
   layer.on("error", (e) => state.errors.push({ code: e.code, message: e.message }));
-  let served = false;
   configureEngine(layer, {
-    loadEvaluator: () => Promise.resolve({ instance: {} as WebAssembly.Instance, abiVersion: 1, source: "injected" as const }),
     maplibreVersion: () => undefined,
-    openCursor: async () => ({ next: () => (served ? null : ((served = true), entities())) }),
     onStateDiff: (d: string[]) => void state.stateDiffs.push(...d),
   });
   layer.registerComponent("style", { resolve: () => ({ widthPx: WIDTH, dash: [], color: "#cc0000" }) });
