@@ -3,7 +3,6 @@ import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-// @ts-expect-error plain .mjs tool without a declaration in this import path
 import { resolveStagedWasm } from "../../tools/staged-wasm.mjs";
 
 const dirs: string[] = [];
@@ -43,12 +42,10 @@ describe("a staged pvec-wasm release directory (issue 202)", () => {
     expect(() => resolveStagedWasm(dir, { abiVersion: 1, sha256: "f".repeat(64) })).toThrow(/sha256/);
   });
   it("takes a bare file with no manifest as an unverified local build", () => {
-    const { dir } = stage();
     const lone = mkdtempSync(path.join(tmpdir(), "staged-wasm-"));
     dirs.push(lone);
     writeFileSync(path.join(lone, "x.wasm"), "abc");
     expect(resolveStagedWasm(path.join(lone, "x.wasm"), { abiVersion: 1 }).verified).toBe(false);
-    expect(dir).toBeTruthy();
   });
   it("refuses a directory with no manifest", () => {
     const d = mkdtempSync(path.join(tmpdir(), "staged-wasm-"));
