@@ -4,15 +4,23 @@ import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, readdirSync, writeFileSync, existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { resolveStagedWasm } from "./staged-wasm.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const [out, mode] = process.argv.slice(2);
 const sha = (b) => createHash("sha256").update(b).digest("hex");
 const pinFile = path.join(root, "wasm/pvec.pin.json");
 const pin = JSON.parse(readFileSync(pinFile, "utf8"));
-const [wasmBindgen, rustc] = readFileSync(path.join(out, "versions.txt"), "utf8").trim().split("\n");
+// PVEC_RELEASE: the module comes from a staged release (verified here as well), not from the build.
+const staged = process.env.PVEC_RELEASE
+  ? resolveStagedWasm(process.env.PVEC_RELEASE, { abiVersion: pin.abiVersion, sha256: process.env.PVEC_WASM_SHA256 || undefined })
+  : null;
+const releaseManifest = staged && JSON.parse(readFileSync(path.join(path.dirname(staged.file), "pvec-wasm-manifest.json"), "utf8"));
+const [wasmBindgen, rustc] = releaseManifest
+  ? [`wasm-bindgen ${releaseManifest.wasmBindgen}`, releaseManifest.rustc]
+  : readFileSync(path.join(out, "versions.txt"), "utf8").trim().split("\n");
 
-const wasm = readFileSync(path.join(out, "pvec_eval.wasm"));
+const wasm = readFileSync(staged ? staged.file : path.join(out, "pvec_eval.wasm"));
 const outcomes = JSON.parse(readFileSync(path.join(out, "pvec/emitted.json"), "utf8"));
 const artifacts = {};
 const notEmitted = {};
@@ -35,7 +43,8 @@ const index = {
   artifacts,
   notEmitted,
 };
-const nextPin = { ...pin, wasmBindgen, rustc, wasm: { file: "wasm/pvec_eval.wasm", bytes: wasm.length, sha256: sha(wasm) } };
+const { release: _drop, ...pinBase } = pin;
+const nextPin = { ...pinBase, wasmBindgen, rustc, ...(staged ? { release: { commit: staged.commit, abiVersion: staged.abiVersion } } : {}), wasm: { file: "wasm/pvec_eval.wasm", bytes: wasm.length, sha256: sha(wasm) } };
 const text = (v) => JSON.stringify(v, null, 2) + "\n";
 
 if (mode === "--check") {

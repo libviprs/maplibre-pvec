@@ -42,3 +42,12 @@ await layer.whenReady();
 ```
 
 The evaluator is a real PVec WASM build only once `libviprs/pvec` releases one; see [deferred work](deferred.md).
+
+## Where the evaluator module comes from (building the package)
+
+`wasm/pvec_eval.wasm` is committed and pinned by `wasm/pvec.pin.json`; `tools/pvec-artifacts.sh` rebuilds it from the pinned `libviprs/pvec` commit in a container. That stays the fallback.
+
+When `libviprs/pvec` has a staged release directory (`tools/wasm-release.sh` there: the module, `pvec-wasm-manifest.json` and `SHA256SUMS`), two switches take it instead:
+
+- `PVEC_WASM=<dir or .wasm> npm run build` copies that module into `dist/`. With a manifest beside it, the sha256 and the ABI version are checked first and the build fails on a mismatch. `PVEC_WASM_SHA256=<hex>` also requires one digest. A bare `.wasm` with no manifest is still accepted as an unverified local build.
+- `PVEC_RELEASE=<dir> PVEC_SRC=<pvec checkout> tools/pvec-artifacts.sh` does the same verification, skips the wasm build, and records the release commit under `release` in the pin. The fixtures still come from the pinned commit.
