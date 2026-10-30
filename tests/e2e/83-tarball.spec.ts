@@ -21,12 +21,11 @@ test.beforeAll(() => {
   const run = (cmd: string, args: string[], cwd: string) => execFileSync(cmd, args, { cwd, stdio: ["ignore", "pipe", "inherit"], encoding: "utf8" });
   const here = process.cwd();
   run("npm", ["run", "build"], here);
-  const pack = JSON.parse(run("npm", ["pack", "--json", "--pack-destination", mkdtempSync(join(tmpdir(), "pvec-pack-"))], here)) as { filename: string }[];
-  const tgz = join(pack[0]!.filename.startsWith("/") ? "" : "", pack[0]!.filename);
+  const dest = mkdtempSync(join(tmpdir(), "pvec-pack-"));
+  const pack = JSON.parse(run("npm", ["pack", "--json", "--pack-destination", dest], here)) as { filename: string }[];
   app = mkdtempSync(join(tmpdir(), "pvec-app-"));
   writeFileSync(join(app, "package.json"), JSON.stringify({ name: "consumer", private: true, version: "0.0.0" }));
-  const dir = tgz.startsWith("/") ? tgz : join(tmpdir(), tgz);
-  run("npm", ["install", "--no-audit", "--no-fund", "--no-save", dir, "maplibre-gl@4.7.1"], app);
+  run("npm", ["install", "--no-audit", "--no-fund", "--no-save", join(dest, pack[0]!.filename), "maplibre-gl@4.7.1"], app);
 });
 
 const MIME: Record<string, string> = { ".js": "text/javascript", ".wasm": "application/wasm", ".html": "text/html", ".css": "text/css" };

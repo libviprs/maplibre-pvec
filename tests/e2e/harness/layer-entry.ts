@@ -179,20 +179,23 @@ export function strokeProbe(name: string): { red: number; atMidpoint: number[] }
   return { red, atMidpoint: [s.data[o]!, s.data[o + 1]!, s.data[o + 2]!, s.data[o + 3]!] };
 }
 
-export async function loseAndRestore(): Promise<{ lostSeen: boolean; restoredSeen: boolean }> {
+export async function loseAndRestore(): Promise<{ stages: string[] }> {
   const map = state.map!;
   const canvas = map.getCanvas();
   const gl = canvas.getContext("webgl2") as WebGL2RenderingContext;
   const ext = gl.getExtension("WEBGL_lose_context")!;
+  const stages: string[] = [];
+  const within = <T>(what: string, p: Promise<T>) =>
+    Promise.race([p.then((v) => (stages.push(what), v)), new Promise<never>((_, rej) => setTimeout(() => rej(new Error(`${what} timed out after ${stages.join(",")}`)), 8000))]);
   const lost = new Promise<void>((r) => canvas.addEventListener("webglcontextlost", () => r(), { once: true }));
   ext.loseContext();
-  await lost;
+  await within("lost", lost);
   const restored = new Promise<void>((r) => canvas.addEventListener("webglcontextrestored", () => r(), { once: true }));
   ext.restoreContext();
-  await restored;
-  await idle(map);
-  await idle(map);
-  return { lostSeen: true, restoredSeen: true };
+  await within("restored", restored);
+  await within("idle1", idle(map));
+  await within("idle2", idle(map));
+  return { stages };
 }
 
 export function info() {
