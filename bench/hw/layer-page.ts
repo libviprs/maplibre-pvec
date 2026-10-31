@@ -100,7 +100,7 @@ function frames(rig: Rig, frameCount: number | undefined, durationMs: number, on
   });
 }
 
-export async function run(o: { durationMs: number; warmupMs: number; profile?: boolean }) {
+export async function run(o: { durationMs: number; warmupMs: number; profile?: boolean; diffFrames?: number }) {
   const rig = await build(false);
   const { map, layer, gl } = rig;
   const dpr = devicePixelRatio;

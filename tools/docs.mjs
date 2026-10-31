@@ -146,6 +146,18 @@ function benchmarkReport(root) {
     out.push("");
     out.push("The state guard used to read the GL state back every frame, and in Chromium the first `getParameter` waits for the GPU (11 ms of render CPU on the M5, about 5 ms on the Intel part). It now reads the state once to seed a shadow kept by the context's setters, so a steady-state frame does no blocking reads (#96); the debug diff still queries. The pool kept to its upload budget on all three.\n");
   }
+  const soft = Object.entries(hw.softwareEntries ?? {});
+  if (soft.length) {
+    out.push("### arm64 Linux, software GL (not GPU numbers)\n");
+    out.push("The same two runs in a linux/arm64 container on an Apple Silicon Mac under Docker Desktop. Docker Desktop passes no GPU into a container, so Chromium drew with SwiftShader on the CPU (capped at 4 cpus, 6 GB). These rows say the harness, the pool and the layer work on arm64 Linux and what they cost in software; they are not GPU numbers, they are not tuning input, and they do not stand in for an NVIDIA or a real-GPU arm64 Linux run. Neither of those was done and neither is claimed ([deferred work](deferred.md)).\n");
+    out.push("| renderer | engine | arch | frame p50/p95/max (ms) | frames over 20 ms | draw calls | CPU submit p95 (ms) | 1e6 upload (ms) | 4 MiB upload p95 (ms) | layer frame p50/p95 (ms) | layer render CPU p50 (ms) | layer settle (frames / ms) | state diffs / errors | source |", "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|");
+    for (const [key, e] of soft) {
+      const l = e.layer;
+      const up = (b) => fmt(e.upload.find((u) => u.bytes === b).p95Ms);
+      out.push(`| ${key.split(" | ")[0]} | ${e.engine} ${e.browserVersion} | ${e.arch} | ${fmt(e.frames.p50Ms)} / ${fmt(e.frames.p95Ms)} / ${fmt(e.frames.maxMs)} | ${e.frames.over20Ms} of ${e.frames.count} | ${e.drawCalls.perFrame} | ${fmt(e.cpu.submitP95Ms)} | ${fmt(e.draw1e6.uploadMs)} | ${up(4 << 20)} | ${l ? `${fmt(l.frames.p50Ms)} / ${fmt(l.frames.p95Ms)}` : "n/a"} | ${l ? fmt(l.cpu.renderP50Ms) : "n/a"} | ${l ? `${l.settle.frames} / ${l.settle.ms}` : "n/a"} | ${l ? `${l.stateDiffs} / ${l.errors}` : "n/a"} | \`${e.source}\` |`);
+    }
+    out.push("");
+  }
   out.push(...realEvaluatorSection(root));
   out.push("Software GL means these are relative costs. The add-on's own runs and the thresholds for them are listed in [deferred work](deferred.md).\n");
   return out.join("\n");
