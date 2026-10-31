@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { RangeOrigin } from "../../unit/helpers/origin";
 import { expect, test } from "@playwright/test";
 import { launch, SNAPSHOT_MATCH } from "../harness/layer-run";
 import { R, rasterRig } from "../harness/raster-run";
@@ -134,6 +135,60 @@ test.describe("issue 107 hostile tiles on the host side", () => {
     } finally {
       await r.stop();
     }
+  });
+});
+
+test.describe("issue 107 pvec's hostile corpus through the real module in the browser", () => {
+  const dir = "tests/fixtures/pvec-raster";
+  const tiles = JSON.parse(readFileSync(`${dir}/index.json`, "utf8")).tiles as { kind: string; name: string; rule: string | null }[];
+  const wasm = readFileSync("wasm/pvec_eval.wasm").toString("base64");
+  const run = async (page: import("@playwright/test").Page, rel: string) => {
+    const origin = new RangeOrigin(new Uint8Array(readFileSync(`${dir}/${rel}`)));
+    const base = await origin.start();
+    const r = await rasterRig(page);
+    try {
+      await R(page, "openRaster", { rasters: [], real: { url: `${base}/p.pvec`, wasm }, debug: false });
+      for (let i = 0; i < 5; i++) await R(page, "runFrames", 40);
+      return await R<{ skips: { rasterId: number; rule: string }[]; events: { capability: string; action: string }[]; errors: { code: string }[]; decodePosts: number; mainThreadDecodes: number; raster?: { failedTiles: number; levels: number[] } }>(page, "stats", undefined);
+    } finally {
+      await r.stop();
+      await origin.stop();
+    }
+  };
+  const NO_RULE = new Set(["oversized-tile", "tile-at-limit-15-plus-one"]);
+  for (const t of tiles.filter((x) => x.kind === "hostile")) {
+    test(`${t.name} (${t.rule}): refused by the module, nothing reaches createImageBitmap, the page throws nothing`, async ({ page }) => {
+      const errs: string[] = [];
+      page.on("pageerror", (e) => errs.push(String(e)));
+      const s = await run(page, `hostile/${t.name}.pvec`);
+      expect(s.decodePosts, "no byte of a refused tile reaches the decoder").toBe(0);
+      expect(s.mainThreadDecodes).toBe(0);
+      expect(errs).toEqual([]);
+      if (t.name === "jpeg-under-an-rgba-placement") {
+        expect(s.skips).toEqual([]);
+        expect(s.events, "the stream is refused whole: the raster capability is reported once as ignored").toEqual([{ capability: "raster", required: false, action: "ignored" }]);
+      } else if (NO_RULE.has(t.name)) {
+        expect(s.skips, "the ABI gives LIMIT-15 no rule (a read failure), so it is a missing tile").toEqual([]);
+        expect(s.raster!.failedTiles).toBeGreaterThan(0);
+      } else {
+        expect(s.skips.map((x) => [x.rasterId, x.rule])).toEqual([[0, t.rule]]);
+        expect(s.errors).toEqual([]);
+      }
+    });
+  }
+  test("a file pvec wrote with rasters draws through the module: tiles decode in the worker, the unknown codec is one rasterskipped", async ({ page }) => {
+    const s = await run(page, "synthetic.pvec");
+    expect(s.skips.map((x) => [x.rasterId, x.rule])).toEqual([[2, "RASTER-04"]]);
+    expect(s.errors).toEqual([]);
+    expect(s.decodePosts, "tiles reached the decoder").toBeGreaterThan(0);
+    expect(s.mainThreadDecodes).toBe(0);
+    expect(s.raster!.levels.length, "and drew").toBeGreaterThan(0);
+  });
+
+  test("a tile that passes the sniffers but is not an image is a missing tile, never a refusal", async ({ page }) => {
+    const s = await run(page, "accepted/png-gray-8-bit.pvec");
+    expect(s.skips).toEqual([]);
+    expect(s.raster!.failedTiles).toBeGreaterThan(0);
   });
 });
 

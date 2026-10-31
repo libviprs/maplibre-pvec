@@ -1,0 +1,209 @@
+{
+  "pvecCommit": "e1b8124f00f5b3302d421062f3980e207f3b578b",
+  "synthetic": {
+    "bytes": 2110432,
+    "sha256": "4286f13460f61074febf8902bf9f961f7b1f71768b0b3eea7132aecd4b463e09"
+  },
+  "tiles": [
+    {
+      "kind": "hostile",
+      "name": "oversized-tile",
+      "rule": "LIMIT-15",
+      "why": "a tile far over twice the bytes of an uncompressed RGBA tile, whose only purpose is decode time",
+      "bytes": 2000848,
+      "sha256": "fff37a18a9730084de1766696494e5643607646a48cf1011618ed38b2e43be42"
+    },
+    {
+      "kind": "hostile",
+      "name": "polyglot-png-and-zip",
+      "rule": "RASTER-03",
+      "why": "a valid PNG followed by an archive: bytes after IEND, a tile that is also something else",
+      "bytes": 1216,
+      "sha256": "45e01708a483c5b4da59a68a56564a1b3f1994e47841172c6e888480d8761335"
+    },
+    {
+      "kind": "hostile",
+      "name": "animated-webp",
+      "rule": "RASTER-03",
+      "why": "a WebP with the animation flag: a decoder would take a frame count from the file",
+      "bytes": 1168,
+      "sha256": "18422a90ac0ee778b8d2aa8e5a056d969e71857d46259a746c722d6a9d6b811d"
+    },
+    {
+      "kind": "hostile",
+      "name": "interlaced-png",
+      "rule": "RASTER-03",
+      "why": "an interlaced PNG, whose decode needs seven passes the placement does not account for",
+      "bytes": 1176,
+      "sha256": "bba02b9369617192880abb46c043930317b832d930fb8368db1e274f21347e36"
+    },
+    {
+      "kind": "hostile",
+      "name": "sixteen-bit-png",
+      "rule": "RASTER-03",
+      "why": "a 16-bit PNG under a placement of 8 bits",
+      "bytes": 1176,
+      "sha256": "8baebe306a3c7ba55add509979eb414eae661497808ec0341c16f924fc6f5e21"
+    },
+    {
+      "kind": "hostile",
+      "name": "palette-png",
+      "rule": "RASTER-03",
+      "why": "a palette PNG, which carries no channel the placement names",
+      "bytes": 1176,
+      "sha256": "99f9854e9063546faa2c188528a2ff1bf188959a842ace38947e99d0ca1bfdcf"
+    },
+    {
+      "kind": "hostile",
+      "name": "jpeg-with-four-components",
+      "rule": "RASTER-03",
+      "why": "a CMYK JPEG under an RGB placement",
+      "bytes": 1264,
+      "sha256": "4bc9350c34c94679b5fc21a904d2bbb853d7cf33c05871c51edace13431ac9b1"
+    },
+    {
+      "kind": "hostile",
+      "name": "jpeg-frame-header-past-64-kib",
+      "rule": "RASTER-03",
+      "why": "a JPEG whose frame header is past the walk the sniffer is allowed",
+      "bytes": 70800,
+      "sha256": "143e9d8e0d396699d31189c45fac8dded87bc85fe950202591bdb6e6f3445591"
+    },
+    {
+      "kind": "hostile",
+      "name": "header-lies-about-the-size",
+      "rule": "RASTER-03",
+      "why": "a PNG that says 255 by 256 under a placement of 256 by 256",
+      "bytes": 1176,
+      "sha256": "953cd7f37e73fd84f58e5a613c42f75068496abb7d33167fbb00177e94c4b67b"
+    },
+    {
+      "kind": "hostile",
+      "name": "bit-depth-mismatch",
+      "rule": "RASTER-03",
+      "why": "an 8-bit PNG under a placement of 1 bit",
+      "bytes": 1176,
+      "sha256": "4601c933f9aff653824f80b09e3d5c7d08f75c3d778247a5c59cbd6ec233d3df"
+    },
+    {
+      "kind": "hostile",
+      "name": "raw-tile",
+      "rule": "RASTER-04",
+      "why": "raw pixels carry neither dimensions nor a pixel format, so a Raw tile is not a tile",
+      "bytes": 66248,
+      "sha256": "921816fafca5206de20b913718efa79a25cc372ca35b7f4ce408d0975aacd8a9"
+    },
+    {
+      "kind": "hostile",
+      "name": "jpeg-under-an-rgba-placement",
+      "rule": "RASTER-04",
+      "why": "JPEG has no alpha, so the pair is refused before a byte of the tile is read",
+      "bytes": 1264,
+      "sha256": "b45ab94761dd4b04f5d7187a8b10491b4ed361e7e48f5a50a0abcca2a89299bc"
+    },
+    {
+      "kind": "hostile",
+      "name": "tile-at-limit-15-plus-one",
+      "rule": "LIMIT-15",
+      "why": "a well-formed PNG one byte over the ceiling of a tile",
+      "bytes": 590616,
+      "sha256": "e8b8a8ca240ebcee127937f2ad04d932b009b940a63acfb3739eb6f68f968719"
+    },
+    {
+      "kind": "accepted",
+      "name": "png-gray-1-bit",
+      "rule": null,
+      "why": "a tile libviprs writes",
+      "bytes": 1176,
+      "sha256": "ea4d287845e9eee8f70e09cb302a1ecadea46024b330c332e77839ce71b69622"
+    },
+    {
+      "kind": "accepted",
+      "name": "png-gray-8-bit",
+      "rule": null,
+      "why": "a tile libviprs writes",
+      "bytes": 1176,
+      "sha256": "b0358d1fdeaec5c47a7c4c759319e2e646c15ed63d1b18ac163e6605d5eafe0e"
+    },
+    {
+      "kind": "accepted",
+      "name": "png-gray-alpha",
+      "rule": null,
+      "why": "a tile libviprs writes",
+      "bytes": 1176,
+      "sha256": "8cd9b1c05ae8a5cd9f8c68d0d84f57e39e8b8bbb55e79bdc739b58389937fea4"
+    },
+    {
+      "kind": "accepted",
+      "name": "png-rgb",
+      "rule": null,
+      "why": "a tile libviprs writes",
+      "bytes": 1176,
+      "sha256": "59de6bf3a6af9950b4bef11f5d810ac4ffe72cda818dcf5b376d64fa661e086c"
+    },
+    {
+      "kind": "accepted",
+      "name": "png-rgba",
+      "rule": null,
+      "why": "a tile libviprs writes",
+      "bytes": 1176,
+      "sha256": "f23d6a7bfbc18eaee2010a261e807599bbf719f52e5b28255c4caf6c9452d179"
+    },
+    {
+      "kind": "accepted",
+      "name": "jpeg-gray-baseline",
+      "rule": null,
+      "why": "a tile libviprs writes",
+      "bytes": 1256,
+      "sha256": "e769bb781ebd83f38367c76bc8474f279e20100962aba63ae959994db51805cf"
+    },
+    {
+      "kind": "accepted",
+      "name": "jpeg-gray-progressive",
+      "rule": null,
+      "why": "a tile libviprs writes",
+      "bytes": 1256,
+      "sha256": "a3b2f2e44a1c4a309ec7f8b2f928a3e28f7aae6cdcadf4698de4b30d594a9ff6"
+    },
+    {
+      "kind": "accepted",
+      "name": "jpeg-rgb-baseline",
+      "rule": null,
+      "why": "a tile libviprs writes",
+      "bytes": 1264,
+      "sha256": "e61c5e65bf4771b09501c165f57ffcac1925c132d61a6ee0e3e7f9735abe988f"
+    },
+    {
+      "kind": "accepted",
+      "name": "jpeg-rgb-progressive",
+      "rule": null,
+      "why": "a tile libviprs writes",
+      "bytes": 1264,
+      "sha256": "272dfe993503401d8967d06243994d7eff021b57b70c50ab4383f8aadbcba380"
+    },
+    {
+      "kind": "accepted",
+      "name": "webp-vp8",
+      "rule": null,
+      "why": "a tile libviprs writes",
+      "bytes": 1144,
+      "sha256": "8a903257346f7f49e59db4f835ae5f836da1a6068f081fe22f402104198d0f53"
+    },
+    {
+      "kind": "accepted",
+      "name": "webp-vp8l",
+      "rule": null,
+      "why": "a tile libviprs writes",
+      "bytes": 1144,
+      "sha256": "14d1bcd601d0684632f1c69d0347136b507bdec295b0a200f209bd144156593d"
+    },
+    {
+      "kind": "accepted",
+      "name": "webp-vp8x",
+      "rule": null,
+      "why": "a tile libviprs writes",
+      "bytes": 1160,
+      "sha256": "cf33763a79bfadb539713a720705b5a4ecab7ff7c91ec92fe5922bce8dc328a8"
+    }
+  ]
+}

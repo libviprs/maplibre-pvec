@@ -383,7 +383,7 @@ export class PVecLayer implements CustomLayerInterface {
       if (signal.aborted) return;
       this.handle = h;
       const m = h.manifest;
-      const rasters = await deps.openRasters(h, evaluator);
+      const rasters = await deps.openRasters(h, evaluator, source);
       if (signal.aborted) return;
       this.emitter.emit("capabilities", {
         minReader: m.minReader.join("."),

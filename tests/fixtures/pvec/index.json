@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "generator": "pvec-testkit generate_all (P2.4)",
-  "pvecCommit": "c7aed3d64a79ddd4a809e51a072d027c3946d92d",
+  "pvecCommit": "e1b8124f00f5b3302d421062f3980e207f3b578b",
   "corpusRevision": "r0-open",
   "note": "pvec vendors the r0-open bundle at libviprs/pvec-gold-fixtures f94f7f22. Fixtures whose record changed since then are in notEmitted until pvec re-pins.",
   "artifacts": {
@@ -65,6 +65,18 @@
       "bytes": 432,
       "sha256": "c2204532fcbe46fe4e7f89df32b9d0f75bd52940e1ffa093f27d67cf3ec24fe9"
     },
+    "nested-blocks-001": {
+      "bytes": 408,
+      "sha256": "f0eb5e6431862028e04de2cb88e4228e59a08ab57184a516ce53121aa0cf2b9b"
+    },
+    "nonuniform-scale-circle-001": {
+      "bytes": 432,
+      "sha256": "235e2be96b029ec8aa596856bdb1beb85e4fe896a4f2cbd17b65f6b5d77fc568"
+    },
+    "nonuniform-scale-rotated-001": {
+      "bytes": 448,
+      "sha256": "e649296e81d92dd525c3297c69f4a98f8f3940a46f5859935e58e7b8399b4469"
+    },
     "nonunit-weight-001": {
       "bytes": 992,
       "sha256": "34b4bb5a501a753cbbef2d249638206ec3e5e6a485d6932c762b52aa8ad2d071"
@@ -85,13 +97,25 @@
       "bytes": 432,
       "sha256": "fdcf05e688e784c09b4ef658eecf7c457dccd969cb61c16768873b159a84f073"
     },
+    "reflection-001": {
+      "bytes": 432,
+      "sha256": "eb866736fc97bae7ff6a166a5f32bab90d134f3a96d3d75f04dc94b1865c9212"
+    },
     "repeated-knot-c0-001": {
       "bytes": 984,
       "sha256": "8de83a751d50bae81099ad8b8820056a61feefa21f2babd44a3b2d88c5658209"
     },
+    "rotation-irrational-001": {
+      "bytes": 448,
+      "sha256": "931106da5e1203959e0449aa94d3dda4e88e1f82608b532c53c24e0b7b94a9fb"
+    },
     "tiny-radius-001": {
       "bytes": 432,
       "sha256": "0efe3ff1828571cf314e157d3451f140e610627ec4c49b17f2e83347b3bd63e3"
+    },
+    "uniform-scale-001": {
+      "bytes": 424,
+      "sha256": "1bd1763e8c5fb854d59bca5fe8986b6f06906ffceb33e8dba4b9b1afa3114533"
     }
   },
   "notEmitted": {
@@ -99,33 +123,9 @@
       "status": "NOT_EMITTED",
       "reason": "near-singular-001: the corpus says no curve may be emitted for it"
     },
-    "nested-blocks-001": {
-      "status": "MISSING_CAPABILITY",
-      "reason": "nested-blocks-001/nested-blocks-001: missing capability `affine_transform_2d`: the record keeps an instance plus a transform, and the container stores neither (ADR 0017: PVec is curve-only); emitting the world-space result would pass a geometry check and fail the structural one"
-    },
-    "nonuniform-scale-circle-001": {
-      "status": "MISSING_CAPABILITY",
-      "reason": "nonuniform-scale-circle-001/nonuniform-scale-circle-001: missing capability `affine_transform_2d`: the record keeps an instance plus a transform, and the container stores neither (ADR 0017: PVec is curve-only); emitting the world-space result would pass a geometry check and fail the structural one"
-    },
-    "nonuniform-scale-rotated-001": {
-      "status": "MISSING_CAPABILITY",
-      "reason": "nonuniform-scale-rotated-001/nonuniform-scale-rotated-001: missing capability `affine_transform_2d`: the record keeps an instance plus a transform, and the container stores neither (ADR 0017: PVec is curve-only); emitting the world-space result would pass a geometry check and fail the structural one"
-    },
-    "reflection-001": {
-      "status": "MISSING_CAPABILITY",
-      "reason": "reflection-001/reflection-001: missing capability `affine_transform_2d`: the record keeps an instance plus a transform, and the container stores neither (ADR 0017: PVec is curve-only); emitting the world-space result would pass a geometry check and fail the structural one"
-    },
-    "rotation-irrational-001": {
-      "status": "MISSING_CAPABILITY",
-      "reason": "rotation-irrational-001/rotation-irrational-001: missing capability `affine_transform_2d`: the record keeps an instance plus a transform, and the container stores neither (ADR 0017: PVec is curve-only); emitting the world-space result would pass a geometry check and fail the structural one"
-    },
     "translation-001": {
       "status": "MISSING_CAPABILITY",
-      "reason": "translation-001/translation-001: missing capability `affine_transform_2d`: the record keeps an instance plus a transform, and the container stores neither (ADR 0017: PVec is curve-only); emitting the world-space result would pass a geometry check and fail the structural one"
-    },
-    "uniform-scale-001": {
-      "status": "MISSING_CAPABILITY",
-      "reason": "uniform-scale-001/uniform-scale-001: missing capability `affine_transform_2d`: the record keeps an instance plus a transform, and the container stores neither (ADR 0017: PVec is curve-only); emitting the world-space result would pass a geometry check and fail the structural one"
+      "reason": "translation-001/translation-001: missing capability `line`: `start` is off the drawing plane (z is not 0), and the profile is 2D with no implicit promotion"
     }
   }
 }

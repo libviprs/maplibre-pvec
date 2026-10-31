@@ -67,10 +67,10 @@ describe("#80 loadEvaluator guards the real export set", () => {
 
   it("refuses an ABI version it does not know", async () => {
     const real = await evaluator();
-    const exports = { ...(real.instance.exports as Record<string, unknown>), wasm_abi_version: () => 2 };
+    const exports = { ...(real.instance.exports as Record<string, unknown>), wasm_abi_version: () => 3 };
     const e = await loadEvaluator({ instantiate: async () => ({ exports }) as unknown as WebAssembly.Instance }).catch((x: unknown) => x);
     expect((e as PVecError).code).toBe("wasm_unavailable");
-    expect((e as PVecError).message).toMatch(/2/);
+    expect((e as PVecError).message).toMatch(/3/);
   });
 });
 
@@ -85,12 +85,9 @@ describe("#80 the corpus bytes", () => {
     for (const [id, n] of Object.entries(index.notEmitted)) expect(n.reason, id).toContain(id);
   });
 
-  it("has real bytes for 22 fixtures and says why the other 8 have none", () => {
-    expect(Object.keys(index.artifacts)).toHaveLength(22);
-    expect(Object.keys(index.notEmitted).sort()).toEqual([
-      "near-singular-001", "nested-blocks-001", "nonuniform-scale-circle-001", "nonuniform-scale-rotated-001",
-      "reflection-001", "rotation-irrational-001", "translation-001", "uniform-scale-001",
-    ]);
+  it("has real bytes for 28 fixtures and says why the other 2 have none", () => {
+    expect(Object.keys(index.artifacts)).toHaveLength(28);
+    expect(Object.keys(index.notEmitted).sort()).toEqual(["near-singular-001", "translation-001"]);
   });
 });
 

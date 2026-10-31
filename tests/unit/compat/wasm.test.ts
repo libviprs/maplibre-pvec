@@ -13,7 +13,7 @@ describe("#31 M7.6 WASM acquisition", () => {
     const ev = await loadEvaluator({}, { fetch: async (u) => (seen.push(String(u)), bytesResponse()) });
     expect(seen).toHaveLength(1);
     expect(seen[0]).toMatch(/pvec_eval\.wasm$/);
-    expect(ev.abiVersion).toBe(1);
+    expect(ev.abiVersion).toBe(2);
     expect(ev.source).toBe("default");
   });
 
@@ -26,7 +26,7 @@ describe("#31 M7.6 WASM acquisition", () => {
 
   it("a wrong content-type falls back to arrayBuffer compile instead of failing", async () => {
     const ev = await loadEvaluator({}, { fetch: async () => bytesResponse("application/octet-stream") });
-    expect(ev.abiVersion).toBe(1);
+    expect(ev.abiVersion).toBe(2);
   });
 
   it("injected wasmModule never touches fetch (strict CSP)", async () => {

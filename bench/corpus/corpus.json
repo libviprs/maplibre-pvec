@@ -2390,10 +2390,10 @@
         "byClass": {}
       },
       "pvec": {
-        "status": "NOT_EMITTED",
-        "bytes": null,
-        "sha256": null,
-        "note": "nested-blocks-001/nested-blocks-001: missing capability `affine_transform_2d`: the record keeps an instance plus a transform, and the container stores neither (ADR 0017: PVec is curve-only); emitting the world-space result would pass a geometry check and fail the structural one"
+        "status": "PRESENT",
+        "bytes": 408,
+        "sha256": "f0eb5e6431862028e04de2cb88e4228e59a08ab57184a516ce53121aa0cf2b9b",
+        "note": "pvec/nested-blocks-001.pvec"
       },
       "viewport": {
         "start": {
@@ -2539,10 +2539,10 @@
         }
       },
       "pvec": {
-        "status": "NOT_EMITTED",
-        "bytes": null,
-        "sha256": null,
-        "note": "nonuniform-scale-circle-001/nonuniform-scale-circle-001: missing capability `affine_transform_2d`: the record keeps an instance plus a transform, and the container stores neither (ADR 0017: PVec is curve-only); emitting the world-space result would pass a geometry check and fail the structural one"
+        "status": "PRESENT",
+        "bytes": 432,
+        "sha256": "235e2be96b029ec8aa596856bdb1beb85e4fe896a4f2cbd17b65f6b5d77fc568",
+        "note": "pvec/nonuniform-scale-circle-001.pvec"
       },
       "viewport": {
         "start": {
@@ -2688,10 +2688,10 @@
         }
       },
       "pvec": {
-        "status": "NOT_EMITTED",
-        "bytes": null,
-        "sha256": null,
-        "note": "nonuniform-scale-rotated-001/nonuniform-scale-rotated-001: missing capability `affine_transform_2d`: the record keeps an instance plus a transform, and the container stores neither (ADR 0017: PVec is curve-only); emitting the world-space result would pass a geometry check and fail the structural one"
+        "status": "PRESENT",
+        "bytes": 448,
+        "sha256": "e649296e81d92dd525c3297c69f4a98f8f3940a46f5859935e58e7b8399b4469",
+        "note": "pvec/nonuniform-scale-rotated-001.pvec"
       },
       "viewport": {
         "start": {
@@ -3578,10 +3578,10 @@
         }
       },
       "pvec": {
-        "status": "NOT_EMITTED",
-        "bytes": null,
-        "sha256": null,
-        "note": "reflection-001/reflection-001: missing capability `affine_transform_2d`: the record keeps an instance plus a transform, and the container stores neither (ADR 0017: PVec is curve-only); emitting the world-space result would pass a geometry check and fail the structural one"
+        "status": "PRESENT",
+        "bytes": 432,
+        "sha256": "eb866736fc97bae7ff6a166a5f32bab90d134f3a96d3d75f04dc94b1865c9212",
+        "note": "pvec/reflection-001.pvec"
       },
       "viewport": {
         "start": {
@@ -3874,10 +3874,10 @@
         "byClass": {}
       },
       "pvec": {
-        "status": "NOT_EMITTED",
-        "bytes": null,
-        "sha256": null,
-        "note": "rotation-irrational-001/rotation-irrational-001: missing capability `affine_transform_2d`: the record keeps an instance plus a transform, and the container stores neither (ADR 0017: PVec is curve-only); emitting the world-space result would pass a geometry check and fail the structural one"
+        "status": "PRESENT",
+        "bytes": 448,
+        "sha256": "931106da5e1203959e0449aa94d3dda4e88e1f82608b532c53c24e0b7b94a9fb",
+        "note": "pvec/rotation-irrational-001.pvec"
       },
       "viewport": {
         "start": {
@@ -4173,7 +4173,7 @@
         "status": "NOT_EMITTED",
         "bytes": null,
         "sha256": null,
-        "note": "translation-001/translation-001: missing capability `affine_transform_2d`: the record keeps an instance plus a transform, and the container stores neither (ADR 0017: PVec is curve-only); emitting the world-space result would pass a geometry check and fail the structural one"
+        "note": "translation-001/translation-001: missing capability `line`: `start` is off the drawing plane (z is not 0), and the profile is 2D with no implicit promotion"
       },
       "viewport": {
         "start": {
@@ -4319,10 +4319,10 @@
         }
       },
       "pvec": {
-        "status": "NOT_EMITTED",
-        "bytes": null,
-        "sha256": null,
-        "note": "uniform-scale-001/uniform-scale-001: missing capability `affine_transform_2d`: the record keeps an instance plus a transform, and the container stores neither (ADR 0017: PVec is curve-only); emitting the world-space result would pass a geometry check and fail the structural one"
+        "status": "PRESENT",
+        "bytes": 424,
+        "sha256": "1bd1763e8c5fb854d59bca5fe8986b6f06906ffceb33e8dba4b9b1afa3114533",
+        "note": "pvec/uniform-scale-001.pvec"
       },
       "viewport": {
         "start": {
