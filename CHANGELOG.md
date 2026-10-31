@@ -21,7 +21,7 @@ Nothing is tagged or published. `1.0.0` waits for every condition in `release/v1
 
 ### Raster names (#104, minor)
 
-A minor change: nothing is removed or retyped. `PVecLayerOptions.raster` and `update({ raster })`, the `rasterskipped` event and `RasterSkippedEvent`, `RasterInfo` and `PVecLayer.rasters()`, and the optional capability `raster` in the compatibility matrix. `DiagnosticsSnapshot` is untouched. `tools/release-gate.mjs` hashes whole declarations, so it reads each of these additions to an existing declaration as a change to that symbol.
+A minor change: nothing is removed or retyped. `PVecLayerOptions.raster` and `update({ raster })`, the `rasterskipped` event and `RasterSkippedEvent`, `RasterInfo` and `PVecLayer.rasters()`, and the optional capability `raster` in the compatibility matrix. `DiagnosticsSnapshot.rasters` is added. This is a freeze amendment under the R-M epic (#103). `tools/release-gate.mjs` hashes whole declarations, so it reads each of these additions to an existing declaration as a change to that symbol.
 
 ### Measurements
 

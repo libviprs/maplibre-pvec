@@ -108,6 +108,7 @@ export class StrokeEngine {
   private lost = false;
   private raster: RasterRenderer | undefined;
   private rasterOn = true;
+  private lastRasterStats: RasterFrameStats | undefined;
   private reference: GeoReference | undefined;
   /** Bumped by every new georeference: it guards the rebuild of positions the way it guards stroke tessellations. */
   private transformEpoch = 0;
@@ -136,7 +137,10 @@ export class StrokeEngine {
       onError: o.onError,
       onRefused: (e) => o.onRasterSkipped?.(e),
       onDecode: o.onRasterDecode,
-      onFrame: o.onRasterFrame,
+      onFrame: (st) => {
+        this.lastRasterStats = st;
+        o.onRasterFrame?.(st);
+      },
     });
     // What pvec-wasm refused comes with its own rule; what this reader cannot draw (a codec it does not know) is RASTER-04.
     for (const s of o.rasters.skipped?.() ?? []) o.onRasterSkipped?.({ rasterId: s.id, rule: s.rule, message: s.message });
@@ -166,6 +170,11 @@ export class StrokeEngine {
       opacity: p.opacity,
       attribution: p.attribution ? escapeAttribution(p.attribution) : "",
     }));
+  }
+
+  /** The raster counters of the snapshot. */
+  rasterAccounting(): { textureBytes: number; decodesInFlight: number } {
+    return { textureBytes: this.o.cache.bytes("gpu"), decodesInFlight: this.lastRasterStats?.decodesInFlight ?? 0 };
   }
 
   /** `raster.enabled` at runtime: off draws no raster and starts no decode, on picks up where the cache left off. */
