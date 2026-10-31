@@ -315,5 +315,107 @@
         }
       }
     }
+  },
+  "softwareEntries": {
+    "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver) | chromium": {
+      "engine": "chromium",
+      "arch": "arm64",
+      "os": "linux 7.0.14-linuxkit",
+      "softwareRenderer": true,
+      "container": "linux/arm64 container in Docker Desktop on an Apple Silicon Mac, software GL (SwiftShader), no GPU passthrough",
+      "browserVersion": "130.0.6723.31",
+      "source": "bench/results/hw/2026-10-31-macbook-docker-arm64-linux-chromium-software.json",
+      "frames": {
+        "durationMs": 489547,
+        "count": 1,
+        "p50Ms": 489547.10000000003,
+        "p95Ms": 489547.10000000003,
+        "p99Ms": 489547.10000000003,
+        "maxMs": 489547.10000000003,
+        "over20Ms": 1
+      },
+      "drawCalls": {
+        "perFrame": 10,
+        "segmentsPerFrame": 1000000
+      },
+      "cpu": {
+        "submitP50Ms": 0.2999999998137355,
+        "submitP95Ms": 0.2999999998137355,
+        "submitMaxMs": 0.2999999998137355
+      },
+      "gpu": null,
+      "draw1e6": {
+        "segments": 1000000,
+        "uploadMs": 16.399999999906868,
+        "syncDrawP50Ms": 14054.5,
+        "syncDrawP95Ms": 14586.900000000373
+      },
+      "upload": [
+        {
+          "bytes": 262144,
+          "p50Ms": 0.10000000009313226,
+          "p95Ms": 0.20000000018626451
+        },
+        {
+          "bytes": 1048576,
+          "p50Ms": 0.10000000009313226,
+          "p95Ms": 0.3000000002793968
+        },
+        {
+          "bytes": 2097152,
+          "p50Ms": 0.10000000009313226,
+          "p95Ms": 0.20000000018626451
+        },
+        {
+          "bytes": 4194304,
+          "p50Ms": 0.19999999972060323,
+          "p95Ms": 0.6000000000931323
+        },
+        {
+          "bytes": 8388608,
+          "p50Ms": 0.5,
+          "p95Ms": 0.7999999998137355
+        },
+        {
+          "bytes": 16777216,
+          "p50Ms": 1.1000000000931323,
+          "p95Ms": 1.2000000001862645
+        }
+      ],
+      "snapshot": {
+        "scene": "walk-400-seed77-256px-v1",
+        "sha256": "bc0fad46f3b9f3fb39a94f8d9497ba6c114dc99b3d4013f02b37f288fec69e94"
+      },
+      "layer": {
+        "durationMs": 71776,
+        "segments": 1000000,
+        "stateDiffs": 0,
+        "errors": 0,
+        "frames": {
+          "count": 6,
+          "p50Ms": 9574.799999999814,
+          "p95Ms": 16619.899999999907,
+          "p99Ms": 16619.899999999907,
+          "maxMs": 16619.899999999907,
+          "over20Ms": 6
+        },
+        "drawCalls": {
+          "perFrame": 10
+        },
+        "cpu": {
+          "renderP50Ms": 0.2999999998137355,
+          "renderP95Ms": 2.7000000001862645,
+          "renderMaxMs": 2.7000000001862645
+        },
+        "gpu": null,
+        "settle": {
+          "frames": 16,
+          "ms": 100725,
+          "renderMaxMs": 13.100000000093132,
+          "uploadedBytes": 40000000,
+          "maxUploadBytesPerFrame": 4194304
+        }
+      }
+    }
   }
 }

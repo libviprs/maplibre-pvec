@@ -201,7 +201,7 @@ describe("#82 software GL results (arm64 Linux container, no GPU)", () => {
   });
   it("validateBaselines refuses a hardware entry among the software entries", () => {
     const b = JSON.parse(JSON.stringify(baselines));
-    const [k, e] = Object.entries<object>(b.entries)[0];
+    const [k, e] = Object.entries<object>(b.entries)[0]!;
     b.softwareEntries = { [k]: e };
     expect(validateBaselines(b).join()).toMatch(/software/);
   });

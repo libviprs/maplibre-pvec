@@ -57,6 +57,14 @@ The same 1e6 segments in ten style groups (ten draw calls), drawn by `createPVec
 
 The state guard used to read the GL state back every frame, and in Chromium the first `getParameter` waits for the GPU (11 ms of render CPU on the M5, about 5 ms on the Intel part). It now reads the state once to seed a shadow kept by the context's setters, so a steady-state frame does no blocking reads (#96); the debug diff still queries. The pool kept to its upload budget on all three.
 
+### arm64 Linux, software GL (not GPU numbers)
+
+The same raw run and layer run in a linux/arm64 container on an Apple Silicon Mac under Docker Desktop. Docker Desktop passes no GPU into a container, so Chromium drew with SwiftShader on the CPU (4 cpus, 4 GB), at dpr 1 (the GPU rows use dpr 2) because software drawing of the 1e6-segment scene already costs seconds a frame. These rows say the harness, the pool and the wired layer work on arm64 Linux, and what they cost in software. They are not GPU numbers, not tuning input, and they do not stand in for an NVIDIA run or a real-GPU arm64 Linux run: neither was run and neither is claimed ([deferred work](deferred.md)). A frame takes seconds here, so the 60 s loops hold only a handful of frames and the frame percentiles are rough; the layer run's GL state diff covers 5 frames instead of 400.
+
+| renderer | engine | arch | dpr | raw frames in the 60 s loop | draw calls | 1e6 sync draw p50 (s) | CPU submit p95 (ms) | 4 MiB upload p95 (ms) | 16 MiB upload p95 (ms) | layer frames / frame p50 (s) | layer render CPU p50 / max (ms) | layer settle (frames) | largest upload in a frame (MiB) | state diffs / errors | source |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver) | chromium 130.0.6723.31 | arm64 | 1 | 1 | 10 | 14.1 | 0.3 | 0.6 | 1.2 | 6 / 9.6 | 0.3 / 2.7 | 16 | 4 | 0 / 0 | `bench/results/hw/2026-10-31-macbook-docker-arm64-linux-chromium-software.json` |
+
 ## Real pvec evaluator and real .pvec bytes
 
 - `spikes/pvec-real/results.json`: chromium 130.0.6723.31, linux/x64 container, `libviprs/pvec` `c7aed3d`, ABI version 1
