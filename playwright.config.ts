@@ -25,9 +25,9 @@ export default defineConfig({
     reuseExistingServer: false,
   },
   projects: [
-    ...browsers.map((b) => ({ name: `grid-${b}`, testDir: "tests/e2e", testMatch: ["grid/81-grid.spec.ts"], use: gridUse(b) })),
+    ...browsers.map((b) => ({ name: `grid-${b}`, testDir: "tests/e2e", testMatch: ["grid/81-grid.spec.ts", "grid/107-raster-grid.spec.ts"], use: gridUse(b) })),
     ...(minChromium
-      ? [{ name: "grid-chromium-min", testDir: "tests/e2e", testMatch: ["grid/81-grid.spec.ts"], use: { browserName: "chromium" as const, launchOptions: { executablePath: minChromium, args: chromiumGl } } }]
+      ? [{ name: "grid-chromium-min", testDir: "tests/e2e", testMatch: ["grid/81-grid.spec.ts", "grid/107-raster-grid.spec.ts"], use: { browserName: "chromium" as const, launchOptions: { executablePath: minChromium, args: chromiumGl } } }]
       : []),
     ...browsers.map((b) => ({ name: `isolated-${b}`, testDir: "tests/e2e", testMatch: ["grid/81-isolated.spec.ts"], use: { ...gridUse(b), baseURL: "http://127.0.0.1:4174" } })),
     ...jobs.flatMap((job) =>
@@ -39,7 +39,8 @@ export default defineConfig({
       // on a real MapLibre map) are the same kind.
       testMatch: job === "rendering" && browserName === "chromium" ? [`${job}/**/*.spec.ts`, "50-*.spec.ts", "83-*.spec.ts", "96-*.spec.ts", "102-*.spec.ts", "105-*.spec.ts"] : [`${job}/**/*.spec.ts`],
       // The compose spec drives a real MapLibre map and sets Chromium's software GL flags; the other engines see it through the grid (#107).
-      ...(job === "rendering" && browserName !== "chromium" ? { testIgnore: ["**/106-*.spec.ts"] } : {}),
+      // The 107 hostile spec is Chromium's too: it drives the WebGL layer, and Firefox needs the xvfb display only the grid supplies.
+      ...(browserName !== "chromium" ? { testIgnore: ["**/106-*.spec.ts", "**/107-*.spec.ts"] } : {}),
       use: { browserName },
     })),
   ),

@@ -5,7 +5,7 @@ import { createGeoTransform } from "../../../src/transform/georeference";
 import { lngLatToMercator, mercatorToLngLat } from "../../../src/transform/projection";
 import type { RawEntity } from "../../../src/decode/tier0";
 import { apply, compose, invert, type Mat6, type RasterPlacement } from "../../../src/render/raster/geometry";
-import type { RasterProvider } from "../../../src/render/raster/provider";
+import { RasterRefusedError, type RasterProvider } from "../../../src/render/raster/provider";
 import type { RasterFrameStats } from "../../../src/render/raster/renderer";
 import type { WireRaster } from "../../unit/helpers/raster_fixture";
 
@@ -67,6 +67,12 @@ export interface OpenOptions {
   hold?: { fromLevel: number };
   debug?: boolean;
   gpuBytes?: number;
+  /** `limits.maxDecodedBytes`. */
+  maxDecodedBytes?: number;
+  /** Rasters the provider refuses by rule, as the module does for a hostile tile: raster id to `RASTER-NN` or `LIMIT-NN`. */
+  refuse?: Record<number, string>;
+  /** Rasters whose tiles keep a valid header and get a corrupt body. */
+  corrupt?: number[];
 }
 
 export async function openRaster(o: OpenOptions): Promise<void> {
@@ -101,19 +107,24 @@ export async function openRaster(o: OpenOptions): Promise<void> {
     placements: () => state.wire.map((w) => w.placement),
     tile: async (id, level, col, row) => {
       state.tileRequests++;
+      const rule = o.refuse?.[id];
+      if (rule) throw new RasterRefusedError(rule, `${rule}: the module refused raster ${id}`);
       // the renderer owns the bytes it is handed (they are transferred to the decode worker), so hand out a copy
       const g = state.gate;
       if (g && !g.open && level >= g.fromLevel) {
         state.held++;
         await new Promise<void>((r) => g.waiting.push(r));
       }
-      return tiles.get(`${id}/${level}/${col}/${row}`)?.slice() ?? null;
+      const b = tiles.get(`${id}/${level}/${col}/${row}`)?.slice() ?? null;
+      // a valid header and a body the decoder cannot read: flip the second half
+      if (b && o.corrupt?.includes(id)) for (let i = Math.floor(b.length / 2); i < b.length - 12; i++) b[i] = b[i]! ^ 0xa5;
+      return b;
     },
   };
   const p0 = state.wire[0]?.placement;
   state.stroke = [];
   if (o.stroke && p0) for (const [x, y] of o.stroke) state.stroke.push(...apply(p0.pixelToSource, x! + 0.5, y! + 0.5));
-  const layer = (state.layer = createPVecLayer({ id: "pvec", source: { url: (window as unknown as { __FIXTURE__: string }).__FIXTURE__ }, georeference: { reference }, ...(o.gpuBytes ? { cache: { gpuBytes: o.gpuBytes } } : {}) }));
+  const layer = (state.layer = createPVecLayer({ id: "pvec", source: { url: (window as unknown as { __FIXTURE__: string }).__FIXTURE__ }, georeference: { reference }, ...(o.gpuBytes ? { cache: { gpuBytes: o.gpuBytes } } : {}), ...(o.maxDecodedBytes ? { limits: { maxDecodedBytes: o.maxDecodedBytes } } : {}) }));
   layer.on("error", (e) => state.errors.push({ code: e.code, message: e.message }));
   layer.on("capabilityunsupported", (e) => state.events.push({ capability: e.capability, required: e.required, action: e.action }));
   layer.on("rasterskipped", (e) => state.skips.push({ rasterId: e.rasterId, rule: e.rule, message: e.message }));
@@ -171,6 +182,23 @@ export async function settle(): Promise<void> {
     await new Promise((r) => setTimeout(r, 10));
     quiet = state.frames && state.frames.uploads === 0 ? quiet + 1 : 0;
   }
+}
+
+/** Frames without reading pixels, for `n` animation frames: the layer's own work per frame and the decoded tier while tiles decode. */
+export async function runFrames(n: number): Promise<{ layerMs: number[]; maxDecodedTier: number; decodesBefore: number; decodesAfter: number }> {
+  const gl = state.gl!;
+  const layerMs: number[] = [];
+  let maxDecodedTier = 0;
+  const decodesBefore = state.workerDecodes;
+  for (let i = 0; i < n; i++) {
+    await new Promise<void>((r) => requestAnimationFrame(() => r()));
+    gl.viewport(0, 0, W, H);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    state.layer!.render(gl, {});
+    if (state.frames) layerMs.push(state.frames.renderMs);
+    maxDecodedTier = Math.max(maxDecodedTier, state.layer!.getDiagnostics().bytes.decodedTier);
+  }
+  return { layerMs, maxDecodedTier, decodesBefore, decodesAfter: state.workerDecodes };
 }
 
 /** Moves the camera to `px`, `py` device pixels from its starting point. */
@@ -243,6 +271,7 @@ export function stats() {
     tileRequests: state.tileRequests,
     gpuBudget: state.layer?.getDiagnostics().bytes.gpuTier ?? 0,
     raster: state.frames,
+    decodedTier: state.layer?.getDiagnostics().bytes.decodedTier ?? 0,
     errors: state.errors,
     events: state.events,
     skips: state.skips,

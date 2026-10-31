@@ -391,3 +391,13 @@ export function calibrationFor(zoom: number, centre: [number, number], size = 16
   const k = (size * 360) / (512 * 512 * 2 ** zoom);
   return { k, lng0: centre[0] - 256 * k, lat0: centre[1] - 256 * k };
 }
+
+/** Puts the first raster's attribution, as `rasters()` hands it to the host, into a real attribution control and reads the DOM. */
+export function attributionControl(): { text: string; html: string; imgs: number; scripts: number; title: string } {
+  const lib = state.lib as unknown as { AttributionControl: new (o: { customAttribution: string }) => unknown };
+  const map = state.map as unknown as { addControl(c: unknown): void; getContainer(): HTMLElement };
+  const a = state.layer!.rasters()[0]?.attribution ?? "";
+  map.addControl(new lib.AttributionControl({ customAttribution: a }));
+  const inner = map.getContainer().querySelector(".maplibregl-ctrl-attrib-inner") as HTMLElement;
+  return { text: inner.textContent ?? "", html: inner.innerHTML, imgs: inner.querySelectorAll("img").length, scripts: inner.querySelectorAll("script").length, title: document.title };
+}

@@ -44,7 +44,7 @@ def rgba_of(mode, q):
     if mode == "1":
         v = 255 if q in (1, 2) else 0
         return [v, v, v, 255]
-    if mode in ("L", "LA"):
+    if mode in ("L", "LA", "JPEG-L"):
         v = (r + g + b) // 3
         r = g = b = v
     if mode in ("L", "RGB", "JPEG-L", "JPEG-RGB"):
@@ -106,7 +106,9 @@ files["png-rgb-8-srgb-gama.png"] = {"bytes": srgb, "meta": {**base["meta"]}}
 # an iCCP chunk holding a small matrix profile that is not sRGB (Pillow builds one)
 try:
     from PIL import ImageCms
-    prof = ImageCms.ImageCmsProfile(ImageCms.createProfile("sRGB")).tobytes()
+    prof = bytearray(ImageCms.ImageCmsProfile(ImageCms.createProfile("sRGB")).tobytes())
+    prof[24:36] = b"\0" * 12  # the creation date, so the bytes are reproducible
+    prof = bytes(prof)
     icc = b"synthetic\x00\x00" + zlib.compress(prof)
     files["png-rgb-8-iccp.png"] = {"bytes": with_chunks(base["bytes"], [chunk(b"iCCP", icc)]), "meta": {**base["meta"]}}
 except Exception as e:  # pragma: no cover

@@ -1,14 +1,14 @@
 {
   "jobs": [
     { "id": "math", "title": "mathematical semantics", "claim": "structural and geometric exactness", "specs": ["M2.3", "M2.4"] },
-    { "id": "range", "title": "range decoding", "claim": "container and transport correctness", "specs": ["M2.7", "M3.x"] },
-    { "id": "rendering", "title": "rendering snapshots", "claim": "display fidelity", "specs": ["M2.5", "M2.6"] },
+    { "id": "range", "title": "range decoding", "claim": "container and transport correctness", "specs": ["M2.7", "M3.x", "RM1.5 (raster hostile input, host side)"] },
+    { "id": "rendering", "title": "rendering snapshots", "claim": "display fidelity", "specs": ["M2.5", "M2.6", "RM1.3", "RM1.4"] },
     { "id": "interaction", "title": "interaction and picking", "claim": "interaction correctness", "specs": ["M5.6"] }
   ],
   "pendingGates": [
     { "name": "evaluator-math", "job": "math", "waitsOn": "#2 (M1.3, the shared WASM evaluator) and libviprs/pvec#1 (P7.2, P7.3)" },
     { "name": "numeric-policy-equivalence", "job": "math", "waitsOn": "libviprs/pvec#1 (P1.2 policy surface, P2.6)" },
-    { "name": "hostile-input", "job": "range", "waitsOn": "#18 (M3.1, M3.6) and libviprs/pvec#1 (P4.7, P4.8)" },
+    { "name": "hostile-input", "job": "range", "waitsOn": "the vector half: #18 (M3.1, M3.6) and libviprs/pvec#1 (P4.7, P4.8); the raster half (#107): an adapter from the pvec-wasm raster exports to the layer and a rebuilt pvec_eval.wasm, so the 13 corpus tiles are refused by pvec's own sniffers inside this repository" },
     { "name": "pipeline", "job": "rendering", "waitsOn": "the WASM evaluator and canonical pvec (#2 M1.3, libviprs/pvec#1 P2.4); #42 landed the error evaluator over stand-in curves" },
     { "name": "tier0", "job": "rendering", "waitsOn": "#50 (M5.1, the Tier 0 decoder path)" },
     { "name": "picking", "job": "interaction", "waitsOn": "#50 (M5.6, stable picking)" }
