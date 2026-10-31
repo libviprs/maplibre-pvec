@@ -42,4 +42,6 @@ I have not tagged or published anything. The package is `private` at `0.0.0`, an
 
 ## What would turn the deferred rows green
 
-The 8 corpus fixtures pvec does not emit and a released `libviprs/pvec` WASM artifact (the evaluator and 22 sets of bytes are in), an NVIDIA and an arm64 Linux GPU runner, the evaluator wired into the layer in place of the stand-in (the layer and its context-loss handling are done), and examples 02 to 06. Each is written up in [deferred work](deferred.md).
+The 8 corpus fixtures pvec does not emit and a released `libviprs/pvec` WASM artifact (the evaluator and 22 sets of bytes are in), the evaluator wired into the layer in place of the stand-in (the layer and its context-loss handling are done), and examples 02 to 06. Each is written up in [deferred work](deferred.md).
+
+Descoped from #82, not claimed: an NVIDIA run (no driver or container runtime on MARS) and an arm64 Linux run with a real GPU (Docker Desktop passes none through). What was measured is the Apple M5 (Chromium Metal), Apple GPU (WebKit), Intel ADL GT2 (Chromium) and, as software GL only and not GPU numbers, arm64 Linux in a container. A driver and container toolkit on MARS, or an arm64 Linux host with a GPU, would unblock them.

@@ -3,8 +3,10 @@
 //   node bench/hw/run.mjs bundle --out <dir>        build the page bundle (run in a container)
 //   node bench/hw/run.mjs run --engine chromium|webkit --bundle <dir> --host <label> [--duration 60000]
 //       [--angle metal|gl|gl-egl|vulkan] [--headed (needs xvfb-run)] [--out bench/results/hw] [--playwright-core <dir>] [--device /dev/dri ok]
+//       [--software-ok "<container label, must say no GPU>"] (accept SwiftShader, written as a software result)
+//       [--diff-frames N] (GL state diff frames in the layer run, default 400; software runs use fewer)
 //       [--no-layer] (skip the second 60 s run of the same scene through the wired MapLibre layer)
-// `run` refuses a software renderer. On the Mac it is launched through
+// `run` refuses a software renderer unless --software-ok names the container (then it is a software result). On the Mac it is launched through
 // /Users/rom/workspace/xdg-pw-lock.sh. In a container it gets the host's /dev/dri passed through.
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { cpus, platform, arch, release } from "node:os";
@@ -35,7 +37,7 @@ if (cmd === "bundle") {
   console.log(`bundle in ${out}`);
 } else if (cmd === "run") {
   const bundleDir = resolve(arg("bundle", ".cache/hw"));
-  const { validateHardwareResult, isSoftwareRenderer } = await import(pathToFileURL(join(bundleDir, "hardware.mjs")).href);
+  const { validateHardwareResult, validateSoftwareResult, isSoftwareRenderer } = await import(pathToFileURL(join(bundleDir, "hardware.mjs")).href);
   const engine = arg("engine", "chromium");
   const duration = Number(arg("duration", "60000"));
   const angle = arg("angle", "");
@@ -72,7 +74,7 @@ if (cmd === "bundle") {
       const lp = await ctx.newPage();
       lp.setDefaultTimeout(0);
       await lp.goto(`http://127.0.0.1:${server.address().port}/layer.html`);
-      layerRaw = await lp.evaluate((o) => window.HWL.run(o), { durationMs: duration, warmupMs: 3000, profile: profile });
+      layerRaw = await lp.evaluate((o) => window.HWL.run(o), { durationMs: duration, warmupMs: 3000, profile: profile, diffFrames: Number(arg("diff-frames", "400")) });
     }
     var version = browser.version();
   } finally {
@@ -80,6 +82,7 @@ if (cmd === "bundle") {
     server.close();
   }
   if (layerRaw?.glBreakdown) console.log("layer GL breakdown (ms, calls over the run)", JSON.stringify(layerRaw.glBreakdown));
+  const softwareOk = arg("software-ok", "");
   const sw = isSoftwareRenderer(`${raw.gpuRenderer} ${raw.gpuVendor}`);
   const { glError, canvasCss, ...rest } = raw;
   const result = {
@@ -88,16 +91,16 @@ if (cmd === "bundle") {
     date: new Date().toISOString(),
     environment: {
       host: arg("host", "unknown"), os: `${platform()} ${release()}`, arch: arch() === "arm64" ? "arm64" : "x64", cpu: cpus()[0]?.model ?? "unknown",
-      engine, browserVersion: version, gpuRenderer: raw.gpuRenderer, gpuVendor: raw.gpuVendor, softwareRenderer: sw,
+      ...(softwareOk ? { container: softwareOk } : {}), engine, browserVersion: version, gpuRenderer: raw.gpuRenderer, gpuVendor: raw.gpuVendor, softwareRenderer: sw,
       dpr: raw.dpr, viewport: raw.viewport, timerQuery: raw.timerQuery,
     },
     frames: rest.frames, drawCalls: rest.drawCalls, cpu: rest.cpu, gpu: rest.gpu, draw1e6: rest.draw1e6, upload: rest.upload, snapshot: rest.snapshot,
     ...(layerRaw ? { layer: layerRaw.layer } : {}),
   };
-  const errors = [...validateHardwareResult(result), ...(glError ? [`gl error ${glError}`] : []), ...(layerRaw?.glError ? [`layer run gl error ${layerRaw.glError}`] : [])];
+  const errors = [...(softwareOk ? validateSoftwareResult(result) : validateHardwareResult(result)), ...(glError ? [`gl error ${glError}`] : []), ...(layerRaw?.glError ? [`layer run gl error ${layerRaw.glError}`] : [])];
   const dir = resolve(arg("out", join(root, "bench/results/hw")));
   await mkdir(dir, { recursive: true });
-  const file = join(dir, `${result.date.slice(0, 10)}-${arg("host", "host")}-${engine}${errors.length ? ".rejected" : ""}.json`);
+  const file = join(dir, `${result.date.slice(0, 10)}-${arg("host", "host")}-${engine}${softwareOk ? "-software" : ""}${errors.length ? ".rejected" : ""}.json`);
   await writeFile(file, JSON.stringify(result, null, 2) + "\n");
   console.log(`wrote ${file}`);
   if (errors.length) { for (const e of errors) console.error(`FAIL ${e}`); process.exit(1); }

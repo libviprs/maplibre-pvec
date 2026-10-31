@@ -1,5 +1,6 @@
 // Hardware GPU result files (#82). Unlike bench/lib/result.ts these never accept a software
-// rasteriser: a run on SwiftShader or llvmpipe is a relative cost, not a hardware number.
+// rasteriser as a hardware number: a run on SwiftShader or llvmpipe is a relative cost. The one
+// exception is validateSoftwareResult, for a labelled arm64 Linux container run kept apart.
 export interface HardwareEnvironment {
   host: string;
   os: string;
@@ -10,6 +11,8 @@ export interface HardwareEnvironment {
   gpuRenderer: string;
   gpuVendor: string;
   softwareRenderer: boolean;
+  /** Software GL results only: where it ran, and that there was no GPU behind it. */
+  container?: string;
   dpr: number;
   viewport: [number, number];
   timerQuery: boolean;
@@ -50,6 +53,8 @@ export interface BaselineEntry {
   arch: string;
   os: string;
   softwareRenderer: boolean;
+  /** Software entries only. */
+  container?: string;
   browserVersion: string;
   source: string;
   frames: HardwareResult["frames"];
@@ -67,6 +72,8 @@ export interface Baselines {
   tunedFrom: string[];
   /** Keyed by the unmasked renderer string, then engine, e.g. "<renderer> | chromium". */
   entries: Record<string, BaselineEntry>;
+  /** Software GL runs (arm64 Linux container, no GPU). Relative costs, never tuning input and never GPU numbers. */
+  softwareEntries?: Record<string, BaselineEntry>;
 }
 
 export const MIN_RUN_MS = 60_000;
@@ -88,6 +95,15 @@ export function uploadBytesWithin(curve: UploadPoint[], budgetMs: number): numbe
 const finite = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v) && v >= 0;
 
 export function validateHardwareResult(r: unknown): string[] {
+  return validateResult(r, false);
+}
+
+/** A software GL result: only from a labelled linux/arm64 container, and it says it is not a GPU number. */
+export function validateSoftwareResult(r: unknown): string[] {
+  return validateResult(r, true);
+}
+
+function validateResult(r: unknown, software: boolean): string[] {
   const res = r as Partial<HardwareResult> | null;
   const env = res?.environment;
   if (!env) return ["result has no environment block"];
@@ -96,7 +112,12 @@ export function validateHardwareResult(r: unknown): string[] {
     if (!env[k]) errors.push(`environment.${k} is missing`);
   }
   if (env.arch !== "arm64" && env.arch !== "x64") errors.push(`environment.arch ${JSON.stringify(env.arch)} must be arm64 or x64, native only`);
-  if (isSoftwareRenderer(`${env.gpuRenderer ?? ""} ${env.gpuVendor ?? ""}`) || env.softwareRenderer !== false) {
+  const soft = isSoftwareRenderer(`${env.gpuRenderer ?? ""} ${env.gpuVendor ?? ""}`);
+  if (software) {
+    if (!soft || env.softwareRenderer !== true) errors.push(`software result needs a software renderer and softwareRenderer true (got ${env.gpuRenderer})`);
+    if (!/no GPU/.test(env.container ?? "")) errors.push('environment.container must name the container and say "no GPU"');
+    if (env.arch !== "arm64" || !/linux/i.test(env.os ?? "")) errors.push("software results are labelled linux arm64 only");
+  } else if (soft || env.softwareRenderer !== false) {
     errors.push(`environment says software rendering (${env.gpuRenderer}), numbers are not hardware numbers`);
   }
   const f = res.frames;
@@ -132,6 +153,14 @@ export function validateBaselines(b: unknown): string[] {
     if (!renderer || !engine) errors.push(`${key}: key must be "<renderer> | <engine>"`);
     if (isSoftwareRenderer(key) || e.softwareRenderer !== false) errors.push(`${key}: software renderers do not get hardware entries`);
     if (e.engine !== engine) errors.push(`${key}: engine ${e.engine} does not match the key`);
+    if (!/^[0-9a-f]{64}$/.test(e.snapshot?.sha256 ?? "")) errors.push(`${key}: snapshot hash missing`);
+    if (!e.source) errors.push(`${key}: source result file missing`);
+  }
+  for (const [key, e] of Object.entries(x.softwareEntries ?? {})) {
+    if (!isSoftwareRenderer(key) || e.softwareRenderer !== true) errors.push(`${key}: only software renderers go in softwareEntries`);
+    if (!/no GPU/.test(e.container ?? "")) errors.push(`${key}: software entry needs a container label saying no GPU`);
+    if (x.entries[key]) errors.push(`${key}: software entry also listed as hardware`);
+    if (x.tunedFrom?.includes(key)) errors.push(`${key}: software entry cannot be tuning input`);
     if (!/^[0-9a-f]{64}$/.test(e.snapshot?.sha256 ?? "")) errors.push(`${key}: snapshot hash missing`);
     if (!e.source) errors.push(`${key}: source result file missing`);
   }
