@@ -27,7 +27,8 @@ test.describe("issue 102 rasters in the custom layer", () => {
       await R(page, "openRaster", { rasters: [raster(0, "png")], stroke: [[40, 150], [200, 130]] });
       await R(page, "settle", undefined);
       await R(page, "frame", "a");
-      const d = await R<{ pixels: number; differing: number; covered: number }>(page, "diffReference", { name: "a", strokeBand: true });
+      const d = await R<{ pixels: number; differing: number; covered: number; sample: number[][] }>(page, "diffReference", { name: "a", strokeBand: true });
+      console.log("DIFFSAMPLE " + JSON.stringify(d.sample));
       expect(d.covered, "the reference covers a real area").toBeGreaterThan(20000);
       expect(d.differing / d.pixels).toBeLessThanOrEqual(SNAPSHOT_MATCH);
       const s = await R<{ levels: number[]; errors: unknown[] }>(page, "stats", undefined);

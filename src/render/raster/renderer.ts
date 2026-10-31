@@ -11,7 +11,7 @@ import type { RasterProvider } from "./provider";
 type Gl2 = WebGL2RenderingContext;
 
 const VERTEX = `#version 300 es
-in vec2 a_hi; in vec2 a_lo; in vec2 a_uv;
+layout(location = 0) in vec2 a_hi; layout(location = 1) in vec2 a_lo; layout(location = 2) in vec2 a_uv;
 uniform vec2 u_centerHi; uniform vec2 u_centerLo; uniform mat2 u_linear; uniform vec2 u_viewport;
 out vec2 v_uv;
 void main() {
@@ -97,11 +97,12 @@ export class RasterRenderer {
   private readonly quads = new Map<string, Float32Array>();
   private program: WebGLProgram | null = null;
   private vao: WebGLVertexArrayObject | null = null;
-  private vbo: WebGLBuffer | null = null;
+  private vbo: (WebGLBuffer | null)[] = [null, null];
+  private sent: (string | undefined)[] = [undefined, undefined];
   private u: Record<string, WebGLUniformLocation | null> = {};
   private used: Used[] = [];
   private fitted = new Map<number, FittedRaster>();
-  private fitKey = "";
+  private lastMats: number[] = [];
   private version = 0;
   private stats: RasterFrameStats = { levels: [], uploads: 0, uploadedBytes: 0, textures: 0, pending: 0, renderMs: 0 };
   private disposed = false;
@@ -133,17 +134,24 @@ export class RasterRenderer {
     const t0 = (this.o.now ?? performance.now.bind(performance))();
     const all = [...this.under, ...this.over];
     const views = new Map<number, RasterView>();
-    let k = `${this.version}|${this.o.cache.ceiling("gpu")}|${f.viewport[0]}x${f.viewport[1]}`;
+    const mats: number[] = [this.version, this.o.cache.ceiling("gpu"), f.viewport[0], f.viewport[1]];
     for (const p of all) {
       const span = Math.max(p.visibleBox[2] - p.visibleBox[0], p.visibleBox[3] - p.visibleBox[1]) / 8;
       const [cx, cy] = apply(p.pixelToSource, (p.visibleBox[0] + p.visibleBox[2]) / 2, (p.visibleBox[1] + p.visibleBox[3]) / 2);
       const norm = Math.hypot(p.pixelToSource[0], p.pixelToSource[2]) || 1;
       const m = f.sourceToDevice(cx, cy, span * norm);
       views.set(p.id, { sourceToDevice: m, width: f.viewport[0], height: f.viewport[1] });
-      k += `|${m.map((x) => x.toPrecision(9)).join(",")}`;
+      mats.push(...m);
     }
-    if (k !== this.fitKey) {
-      this.fitKey = k;
+    // A steady frame (same camera, nothing in flight, nothing to upload) reuses last frame's choice outright.
+    const same = mats.length === this.lastMats.length && mats.every((x, i) => x === this.lastMats[i]);
+    if (same && !this.ready.length && !this.inFlight.size) {
+      this.stats.uploads = 0;
+      this.stats.uploadedBytes = 0;
+      return;
+    }
+    if (!same) {
+      this.lastMats = mats;
       this.fitted.clear();
       for (const p of all) {
         // Rasters share the gpu tier, so the fit is made per raster against its share of the ceiling.
@@ -271,12 +279,18 @@ export class RasterRenderer {
     const quads = this.used.filter((u) => u.p.band === band).sort((a, b) => a.p.id - b.p.id);
     if (!quads.length) return;
     if (!this.program) this.build();
-    const data = new Float32Array(quads.length * 24);
-    quads.forEach((q, i) => data.set(this.quad(q, f), i * 24));
     gl.useProgram(this.program);
     gl.bindVertexArray(this.vao);
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo);
-    gl.bufferData(gl.ARRAY_BUFFER, data, gl.DYNAMIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo[band]!);
+    this.pointers();
+    // The vertices are world positions, independent of the camera, so they are re-sent only when the set of quads changes.
+    const sig = quads.map((q) => `${q.p.id}|${q.level}|${q.col}|${q.row}|${q.rect.join(",")}`).join(";");
+    if (sig !== this.sent[band]) {
+      const data = new Float32Array(quads.length * 24);
+      quads.forEach((q, i) => data.set(this.quad(q, f), i * 24));
+      gl.bufferData(gl.ARRAY_BUFFER, data, gl.DYNAMIC_DRAW);
+      this.sent[band] = sig;
+    }
     gl.uniform2fv(this.u.u_centerHi!, f.centerHi);
     gl.uniform2fv(this.u.u_centerLo!, f.centerLo);
     gl.uniformMatrix2fv(this.u.u_linear!, false, f.linear);
@@ -331,13 +345,16 @@ export class RasterRenderer {
     if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(`raster link: ${gl.getProgramInfoLog(p)}`);
     for (const n of ["u_centerHi", "u_centerLo", "u_linear", "u_viewport", "u_tex", "u_opacity"]) this.u[n] = gl.getUniformLocation(p, n);
     this.vao = gl.createVertexArray();
-    this.vbo = gl.createBuffer();
-    gl.bindVertexArray(this.vao);
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo);
-    for (const [name, size, off] of [["a_hi", 2, 0], ["a_lo", 2, 8], ["a_uv", 2, 16]] as const) {
-      const loc = gl.getAttribLocation(p, name);
+    this.vbo = [gl.createBuffer(), gl.createBuffer()];
+    this.sent = [undefined, undefined];
+  }
+
+  /** Attribute layout of the buffer bound to ARRAY_BUFFER, recorded in the VAO (cheap, and the buffer differs per band). */
+  private pointers(): void {
+    const gl = this.o.gl;
+    for (const [loc, off] of [[0, 0], [1, 8], [2, 16]] as const) {
       gl.enableVertexAttribArray(loc);
-      gl.vertexAttribPointer(loc, size, gl.FLOAT, false, 24, off);
+      gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 24, off);
     }
   }
 
@@ -349,11 +366,12 @@ export class RasterRenderer {
 
   /** The GL objects are gone. The decoded bitmaps were closed on upload, so tiles are fetched and decoded again. */
   onContextLost(): void {
-    this.program = this.vao = this.vbo = null;
+    this.program = this.vao = null;
+    this.vbo = [null, null];
     this.textures.clear();
     this.quads.clear();
     this.used = [];
-    this.fitKey = "";
+    this.lastMats = [];
     this.version++;
     this.failed.clear();
   }
@@ -367,8 +385,9 @@ export class RasterRenderer {
     this.ready.length = 0;
     if (this.program) gl.deleteProgram(this.program);
     if (this.vao) gl.deleteVertexArray(this.vao);
-    if (this.vbo) gl.deleteBuffer(this.vbo);
-    this.program = this.vao = this.vbo = null;
+    for (const b of this.vbo) if (b) gl.deleteBuffer(b);
+    this.vbo = [null, null];
+    this.program = this.vao = null;
     this.pool.dispose();
     this.o.provider.release?.();
   }

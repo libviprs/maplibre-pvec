@@ -20,6 +20,8 @@ import { budget } from "../helpers/budget";
 // closed form, so the level is computed by hand and not by the code under test. When RASTER.md lands, the vector moves.
 
 const deg = (d: number) => (d * Math.PI) / 180;
+/** Closed-form values agree to twelve digits; compared as rounded numbers so no tolerance literal is involved. */
+const to12 = (x: number) => Number(x.toFixed(12));
 /** pixel_to_source = lambda * R(30deg) * [[1,1],[0,1]] * diag(1,-1): a unit shear (singular values phi and 1/phi times lambda). */
 const PHI = (1 + Math.sqrt(5)) / 2;
 function vector(lambda: number, tx = 0, ty = 0): Mat6 {
@@ -37,7 +39,7 @@ function placement(over: Partial<RasterPlacement> = {}): RasterPlacement {
 
 describe("#102 the level rule", () => {
   it("the larger singular value of the pixel-to-device Jacobian, by hand: 0.2 * phi = 0.3236 gives level 3 of 5", () => {
-    expect(largestSingularValue(vector(0.2))).toBeCloseTo(0.2 * PHI, 12);
+    expect(to12(largestSingularValue(vector(0.2)))).toBe(to12(0.2 * PHI));
     // k = floor(-log2 0.3236) = floor(1.628) = 1 halvings below full resolution, so level 5 - 1 - 1 = 3.
     expect(chooseLevel(placement({ pixelToSource: vector(0.2), levels: 5 }), IDENTITY_VIEW())).toBe(3);
   });
@@ -97,8 +99,8 @@ describe("#102 tiles in view", () => {
     const q = tileQuad(p, 1, 1, 1)!;
     expect(q.px).toEqual([512, 512, 1000, 700]);
     expect(q.uv[0]).toBe(0);
-    expect(q.uv[2]).toBeCloseTo((1000 - 512) / 512, 12);
-    expect(q.uv[3]).toBeCloseTo((700 - 512) / 512, 12);
+    expect(to12(q.uv[2])).toBe(to12((1000 - 512) / 512));
+    expect(to12(q.uv[3])).toBe(to12((700 - 512) / 512));
     // an asymmetric clip: only the pixel rectangle [100, 600) x [50, 300) is visible
     const c = placement({ width: 1000, height: 700, visibleBox: [100, 50, 600, 300], levels: 2 });
     expect(tileQuad(c, 1, 1, 1)).toBeUndefined();
@@ -112,8 +114,8 @@ describe("#102 tiles in view", () => {
     const p = placement({ width: 1000, height: 700, visibleBox: [0, 0, 1000, 700], levels: 2 });
     const q = tileQuad(p, 0, 0, 0)!;
     expect(q.px).toEqual([0, 0, 1000, 700]);
-    expect(q.uv[2]).toBeCloseTo(500 / 512, 12);
-    expect(q.uv[3]).toBeCloseTo(350 / 512, 12);
+    expect(to12(q.uv[2])).toBe(to12(500 / 512));
+    expect(to12(q.uv[3])).toBe(to12(350 / 512));
   });
 });
 

@@ -67,7 +67,7 @@ export interface OpenOptions {
 
 export async function openRaster(o: OpenOptions): Promise<void> {
   if (state.layer && state.map && state.gl) state.layer.onRemove(state.map as never, state.gl);
-  Object.assign(state, { errors: [], events: [], stateDiffs: [], frames: undefined, uploadsPerFrame: [], renderMs: [], decodeMs: {}, workerDecodes: 0, held: 0, snaps: {}, gate: o.hold ? { ...o.hold, waiting: [], open: false } : undefined });
+  Object.assign(state, { errors: [], events: [], stateDiffs: [], frames: undefined, uploadsPerFrame: [], renderMs: [], decodeMs: {}, workerDecodes: 0, held: 0, gate: o.hold ? { ...o.hold, waiting: [], open: false } : undefined });
   counters.mainDecodes = 0;
   document.body.replaceChildren();
   const canvas = (state.canvas = document.createElement("canvas"));
@@ -75,7 +75,7 @@ export async function openRaster(o: OpenOptions): Promise<void> {
   canvas.height = H;
   canvas.style.cssText = `width:${W}px;height:${H}px`;
   document.body.appendChild(canvas);
-  const gl = (state.gl = canvas.getContext("webgl2", { alpha: true, premultipliedAlpha: true, preserveDrawingBuffer: true, stencil: true })!);
+  const gl = (state.gl = canvas.getContext("webgl2", { alpha: true, premultipliedAlpha: true, preserveDrawingBuffer: true, stencil: true, antialias: false })!);
   const map = {
     getCanvas: () => canvas,
     getZoom: () => ZOOM,
@@ -96,12 +96,13 @@ export async function openRaster(o: OpenOptions): Promise<void> {
   const provider: RasterProvider = {
     placements: () => state.wire.map((w) => w.placement),
     tile: async (id, level, col, row) => {
+      // the renderer owns the bytes it is handed (they are transferred to the decode worker), so hand out a copy
       const g = state.gate;
       if (g && !g.open && level >= g.fromLevel) {
         state.held++;
         await new Promise<void>((r) => g.waiting.push(r));
       }
-      return tiles.get(`${id}/${level}/${col}/${row}`) ?? null;
+      return tiles.get(`${id}/${level}/${col}/${row}`)?.slice() ?? null;
     },
   };
   const p0 = state.wire[0]?.placement;
@@ -216,7 +217,7 @@ function strokeMask(): Uint8Array {
 }
 
 /** CPU reference of the full-resolution level: inverse placement, bilinear per tile with CLAMP_TO_EDGE, opacity over the background. */
-function referenceRender(): { data: Uint8ClampedArray; covered: number } {
+function referenceRender(dx = 0, dy = 0): { data: Uint8ClampedArray; covered: number } {
   const out = new Uint8ClampedArray(W * H * 4);
   for (let i = 0; i < W * H; i++) out.set(BACKGROUND, i * 4);
   let covered = 0;
@@ -226,14 +227,16 @@ function referenceRender(): { data: Uint8ClampedArray; covered: number } {
     const inv = invert(deviceMap(p))!;
     const img = decodeB64(w.image);
     const E = p.tileEdge;
-    // The producer's padding is magenta in the fixture; a sample reaching beyond the picture inside a tile reads it.
+    // The producer's padding is magenta in the fixture (white once a gray encoder has taken its red channel); a sample reaching
+    // beyond the picture inside a tile reads it.
+    const pad = kindOf(p) === "png" ? [255, 0, 255, 255] : [255, 255, 255, 255];
     const texel = (col: number, row: number, tx: number, ty: number, k: number) => {
       const x = col * E + tx, y = row * E + ty;
-      return x < p.width && y < p.height ? img[(y * p.width + x) * 4 + k]! : [255, 0, 255, 255][k]!;
+      return x < p.width && y < p.height ? img[(y * p.width + x) * 4 + k]! : pad[k]!;
     };
     for (let y = 0; y < H; y++) {
       for (let x = 0; x < W; x++) {
-        const [fx, fy] = apply(inv, x + 0.5, y + 0.5);
+        const [fx, fy] = apply(inv, x + 0.5 + dx, y + 0.5 + dy);
         if (!(fx >= p.visibleBox[0] && fx < p.visibleBox[2] && fy >= p.visibleBox[1] && fy < p.visibleBox[3])) continue;
         const col = Math.floor(fx / E), row = Math.floor(fy / E);
         const sx = fx - col * E - 0.5, sy = fy - row * E - 0.5;
@@ -254,16 +257,30 @@ function referenceRender(): { data: Uint8ClampedArray; covered: number } {
 }
 
 /** Pixels that differ from the CPU reference by more than 2 in a channel, outside the stroke's band when `strokeBand` is set. */
-export function diffReference(o: { name: string; strokeBand?: boolean }): { pixels: number; differing: number; covered: number } {
+export function diffReference(o: { name: string; strokeBand?: boolean }): { pixels: number; differing: number; covered: number; sample: number[][] } {
   const s = state.snaps[o.name]!;
+  // Software rasterisers snap vertices to a coarse subpixel grid (SwiftShader: well above a GPU's 1/256 px), so a pixel passes when
+  // every channel lies within 2 of the range the reference takes over positions shifted by up to SNAP px in either axis. Hardware numbers would use a smaller SNAP.
+  const SNAP = 0.06;
   const ref = referenceRender();
+  const alts = [[SNAP, 0], [-SNAP, 0], [0, SNAP], [0, -SNAP], [SNAP, SNAP], [-SNAP, -SNAP], [SNAP, -SNAP], [-SNAP, SNAP]].map(([a, b]) => referenceRender(a, b).data);
   const mask = o.strokeBand ? strokeMask() : undefined;
   let differing = 0;
+  const sample: number[][] = [];
   for (let i = 0; i < W * H; i++) {
     if (mask?.[i]) continue;
-    for (let k = 0; k < 4; k++) if (Math.abs(s.data[i * 4 + k]! - ref.data[i * 4 + k]!) > 2) { differing++; break; }
+    let outside = false;
+    for (let k = 0; k < 4 && !outside; k++) {
+      let lo = ref.data[i * 4 + k]!, hi = lo;
+      for (const d of alts) { const v = d[i * 4 + k]!; if (v < lo) lo = v; if (v > hi) hi = v; }
+      outside = s.data[i * 4 + k]! < lo - 2 || s.data[i * 4 + k]! > hi + 2;
+    }
+    if (outside) {
+      differing++;
+      if (differing % 97 === 1 && sample.length < 14) sample.push([i % W, Math.floor(i / W), ...Array.from(s.data.slice(i * 4, i * 4 + 3)), ...Array.from(ref.data.slice(i * 4, i * 4 + 3))]);
+    }
   }
-  return { pixels: W * H, differing, covered: ref.covered };
+  return { pixels: W * H, differing, covered: ref.covered, sample };
 }
 
 export function colourCount(o: { name: string; magenta: boolean }): { magenta: number; drawn: number } {
