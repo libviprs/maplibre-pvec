@@ -155,8 +155,11 @@ export function tilesInView(p: RasterPlacement, v: RasterView, level: number, o:
   const out: TileId[] = [];
   for (let row = r0; row <= r1; row++) {
     for (let col = c0; col <= c1; col++) {
-      const q = tileQuad(p, level, col, row);
-      if (!q) continue;
+      // The tile's pixel rectangle clipped to `visible_box`, without the texture coordinates `tileQuad` also builds.
+      const qx0 = Math.max(col * span, p.visibleBox[0]), qx1 = Math.min((col + 1) * span, p.visibleBox[2]);
+      const qy0 = Math.max(row * span, p.visibleBox[1]), qy1 = Math.min((row + 1) * span, p.visibleBox[3]);
+      if (!(qx1 > qx0 && qy1 > qy0)) continue;
+      const q = { px: [qx0, qy0, qx1, qy1] as const };
       if (o.cull !== false) {
         // The tile's four corners in device space, without allocating. A box that misses the viewport box misses the polygon, and a box
         // inside it is inside the polygon, so the separating axis test only runs for the tiles that cross an edge of the viewport.

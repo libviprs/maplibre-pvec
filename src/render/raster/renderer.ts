@@ -89,7 +89,20 @@ const MAX_READY = 8;
 /** TEMPORARY profile hook (#108): accumulated ms per phase of prepare and draw, set by the harness page. */
 const P = (): Record<string, number> | undefined => (globalThis as { __RPROF?: Record<string, number> }).__RPROF;
 const T = () => performance.now();
-const key = (id: number, level: number, col: number, row: number) => `r${id}/${level}/${col}/${row}`;
+/**
+ * Tile keys are built many times a frame (plan, request, collect, upload), so each is built once and looked up by number after that.
+ * Ids, levels, columns and rows fit the packed number far inside 2^53; the table is emptied when it grows past 65536 entries.
+ */
+const keys = new Map<number, string>();
+const key = (id: number, level: number, col: number, row: number): string => {
+  const n = ((id * 32 + level) * 8192 + col) * 8192 + row;
+  let k = keys.get(n);
+  if (k === undefined) {
+    if (keys.size > 65_536) keys.clear();
+    keys.set(n, (k = `r${id}/${level}/${col}/${row}`));
+  }
+  return k;
+};
 const sigOf = (q: { p: { id: number }; level: number; col: number; row: number; rect: number[] }) => `${q.p.id}|${q.level}|${q.col}|${q.row}|${q.rect.join(",")}`;
 
 interface Used {
@@ -451,11 +464,10 @@ export class RasterRenderer {
     // The retained coarser level goes once the finer tiles that replace it are resident: only textures drawn this frame
     // (or in the plan) stay above the eviction line.
     for (const [kk, tex] of this.textures) {
-      const id = Number(kk.slice(1, kk.indexOf("/")));
-      const fit = this.fitted.get(id);
-      const level = Number(kk.split("/")[1]);
-      if (!fit || level >= fit.level || visible.has(kk)) continue;
-      if (!this.wantedKeys.has(kk)) continue;
+      // The cheap tests first: most textures are drawn this frame, and the key is only parsed for one that is not.
+      if (visible.has(kk) || !this.wantedKeys.has(kk)) continue;
+      const fit = this.fitted.get(Number(kk.slice(1, kk.indexOf("/"))));
+      if (!fit || Number(kk.split("/")[1]) >= fit.level) continue;
       this.o.gl.deleteTexture(tex);
       this.textures.delete(kk);
       this.o.cache.drop("gpu", kk);
