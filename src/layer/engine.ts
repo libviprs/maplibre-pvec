@@ -105,34 +105,57 @@ export class StrokeEngine {
   private groups: Group[] = [];
   private frame = 0;
   private lost = false;
-  private readonly raster: RasterRenderer | undefined;
+  private raster: RasterRenderer | undefined;
   private rasterOn = true;
+  private lastRasterStats: RasterFrameStats | undefined;
+  private reference: GeoReference | undefined;
+  /** Bumped by every new georeference: it guards the rebuild of positions the way it guards stroke tessellations. */
+  private transformEpoch = 0;
+  private lastDraws: readonly EntityDraw[] | undefined;
   skipped = 0;
 
   constructor(private readonly o: EngineInit) {
     this.gl = o.gl;
     this.tgl = tracked(o.gl, o.res);
     this.guard = new GlStateGuard(o.gl, { debug: o.onStateDiff !== undefined });
-    if (o.rasters && o.reference) {
-      this.raster = new RasterRenderer({
-        gl: this.tgl,
-        cache: o.cache,
-        provider: o.rasters,
-        map: o.map,
-        spawn: o.spawnDecode ?? spawnDecodeWorker,
-        maxDecodedBytes: o.maxDecodedBytes,
-        refused: new Set((o.rasters.skipped?.() ?? []).map((s) => s.id)),
-        onError: o.onError,
-        onDecode: o.onRasterDecode,
-        onFrame: (st) => {
+    this.reference = o.reference;
+    this.makeRaster();
+  }
+
+  private makeRaster(): void {
+    const o = this.o;
+    if (this.raster || !o.rasters || !this.reference) return;
+    this.raster = new RasterRenderer({
+      gl: this.tgl,
+      cache: o.cache,
+      provider: o.rasters,
+      map: o.map,
+      spawn: o.spawnDecode ?? spawnDecodeWorker,
+      maxDecodedBytes: o.maxDecodedBytes,
+      refused: new Set((o.rasters.skipped?.() ?? []).map((s) => s.id)),
+      onError: o.onError,
+      onDecode: o.onRasterDecode,
+      onFrame: (st) => {
         this.lastRasterStats = st;
         o.onRasterFrame?.(st);
       },
-      });
-      // What pvec-wasm refused comes with its own rule; what this reader cannot draw (a codec it does not know) is RASTER-04.
-      for (const s of o.rasters.skipped?.() ?? []) o.onRasterSkipped?.({ rasterId: s.id, rule: s.rule, message: s.message });
-      for (const s of this.raster.skipped) o.onRasterSkipped?.({ rasterId: s.id, ...SKIP_TEXT[s.reason] });
-    }
+    });
+    // What pvec-wasm refused comes with its own rule; what this reader cannot draw (a codec it does not know) is RASTER-04.
+    for (const s of o.rasters.skipped?.() ?? []) o.onRasterSkipped?.({ rasterId: s.id, rule: s.rule, message: s.message });
+    for (const s of this.raster.skipped) o.onRasterSkipped?.({ rasterId: s.id, ...SKIP_TEXT[s.reason] });
+  }
+
+  /**
+   * `update({ georeference })`: new positions for the quads and a new tessellation of the strokes through the upload budget.
+   * Textures, bitmaps and decodes in flight stay valid, because a decode does not depend on the transform.
+   */
+  setReference(reference: GeoReference | undefined): void {
+    this.reference = reference;
+    this.transformEpoch++;
+    this.makeRaster();
+    this.raster?.setTransformEpoch(this.transformEpoch);
+    if (this.lastDraws) this.setDraws(this.lastDraws);
+    this.o.map.triggerRepaint?.();
   }
 
   /** The rasters that draw, with their attribution escaped for an HTML sink. */
@@ -160,11 +183,12 @@ export class StrokeEngine {
 
   /** Pack the draws per style group into the pool. Only straight and polyline geometry is drawn here. */
   setDraws(draws: readonly EntityDraw[]): void {
+    this.lastDraws = draws;
     const pool = (this.pool ??= new BufferPool(this.tgl, { guardBytes: 40 }));
     for (const g of this.groups) pool.remove(g.key);
     this.groups = [];
-    if (!this.o.reference) return;
-    const geo = createGeoTransform(this.o.reference);
+    if (!this.reference) return;
+    const geo = createGeoTransform(this.reference);
     const byKey = new Map<string, { g: Group; parts: Uint8Array[] }>();
     for (const d of draws) {
       if (d.geometry.type !== "line" && d.geometry.type !== "polyline") {
@@ -275,7 +299,7 @@ export class StrokeEngine {
   private rasterFrame(view: { cx: { hi: number; lo: number }; cy: { hi: number; lo: number }; dpr: number; linear: [number, number, number, number] }): RasterFrame | undefined {
     const { gl } = this;
     const map = this.o.map;
-    const reference = this.o.reference;
+    const reference = this.reference;
     if (!reference) return undefined;
     const geo = createGeoTransform(reference);
     const dpr = view.dpr;

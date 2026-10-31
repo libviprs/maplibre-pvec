@@ -38,6 +38,8 @@ export default defineConfig({
       // It sets Chromium-only SwiftShader launch flags, so it runs on Chromium alone. The 83-* specs (wired layer
       // on a real MapLibre map) are the same kind.
       testMatch: job === "rendering" && browserName === "chromium" ? [`${job}/**/*.spec.ts`, "50-*.spec.ts", "83-*.spec.ts", "96-*.spec.ts", "102-*.spec.ts", "105-*.spec.ts"] : [`${job}/**/*.spec.ts`],
+      // The compose spec drives a real MapLibre map and sets Chromium's software GL flags; the other engines see it through the grid (#107).
+      ...(job === "rendering" && browserName !== "chromium" ? { testIgnore: ["**/106-*.spec.ts"] } : {}),
       use: { browserName },
     })),
   ),

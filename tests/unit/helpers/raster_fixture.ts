@@ -130,6 +130,10 @@ export interface RasterSpec {
   opacity?: number;
   /** Leave out the full-resolution picture (the reference render's input) when a spec does not compare against it. */
   noImage?: boolean;
+  /** A flat colour instead of the asymmetric picture. */
+  solid?: [number, number, number, number];
+  /** A pixel rectangle `[x0, y0, x1, y1)` whose alpha is zero: the baked alpha of a clipped or masked scan. */
+  hole?: [number, number, number, number];
 }
 export interface WireRaster {
   placement: RasterPlacement;
@@ -145,7 +149,12 @@ export const levelsFor = (w: number, h: number, edge: number): number => Math.ma
 export function buildRaster(s: RasterSpec): WireRaster {
   const levels = levelsFor(s.width, s.height, s.edge);
   const tiles: Record<string, string> = {};
-  let cur = { w: s.width, h: s.height, data: picture(s.width, s.height, s.kind) };
+  const base = picture(s.width, s.height, s.kind);
+  for (let y = 0; y < s.height; y++) for (let x = 0; x < s.width; x++) {
+    if (s.solid) base.set(s.solid, (y * s.width + x) * 4);
+    if (s.hole && x >= s.hole[0] && x < s.hole[2] && y >= s.hole[1] && y < s.hole[3]) base.set([0, 0, 0, 0], (y * s.width + x) * 4);
+  }
+  let cur = { w: s.width, h: s.height, data: base };
   const full = cur.data;
   for (let level = levels - 1; level >= 0; level--) {
     for (let row = 0; row < Math.ceil(cur.h / s.edge); row++) {

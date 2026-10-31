@@ -29,6 +29,10 @@ export class Rig {
   readonly posted: string[] = [];
   readonly stats: RasterFrameStats[] = [];
   readonly errors: unknown[] = [];
+  /** Every vertex buffer the renderer sent to the GPU, in order. */
+  readonly vertexUploads: Float32Array[] = [];
+  /** Where the georeference puts the drawing: added to every corner's world position. */
+  world: [number, number] = [0, 0];
   private readonly workers: FakeWorker[] = [];
   private readonly encodedLen = new Map<string, number>();
   /** Camera: device pixels per source unit and the source point at the centre. */
@@ -77,7 +81,7 @@ export class Rig {
       viewport: [w, h],
       dpr: 1,
       sourceToDevice: (): Mat6 => [s, 0, 0, s, w / 2 - this.cx * s, h / 2 - this.cy * s],
-      sourceToWorld: (x, y) => [x / 1e6, y / 1e6],
+      sourceToWorld: (x, y) => [x / 1e6 + this.world[0], y / 1e6 + this.world[1]],
     };
   }
 
@@ -161,6 +165,7 @@ function glStub(rig: Rig): WebGL2RenderingContext {
     createVertexArray: () => ({}),
     createBuffer: () => ({}),
     getUniformLocation: () => ({}),
+    bufferData: (_target: number, data: ArrayBufferView) => void rig.vertexUploads.push(Float32Array.from(data as unknown as Float32Array)),
   };
   return new Proxy(impl, {
     get: (t, k) => (k in t ? t[k as string] : typeof k === "string" && /^[A-Z][A-Z0-9_]*$/.test(k) ? 1 : () => undefined),
