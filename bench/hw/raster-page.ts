@@ -135,8 +135,10 @@ async function uploadTable(): Promise<RasterUploadRow[]> {
   return rows;
 }
 
-interface Watch { last: RasterFrameStats | undefined; peakTextures: number; peakTextureBytes: number }
-const watch = (): Watch => ({ last: undefined, peakTextures: 0, peakTextureBytes: 0 });
+/** `uploads` has one entry per frame that uploaded a tile, from the layer's first frame on (the fill after `addLayer` included). */
+interface Watch { last: RasterFrameStats | undefined; peakTextures: number; peakTextureBytes: number; uploads: { tiles: number; bytes: number }[] }
+const watch = (): Watch => ({ last: undefined, peakTextures: 0, peakTextureBytes: 0, uploads: [] });
+const seen = (w: Watch, st: RasterFrameStats) => { w.last = st; w.peakTextures = Math.max(w.peakTextures, st.textures); w.peakTextureBytes = Math.max(w.peakTextureBytes, st.textureBytes); if (st.uploads) w.uploads.push({ tiles: st.uploads, bytes: st.uploadedBytes }); };
 
 /** A run of the wired layer with rasters: `scans` A0 scans over the stroke scene (when `strokes`), the map panned and zoomed every frame. */
 async function scene(name: "strokes+1" | "strokes+10", scans: number, o: { durationMs: number; warmupMs: number; diffFrames: number }): Promise<RasterSceneRun> {
@@ -145,7 +147,7 @@ async function scene(name: "strokes+1" | "strokes+10", scans: number, o: { durat
     const s = (CSS_W * 0.9) / A0.width;
     const ps = Array.from({ length: scans }, (_, k) => placement(k, s, [CSS_W / 2 + k * 6, CSS_H / 2 + k * 4]));
     const w = watch();
-    return { ps, w, extra: { openRasters: async () => provider(ps), onRasterFrame: (st: RasterFrameStats) => { w.last = st; w.peakTextures = Math.max(w.peakTextures, st.textures); w.peakTextureBytes = Math.max(w.peakTextureBytes, st.textureBytes); } } };
+    return { ps, w, extra: { openRasters: async () => provider(ps), onRasterFrame: (st: RasterFrameStats) => seen(w, st) } };
   };
   counters.mainDecodes = 0;
   const m = mk();
@@ -176,9 +178,8 @@ async function scene(name: "strokes+1" | "strokes+10", scans: number, o: { durat
   await layer.whenReady();
   await settling;
 
-  const interval: number[] = [], render: number[] = [], uploadBytes: number[] = [], uploadTiles: number[] = [];
+  const interval: number[] = [], render: number[] = [];
   let peakTier = 0, last = 0, start = 0, i = 0;
-  m.w.peakTextures = 0; m.w.peakTextureBytes = 0;
   const budget = DEFAULTS.uploadBudgetBytes, tile = EDGE * EDGE * RASTER_DEFAULTS.bytesPerTexel;
   await new Promise<void>((resolve) => {
     const step = () => {
@@ -188,17 +189,15 @@ async function scene(name: "strokes+1" | "strokes+10", scans: number, o: { durat
         if (last) {
           interval.push(ts - last);
           render.push(lastRenderMs);
-          uploadBytes.push(m.w.last?.uploadedBytes ?? 0);
-          uploadTiles.push(m.w.last?.uploads ?? 0);
           peakTier = Math.max(peakTier, layer.getDiagnostics().bytes.gpuTier);
         }
         last = ts;
       }
       i++;
-      if (ts - start >= o.warmupMs + o.durationMs) { map.off("render", step); resolve(); return; }
-      // Pan side to side and breathe the zoom by 0.6 of a level, so the level rule moves and tiles keep arriving.
-      map.setCenter([CENTER[0] + Math.sin(i / 90) * 200 * LON_PER_PX, CENTER[1] + Math.cos(i / 130) * 80 * LAT_PER_PX]);
-      map.setZoom(17 + 0.6 * Math.sin(i / 240));
+      if (ts - start >= o.warmupMs + o.durationMs + 250) { map.off("render", step); resolve(); return; }
+      // Pan side to side and breathe the zoom by 0.8 of a level, so the level rule moves and tiles keep arriving.
+      map.setCenter([CENTER[0] + Math.sin(i / 90) * 500 * LON_PER_PX, CENTER[1] + Math.cos(i / 130) * 250 * LAT_PER_PX]);
+      map.setZoom(17 + 0.8 * Math.sin(i / 300));
       map.triggerRepaint();
     };
     map.on("render", step);
@@ -225,8 +224,8 @@ async function scene(name: "strokes+1" | "strokes+10", scans: number, o: { durat
     frames: { count: interval.length, p50Ms: fs.p50, p95Ms: fs.p95, p99Ms: fs.p99, maxMs: fs.max, over20Ms: interval.filter((v) => v > 20).length },
     render: { p50Ms: rs.p50, p95Ms: rs.p95, maxMs: rs.max },
     uploads: {
-      framesWithUploads: uploadTiles.filter((n) => n > 0).length, maxTilesPerFrame: Math.max(0, ...uploadTiles), maxBytesPerFrame: Math.max(0, ...uploadBytes),
-      overBudgetFrames: uploadBytes.filter((b) => b >= budget + tile).length,
+      framesWithUploads: m.w.uploads.length, maxTilesPerFrame: Math.max(0, ...m.w.uploads.map((u) => u.tiles)), maxBytesPerFrame: Math.max(0, ...m.w.uploads.map((u) => u.bytes)),
+      overBudgetFrames: m.w.uploads.filter((u) => u.bytes >= budget + tile).length,
     },
     texture: { peakTextures: m.w.peakTextures, peakGpuTierBytes: Math.max(peakTier, m.w.peakTextureBytes), gpuBytes: GPU_CEILING },
     stateDiffs, errors: errors + errorsDebug, mainThreadDecodes,
@@ -240,7 +239,7 @@ async function fit(view: "1080p" | "4k", deviceW: number, deviceH: number): Prom
   const s = 1 / dpr; // source units per scan pixel: one source unit is one css px at zoom 17
   const ps = [0, 1].map((k) => placement(k, s, [w / 2 + k * 40, h / 2 + k * 25]));
   const watcher = watch();
-  const rig: Rig = await build(false, { openRasters: async () => provider(ps), onRasterFrame: (st) => { watcher.last = st; watcher.peakTextures = Math.max(watcher.peakTextures, st.textures); watcher.peakTextureBytes = Math.max(watcher.peakTextureBytes, st.textureBytes); } }, { w, h, strokes: false });
+  const rig: Rig = await build(false, { openRasters: async () => provider(ps), onRasterFrame: (st) => seen(watcher, st) }, { w, h, strokes: false });
   rig.map.addLayer(rig.layer as never);
   let quiet = 0, peakTier = 0;
   await rig.layer.whenReady();
@@ -261,7 +260,7 @@ async function firstDrawing(mbit: number): Promise<RasterFirstDrawing> {
   const fetched = { bytes: 0 };
   const ps = [placement(0, (CSS_W * 0.9) / A0.width, [CSS_W / 2, CSS_H / 2])];
   const w = watch();
-  const rig = await build(false, { openRasters: async () => provider(ps, { mbit, fetched }), onRasterFrame: (st) => { w.last = st; } }, { w: CSS_W, h: CSS_H, strokes: false });
+  const rig = await build(false, { openRasters: async () => provider(ps, { mbit, fetched }), onRasterFrame: (st) => seen(w, st) }, { w: CSS_W, h: CSS_H, strokes: false });
   const t0 = performance.now();
   rig.map.addLayer(rig.layer as never);
   let ms = 0;
