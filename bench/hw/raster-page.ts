@@ -338,6 +338,8 @@ async function replay(id: string, scans: number, on: boolean, runs: number): Pro
       const step = () => {
         const ts = performance.now();
         if (!drawnAt && lastCalls >= POLYLINES && (!on || (w.last?.levels.length ?? 0) > 0)) { drawnAt = ts - t0; recording = true; }
+        // A scene that never draws everything (software GL) still gets its replay, with the first drawing recorded as the cap.
+        else if (!drawnAt && ts - t0 > 120_000) { drawnAt = ts - t0; recording = true; }
         if (recording) { if (last) intervals.push(ts - last); last = ts; i++; }
         const k = Math.floor(i / 60);
         if (k >= 5 + 24) { rig.map.off("render", step); resolve(); return; }
@@ -363,11 +365,19 @@ export async function run(o: { durationMs: number; warmupMs: number; diffFrames:
   const gpuRenderer = String(info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER));
   const gpuVendor = String(info ? gl.getParameter(info.UNMASKED_VENDOR_WEBGL) : gl.getParameter(gl.VENDOR));
   const timerQuery = !!gl.getExtension("EXT_disjoint_timer_query_webgl2");
+  const say = (m: string) => console.log(`[raster] ${m} at ${Math.round(performance.now() / 1000)} s`);
   const decode = await decodeTable();
+  say("decode table done");
   const upload = await uploadTable();
+  say("upload table done");
   const fits = [await fit("1080p", 1920, 1080), await fit("4k", 3840, 2160)];
+  say("fit views done");
   const firstDrawings = [await firstDrawing(25), await firstDrawing(5)];
-  const scenes = [await scene("strokes+1", 1, o), await scene("strokes+10", 10, o)];
+  say("first drawing done");
+  const scenes = [await scene("strokes+1", 1, o)];
+  say("scene 1 done");
+  scenes.push(await scene("strokes+10", 10, o));
+  say("scene 10 done");
   const replays: RasterReplayRow[] = [];
   for (const [id, n] of [["architectural-1e5+1-scan", 1], ["architectural-1e5+10-scans", 10]] as const) for (const on of [true, false]) replays.push(await replay(id, n, on, 3));
   return { gpuRenderer, gpuVendor, dpr: devicePixelRatio, viewport: [CSS_W, CSS_H] as [number, number], timerQuery, raster: { decode, upload, scenes, fit: fits, firstDrawing: firstDrawings, replay: replays } };

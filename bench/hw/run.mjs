@@ -95,6 +95,7 @@ if (cmd === "bundle") {
     const page = await ctx.newPage();
     page.setDefaultTimeout(0);
     if (process.argv.includes("--raster-only")) {
+      page.on("console", (m) => { if (m.text().startsWith("[raster]")) console.log(m.text()); });
       await page.goto(`http://127.0.0.1:${server.address().port}/raster.html`);
       rasterRaw = await page.evaluate((o) => window.HWR.run(o), { durationMs: duration, warmupMs: 3000, diffFrames: Number(arg("diff-frames", "400")), profile });
       var version = browser.version();
