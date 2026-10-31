@@ -17,26 +17,6 @@ export interface DecodeWorker {
   terminate(): void;
 }
 
-/** The worker's whole program, as a string so it needs no bundler entry. Kept in step with `DecodeReply`. */
-const WORKER_SOURCE = `
-self.onmessage = async (e) => {
-  const { id, bytes, mime } = e.data;
-  const t0 = performance.now();
-  try {
-    const bitmap = await createImageBitmap(new Blob([bytes], { type: mime }), { colorSpaceConversion: "none", imageOrientation: "none", premultiplyAlpha: "premultiply" });
-    self.postMessage({ id, bitmap, ms: performance.now() - t0 }, [bitmap]);
-  } catch (err) {
-    self.postMessage({ id, error: String(err) });
-  }
-};`;
-
-export function spawnDecodeWorker(): DecodeWorker {
-  const url = URL.createObjectURL(new Blob([WORKER_SOURCE], { type: "text/javascript" }));
-  const w = new Worker(url);
-  URL.revokeObjectURL(url);
-  return w as unknown as DecodeWorker;
-}
-
 export class DecodePool {
   private readonly workers: DecodeWorker[] = [];
   private readonly waiting = new Map<number, { resolve(d: Decoded): void; reject(e: Error): void }>();

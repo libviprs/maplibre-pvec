@@ -134,18 +134,33 @@ describe("#105 the budgets", () => {
   });
 
   it("maxDecodedBytes stops the decode queue and resumes it when a bitmap is uploaded", async () => {
-    const r = new Rig([placement(0)], { maxDecodedBytes: 2 * TILE });
-    let peak = 0;
-    for (let i = 0; i < 60; i++) {
+    // Calibrate: how many tiles the plan holds at the wanted level, and how many coarser ones sit under them while it loads.
+    // The camera sits on a corner shared by four tiles of the wanted level, whose parent is one tile of the coarser level.
+    const probe = new Rig([placement(0)]);
+    probe.viewport = [300, 300];
+    probe.cx = probe.cy = 1280;
+    await settle(probe);
+    const fine = new Set(probe.requests.filter((k) => KEY(k)[1] === 3)).size;
+    const coarse = new Set(probe.requests.filter((k) => KEY(k)[1] === 2)).size;
+    expect(fine).toBe(4);
+    expect(coarse).toBe(1);
+    // The plan fits the cap (LIMIT-16 leaves the level alone), the coarser tiles under it do not fit beside it: the queue must wait.
+    const cap = fine + coarse - 1;
+    const r = new Rig([placement(0)], { maxDecodedBytes: cap * TILE });
+    r.viewport = [300, 300];
+    r.cx = r.cy = 1280;
+    let waited = false;
+    for (let i = 0; i < 80; i++) {
       r.step();
       await r.tick();
-      peak = Math.max(peak, r.pending.length, r.cache.bytes("decoded") / TILE + r.pending.length);
-      expect(r.pending.length + r.independent().decoded / TILE, "bitmaps in flight plus bitmaps waiting").toBeLessThanOrEqual(2);
+      const held = r.pending.length + r.independent().decoded / TILE;
+      expect(held, "bitmaps in flight plus bitmaps waiting").toBeLessThanOrEqual(cap);
+      waited ||= held === cap && new Set(r.posted).size < fine + coarse;
       r.deliver(1);
       await r.tick();
     }
-    expect(peak).toBeLessThanOrEqual(2);
-    expect(new Set(r.posted).size, "the queue resumed and went on asking").toBeGreaterThan(4);
+    expect(waited, "the queue was held at the cap with tiles still to ask for").toBe(true);
+    expect(new Set(r.posted.filter((k) => KEY(k)[1] === 3)).size, "and it resumed until the whole plan was asked for").toBe(fine);
   });
 
   it("a tile that left the plan while its decode was in flight is closed when it arrives, not uploaded", async () => {

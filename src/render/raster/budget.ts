@@ -38,6 +38,26 @@ export function fitLevels(ps: readonly RasterPlacement[], v: RasterView, gpuByte
 }
 
 /**
+ * LIMIT-16 on the host side, as pvec's plan applies it: the tiles of all the rasters' plans, decoded, must fit in `maxDecoded`.
+ * The raster holding the most bytes steps down a level first, until it fits or every raster sits at level 0. The plan is
+ * changed in place.
+ */
+export function limitDecoded(fits: Map<number, FittedRaster>, ps: readonly RasterPlacement[], views: Map<number, RasterView>, maxDecoded: number): void {
+  const bytes = (p: RasterPlacement) => (fits.get(p.id)?.tiles.length ?? 0) * tileTextureBytes(p.tileEdge);
+  for (;;) {
+    let total = 0, worst: RasterPlacement | undefined;
+    for (const p of ps) {
+      total += bytes(p);
+      if ((fits.get(p.id)?.level ?? 0) > 0 && (!worst || bytes(p) > bytes(worst))) worst = p;
+    }
+    if (total <= maxDecoded || !worst) return;
+    const f = fits.get(worst.id)!;
+    f.level -= 1;
+    f.tiles = tilesInView(worst, views.get(worst.id)!, f.level);
+  }
+}
+
+/**
  * Takes the uploads one frame may do from the head of `queue`: at least one, then until the byte or the millisecond
  * budget is spent (the rule of `BufferPool.flush`).
  */
