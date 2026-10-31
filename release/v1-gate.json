@@ -17,8 +17,8 @@
       "spec": "all gates green on the frozen corpus after tuning (M8.2 - M8.5, M8.6)",
       "status": "deferred",
       "measured": {
-        "casesWithPvecBytes": 22,
-        "notEmittedByPvec": 8,
+        "casesWithPvecBytes": 28,
+        "notEmittedByPvec": 2,
         "cases": 30,
         "varianceOk": true
       },
@@ -31,7 +31,7 @@
       "status": "met",
       "measured": {
         "quarantined": 0,
-        "passSetCases": 22
+        "passSetCases": 28
       },
       "evidence": "the pass set is the corpus cases with real .pvec bytes from pvec's generator; none of them is QUARANTINED"
     },

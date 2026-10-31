@@ -20,7 +20,7 @@ export interface WasmEnv {
 }
 
 /** The ABI versions of libviprs/pvec `pvec-wasm` (docs/WASM_ABI.md there) this package knows how to drive. */
-export const SUPPORTED_ABI_VERSIONS: readonly number[] = [1];
+export const SUPPORTED_ABI_VERSIONS: readonly number[] = [1, 2];
 
 /**
  * Every export the packed binding calls, plus `memory` and the allocator the generated glue uses to

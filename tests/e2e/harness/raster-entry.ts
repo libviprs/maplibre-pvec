@@ -1,5 +1,7 @@
 import { createPVecLayer, type PVecLayer } from "../../../src/index";
 import { configureEngine } from "../../../src/layer/internal";
+import { loadEvaluator } from "../../../src/wasm/loader";
+import { spawnDecodeWorker } from "../../../src/workers/raster_decode";
 import { Epsg4326Adapter } from "../../../src/transform/crs";
 import { createGeoTransform } from "../../../src/transform/georeference";
 import { lngLatToMercator, mercatorToLngLat } from "../../../src/transform/projection";
@@ -57,6 +59,7 @@ const state = {
   workerDecodes: 0,
   held: 0,
   tileRequests: 0,
+  decodePosts: 0,
   gate: undefined as { fromLevel: number; waiting: (() => void)[]; open: boolean } | undefined,
 };
 
@@ -73,11 +76,13 @@ export interface OpenOptions {
   refuse?: Record<number, string>;
   /** Rasters whose tiles keep a valid header and get a corrupt body. */
   corrupt?: number[];
+  /** Run the real module: the layer reads this URL by ranges and the adapter over `pvec_eval.wasm` (base64) supplies the rasters. */
+  real?: { url: string; wasm: string };
 }
 
 export async function openRaster(o: OpenOptions): Promise<void> {
   if (state.layer && state.map && state.gl) state.layer.onRemove(state.map as never, state.gl);
-  Object.assign(state, { errors: [], events: [], skips: [], stateDiffs: [], frames: undefined, uploadsPerFrame: [], renderMs: [], decodeMs: {}, workerDecodes: 0, held: 0, tileRequests: 0, gate: o.hold ? { ...o.hold, waiting: [], open: false } : undefined });
+  Object.assign(state, { errors: [], events: [], skips: [], stateDiffs: [], frames: undefined, uploadsPerFrame: [], renderMs: [], decodeMs: {}, workerDecodes: 0, held: 0, tileRequests: 0, decodePosts: 0, gate: o.hold ? { ...o.hold, waiting: [], open: false } : undefined });
   counters.mainDecodes = 0;
   document.body.replaceChildren();
   const canvas = (state.canvas = document.createElement("canvas"));
@@ -124,25 +129,33 @@ export async function openRaster(o: OpenOptions): Promise<void> {
   const p0 = state.wire[0]?.placement;
   state.stroke = [];
   if (o.stroke && p0) for (const [x, y] of o.stroke) state.stroke.push(...apply(p0.pixelToSource, x! + 0.5, y! + 0.5));
-  const layer = (state.layer = createPVecLayer({ id: "pvec", source: { url: (window as unknown as { __FIXTURE__: string }).__FIXTURE__ }, georeference: { reference }, ...(o.gpuBytes ? { cache: { gpuBytes: o.gpuBytes } } : {}), ...(o.maxDecodedBytes ? { limits: { maxDecodedBytes: o.maxDecodedBytes } } : {}) }));
+  const layer = (state.layer = createPVecLayer({ id: "pvec", source: { url: o.real?.url ?? (window as unknown as { __FIXTURE__: string }).__FIXTURE__ }, georeference: { reference }, ...(o.gpuBytes ? { cache: { gpuBytes: o.gpuBytes } } : {}), ...(o.maxDecodedBytes ? { limits: { maxDecodedBytes: o.maxDecodedBytes } } : {}) }));
   layer.on("error", (e) => state.errors.push({ code: e.code, message: e.message }));
   layer.on("capabilityunsupported", (e) => state.events.push({ capability: e.capability, required: e.required, action: e.action }));
   layer.on("rasterskipped", (e) => state.skips.push({ rasterId: e.rasterId, rule: e.rule, message: e.message }));
   let served = !state.stroke.length;
   const entities = (): RawEntity[] => [{ entityId: "e0", kind: "exact", geometry: { type: "polyline", points: state.stroke }, bounds: { minX: 0, minY: 0, maxX: 1000, maxY: 1000 } }];
   configureEngine(layer, {
-    loadEvaluator: () => Promise.resolve({ instance: {} as WebAssembly.Instance, abiVersion: 1, source: "injected" as const }),
+    loadEvaluator: o.real
+      ? async () => loadEvaluator({ wasmModule: await WebAssembly.compile(decodeB64(o.real!.wasm)) })
+      : () => Promise.resolve({ instance: {} as WebAssembly.Instance, abiVersion: 1, source: "injected" as const }),
+    spawnDecode: () => {
+      const w = spawnDecodeWorker();
+      const post = w.postMessage.bind(w);
+      w.postMessage = ((m: Parameters<typeof post>[0], t: Parameters<typeof post>[1]) => (state.decodePosts++, post(m, t))) as typeof w.postMessage;
+      return w;
+    },
     maplibreVersion: () => undefined,
     openCursor: async () => (state.stroke.length ? { next: () => (served ? null : ((served = true), entities())) } : null),
-    openRasters: async () => (o.rasters === null ? null : provider),
+    ...(o.real ? {} : { openRasters: async () => (o.rasters === null ? null : provider) }),
     onRasterFrame: (s) => {
       state.frames = s;
       if (s.uploads) state.uploadsPerFrame.push(s.uploads);
     },
     onRasterDecode: (e) => {
       state.workerDecodes++;
-      const p = state.wire.find((w) => w.placement.id === e.id)!.placement;
-      (state.decodeMs[kindOf(p)] ??= []).push(e.ms);
+      const p = state.wire.find((w) => w.placement.id === e.id)?.placement;
+      (state.decodeMs[p ? kindOf(p) : "real"] ??= []).push(e.ms);
     },
     ...(o.debug === false ? {} : o.debug ? { onStateDiff: (d: string[]) => void state.stateDiffs.push(...d) } : {}),
   });
@@ -269,6 +282,7 @@ export function stats() {
     pending: state.frames?.pending ?? 0,
     held: state.held,
     tileRequests: state.tileRequests,
+    decodePosts: state.decodePosts,
     gpuBudget: state.layer?.getDiagnostics().bytes.gpuTier ?? 0,
     raster: state.frames,
     decodedTier: state.layer?.getDiagnostics().bytes.decodedTier ?? 0,
