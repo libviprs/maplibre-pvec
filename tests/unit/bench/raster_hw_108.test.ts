@@ -39,6 +39,7 @@ const good = (): RasterResult => ({
     scenes: [scene("strokes+1", 1), scene("strokes+10", 10)],
     fit: (["1080p", "4k"] as const).map((view) => ({ view, deviceSize: view === "4k" ? [3840, 2160] as [number, number] : [1920, 1080] as [number, number], rasters: 2, gpuBytes: 128 << 20, peakGpuTierBytes: 100 << 20, textures: 90, levels: [1, 2] })),
     firstDrawing: [{ mbit: 25, ms: 300, bytes: 40000 }, { mbit: 5, ms: 900, bytes: 40000 }],
+    replay: ["architectural-1e5+1-scan", "architectural-1e5+10-scans"].flatMap((c) => (["on", "off"] as const).map((rasters) => ({ case: c, rasters, runs: 3, firstDrawingMs: 120, p95FrameMs: 17, maxFrameMs: 30, frames: 500 }))),
   },
 });
 const soft = (): RasterResult => {
@@ -99,6 +100,11 @@ describe("#108 raster result files", () => {
     const m = good();
     m.raster.fit = m.raster.fit.slice(0, 1);
     expect(validateRasterResult(m, false).join()).toMatch(/4k/);
+  });
+  it("refuse a result that did not replay a raster case with rasters on and off", () => {
+    const r = good();
+    r.raster.replay = r.raster.replay.filter((x) => !(x.case === "architectural-1e5+10-scans" && x.rasters === "off"));
+    expect(validateRasterResult(r, false).join()).toMatch(/replay.*10-scans.*off/);
   });
   it("reports the render budget separately: main-thread render p95 under 1 ms with decodes running", () => {
     expect(rasterBudgetProblems(good())).toEqual([]);

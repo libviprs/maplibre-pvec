@@ -205,6 +205,11 @@ function rasterSection(root, hw) {
   out.push("| renderer | view (device px) | peak textures | peak gpu tier (MiB of 128) | levels drawn at the end |", "|---|---|---|---|---|");
   for (const { e, label } of cols) for (const f of e.raster.fit) out.push(`| ${label} | ${f.view} (${f.deviceSize.join(" by ")}) | ${f.textures} | ${mib(f.peakGpuTierBytes)} | ${f.levels.join(", ") || "none"} |`);
   out.push("");
+  out.push("#### Corpus raster cases replayed through the layer, rasters on and off\n");
+  out.push("The two raster cases of `bench/corpus/corpus.json` (the 1e5-segment stand-in strokes plus one scan and plus ten), replayed through `createPVecLayer` with `raster.enabled` true and false: five zoom steps and a ring of 24 pan steps, 60 frames each, median of three runs. First drawing is `addLayer` to the first frame that drew the strokes and, with rasters on, a raster. Frame times are render-event intervals. The add-on's own numbers for the viewport scripts are these; the 30 registry cases still replay without the add-on in `bench/results` (no real Tier 0 cursor is wired in yet).\n");
+  out.push("| renderer | case | rasters | first drawing (ms) | frame p95 / max (ms) | frames |", "|---|---|---|---|---|---|");
+  for (const { e, label } of cols) for (const r of e.raster.replay) out.push(`| ${label} | ${r.case} | ${r.rasters} | ${fmt(Math.round(r.firstDrawingMs))} | ${f2(r.p95FrameMs)} / ${f2(r.maxFrameMs)} | ${r.frames} |`);
+  out.push("");
   if (soft.length) {
     out.push("The software GL rows (SwiftShader on the CPU, a linux container, no GPU) are relative costs. They say the page, the decode worker and the layer work there and what a frame costs in software; they are not GPU numbers, they are not tuning input, and no budget or frozen value reads from them. The frame counts are low because software drawing of the 1e6-segment scene takes seconds a frame.\n");
   }

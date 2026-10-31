@@ -41,11 +41,11 @@ function walk(seed: number, n: number, w: number, h: number): number[] {
   return pts;
 }
 
-const entities = (): RawEntity[] =>
+const entities = (segPerLine = SEG_PER_LINE): RawEntity[] =>
   Array.from({ length: POLYLINES }, (_, i) => ({
     entityId: `e${i}`,
     kind: "exact" as const,
-    geometry: { type: "polyline" as const, points: walk(1 + i, SEG_PER_LINE, CSS_W, CSS_H) },
+    geometry: { type: "polyline" as const, points: walk(1 + i, segPerLine, CSS_W, CSS_H) },
     bounds: { minX: 0, minY: 0, maxX: CSS_W, maxY: CSS_H },
   }));
 
@@ -54,7 +54,7 @@ export const stats = (v: number[]) => ({ p50: percentile(v, 50), p95: percentile
 export interface Rig { map: maplibregl.Map; layer: PVecLayer; gl: WebGL2RenderingContext; errors: () => number; diffs: () => number }
 
 /** `extra` adds engine deps (the raster scenes of #108 add a provider), `size` is the map's css size and `strokes` false leaves the stroke scene out. */
-export async function build(debug: boolean, extra: Partial<EngineDeps> = {}, size: { w: number; h: number; strokes?: boolean } = { w: CSS_W, h: CSS_H }): Promise<Rig> {
+export async function build(debug: boolean, extra: Partial<EngineDeps> = {}, size: { w: number; h: number; strokes?: boolean; segPerLine?: number } = { w: CSS_W, h: CSS_H }): Promise<Rig> {
   document.body.replaceChildren();
   const host = document.createElement("div");
   host.style.cssText = `width:${size.w}px;height:${size.h}px;position:absolute;left:0;top:0`;
@@ -69,7 +69,7 @@ export async function build(debug: boolean, extra: Partial<EngineDeps> = {}, siz
   map.on("error", () => errors++);
   const layer = createPVecLayer({ id: "pvec", source: { url: new URL("/p.pvec", location.href).href }, georeference: { reference: referenceFor(size.w, size.h) } });
   layer.on("error", () => errors++);
-  const queue = size.strokes === false ? [] : entities();
+  const queue = size.strokes === false ? [] : entities(size.segPerLine);
   configureEngine(layer, {
     loadEvaluator: () => Promise.resolve({ instance: {} as WebAssembly.Instance, abiVersion: 1, source: "injected" as const }),
     maplibreVersion: () => maplibregl.getVersion(),

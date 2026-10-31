@@ -4,7 +4,7 @@ import type { RasterPlacement } from "../../src/render/raster/geometry";
 import { RasterRefusedError, type RasterProvider } from "../../src/render/raster/provider";
 import type { RasterFrameStats } from "../../src/render/raster/renderer";
 import { percentile } from "../lib/stats";
-import { RASTER_EDGES, RASTER_VARIANTS, type RasterDecodeRow, type RasterFirstDrawing, type RasterFitRun, type RasterSceneRun, type RasterUploadRow, type RasterVariant } from "../lib/hardware";
+import { RASTER_EDGES, RASTER_VARIANTS, type RasterDecodeRow, type RasterFirstDrawing, type RasterFitRun, type RasterReplayRow, type RasterSceneRun, type RasterUploadRow, type RasterVariant } from "../lib/hardware";
 import { CSS_H, CSS_W, LAT_PER_PX, LON_PER_PX, CENTER, build, frames, stats, type Rig } from "./layer-page";
 
 // Page side of the raster run (#108). Four parts, all in one page: the decode table (the shipped decode worker, one tile per codec
@@ -272,6 +272,54 @@ async function firstDrawing(mbit: number): Promise<RasterFirstDrawing> {
   return { mbit, ms, bytes: fetched.bytes };
 }
 
+const median = (v: number[]) => [...v].sort((a, b) => a - b)[Math.floor(v.length / 2)]!;
+
+/**
+ * A corpus raster case through the layer, rasters on and off: 1e5 segments from the stand-in cursor, the case's scans, a viewport
+ * script of five zoom steps and a ring of pan steps (the shape of bench/lib/viewport.ts around this scene's native zoom 17).
+ * First drawing is addLayer to the first frame that drew the strokes (and, with rasters on, a raster); frames are the render intervals.
+ */
+async function replay(id: string, scans: number, on: boolean, runs: number): Promise<RasterReplayRow> {
+  const first: number[] = [], p95: number[] = [], max: number[] = [];
+  let count = 0;
+  for (let r = 0; r < runs; r++) {
+    const s = (CSS_W * 0.9) / A0.width;
+    const ps = Array.from({ length: scans }, (_, k) => placement(k, s, [CSS_W / 2 + k * 6, CSS_H / 2 + k * 4]));
+    const w = watch();
+    let calls = 0, lastCalls = 0;
+    const rig = await build(false, { openRasters: async () => provider(ps), onRasterFrame: (st) => seen(w, st) }, { w: CSS_W, h: CSS_H, segPerLine: 10_000 });
+    if (!on) rig.layer.update({ raster: { enabled: false } });
+    const gl = rig.gl;
+    const orig = gl.drawArraysInstanced.bind(gl);
+    gl.drawArraysInstanced = ((...a: Parameters<typeof orig>) => { calls++; return orig(...a); }) as typeof orig;
+    const inner = rig.layer.render.bind(rig.layer);
+    rig.layer.render = (g, args) => { const b = calls; inner(g, args); lastCalls = calls - b; };
+    const t0 = performance.now();
+    rig.map.addLayer(rig.layer as never);
+    let drawnAt = 0, i = 0, last = 0, recording = false;
+    const intervals: number[] = [];
+    await new Promise<void>((resolve) => {
+      const step = () => {
+        const ts = performance.now();
+        if (!drawnAt && lastCalls >= POLYLINES && (!on || (w.last?.levels.length ?? 0) > 0)) { drawnAt = ts - t0; recording = true; }
+        if (recording) { if (last) intervals.push(ts - last); last = ts; i++; }
+        const k = Math.floor(i / 60);
+        if (k >= 5 + 24) { rig.map.off("render", step); resolve(); return; }
+        if (recording) {
+          if (k < 5) rig.map.setZoom([16, 17, 18, 19, 17][k]!);
+          else { const a = ((k - 5) / 24) * 2 * Math.PI; rig.map.setCenter([CENTER[0] + Math.cos(a) * 200 * LON_PER_PX, CENTER[1] + Math.sin(a) * 200 * LAT_PER_PX]); }
+        }
+        rig.map.triggerRepaint();
+      };
+      rig.map.on("render", step);
+      rig.map.triggerRepaint();
+    });
+    rig.map.remove();
+    first.push(drawnAt); p95.push(stats(intervals).p95); max.push(stats(intervals).max); count = intervals.length;
+  }
+  return { case: id, rasters: on ? "on" : "off", runs, firstDrawingMs: median(first), p95FrameMs: median(p95), maxFrameMs: median(max), frames: count };
+}
+
 export async function run(o: { durationMs: number; warmupMs: number; diffFrames: number }) {
   const canvas = document.createElement("canvas");
   const gl = canvas.getContext("webgl2")!;
@@ -284,5 +332,7 @@ export async function run(o: { durationMs: number; warmupMs: number; diffFrames:
   const fits = [await fit("1080p", 1920, 1080), await fit("4k", 3840, 2160)];
   const firstDrawings = [await firstDrawing(25), await firstDrawing(5)];
   const scenes = [await scene("strokes+1", 1, o), await scene("strokes+10", 10, o)];
-  return { gpuRenderer, gpuVendor, dpr: devicePixelRatio, viewport: [CSS_W, CSS_H] as [number, number], timerQuery, raster: { decode, upload, scenes, fit: fits, firstDrawing: firstDrawings } };
+  const replays: RasterReplayRow[] = [];
+  for (const [id, n] of [["architectural-1e5+1-scan", 1], ["architectural-1e5+10-scans", 10]] as const) for (const on of [true, false]) replays.push(await replay(id, n, on, 3));
+  return { gpuRenderer, gpuVendor, dpr: devicePixelRatio, viewport: [CSS_W, CSS_H] as [number, number], timerQuery, raster: { decode, upload, scenes, fit: fits, firstDrawing: firstDrawings, replay: replays } };
 }

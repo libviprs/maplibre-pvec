@@ -220,12 +220,15 @@ export interface RasterSceneRun {
 }
 export interface RasterFitRun { view: "1080p" | "4k"; deviceSize: [number, number]; rasters: number; gpuBytes: number; peakGpuTierBytes: number; textures: number; levels: number[] }
 export interface RasterFirstDrawing { mbit: number; ms: number; bytes: number }
+/** A corpus raster case replayed through the layer with rasters on and off: the median of `runs` runs. */
+export interface RasterReplayRow { case: string; rasters: "on" | "off"; runs: number; firstDrawingMs: number; p95FrameMs: number; maxFrameMs: number; frames: number }
 export interface RasterRun {
   decode: RasterDecodeRow[];
   upload: RasterUploadRow[];
   scenes: RasterSceneRun[];
   fit: RasterFitRun[];
   firstDrawing: RasterFirstDrawing[];
+  replay: RasterReplayRow[];
 }
 export interface RasterResult {
   schema: 1;
@@ -286,6 +289,10 @@ export function validateRasterResult(r: unknown, software: boolean): string[] {
     if (!(f.peakGpuTierBytes <= f.gpuBytes)) errors.push(`raster.fit ${v} went over the gpu ceiling (${f.peakGpuTierBytes} of ${f.gpuBytes})`);
   }
   for (const m of [25, 5]) if (!x.firstDrawing?.some((d) => d.mbit === m && d.ms > 0)) errors.push(`raster.firstDrawing has no ${m} Mbit/s row`);
+  for (const c of ["architectural-1e5+1-scan", "architectural-1e5+10-scans"]) for (const on of ["on", "off"] as const) {
+    const row = x.replay?.find((q) => q.case === c && q.rasters === on);
+    if (!row || !(row.firstDrawingMs > 0) || !finite(row.p95FrameMs) || !finite(row.maxFrameMs) || !(row.frames > 0)) errors.push(`raster.replay has no complete row for ${c} with rasters ${on}`);
+  }
   return errors;
 }
 
