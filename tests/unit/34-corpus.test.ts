@@ -77,11 +77,11 @@ describe("#34 corpus.json", () => {
     expect(validateCorpus(sha, reg).errors.join("\n")).toMatch(/pvec/);
   });
 
-  it("has real pvec bytes for 22 cases and pvec's own reason for the 8 it did not emit (#80)", () => {
-    expect(corpus.cases.filter((c) => c.pvec.status === "PRESENT")).toHaveLength(22);
+  it("has real pvec bytes for 28 cases and pvec's own reason for the 2 it did not emit (#80)", () => {
+    expect(corpus.cases.filter((c) => c.pvec.status === "PRESENT")).toHaveLength(28);
     expect(corpus.cases.filter((c) => c.pvec.status === "PENDING")).toHaveLength(0);
     const none = corpus.cases.filter((c) => c.pvec.status === "NOT_EMITTED");
-    expect(none).toHaveLength(8);
+    expect(none).toHaveLength(2);
     for (const c of none) expect(c.pvec.note, c.fixtureId).toContain(c.fixtureId);
   });
 

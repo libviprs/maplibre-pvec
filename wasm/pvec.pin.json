@@ -1,17 +1,17 @@
 {
   "repo": "libviprs/pvec",
-  "pvecCommit": "8c9f29034128f657e6ce9f1d5a8db25400811403",
+  "pvecCommit": "6ff0cf913dfabdd04d36051ff8815111307c438b",
   "crate": "pvec-wasm",
   "abiVersion": 2,
   "wasmBindgen": "wasm-bindgen 0.2.129",
   "rustc": "rustc 1.99.1 (58cf8f9c3 2026-10-13)",
   "wasm": {
     "file": "wasm/pvec_eval.wasm",
-    "bytes": 552151,
-    "sha256": "cb0f10bd1be3cf52302cbbfc35ee8edc1d210ad7bd8623f7830c6b32eea3e44c"
+    "bytes": 625716,
+    "sha256": "c7b83d7579edb047eba5dc2cbe4c022a8af8fdda1b0445de570e595174e93f74"
   },
   "release": {
-    "commit": "8c9f29034128f657e6ce9f1d5a8db25400811403",
+    "commit": "6ff0cf913dfabdd04d36051ff8815111307c438b",
     "abiVersion": 2
   }
 }
