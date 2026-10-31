@@ -381,8 +381,9 @@ export class PVecLayer implements CustomLayerInterface {
         cacheTier: "network",
       });
       const cursor = await deps.openCursor(h, evaluator);
+      const rasters = await deps.openRasters(h, evaluator);
       const map = wired(this).map;
-      if (signal.aborted || !cursor || !map) return;
+      if (signal.aborted || (!cursor && !rasters) || !map) return;
       const engine = (wired(this).strokes = new StrokeEngine({
         gl: gl as WebGL2RenderingContext,
         map,
@@ -391,12 +392,22 @@ export class PVecLayer implements CustomLayerInterface {
         style: (entityId) => this.resolveStyle({ entityId }),
         visible: (entityId) => this.isEntityVisible({ entityId }),
         onStateDiff: deps.onStateDiff,
+        cache: source.cache,
+        rasters: rasters ?? undefined,
+        onRasterSkipped: (action) => this.emitter.emit("capabilityunsupported", { capability: "raster", required: false, action }),
+        onRasterFrame: deps.onRasterFrame,
+        onRasterDecode: deps.onRasterDecode,
+        spawnDecode: deps.spawnDecode,
         onError: (where, err) => this.emitter.emit("error", { code: "layer_failed", message: `${where}: ${String(err)}`, context: { where } }),
       }));
-      const t0 = performance.now();
-      const draws = new Tier0Decoder().decodeAll(cursor);
-      this.n.decodeMs += performance.now() - t0;
-      this.guard(() => engine.setDraws(draws), "upload");
+      if (cursor) {
+        const t0 = performance.now();
+        const draws = new Tier0Decoder().decodeAll(cursor);
+        this.n.decodeMs += performance.now() - t0;
+        this.guard(() => engine.setDraws(draws), "upload");
+      } else {
+        map.triggerRepaint?.();
+      }
     } catch (e) {
       if (signal.aborted) return;
       this.blocked = true;

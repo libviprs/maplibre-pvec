@@ -37,7 +37,7 @@ export default defineConfig({
       // The Tier 0 stroke pipeline spec from #50 sits at the top of tests/e2e and is a rendering spec.
       // It sets Chromium-only SwiftShader launch flags, so it runs on Chromium alone. The 83-* specs (wired layer
       // on a real MapLibre map) are the same kind.
-      testMatch: job === "rendering" && browserName === "chromium" ? [`${job}/**/*.spec.ts`, "50-*.spec.ts", "83-*.spec.ts", "96-*.spec.ts"] : [`${job}/**/*.spec.ts`],
+      testMatch: job === "rendering" && browserName === "chromium" ? [`${job}/**/*.spec.ts`, "50-*.spec.ts", "83-*.spec.ts", "96-*.spec.ts", "102-*.spec.ts"] : [`${job}/**/*.spec.ts`],
       use: { browserName },
     })),
   ),

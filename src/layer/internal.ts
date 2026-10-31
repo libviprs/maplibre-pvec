@@ -7,6 +7,9 @@ import type { GlResources } from "./glresources";
 import type { Evaluator } from "../wasm/loader";
 import type { BlockCursor } from "../decode/tier0";
 import type { PVecHandle } from "../source/bootstrap";
+import type { DecodeWorker } from "../render/raster/decode";
+import type { RasterProvider } from "../render/raster/provider";
+import type { RasterFrameStats } from "../render/raster/renderer";
 
 /** Everything the query API needs beyond the pick context. */
 export interface QueryEngine extends PickContext {
@@ -63,6 +66,9 @@ const engineDefaults: EngineDeps = {
   maplibreVersion: () => (globalThis as { maplibregl?: { getVersion?: () => string } }).maplibregl?.getVersion?.(),
   // The packed Tier 0 decoder is part of the shared evaluator (libviprs/pvec#1, P7.2). Until it ships there is nothing to drive.
   openCursor: () => Promise.resolve(null),
+  // The raster exports of pvec-wasm (libviprs/pvec#221) do not exist yet, so there is no raster stream to read: the module
+  // draws as it did before. The wasm adapter replaces this default when they ship.
+  openRasters: () => Promise.resolve(null),
 };
 const engineOverrides = new WeakMap<object, Partial<EngineDeps>>();
 /** Replace parts of the engine's dependencies for one layer. Call before `onAdd`. */
@@ -90,6 +96,12 @@ export interface EngineDeps {
   maplibreVersion(): string | undefined;
   /** A cursor over the Tier 0 blocks, or null when the evaluator offers no decoder to drive. */
   openCursor(handle: PVecHandle, evaluator: Evaluator): Promise<BlockCursor | null>;
+  /** The raster stream of the file behind a seam, or null when the module lacks the raster exports or the file has no raster. */
+  openRasters(handle: PVecHandle, evaluator: Evaluator): Promise<RasterProvider | null>;
+  /** Debug hooks of the raster path: per frame stats, per tile decode time, and the worker the decode runs in. */
+  onRasterFrame?: (s: RasterFrameStats) => void;
+  onRasterDecode?: (e: { id: number; codec: number; ms: number }) => void;
+  spawnDecode?: () => DecodeWorker;
   /** Debug hook: names of GL state the guard found changed after a frame. Turns the guard's debug mode on. */
   onStateDiff?: (names: string[]) => void;
 }
