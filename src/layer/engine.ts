@@ -5,6 +5,10 @@ import { BufferPool } from "../render/buffer_pool";
 import { packPolyline, splitHiLo } from "../render/buffer_layout";
 import { GlStateGuard } from "../render/gl_state";
 import { StrokeRenderer } from "../render/stroke/renderer";
+import { spawnDecodeWorker, type DecodeWorker } from "../render/raster/decode";
+import type { RasterProvider } from "../render/raster/provider";
+import { RasterRenderer, type RasterFrame, type RasterFrameStats } from "../render/raster/renderer";
+import type { TieredCache } from "../source/cache";
 import { createGeoTransform, type GeoReference } from "../transform/georeference";
 import { lngLatToMercator, mercatorToLngLat } from "../transform/projection";
 import { sourceToWorld } from "../transform/rebase";
@@ -22,6 +26,16 @@ export interface EngineInit {
   /** Present only when a test wants the guard's debug diff for every frame. */
   onStateDiff: ((names: string[]) => void) | undefined;
   onError(where: string, e: unknown): void;
+  /** The source's tiered cache: raster textures are entries of its gpu tier. */
+  cache: TieredCache;
+  /** The raster stream of the file, or undefined when the module has no raster exports or the file no raster. */
+  rasters?: RasterProvider | undefined;
+  /** Tells the host which rasters this reader could not draw (the Unrastered stat). */
+  onRasterSkipped?: ((text: string) => void) | undefined;
+  /** Debug hooks of the raster path: per frame stats and per tile decode time. */
+  onRasterFrame?: ((s: RasterFrameStats) => void) | undefined;
+  onRasterDecode?: ((e: { id: number; codec: number; ms: number }) => void) | undefined;
+  spawnDecode?: (() => DecodeWorker) | undefined;
 }
 
 interface Group {
@@ -87,12 +101,26 @@ export class StrokeEngine {
   private groups: Group[] = [];
   private frame = 0;
   private lost = false;
+  private readonly raster: RasterRenderer | undefined;
   skipped = 0;
 
   constructor(private readonly o: EngineInit) {
     this.gl = o.gl;
     this.tgl = tracked(o.gl, o.res);
     this.guard = new GlStateGuard(o.gl, { debug: o.onStateDiff !== undefined });
+    if (o.rasters && o.reference) {
+      this.raster = new RasterRenderer({
+        gl: this.tgl,
+        cache: o.cache,
+        provider: o.rasters,
+        map: o.map,
+        spawn: o.spawnDecode ?? spawnDecodeWorker,
+        onSkipped: (t) => o.onRasterSkipped?.(t),
+        onError: o.onError,
+        onDecode: o.onRasterDecode,
+        onFrame: o.onRasterFrame,
+      });
+    }
   }
 
   /** Pack the draws per style group into the pool. Only straight and polyline geometry is drawn here. */
@@ -136,15 +164,16 @@ export class StrokeEngine {
   render(): void {
     const { gl } = this;
     const map = this.o.map;
-    if (this.lost || !this.groups.length || gl.isContextLost()) return;
+    if (this.lost || (!this.groups.length && !this.raster?.drawsAnything) || gl.isContextLost()) return;
     if (typeof map.project !== "function" || typeof map.unproject !== "function") return;
     const view = this.view();
     if (!view) return;
     const diffs = this.guard.run(() => {
-      this.renderer ??= new StrokeRenderer(this.tgl);
-      const pool = this.pool!;
-      pool.beginFrame(++this.frame);
-      pool.flush();
+      const pool = this.pool;
+      if (pool) {
+        pool.beginFrame(++this.frame);
+        pool.flush();
+      }
       gl.disable(gl.DEPTH_TEST);
       gl.disable(gl.STENCIL_TEST);
       gl.disable(gl.SCISSOR_TEST);
@@ -152,22 +181,30 @@ export class StrokeEngine {
       gl.colorMask(true, true, true, true);
       gl.enable(gl.BLEND);
       gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-      for (const g of this.groups) {
-        const range = pool.range(g.key);
-        if (!range) continue;
-        this.renderer.draw(range, {
-          centerHi: [view.cx.hi, view.cy.hi],
-          centerLo: [view.cx.lo, view.cy.lo],
-          linear: view.linear,
-          viewport: [gl.drawingBufferWidth, gl.drawingBufferHeight],
-          dpr: view.dpr,
-          widthsPx: [g.widthCss * view.dpr],
-          dashes: g.dash ? [[g.dash[0] * view.dpr, g.dash[1] * view.dpr, 0, 0]] : [],
-          arcToPx: view.arcToPx,
-          color: g.color,
-        });
+      const raster = this.raster;
+      const rf = raster ? this.rasterFrame(view) : undefined;
+      // Band 0 rasters, then the strokes, then band 1 rasters: the raster is drawn through the same chain as the strokes.
+      if (raster && rf) (raster.prepare(rf), raster.draw(0, rf));
+      if (pool) {
+        this.renderer ??= new StrokeRenderer(this.tgl);
+        for (const g of this.groups) {
+          const range = pool.range(g.key);
+          if (!range) continue;
+          this.renderer.draw(range, {
+            centerHi: [view.cx.hi, view.cy.hi],
+            centerLo: [view.cx.lo, view.cy.lo],
+            linear: view.linear,
+            viewport: [gl.drawingBufferWidth, gl.drawingBufferHeight],
+            dpr: view.dpr,
+            widthsPx: [g.widthCss * view.dpr],
+            dashes: g.dash ? [[g.dash[0] * view.dpr, g.dash[1] * view.dpr, 0, 0]] : [],
+            arcToPx: view.arcToPx,
+            color: g.color,
+          });
+        }
+        pool.completeFrame(this.frame);
       }
-      pool.completeFrame(this.frame);
+      if (raster && rf) (raster.draw(1, rf), raster.endFrame());
     });
     if (this.o.onStateDiff) this.o.onStateDiff(diffs.map((d) => d.name));
     if ((this.pool?.accounting().queuedBytes ?? 0) > 0) map.triggerRepaint?.();
@@ -199,9 +236,37 @@ export class StrokeEngine {
     };
   }
 
+  /** What the raster pass needs of the camera, derived from the same view and the map's own projection. */
+  private rasterFrame(view: { cx: { hi: number; lo: number }; cy: { hi: number; lo: number }; dpr: number; linear: [number, number, number, number] }): RasterFrame | undefined {
+    const { gl } = this;
+    const map = this.o.map;
+    const reference = this.o.reference;
+    if (!reference) return undefined;
+    const geo = createGeoTransform(reference);
+    const dpr = view.dpr;
+    const at = (x: number, y: number): [number, number] => {
+      const p = map.project(mercatorToLngLat(...sourceToWorld(geo, x, y)));
+      return [p.x * dpr, p.y * dpr];
+    };
+    return {
+      centerHi: [view.cx.hi, view.cy.hi],
+      centerLo: [view.cx.lo, view.cy.lo],
+      linear: view.linear,
+      viewport: [gl.drawingBufferWidth, gl.drawingBufferHeight],
+      dpr,
+      sourceToWorld: (x, y) => sourceToWorld(geo, x, y),
+      sourceToDevice: (sx, sy, span) => {
+        const o = at(sx, sy), ex = at(sx + span, sy), ey = at(sx, sy + span);
+        const a = (ex[0] - o[0]) / span, c = (ex[1] - o[1]) / span, b = (ey[0] - o[0]) / span, d = (ey[1] - o[1]) / span;
+        return [a, b, c, d, o[0] - a * sx - b * sy, o[1] - c * sx - d * sy];
+      },
+    };
+  }
+
   /** The GL objects are gone; decoded bytes stay in the pool, so nothing is fetched or decoded again. */
   onContextLost(): void {
     this.lost = true;
+    this.raster?.onContextLost();
     this.renderer = undefined;
     this.pool?.dropGlHandles();
   }
@@ -213,6 +278,7 @@ export class StrokeEngine {
   }
 
   dispose(): void {
+    this.raster?.dispose();
     this.renderer?.dispose();
     this.pool?.dispose();
     this.renderer = undefined;

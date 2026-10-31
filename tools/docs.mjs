@@ -62,7 +62,7 @@ function adrIndex(root) {
   });
   return `${GEN("docs/adr/*.md")}# Architecture decision records (browser)
 
-Eight ADRs freeze the phase 1 decisions. Each one quotes numbers from a spike report under \`docs/spikes/\`.
+Eight ADRs freeze the phase 1 decisions. Each one quotes numbers from a spike report under \`docs/spikes/\`. Later records (0009 and up) decide what came after, and say what they measured in their own evidence.
 
 | ADR | Subject | Status | Evidence |
 |---|---|---|---|

@@ -185,3 +185,16 @@ The arm64 Linux run (closing out #82): I ran the same raw harness and the wired-
 | Frame times with the add-on on real `.pvec` strokes | The layer runs in the section above use the stand-in cursor, because the shared decoder's Tier 0 stream is not wired in yet | The real cursor (libviprs/pvec Tier 0 stream); re-run `bench/hw/run.mjs` unchanged |
 | The 120 Hz display caps the MacBook frame interval at 8.3 ms | Headless rAF follows the display | A fixed-refresh runner |
 
+
+## #102 PVec rasters in the custom layer
+
+What is done and tested: the level rule, the tiles in view with the `visible_box` clip and the viewport polygon cull, the texture budget formula applied per raster against the `gpu` tier, band order, the skipped-raster report, attribution escaping, the worker decode pool, the textured-quad renderer through the stroke pass's matrix chain, the upload budget across frames, the coarse-then-fine swap and the guard interplay (no `getParameter` in a frame), all against a fixture provider over a synthetic pyramid (PNG, 1-bit PNG, JPEG). Measured numbers are in `docs/raster-render.md`, software GL only.
+
+| Item | Why it cannot be done here | What unblocks it |
+|---|---|---|
+| The adapter from `pvec-wasm` to `RasterProvider`, and any real `.pvec` with a raster | The raster exports (`libviprs/pvec#221`) and the raster blocks (`libviprs/pvec#218`) are not on pvec's main. The default `openRasters` returns `null`, so a module without them draws as before. | `libviprs/pvec#221`, then one adapter file and the same Playwright specs pointed at a pvec-written fixture (and the real scan of `libviprs/libviprs#1328`). |
+| `Unrastered` in `DiagnosticsSnapshot` | The v1 API report is frozen; a new field changes a symbol hash, which `classifyApiChange` reads as a major. The skip is reported through the existing `capabilityunsupported` event (capability `raster`). | A freeze amendment approved by Rom, with the reason "surface the Unrastered stat". |
+| Putting `attribution` into MapLibre's attribution control | A custom layer has no source to carry attribution, and the way in (a companion source plus an empty layer) mutates the style. The string is escaped and exposed (`RasterRenderer.attributions()`). | A placement that carries an attribution (pvec#221), then deciding the companion source. |
+| Hardware GPU numbers for decode and upload | The runs are Chromium on SwiftShader (software GL). Decode time is the browser's, not the GPU's, but upload time is not representative. | The hardware lane of #82, once a raster fixture exists in `release/browser-grid.json`. |
+| The one-texel seam between edge-to-edge quads | Accepted in v1 (ADR 0009): `CLAMP_TO_EDGE`, no overlap, no mipmaps. | A producer that overlaps tiles by a texel, or a shader that insets the UV by half a texel at interior tile edges. |
+| The dated pointer in ADR 0018's open question 5 | The ADR lives in `libviprs/pvec`. | A small pvec PR once these numbers are merged. |

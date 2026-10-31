@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "issue": 102,
+  "environment": "Chromium 130 from mcr.microsoft.com/playwright:v1.48.2-jammy, software GL (ANGLE on SwiftShader, no GPU), linux/amd64 container on MARS (devshell@192.168.0.100, native x86_64, 24 cores)",
+  "note": "Measured by tests/e2e/102-raster.spec.ts through the real layer, with a fixture provider in place of the pvec-wasm raster exports.",
+  "vectorDiff": 0,
+  "decodeMsPerTile": {
+    "png": [
+      45.200000047683716,
+      44.799999952316284,
+      45.299999952316284,
+      1.0999999046325684,
+      0.9000000953674316,
+      1.2999999523162842
+    ],
+    "jpeg": [
+      44.39999985694885,
+      44.59999990463257,
+      44.5,
+      0.5999999046325684,
+      0.9000000953674316,
+      0.7000000476837158
+    ],
+    "png1": [
+      1.1000001430511475,
+      1.1000001430511475,
+      1,
+      0.6999998092651367,
+      0.9000000953674316,
+      0.9000000953674316
+    ]
+  },
+  "uploadsPerFrame": [
+    6,
+    6,
+    3,
+    3
+  ],
+  "textureBytesPerTile": 262144,
+  "steadyFrameP95Ms": 0.20000004768371582,
+  "renderer": "software GL (SwiftShader), not a GPU"
+}
