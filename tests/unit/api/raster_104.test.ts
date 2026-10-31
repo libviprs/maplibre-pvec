@@ -12,8 +12,7 @@ import { gridSpec } from "../helpers/fixture";
 import { countingGl, fakeMap, rig, type Rig } from "./helpers";
 
 // Issue 104 (RM1.1): the raster names on the public surface. Nothing here draws; it checks what the host can configure and
-// what it is told. DiagnosticsSnapshot is not touched: a new field there is a freeze amendment that is Rom's to approve, so
-// skips are counted from the rasterskipped event and the layer's rasters() accessor instead.
+// what it is told. The freeze moves here are an amendment under the R-M epic (#103).
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 const read = (p: string): string => readFileSync(path.join(root, p), "utf8");
@@ -68,16 +67,17 @@ describe("#104 the raster option", () => {
   it("there is no texture budget option: textures share cache.gpuBytes and bitmaps share limits.maxDecodedBytes", () => {
     const report = read("etc/maplibre-pvec.api.md");
     expect(report).toMatch(/raster\?: \{[^}]*enabled\?: boolean;[^}]*\}/);
-    expect(report).not.toMatch(/texture\w*Bytes|rasterBytes|rasterBudget/i);
+    expect(report).not.toMatch(/rasterBytes|rasterBudget|textureBudget/i);
   });
 });
 
 describe("#104 diagnostics and events", () => {
-  it("the snapshot is the frozen one: no rasters field, skips are counted from the event", async () => {
-    const { layer, off } = await loaded({ rasters: provider([placement(0)]) });
-    expect(Object.keys(layer.getDiagnostics()).sort()).toEqual(
-      ["bytes", "cancelledWork", "contextLosses", "discardedStaleGenerations", "frames", "pendingFetches", "ranges", "timingMs", "workerQueueDepth"].sort(),
-    );
+  it("the snapshot carries rasters: zeros without a raster stream, drawn and skipped otherwise", async () => {
+    const none = await loaded({ rasters: null });
+    expect(none.layer.getDiagnostics().rasters).toEqual({ drawn: 0, skipped: 0, textureBytes: 0, decodesInFlight: 0 });
+    none.off();
+    const { layer, off } = await loaded({ rasters: provider([placement(0), placement(1, { codec: 9 })]) });
+    expect(layer.getDiagnostics().rasters).toEqual({ drawn: 1, skipped: 1, textureBytes: 0, decodesInFlight: 0 });
     off();
   });
 
