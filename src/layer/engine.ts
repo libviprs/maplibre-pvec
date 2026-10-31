@@ -33,6 +33,8 @@ export interface EngineInit {
   /** The raster stream of the file, or undefined when the module has no raster exports or the file no raster. */
   rasters?: RasterProvider | undefined;
   /** Tells the host which rasters this reader did not draw, once per raster. */
+  /** `limits.maxDecodedBytes`: the bitmaps of the raster path in flight stay under it. */
+  maxDecodedBytes?: number | undefined;
   onRasterSkipped?: ((e: RasterSkippedEvent) => void) | undefined;
   /** Debug hooks of the raster path: per frame stats and per tile decode time. */
   onRasterFrame?: ((s: RasterFrameStats) => void) | undefined;
@@ -118,10 +120,14 @@ export class StrokeEngine {
         provider: o.rasters,
         map: o.map,
         spawn: o.spawnDecode ?? spawnDecodeWorker,
+        maxDecodedBytes: o.maxDecodedBytes,
         refused: new Set((o.rasters.skipped?.() ?? []).map((s) => s.id)),
         onError: o.onError,
         onDecode: o.onRasterDecode,
-        onFrame: o.onRasterFrame,
+        onFrame: (st) => {
+        this.lastRasterStats = st;
+        o.onRasterFrame?.(st);
+      },
       });
       // What pvec-wasm refused comes with its own rule; what this reader cannot draw (a codec it does not know) is RASTER-04.
       for (const s of o.rasters.skipped?.() ?? []) o.onRasterSkipped?.({ rasterId: s.id, rule: s.rule, message: s.message });
@@ -143,7 +149,7 @@ export class StrokeEngine {
 
   /** The raster counters of the snapshot. */
   rasterAccounting(): { textureBytes: number; decodesInFlight: number } {
-    return { textureBytes: 0, decodesInFlight: 0 };
+    return { textureBytes: this.o.cache.bytes("gpu"), decodesInFlight: this.lastRasterStats?.decodesInFlight ?? 0 };
   }
 
   /** `raster.enabled` at runtime: off draws no raster and starts no decode, on picks up where the cache left off. */

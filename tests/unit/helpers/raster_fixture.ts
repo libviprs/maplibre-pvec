@@ -128,6 +128,8 @@ export interface RasterSpec {
   visibleBox?: [number, number, number, number];
   band?: 0 | 1;
   opacity?: number;
+  /** Leave out the full-resolution picture (the reference render's input) when a spec does not compare against it. */
+  noImage?: boolean;
 }
 export interface WireRaster {
   placement: RasterPlacement;
@@ -166,5 +168,5 @@ export function buildRaster(s: RasterSpec): WireRaster {
     tileEdge: s.edge, levels, codec: s.kind === "jpeg" ? 2 : 1, channels: s.kind === "png" ? 4 : s.kind === "png1" ? 1 : 1, bitDepth: s.kind === "png1" ? 1 : 8,
     opacity: s.opacity ?? 255, band: s.band ?? 0,
   };
-  return { placement, tiles, image: Buffer.from(full).toString("base64") };
+  return { placement, tiles, image: s.noImage ? "" : Buffer.from(full).toString("base64") };
 }

@@ -78,3 +78,6 @@ export const CACHE_DEFAULTS = Object.freeze({
 
 /** Worker pool (M6.2). */
 export const POOL_DEFAULTS = Object.freeze({ minWorkers: 1, maxWorkers: 4 });
+
+/** LIMIT-16 on the host side: the default cap on decoded bytes. The source's decompression limit and the raster renderer's bitmaps in flight share it. */
+export const DEFAULT_MAX_DECODED_BYTES = 256 * 1024 * 1024;
