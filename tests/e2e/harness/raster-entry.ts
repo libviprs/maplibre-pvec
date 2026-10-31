@@ -77,7 +77,7 @@ export interface OpenOptions {
   /** Rasters whose tiles keep a valid header and get a corrupt body. */
   corrupt?: number[];
   /** Run the real module: the layer reads this URL by ranges and the adapter over `pvec_eval.wasm` (base64) supplies the rasters. */
-  real?: { url: string; wasm: string };
+  real?: { url: string; wasm: string; /** Linework in source space, `x0, y0, x1, y1, ...`, drawn by the layer's stroke pipeline (the stub cursor stands in for the file's own geometry). */ stroke?: number[] };
 }
 
 export async function openRaster(o: OpenOptions): Promise<void> {
@@ -129,6 +129,7 @@ export async function openRaster(o: OpenOptions): Promise<void> {
   const p0 = state.wire[0]?.placement;
   state.stroke = [];
   if (o.stroke && p0) for (const [x, y] of o.stroke) state.stroke.push(...apply(p0.pixelToSource, x! + 0.5, y! + 0.5));
+  if (o.real?.stroke) state.stroke = [...o.real.stroke];
   const layer = (state.layer = createPVecLayer({ id: "pvec", source: { url: o.real?.url ?? (window as unknown as { __FIXTURE__: string }).__FIXTURE__ }, georeference: { reference }, ...(o.gpuBytes ? { cache: { gpuBytes: o.gpuBytes } } : {}), ...(o.maxDecodedBytes ? { limits: { maxDecodedBytes: o.maxDecodedBytes } } : {}) }));
   layer.on("error", (e) => state.errors.push({ code: e.code, message: e.message }));
   layer.on("capabilityunsupported", (e) => state.events.push({ capability: e.capability, required: e.required, action: e.action }));
@@ -406,6 +407,19 @@ export function colourCount(o: { name: string; magenta: boolean }): { magenta: n
 export function probePixel(o: { name: string; raster: number; x: number; y: number }): number[] {
   const p = state.wire.find((w) => w.placement.id === o.raster)!.placement;
   const [dx, dy] = apply(deviceMap(p), o.x + 0.5, o.y + 0.5);
+  const s = state.snaps[o.name]!;
+  const i = (Math.floor(dy) * W + Math.floor(dx)) * 4;
+  return Array.from(s.data.slice(i, i + 4));
+}
+
+/** Puts the camera over a point of source space. */
+export function centreOn(o: { x: number; y: number }): void {
+  [CX, CY] = lngLatToMercator(...geo.forward(o.x, o.y));
+}
+
+/** The colour at the device pixel under a point of source space. */
+export function probeSource(o: { name: string; x: number; y: number }): number[] {
+  const [dx, dy] = project(o.x, o.y);
   const s = state.snaps[o.name]!;
   const i = (Math.floor(dy) * W + Math.floor(dx)) * 4;
   return Array.from(s.data.slice(i, i + 4));
