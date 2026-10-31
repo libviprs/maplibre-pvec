@@ -121,4 +121,6 @@ export interface DiagnosticsSnapshot {
   pendingFetches: number;
   frames: number;
   contextLosses: number;
+  /** Zero for a file without a raster stream. `textureBytes` and `decodesInFlight` are read from the cache accounting. */
+  rasters: { drawn: number; skipped: number; textureBytes: number; decodesInFlight: number };
 }

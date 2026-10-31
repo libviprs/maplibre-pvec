@@ -81,7 +81,7 @@
       "spec": "API report identical to the committed baseline (M7.1)",
       "status": "met",
       "measured": {
-        "reportSha256": "3289b3e29afab0cbaa090958acf605e3f5af8d9331f07f57b53457ada6a296c8",
+        "reportSha256": "6e573850bede9f0559a1d4ebc8e6e4bc273ee92342477413df488384467ff99c",
         "change": "none"
       },
       "evidence": "etc/maplibre-pvec.api.md regenerated from the sources and compared with release/v1-freeze.json"

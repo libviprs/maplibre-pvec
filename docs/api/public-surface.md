@@ -107,7 +107,7 @@ The WASM module handle and its memory, worker protocol messages, `PVecSource`, t
 
 `PVecLayerOptions.raster.enabled` (default `true`, anything but a boolean is a `PVecOptionError`) and `update({ raster })` switch rasters off and on without a refetch. There is no texture budget option: textures are entries of `cache.gpuBytes` and the bitmaps in flight count against `limits.maxDecodedBytes`. `layer.rasters()` lists the rasters that draw. A custom layer has no source to carry an attribution, so the host passes `attribution` to MapLibre's attribution control itself.
 
-`DiagnosticsSnapshot` has no raster counters: adding a field there is a freeze amendment that is not made. The skipped count is the number of `rasterskipped` events and the drawn count is `rasters().length`.
+`DiagnosticsSnapshot.rasters` is `{ drawn, skipped, textureBytes, decodesInFlight }`, all zero for a file without a raster stream. This is a freeze amendment under the R-M epic (#103).
 
 ## Errors the layer emits through `error`
 
