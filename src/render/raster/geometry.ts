@@ -158,9 +158,15 @@ export function tilesInView(p: RasterPlacement, v: RasterView, level: number, o:
       const q = tileQuad(p, level, col, row);
       if (!q) continue;
       if (o.cull !== false) {
-        const poly: number[] = [];
-        for (const [x, y] of [[q.px[0], q.px[1]], [q.px[2], q.px[1]], [q.px[2], q.px[3]], [q.px[0], q.px[3]]] as const) poly.push(...apply(m, x, y));
-        if (!overlaps(poly, view)) continue;
+        // The tile's four corners in device space, without allocating. A box that misses the viewport box misses the polygon, and a box
+        // inside it is inside the polygon, so the separating axis test only runs for the tiles that cross an edge of the viewport.
+        const ax = m[0] * q.px[0] + m[1] * q.px[1] + m[4], ay = m[2] * q.px[0] + m[3] * q.px[1] + m[5];
+        const bx = m[0] * q.px[2] + m[1] * q.px[1] + m[4], by = m[2] * q.px[2] + m[3] * q.px[1] + m[5];
+        const cx = m[0] * q.px[2] + m[1] * q.px[3] + m[4], cy = m[2] * q.px[2] + m[3] * q.px[3] + m[5];
+        const dx = m[0] * q.px[0] + m[1] * q.px[3] + m[4], dy = m[2] * q.px[0] + m[3] * q.px[3] + m[5];
+        const minX = Math.min(ax, bx, cx, dx), maxX = Math.max(ax, bx, cx, dx), minY = Math.min(ay, by, cy, dy), maxY = Math.max(ay, by, cy, dy);
+        if (maxX < 0 || minX > v.width || maxY < 0 || minY > v.height) continue;
+        if (!(minX >= 0 && maxX <= v.width && minY >= 0 && maxY <= v.height) && !overlaps([ax, ay, bx, by, cx, cy, dx, dy], view)) continue;
       }
       out.push({ col, row });
     }

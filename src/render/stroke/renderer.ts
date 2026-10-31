@@ -23,6 +23,13 @@ export class StrokeRenderer {
   private program: WebGLProgram | null;
   private vao: WebGLVertexArrayObject | null;
   private readonly u: Record<string, WebGLUniformLocation | null> = {};
+  private readonly loc: Record<string, number> = {};
+  /** Set once the VAO has its attribute arrays enabled and divisors set: that state stays on the VAO, only the pointers move per range. */
+  private armed = false;
+  /** The uniforms of the last draw. A program keeps its uniform values, and nine of them are the same for every range in a frame. */
+  private last: { frame?: DrawParams; w?: Float32Array; d?: Float32Array } = {};
+  private readonly wScratch = new Float32Array(64);
+  private readonly dScratch = new Float32Array(64);
 
   constructor(private readonly gl: WebGL2RenderingContext) {
     this.program = link(gl, VERTEX_SHADER, FRAGMENT_SHADER);
@@ -30,6 +37,7 @@ export class StrokeRenderer {
     for (const n of ['u_centerHi', 'u_centerLo', 'u_linear', 'u_viewport', 'u_arcToPx', 'u_widthPx', 'u_dpr', 'u_miterLimit', 'u_color', 'u_dash']) {
       this.u[n] = gl.getUniformLocation(this.program, n);
     }
+    for (const n of ['a_p0', 'a_p1', 'a_arc', 'a_meta', 'a_prev', 'a_next']) this.loc[n] = gl.getAttribLocation(this.program, n);
   }
 
   /** Needs one guard record on each side of `range` (BufferPool guardBytes = 40). */
@@ -40,21 +48,28 @@ export class StrokeRenderer {
     gl.bindVertexArray(this.vao);
     gl.bindBuffer(gl.ARRAY_BUFFER, range.buffer);
     const S = SEGMENT_RECORD_BYTES, o = range.offset;
+    const armed = this.armed;
     const attr = (name: string, size: number, off: number, integer = false) => {
-      const loc = gl.getAttribLocation(this.program!, name);
-      gl.enableVertexAttribArray(loc);
+      const loc = this.loc[name]!;
+      if (!armed) gl.enableVertexAttribArray(loc);
       if (integer) gl.vertexAttribIPointer(loc, size, gl.UNSIGNED_INT, S, off); else gl.vertexAttribPointer(loc, size, gl.FLOAT, false, S, off);
-      gl.vertexAttribDivisor(loc, 1);
+      if (!armed) gl.vertexAttribDivisor(loc, 1);
     };
     attr('a_p0', 4, o); attr('a_p1', 4, o + 16); attr('a_arc', 1, o + 32); attr('a_meta', 1, o + 36, true);
     attr('a_prev', 4, o - S); attr('a_next', 4, o + S + 16);
-    gl.uniform2fv(this.u.u_centerHi!, p.centerHi); gl.uniform2fv(this.u.u_centerLo!, p.centerLo);
-    gl.uniformMatrix2fv(this.u.u_linear!, false, p.linear); gl.uniform2fv(this.u.u_viewport!, p.viewport);
-    gl.uniform1f(this.u.u_arcToPx!, p.arcToPx ?? 1); gl.uniform1f(this.u.u_dpr!, p.dpr);
-    gl.uniform1f(this.u.u_miterLimit!, p.miterLimit ?? DEFAULTS.miterLimit);
-    const w = new Float32Array(64); w.set(p.widthsPx.slice(0, 64));
+    this.armed = true;
+    // The camera uniforms are the same for every range of a frame (the caller shares one params object per field), so they go once.
+    const l = this.last.frame;
+    if (!l || l.centerHi !== p.centerHi || l.centerLo !== p.centerLo || l.linear !== p.linear || l.viewport !== p.viewport || l.arcToPx !== p.arcToPx || l.dpr !== p.dpr || l.miterLimit !== p.miterLimit) {
+      gl.uniform2fv(this.u.u_centerHi!, p.centerHi); gl.uniform2fv(this.u.u_centerLo!, p.centerLo);
+      gl.uniformMatrix2fv(this.u.u_linear!, false, p.linear); gl.uniform2fv(this.u.u_viewport!, p.viewport);
+      gl.uniform1f(this.u.u_arcToPx!, p.arcToPx ?? 1); gl.uniform1f(this.u.u_dpr!, p.dpr);
+      gl.uniform1f(this.u.u_miterLimit!, p.miterLimit ?? DEFAULTS.miterLimit);
+      this.last.frame = { centerHi: p.centerHi, centerLo: p.centerLo, linear: p.linear, viewport: p.viewport, arcToPx: p.arcToPx, dpr: p.dpr, miterLimit: p.miterLimit } as DrawParams;
+    }
+    const w = this.wScratch; w.fill(0); w.set(p.widthsPx.slice(0, 64));
     gl.uniform1fv(this.u.u_widthPx!, w);
-    const d = new Float32Array(64); (p.dashes ?? []).slice(0, 16).forEach((e, i) => d.set(e, i * 4));
+    const d = this.dScratch; d.fill(0); (p.dashes ?? []).slice(0, 16).forEach((e, i) => d.set(e, i * 4));
     gl.uniform4fv(this.u.u_dash!, d);
     gl.uniform4fv(this.u.u_color!, p.color ?? [0, 0, 0, 1]);
     gl.drawArraysInstanced(gl.TRIANGLES, 0, 18, count);
