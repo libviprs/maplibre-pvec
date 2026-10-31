@@ -493,7 +493,16 @@ export class RasterRenderer {
 
   /** Draw the rasters of one band. Inside the caller's guard, after `prepare`. */
   draw(band: 0 | 1, f: RasterFrame): void {
-XX !== this.used) {
+    const pd = P();
+    const d0 = pd ? T() : 0;
+    this.drawBand(band, f);
+    if (pd) pd.draw = (pd.draw ?? 0) + T() - d0;
+  }
+
+  private drawBand(band: 0 | 1, f: RasterFrame): void {
+    if (this.disposed) return;
+    const gl = this.o.gl;
+    if (this.bands?.src !== this.used) {
       const per = [0, 1].map((b) => this.used.filter((u) => u.p.band === b).sort((x, y) => x.p.id - y.p.id)) as [Used[], Used[]];
       this.bands = { src: this.used, quads: per, sig: [per[0].map(sigOf).join(";"), per[1].map(sigOf).join(";")] };
     }
