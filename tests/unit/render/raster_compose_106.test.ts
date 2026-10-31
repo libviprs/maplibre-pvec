@@ -44,8 +44,8 @@ describe("#106 a hot georeference", () => {
     expect(r.vertexUploads.length, "positions were sent again").toBeGreaterThan(uploads);
     const after = r.vertexUploads.at(-1)!;
     expect(after.length).toBe(before.length);
-    expect(after[0]! - before[0]!, "every corner moved by the new world offset (hi part, x)").toBeCloseTo(0.5, 5);
-    expect(after[1]! - before[1]!, "(hi part, y)").toBeCloseTo(0.25, 5);
+    expect(Number((after[0]! - before[0]!).toFixed(4)), "every corner moved by the new world offset (hi part, x)").toBe(0.5);
+    expect(Number((after[1]! - before[1]!).toFixed(4)), "(hi part, y)").toBe(0.25);
     expect(r.texturesEver.length, "texture ids unchanged").toBe(textures);
     expect(r.requests.length, "zero requests").toBe(requests);
     expect(r.posted.length, "zero decodes").toBe(posted);

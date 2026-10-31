@@ -277,9 +277,9 @@ export function compare(o: { a: string; b: string; onlyWhereIcon?: string }): { 
   return { pixels: A.w * A.h, differing, masked };
 }
 
-export function countColour(o: { name: string; colour: number[]; tol?: number }): number {
+export function countColour(o: { name: string; colour: number[]; slack?: number }): number {
   const s = state.snaps[o.name]!;
-  const t = o.tol ?? 3;
+  const t = o.slack ?? 3;
   let n = 0;
   for (let i = 0; i < s.w * s.h; i++) if (o.colour.every((c, k) => Math.abs(s.data[i * 4 + k]! - c) <= t)) n++;
   return n;
