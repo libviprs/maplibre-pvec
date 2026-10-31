@@ -86,6 +86,9 @@ const MAX_ATTEMPTS = 3;
 const RETRY_FRAMES = 30;
 const MAX_READY = 8;
 
+/** TEMPORARY profile hook (#108): accumulated ms per phase of prepare and draw, set by the harness page. */
+const P = (): Record<string, number> | undefined => (globalThis as { __RPROF?: Record<string, number> }).__RPROF;
+const T = () => performance.now();
 const key = (id: number, level: number, col: number, row: number) => `r${id}/${level}/${col}/${row}`;
 const sigOf = (q: { p: { id: number }; level: number; col: number; row: number; rect: number[] }) => `${q.p.id}|${q.level}|${q.col}|${q.row}|${q.rect.join(",")}`;
 
@@ -186,6 +189,8 @@ export class RasterRenderer {
       views.set(p.id, { sourceToDevice: m, width: f.viewport[0], height: f.viewport[1] });
       mats.push(...m);
     }
+    const pm = P();
+    if (pm) pm.views = (pm.views ?? 0) + T() - t0;
     // A steady frame (same camera, nothing in flight, nothing to upload) reuses last frame's choice outright.
     const same = mats.length === this.lastMats.length && mats.every((x, i) => x === this.lastMats[i]);
     const retryDue = [...this.retryAt.values()].some((t) => t <= this.frameNo);
@@ -196,6 +201,7 @@ export class RasterRenderer {
       return;
     }
     if (!same) {
+      let q0 = T();
       this.lastMats = mats;
       this.fitted.clear();
       for (const p of all) {
@@ -205,11 +211,19 @@ export class RasterRenderer {
       }
       // LIMIT-16 on the host side bounds the plan too: a level whose tiles could not all be held decoded is not asked for.
       limitDecoded(this.fitted, all, views, this.maxDecoded);
+      const pa = P();
+      if (pa) (pa.fit = (pa.fit ?? 0) + T() - q0, q0 = T());
       this.plan(all);
+      if (pa) pa.plan = (pa.plan ?? 0) + T() - q0;
     }
+    let q1 = T();
     this.request(all);
+    const pb = P();
+    if (pb) (pb.request = (pb.request ?? 0) + T() - q1, q1 = T());
     this.upload();
+    if (pb) (pb.upload = (pb.upload ?? 0) + T() - q1, q1 = T());
     this.collect(f, views);
+    if (pb) (pb.collect = (pb.collect ?? 0) + T() - q1, pb.frames = (pb.frames ?? 0) + 1);
     this.account();
     this.stats.renderMs = (this.o.now ?? performance.now.bind(performance))() - t0;
   }
@@ -479,9 +493,7 @@ export class RasterRenderer {
 
   /** Draw the rasters of one band. Inside the caller's guard, after `prepare`. */
   draw(band: 0 | 1, f: RasterFrame): void {
-    if (this.disposed) return;
-    const gl = this.o.gl;
-    if (this.bands?.src !== this.used) {
+XX !== this.used) {
       const per = [0, 1].map((b) => this.used.filter((u) => u.p.band === b).sort((x, y) => x.p.id - y.p.id)) as [Used[], Used[]];
       this.bands = { src: this.used, quads: per, sig: [per[0].map(sigOf).join(";"), per[1].map(sigOf).join(";")] };
     }

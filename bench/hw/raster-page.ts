@@ -29,6 +29,7 @@ const MIME = { 1: "image/png", 2: "image/jpeg", 3: "image/webp" } as const;
 /** What the scans are made of, in raster order: mostly gray scans and a photo or two, as a plan set would be. */
 const SCAN_VARIANTS: RasterVariant[] = ["jpeg-gray", "png-gray8", "png-gray1", "jpeg-rgb", "webp-vp8l", "png-rgba"];
 
+(globalThis as { __RPROF?: Record<string, number> }).__RPROF = {};
 const counters = { mainDecodes: 0 };
 const origBitmap = window.createImageBitmap.bind(window);
 window.createImageBitmap = ((...a: Parameters<typeof createImageBitmap>) => (counters.mainDecodes++, origBitmap(...a))) as typeof createImageBitmap;
@@ -263,7 +264,7 @@ async function scene(name: "strokes+1" | "strokes+10", scans: number, o: { durat
     },
     texture: { peakTextures: m.w.peakTextures, peakGpuTierBytes: Math.max(peakTier, m.w.peakTextureBytes), gpuBytes: GPU_CEILING },
     stateDiffs, errors: errors + errorsDebug, mainThreadDecodes,
-    ...(o.profile ? { profile: { prepareP50Ms: stats(prepareMs).p50, prepareP95Ms: stats(prepareMs).p95, gl: [...glTime].map(([name, v]) => ({ name, calls: v.n, ms: v.ms })).sort((x, y) => y.ms - x.ms).slice(0, 12), renders: render.length } } : {}),
+    ...(o.profile ? { profile: { phases: { ...(globalThis as { __RPROF?: Record<string, number> }).__RPROF }, prepareP50Ms: stats(prepareMs).p50, prepareP95Ms: stats(prepareMs).p95, gl: [...glTime].map(([name, v]) => ({ name, calls: v.n, ms: v.ms })).sort((x, y) => y.ms - x.ms).slice(0, 12), renders: render.length } } : {}),
   };
 }
 
