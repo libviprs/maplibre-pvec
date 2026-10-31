@@ -63,7 +63,7 @@ def save(name, im, fmt, kind, mode, tol, **kw):
             "codec": kind,
             "width": im.size[0],
             "height": im.size[1],
-            "tolerance": tol,
+            "slack": tol,
             "expected": [{"x": x, "y": y, "rgba": rgba_of(mode, i)} for i, (x, y) in enumerate(SAMPLES)],
         },
     }
@@ -125,7 +125,7 @@ for y in range(1024):
         bp[x, y] = (max(0, min(255, (x // 4) + n)), max(0, min(255, (y // 4) + n)), max(0, min(255, ((x + y) // 8) + n)))
 buf = io.BytesIO()
 big.save(buf, "JPEG", quality=80, progressive=True, subsampling=0)
-files["jpeg-1024-progressive.jpg"] = {"bytes": buf.getvalue(), "meta": {"codec": "jpeg", "width": 1024, "height": 1024, "tolerance": 0, "expected": []}}
+files["jpeg-1024-progressive.jpg"] = {"bytes": buf.getvalue(), "meta": {"codec": "jpeg", "width": 1024, "height": 1024, "slack": 0, "expected": []}}
 
 index = {"generator": "tools/raster_fixtures.py", "pillow": PIL.__version__, "files": {}}
 for name, f in sorted(files.items()):

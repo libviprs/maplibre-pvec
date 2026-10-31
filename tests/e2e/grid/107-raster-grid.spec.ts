@@ -11,7 +11,8 @@ interface Fixture {
   codec: "png" | "jpeg" | "webp";
   width: number;
   height: number;
-  tolerance: number;
+  /** How far a decoded channel may sit from the stored one: 0 for lossless, a few levels for lossy codecs. */
+  slack: number;
   expected: { x: number; y: number; rgba: number[] }[];
 }
 const index = JSON.parse(readFileSync("tests/fixtures/raster/index.json", "utf8")) as { files: Record<string, Fixture> };
@@ -91,7 +92,7 @@ test.describe("#107 raster decode grid", () => {
       expect(got.complete).toBe(true);
       expect(got.glError, `${name} upload`).toBe(0);
       f.expected.forEach((e, i) => {
-        for (let k = 0; k < 4; k++) expect(Math.abs(got.px[i]![k]! - e.rgba[k]!), `${name} sample ${i} channel ${k}: ${got.px[i]} against ${e.rgba}`).toBeLessThanOrEqual(f.tolerance);
+        for (let k = 0; k < 4; k++) expect(Math.abs(got.px[i]![k]! - e.rgba[k]!), `${name} sample ${i} channel ${k}: ${got.px[i]} against ${e.rgba}`).toBeLessThanOrEqual(f.slack);
       });
       rows[name] = "ok";
     }

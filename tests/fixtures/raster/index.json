@@ -8,7 +8,7 @@
       "codec": "jpeg",
       "width": 1024,
       "height": 1024,
-      "tolerance": 0,
+      "slack": 0,
       "expected": []
     },
     "jpeg-gray-baseline.jpg": {
@@ -17,7 +17,7 @@
       "codec": "jpeg",
       "width": 64,
       "height": 64,
-      "tolerance": 6,
+      "slack": 6,
       "expected": [
         {
           "x": 16,
@@ -67,7 +67,7 @@
       "codec": "jpeg",
       "width": 64,
       "height": 64,
-      "tolerance": 6,
+      "slack": 6,
       "expected": [
         {
           "x": 16,
@@ -117,7 +117,7 @@
       "codec": "jpeg",
       "width": 64,
       "height": 64,
-      "tolerance": 8,
+      "slack": 8,
       "expected": [
         {
           "x": 16,
@@ -167,7 +167,7 @@
       "codec": "jpeg",
       "width": 64,
       "height": 64,
-      "tolerance": 8,
+      "slack": 8,
       "expected": [
         {
           "x": 16,
@@ -217,7 +217,7 @@
       "codec": "png",
       "width": 64,
       "height": 64,
-      "tolerance": 0,
+      "slack": 0,
       "expected": [
         {
           "x": 16,
@@ -267,7 +267,7 @@
       "codec": "png",
       "width": 64,
       "height": 64,
-      "tolerance": 0,
+      "slack": 0,
       "expected": [
         {
           "x": 16,
@@ -317,7 +317,7 @@
       "codec": "png",
       "width": 64,
       "height": 64,
-      "tolerance": 1,
+      "slack": 1,
       "expected": [
         {
           "x": 16,
@@ -367,7 +367,7 @@
       "codec": "png",
       "width": 64,
       "height": 64,
-      "tolerance": 0,
+      "slack": 0,
       "expected": [
         {
           "x": 16,
@@ -417,7 +417,7 @@
       "codec": "png",
       "width": 64,
       "height": 64,
-      "tolerance": 0,
+      "slack": 0,
       "expected": [
         {
           "x": 16,
@@ -467,7 +467,7 @@
       "codec": "png",
       "width": 64,
       "height": 64,
-      "tolerance": 0,
+      "slack": 0,
       "expected": [
         {
           "x": 16,
@@ -517,7 +517,7 @@
       "codec": "png",
       "width": 64,
       "height": 64,
-      "tolerance": 1,
+      "slack": 1,
       "expected": [
         {
           "x": 16,
@@ -567,7 +567,7 @@
       "codec": "webp",
       "width": 64,
       "height": 64,
-      "tolerance": 10,
+      "slack": 10,
       "expected": [
         {
           "x": 16,
@@ -617,7 +617,7 @@
       "codec": "webp",
       "width": 64,
       "height": 64,
-      "tolerance": 0,
+      "slack": 0,
       "expected": [
         {
           "x": 16,
@@ -667,7 +667,7 @@
       "codec": "webp",
       "width": 64,
       "height": 64,
-      "tolerance": 1,
+      "slack": 1,
       "expected": [
         {
           "x": 16,
@@ -717,7 +717,7 @@
       "codec": "webp",
       "width": 64,
       "height": 64,
-      "tolerance": 10,
+      "slack": 10,
       "expected": [
         {
           "x": 16,
