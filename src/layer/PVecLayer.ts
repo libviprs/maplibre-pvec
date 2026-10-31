@@ -232,6 +232,7 @@ export class PVecLayer implements CustomLayerInterface {
     validate(next);
     new PVecSource(toSource(next, (i, init) => globalThis.fetch(i, init)));
     this.options = next;
+    if ("georeference" in partial) wired(this).strokes?.setReference(next.georeference?.reference);
     if (partial.raster) wired(this).strokes?.setRasterEnabled(next.raster?.enabled !== false);
     this.hooks.onUpdate?.(partial);
   }

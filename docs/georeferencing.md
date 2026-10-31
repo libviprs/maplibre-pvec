@@ -10,6 +10,10 @@ source (unit) -> metres -> calibration -> CRS native -> lng/lat -> mercator -> c
 
 `createGeoTransform(geoRef)` validates the reference and returns `forward(x, y) -> [lng, lat]` and `inverse(lng, lat) -> [x, y]`.
 
+## Changing it after the drawing is up
+
+`layer.update({ georeference })` rebuilds the stroke tessellation and the corner positions of every raster quad (hi and lo split, in f64 first), through the same upload budget, and nothing else: textures, bitmaps and decodes in flight stay valid, because a decode does not depend on the transform, and no range is requested. The level of each raster is chosen again from the new scale. A transform epoch guards the rebuild, so positions made for the old georeference are never drawn after the new one is set. 1,000 updates in a row issue zero tile requests and zero range requests, and the scan edge still lands on the strokes (`106-raster-compose.spec.ts`).
+
 ## Units
 
 | unit | metres per unit |

@@ -112,6 +112,7 @@ export class RasterRenderer {
   /** The keys of the current plan: the fitted level's tiles and the coarser level kept under them. */
   private wantedKeys = new Set<string>();
   private requests = 0;
+  private epoch = 0;
   private readonly maxDecoded: number;
   private readonly failed = new Set<string>();
   private readonly ready: { key: string; id: number; bytes: number }[] = [];
@@ -378,6 +379,18 @@ export class RasterRenderer {
     this.stats.levels = [...levels].sort((a, b) => a - b);
     this.stats.textures = this.textures.size;
     this.stats.pending = pending;
+  }
+
+  /**
+   * A new georeference. Only the corner positions depend on it: the quads are rebuilt and re-sent through the frame budget, the
+   * levels are chosen again from the new scale, and textures, bitmaps and decodes in flight stay as they are.
+   */
+  setTransformEpoch(epoch: number): void {
+    if (epoch === this.epoch) return;
+    this.epoch = epoch;
+    this.quads.clear();
+    this.sent = [undefined, undefined];
+    this.lastMats = [];
   }
 
   /** What the tiers hold now, read from the accounting. */
