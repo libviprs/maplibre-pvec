@@ -161,8 +161,9 @@ test.describe("issue 102 rasters in the custom layer", () => {
       odd.placement.codec = 9;
       await R(page, "openRaster", { rasters: [raster(0, "png"), odd] });
       await R(page, "settle", undefined);
-      const s = await R<{ events: { capability: string; required: boolean; action: string }[]; levels: number[]; errors: unknown[] }>(page, "stats", undefined);
-      expect(s.events).toEqual([{ capability: "raster", required: false, action: "skipped 1 raster: unknown codec" }]);
+      const s = await R<{ events: unknown[]; skips: { rasterId: number; rule: string; message: string }[]; levels: number[]; errors: unknown[] }>(page, "stats", undefined);
+      expect(s.events).toEqual([]);
+      expect(s.skips).toEqual([expect.objectContaining({ rasterId: 1, rule: "RASTER-04" })]);
       expect(s.levels).toEqual([1]);
       expect(s.errors).toEqual([]);
 
@@ -172,7 +173,30 @@ test.describe("issue 102 rasters in the custom layer", () => {
       await R(page, "frame", "absent");
       const same = await R<{ pixels: number; differing: number }>(page, "compare", ["empty", "absent"]);
       expect(same.differing).toBe(0);
-      expect((await R<{ events: unknown[]; errors: unknown[] }>(page, "stats", undefined)).events).toEqual([]);
+      const after = await R<{ events: unknown[]; skips: unknown[]; errors: unknown[] }>(page, "stats", undefined);
+      expect(after.events).toEqual([]);
+      expect(after.skips).toEqual([]);
+    } finally {
+      await r.stop();
+    }
+  });
+
+  test("#104 update({ raster: { enabled: false } }) draws no raster and starts no decode, and true draws it again from the cache", async ({ page }) => {
+    const r = await rasterRig(page);
+    try {
+      await R(page, "openRaster", { rasters: [raster(0, "png")], stroke: [[40, 150], [200, 130]] });
+      await R(page, "settle", undefined);
+      await R(page, "frame", "on");
+      const decodes = (await R<{ workerDecodes: number }>(page, "stats", undefined)).workerDecodes;
+      await R(page, "setRaster", false);
+      await R(page, "frame", "off");
+      await R(page, "setRaster", true);
+      await R(page, "frame", "back");
+      const same = await R<{ pixels: number; differing: number }>(page, "compare", ["on", "back"]);
+      expect(same.differing, "switching back on restores the picture").toBe(0);
+      const gone = await R<{ pixels: number; differing: number }>(page, "compare", ["on", "off"]);
+      expect(gone.differing, "off draws something else").toBeGreaterThan(5000);
+      expect((await R<{ workerDecodes: number }>(page, "stats", undefined)).workerDecodes, "the switch decodes nothing").toBe(decodes);
     } finally {
       await r.stop();
     }

@@ -43,6 +43,7 @@ export interface LayerControl {
   markTier0Complete(e: { viewportId: string; blocksUsed: number }): void;
   reportRefinement(e: PVecEventMap["refinement"]): void;
   reportCapabilityUnsupported(e: PVecEventMap["capabilityunsupported"]): void;
+  reportRasterSkipped(e: PVecEventMap["rasterskipped"]): void;
   reportError(code: string, message: string, context: PVecErrorEvent["context"]): void;
   reportBytes(e: BytesEvent): void;
   addTiming(kind: "decode" | "tessellation", ms: number): void;

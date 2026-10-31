@@ -19,6 +19,10 @@ Nothing is tagged or published. `1.0.0` waits for every condition in `release/v1
 - Complete documentation set with generated pages (`docs/README.md`), the v1 freeze file and the release gate.
 - The shipped `pvec_eval.wasm` is the real `pvec-wasm` evaluator (ABI 1), and `loadEvaluator` refuses a module without its export set. 22 of the 30 corpus fixtures have real `.pvec` bytes from pvec's generator. Spikes M1.2, M1.3 and M1.5 re-run on them.
 
+### Raster names (#104, minor)
+
+A minor change: nothing is removed or retyped. `PVecLayerOptions.raster` and `update({ raster })`, the `rasterskipped` event and `RasterSkippedEvent`, `RasterInfo` and `PVecLayer.rasters()`, and the optional capability `raster` in the compatibility matrix. `DiagnosticsSnapshot` is untouched. `tools/release-gate.mjs` hashes whole declarations, so it reads each of these additions to an existing declaration as a change to that symbol.
+
 ### Measurements
 
 The benchmark numbers are display-fidelity and frame-behaviour measurements on software GL (SwiftShader, native x86_64), recorded as relative costs. They say nothing about geometric accuracy. The mathematical tolerances and the three conformance classes belong to EPIC P and the shared numeric policy in `libviprs/pvec#1`, and I cite them rather than restate them. The numbers are in `docs/benchmark-report.md`.

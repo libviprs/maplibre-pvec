@@ -59,6 +59,14 @@ export interface PVecLayerOptions {
   workers?: WorkerOptions;
   errorPolicy?: ErrorPolicy;
   style?: StyleOptions;
+  /**
+   * Rasters carried by the file. On by default. There is no texture budget here: textures share `cache.gpuBytes` and the
+   * bitmaps in flight count against `limits.maxDecodedBytes`.
+   */
+  raster?: {
+    /** False draws no raster and starts no decode. Switchable at runtime with `update`. */
+    enabled?: boolean;
+  };
   /** Not supported. The only accepted value is false (ADR 0008). */
   experimental?: {
     readonly webgpu?: false;
@@ -66,4 +74,4 @@ export interface PVecLayerOptions {
 }
 
 /** What `layer.update()` accepts. None of it refetches canonical bytes. */
-export type PVecLayerUpdate = Pick<PVecLayerOptions, "georeference" | "limits" | "cache" | "errorPolicy" | "style">;
+export type PVecLayerUpdate = Pick<PVecLayerOptions, "georeference" | "limits" | "cache" | "errorPolicy" | "style" | "raster">;

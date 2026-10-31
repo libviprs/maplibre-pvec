@@ -1,11 +1,13 @@
 import type { Map as MapLibreMap } from "maplibre-gl";
 import type { StrokeStyle } from "../components/hooks";
+import type { RasterInfo, RasterSkippedEvent } from "../diagnostics/events";
 import type { EntityDraw } from "../decode/tier0";
 import { BufferPool } from "../render/buffer_pool";
 import { packPolyline, splitHiLo } from "../render/buffer_layout";
 import { GlStateGuard } from "../render/gl_state";
 import { StrokeRenderer } from "../render/stroke/renderer";
 import { spawnDecodeWorker, type DecodeWorker } from "../render/raster/decode";
+import { escapeAttribution, SKIP_TEXT } from "../render/raster/policy";
 import type { RasterProvider } from "../render/raster/provider";
 import { RasterRenderer, type RasterFrame, type RasterFrameStats } from "../render/raster/renderer";
 import type { TieredCache } from "../source/cache";
@@ -30,8 +32,8 @@ export interface EngineInit {
   cache: TieredCache;
   /** The raster stream of the file, or undefined when the module has no raster exports or the file no raster. */
   rasters?: RasterProvider | undefined;
-  /** Tells the host which rasters this reader could not draw (the Unrastered stat). */
-  onRasterSkipped?: ((text: string) => void) | undefined;
+  /** Tells the host which rasters this reader did not draw, once per raster. */
+  onRasterSkipped?: ((e: RasterSkippedEvent) => void) | undefined;
   /** Debug hooks of the raster path: per frame stats and per tile decode time. */
   onRasterFrame?: ((s: RasterFrameStats) => void) | undefined;
   onRasterDecode?: ((e: { id: number; codec: number; ms: number }) => void) | undefined;
@@ -102,6 +104,7 @@ export class StrokeEngine {
   private frame = 0;
   private lost = false;
   private readonly raster: RasterRenderer | undefined;
+  private rasterOn = true;
   skipped = 0;
 
   constructor(private readonly o: EngineInit) {
@@ -115,12 +118,33 @@ export class StrokeEngine {
         provider: o.rasters,
         map: o.map,
         spawn: o.spawnDecode ?? spawnDecodeWorker,
-        onSkipped: (t) => o.onRasterSkipped?.(t),
+        refused: new Set((o.rasters.skipped?.() ?? []).map((s) => s.id)),
         onError: o.onError,
         onDecode: o.onRasterDecode,
         onFrame: o.onRasterFrame,
       });
+      // What pvec-wasm refused comes with its own rule; what this reader cannot draw (a codec it does not know) is RASTER-04.
+      for (const s of o.rasters.skipped?.() ?? []) o.onRasterSkipped?.({ rasterId: s.id, rule: s.rule, message: s.message });
+      for (const s of this.raster.skipped) o.onRasterSkipped?.({ rasterId: s.id, ...SKIP_TEXT[s.reason] });
     }
+  }
+
+  /** The rasters that draw, with their attribution escaped for an HTML sink. */
+  rasterInfos(): RasterInfo[] {
+    return (this.raster?.placements ?? []).map((p) => ({
+      id: p.id,
+      width: p.width,
+      height: p.height,
+      band: p.band,
+      opacity: p.opacity,
+      attribution: p.attribution ? escapeAttribution(p.attribution) : "",
+    }));
+  }
+
+  /** `raster.enabled` at runtime: off draws no raster and starts no decode, on picks up where the cache left off. */
+  setRasterEnabled(on: boolean): void {
+    this.rasterOn = on;
+    this.o.map.triggerRepaint?.();
   }
 
   /** Pack the draws per style group into the pool. Only straight and polyline geometry is drawn here. */
@@ -164,7 +188,7 @@ export class StrokeEngine {
   render(): void {
     const { gl } = this;
     const map = this.o.map;
-    if (this.lost || (!this.groups.length && !this.raster?.drawsAnything) || gl.isContextLost()) return;
+    if (this.lost || (!this.groups.length && !(this.rasterOn && this.raster?.drawsAnything)) || gl.isContextLost()) return;
     if (typeof map.project !== "function" || typeof map.unproject !== "function") return;
     const view = this.view();
     if (!view) return;
@@ -181,7 +205,7 @@ export class StrokeEngine {
       gl.colorMask(true, true, true, true);
       gl.enable(gl.BLEND);
       gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-      const raster = this.raster;
+      const raster = this.rasterOn ? this.raster : undefined;
       const rf = raster ? this.rasterFrame(view) : undefined;
       // Band 0 rasters, then the strokes, then band 1 rasters: the raster is drawn through the same chain as the strokes.
       if (raster && rf) (raster.prepare(rf), raster.draw(0, rf));

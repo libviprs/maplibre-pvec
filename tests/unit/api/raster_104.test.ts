@@ -32,7 +32,7 @@ function provider(ps: RasterPlacement[], skipped: { id: number; rule: string; me
 }
 async function loaded(opts: { rasters?: RasterProvider | null; georeference?: boolean } = {}) {
   const layer = createPVecLayer({ id: "a", source: { url: r.url }, ...(opts.georeference === false ? {} : { georeference: { reference } }) });
-  configureEngine(layer, { loadEvaluator: () => Promise.resolve(evaluator), openRasters: () => Promise.resolve(opts.rasters ?? null) });
+  configureEngine(layer, { loadEvaluator: () => Promise.resolve(evaluator), openRasters: () => Promise.resolve(opts.rasters ?? null), spawnDecode: () => ({ postMessage() {}, onmessage: null, terminate() {} }) });
   const seen: { type: string; event: unknown }[] = [];
   for (const n of EVENT_NAMES) layer.on(n, (event) => void seen.push({ type: n, event }));
   const { gl } = countingGl();
@@ -67,7 +67,7 @@ describe("#104 the raster option", () => {
 
   it("there is no texture budget option: textures share cache.gpuBytes and bitmaps share limits.maxDecodedBytes", () => {
     const report = read("etc/maplibre-pvec.api.md");
-    expect(report).toMatch(/raster\?: \{\s*enabled\?: boolean;?\s*\}/);
+    expect(report).toMatch(/raster\?: \{[^}]*enabled\?: boolean;[^}]*\}/);
     expect(report).not.toMatch(/texture\w*Bytes|rasterBytes|rasterBudget/i);
   });
 });

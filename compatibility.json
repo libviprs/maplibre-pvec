@@ -74,7 +74,8 @@
       "hatch",
       "source_provenance",
       "dwg_semantics",
-      "semantic_class"
+      "semantic_class",
+      "raster"
     ],
     "acceptedCapabilityMajor": 1
   },

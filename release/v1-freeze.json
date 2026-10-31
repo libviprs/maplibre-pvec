@@ -36,13 +36,14 @@
         "hatch",
         "source_provenance",
         "dwg_semantics",
-        "semantic_class"
+        "semantic_class",
+        "raster"
       ],
       "acceptedCapabilityMajor": 1
     }
   },
   "api": {
-    "reportSha256": "dba22cb165fb3af29081fa83c770dbe79ce7527903d090bbd9eac67e5ceb9fe1",
+    "reportSha256": "3289b3e29afab0cbaa090958acf605e3f5af8d9331f07f57b53457ada6a296c8",
     "symbols": {
       ".": {
         "Bounds": "5ed9f6166913eaa6f28ec7b2d7c6c3434940fdebf3dcebb5828145be81568949",
@@ -69,19 +70,21 @@
         "PVecCapabilityError": "672536fecaaa149197c55562887ca6ad02a940b4b806e93d0336b3363d783025",
         "PVecError": "3194905c7d564912c27ea8b38bff27a68f116cc3537e508edd50608900e732e4",
         "PVecErrorEvent": "523b798a71f02b78dbc2c3b64247380744f851065e57f820ee8083323d8438c2",
-        "PVecEventMap": "4d8dba8091f50e9aa90a485612d4fb9d700bd514dd06525665a9bdc0da189d8f",
+        "PVecEventMap": "e1556169923111d764fe865bb8c59fe87999050fd03a8e8190e3cecf3b3e8ebb",
         "PVecEventName": "89a60ad0cf9faa1b247a12ebc336e76f16557ac8425a66fe55598f9e1e47420a",
         "PVecFormatError": "818085b6a1db37bb591ff4c1112a1247b424e9a2ce5aa3d6b9bafc1ef4fe8cc3",
-        "PVecLayer": "a8059f67a05760ff4214b7e6993fae75d5266298cf3c645a6f99fcb27d33e11e",
+        "PVecLayer": "c8fe9addc322e7f85da57930e375f2243c7ee79efdc613f8150c4ab6e59c8608",
         "PVecLayerError": "56b72a4b50a3a693f43fe671d350864e4b42f80bd4f9831084a79c01e2909751",
         "PVecLayerErrorCode": "2dfbc1abc4fe41d0357feafb098591d5e450b70292e926b4f55818b7ef47ab1e",
-        "PVecLayerOptions": "c9e7a9a260c046908a7df8cf110825186d4d438267e5a3a4aacf327b2e12ab2f",
-        "PVecLayerUpdate": "b29534a6cd66e584bac71e10fc131672ece86aa3055058fc887cc73a2b95ab0f",
+        "PVecLayerOptions": "d1a20605b5fc047e05593faee9f692fabdcdd60949457bf3b3c5af19dfc27a10",
+        "PVecLayerUpdate": "97a279871bf10456ec2634051cff0e0faf44f2b56498fcba25bebd1775e9a7f4",
         "PVecListener": "a643ae718e1337172ddb870978f5f391c14e78c9070c229622083b6cc4f34682",
         "PVecOptionError": "e66430b8d7e1a478b363dae25b781ffacf6c28415eb58f43b53eaaefd2eda0ee",
         "PVecSourceOptions": "8e55ef07ac63ec4e83e93a994aa76f446baf7f1364dcf8b168af065be2e1d6b6",
         "PVecTransportError": "1cf1b9c7a72bfc6f2ab7bbe804d027e7434ec63761df6b252164cc2db6c29863",
         "PVecVersionError": "088465aefde81b4f7bea5f38c0af2deaa27e56fe8dff911208dc2585f5a80b5b",
+        "RasterInfo": "ec2eb213b5aae9cf12b85ed81fb28ce48093f761de8becdb578eee1342e29208",
+        "RasterSkippedEvent": "2f0789ac1ac2dc7b94a0c22373b2315e5d45aa4846832c14a188f4e378063617",
         "RefinementEvent": "612db627fbf74585c53b12158f6c313a2fc94795c3c612ea21fbe87e1fe59632",
         "ResourceLimits": "6f2f0fada24997adfea3f1fedc2ba218c739196a0b88c7d933ab6179f7c2eccc",
         "StrokeStyle": "9494ec86a6f39335305498bae3e63c21bce0fae0df0ee9b55e8da49fc239900f",
