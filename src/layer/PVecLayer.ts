@@ -9,7 +9,7 @@ import {
   type EntityRef,
   type StrokeStyle,
 } from "../components/hooks";
-import { Emitter, type DiagnosticsSnapshot, type PVecEventMap, type PVecEventName, type PVecListener } from "../diagnostics/events";
+import { Emitter, type DiagnosticsSnapshot, type RasterInfo, type PVecEventMap, type PVecEventName, type PVecListener } from "../diagnostics/events";
 import { nearestEntity, pickPoint as corePick, queryRegion as coreRegion, type Bounds, type LngLat } from "../pick/index";
 import type { PVecHandle } from "../source/bootstrap";
 import { PVecCapabilityError, PVecError, PVecOptionError } from "../source/errors";
@@ -91,6 +91,14 @@ function validate(o: PVecLayerOptions): void {
   if (sm !== undefined && sm !== "auto" && sm !== "never") {
     throw new PVecOptionError("worker-count-invalid", `workers.sharedMemory must be "auto" or "never", got ${String(sm)}`);
   }
+  const ra = o.raster as unknown;
+  if (ra !== undefined && (typeof ra !== "object" || ra === null || Array.isArray(ra))) {
+    throw new PVecOptionError("raster-option-invalid", `raster must be an object like { enabled: true }, got ${String(ra)}`);
+  }
+  const on = o.raster?.enabled as unknown;
+  if (on !== undefined && typeof on !== "boolean") {
+    throw new PVecOptionError("raster-option-invalid", `raster.enabled must be true or false, got ${String(on)}`);
+  }
 }
 
 /** The MapLibre custom layer that streams one .pvec artifact. Build it with {@link createPVecLayer}. */
@@ -127,6 +135,7 @@ export class PVecLayer implements CustomLayerInterface {
     decodeMs: 0,
     tessMs: 0,
     queue: 0,
+    rasterSkipped: 0,
   };
 
   constructor(options: PVecLayerOptions) {
@@ -224,6 +233,7 @@ export class PVecLayer implements CustomLayerInterface {
     validate(next);
     new PVecSource(toSource(next, (i, init) => globalThis.fetch(i, init)));
     this.options = next;
+    if (partial.raster) wired(this).strokes?.setRasterEnabled(next.raster?.enabled !== false);
     this.hooks.onUpdate?.(partial);
   }
 
@@ -238,6 +248,14 @@ export class PVecLayer implements CustomLayerInterface {
   once<K extends PVecEventName>(type: K, fn: PVecListener<K>): this {
     this.emitter.once(type, fn);
     return this;
+  }
+
+  /**
+   * The rasters that draw, in RasterId order, empty before the file is loaded or when it has none. A custom layer has no
+   * source to carry an attribution, so the host passes `attribution` (already escaped) to MapLibre's attribution control.
+   */
+  rasters(): RasterInfo[] {
+    return wired(this).strokes?.rasterInfos() ?? [];
   }
 
   getDiagnostics(): DiagnosticsSnapshot {
@@ -259,6 +277,7 @@ export class PVecLayer implements CustomLayerInterface {
       pendingFetches: this.n.pending,
       frames: this.n.frames,
       contextLosses: this.n.losses,
+      rasters: { drawn: this.rasters().length, skipped: this.n.rasterSkipped, ...(wired(this).strokes?.rasterAccounting() ?? { textureBytes: 0, decodesInFlight: 0 }) },
     };
   }
 
@@ -363,13 +382,17 @@ export class PVecLayer implements CustomLayerInterface {
       if (signal.aborted) return;
       this.handle = h;
       const m = h.manifest;
+      const rasters = await deps.openRasters(h, evaluator);
+      if (signal.aborted) return;
       this.emitter.emit("capabilities", {
         minReader: m.minReader.join("."),
         capabilities: m.capabilities.map((c) => ({ name: c.name, major: c.major, minor: c.minor, patch: c.patch, required: c.required })),
         unsupportedRequired: [],
-        unsupportedOptional: h.report.unsupportedOptional.map((c) => c.name),
+        unsupportedOptional: h.report.unsupportedOptional.filter((c) => c.name !== "raster" || !rasters).map((c) => c.name),
       });
+      // A module that can read the raster stream has not left it unsupported.
       for (const c of h.report.unsupportedOptional) {
+        if (c.name === "raster" && rasters) continue;
         this.emitter.emit("capabilityunsupported", { capability: c.name, required: false, action: "ignored" });
       }
       this.emitter.emit("bytes", {
@@ -381,7 +404,6 @@ export class PVecLayer implements CustomLayerInterface {
         cacheTier: "network",
       });
       const cursor = await deps.openCursor(h, evaluator);
-      const rasters = await deps.openRasters(h, evaluator);
       const map = wired(this).map;
       if (signal.aborted || (!cursor && !rasters) || !map) return;
       const engine = (wired(this).strokes = new StrokeEngine({
@@ -394,12 +416,13 @@ export class PVecLayer implements CustomLayerInterface {
         onStateDiff: deps.onStateDiff,
         cache: source.cache,
         rasters: rasters ?? undefined,
-        onRasterSkipped: (action) => this.emitter.emit("capabilityunsupported", { capability: "raster", required: false, action }),
+        onRasterSkipped: (e) => (this.n.rasterSkipped++, this.emitter.emit("rasterskipped", e)),
         onRasterFrame: deps.onRasterFrame,
         onRasterDecode: deps.onRasterDecode,
         spawnDecode: deps.spawnDecode,
         onError: (where, err) => this.emitter.emit("error", { code: "layer_failed", message: `${where}: ${String(err)}`, context: { where } }),
       }));
+      engine.setRasterEnabled(this.options.raster?.enabled !== false);
       if (cursor) {
         const t0 = performance.now();
         const draws = new Tier0Decoder().decodeAll(cursor);
@@ -473,6 +496,7 @@ export class PVecLayer implements CustomLayerInterface {
         this.emitter.emit("refinement", e);
       },
       reportCapabilityUnsupported: (e) => this.emitter.emit("capabilityunsupported", e),
+      reportRasterSkipped: (e) => this.emitter.emit("rasterskipped", e),
       reportError: (code, message, context) => this.emitter.emit("error", { code, message, context }),
       reportBytes: (e) => this.emitter.emit("bytes", e),
       addTiming: (kind, ms) => void (kind === "decode" ? (this.n.decodeMs += ms) : (this.n.tessMs += ms)),

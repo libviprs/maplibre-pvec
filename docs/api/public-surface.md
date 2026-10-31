@@ -45,6 +45,8 @@ Regenerate the report with `npm run api:report` and commit the diff. The test re
 | `PVecSourceOptions` | type |  |
 | `PickOptions` | type |  |
 | `PickResult` | type |  |
+| `RasterInfo` | type | What `layer.rasters()` returns per raster that draws: `id`, `width`, `height`, `band`, `opacity` and the attribution already escaped for an HTML sink. |
+| `RasterSkippedEvent` | type | `{ rasterId, rule, message }` of the `rasterskipped` event. |
 | `RefinementEvent` | type |  |
 | `ResourceLimits` | type |  |
 | `StrokeStyle` | type |  |
@@ -97,7 +99,15 @@ The WASM module handle and its memory, worker protocol messages, `PVecSource`, t
 
 ## Events
 
-`capabilities`, `bytes`, `tier0complete`, `refinement`, `capabilityunsupported`, `error`. A listener that throws is reported once through `error` and never reaches the render loop. Generations in `refinement` for one entity only go up.
+`capabilities`, `bytes`, `tier0complete`, `refinement`, `capabilityunsupported`, `rasterskipped`, `error`. A listener that throws is reported once through `error` and never reaches the render loop. Generations in `refinement` for one entity only go up.
+
+`rasterskipped` is emitted once per skipped raster per bootstrap, with the `RASTER-NN` rule that refused it (an unknown codec id and a JPEG with alpha are `RASTER-04`). A module without the raster exports, or a reader that cannot show the stream, reports `capabilityunsupported` for `raster` once (`required: false`, `action: "ignored"`), the same shape as any optional capability.
+
+## Rasters
+
+`PVecLayerOptions.raster.enabled` (default `true`, anything but a boolean is a `PVecOptionError`) and `update({ raster })` switch rasters off and on without a refetch. There is no texture budget option: textures are entries of `cache.gpuBytes` and the bitmaps in flight count against `limits.maxDecodedBytes`. `layer.rasters()` lists the rasters that draw. A custom layer has no source to carry an attribution, so the host passes `attribution` to MapLibre's attribution control itself.
+
+`DiagnosticsSnapshot.rasters` is `{ drawn, skipped, textureBytes, decodesInFlight }`, all zero for a file without a raster stream. This is a freeze amendment under the R-M epic (#103).
 
 ## Errors the layer emits through `error`
 

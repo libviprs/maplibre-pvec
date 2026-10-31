@@ -56,7 +56,8 @@ export interface RasterRendererInit {
   provider: RasterProvider;
   map: Pick<MapLibreMap, "triggerRepaint">;
   spawn: () => DecodeWorker;
-  onSkipped(text: string): void;
+  /** Ids the provider already refused with its own rule: they neither draw nor count as skipped here. */
+  refused?: ReadonlySet<number> | undefined;
   onError(where: string, e: unknown): void;
   onDecode?: ((e: { id: number; codec: number; ms: number }) => void) | undefined;
   onFrame?: ((s: RasterFrameStats) => void) | undefined;
@@ -65,7 +66,6 @@ export interface RasterRendererInit {
 
 const MAX_IN_FLIGHT = 6;
 const MAX_READY = 8;
-const REASON_TEXT: Record<SkipReason, string> = { "unknown-codec": "unknown codec", "jpeg-with-alpha": "jpeg with alpha" };
 
 const key = (id: number, level: number, col: number, row: number) => `r${id}/${level}/${col}/${row}`;
 
@@ -108,15 +108,11 @@ export class RasterRenderer {
   private disposed = false;
 
   constructor(private readonly o: RasterRendererInit) {
-    const c = classifyRasters(o.provider.placements());
+    const c = classifyRasters(o.provider.placements(), o.refused);
     this.placements = c.drawable;
     this.skipped = c.unrastered;
     ({ under: this.under, over: this.over } = drawOrder(c.drawable));
     this.pool = new DecodePool(o.spawn);
-    if (c.unrastered.length) {
-      const reasons = [...new Set(c.unrastered.map((s) => REASON_TEXT[s.reason]))].join(", ");
-      o.onSkipped(`skipped ${c.unrastered.length} ${c.unrastered.length === 1 ? "raster" : "rasters"}: ${reasons}`);
-    }
   }
 
   /** The attribution strings of the rasters drawn, escaped for MapLibre's attribution control. */

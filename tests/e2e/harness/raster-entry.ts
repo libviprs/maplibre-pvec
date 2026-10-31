@@ -46,6 +46,7 @@ const state = {
   snaps: {} as Record<string, Snap>,
   errors: [] as { code: string; message: string }[],
   events: [] as { capability: string; required: boolean; action: string }[],
+  skips: [] as { rasterId: number; rule: string; message: string }[],
   stateDiffs: [] as string[],
   frames: undefined as RasterFrameStats | undefined,
   uploadsPerFrame: [] as number[],
@@ -67,7 +68,7 @@ export interface OpenOptions {
 
 export async function openRaster(o: OpenOptions): Promise<void> {
   if (state.layer && state.map && state.gl) state.layer.onRemove(state.map as never, state.gl);
-  Object.assign(state, { errors: [], events: [], stateDiffs: [], frames: undefined, uploadsPerFrame: [], renderMs: [], decodeMs: {}, workerDecodes: 0, held: 0, gate: o.hold ? { ...o.hold, waiting: [], open: false } : undefined });
+  Object.assign(state, { errors: [], events: [], skips: [], stateDiffs: [], frames: undefined, uploadsPerFrame: [], renderMs: [], decodeMs: {}, workerDecodes: 0, held: 0, gate: o.hold ? { ...o.hold, waiting: [], open: false } : undefined });
   counters.mainDecodes = 0;
   document.body.replaceChildren();
   const canvas = (state.canvas = document.createElement("canvas"));
@@ -111,6 +112,7 @@ export async function openRaster(o: OpenOptions): Promise<void> {
   const layer = (state.layer = createPVecLayer({ id: "pvec", source: { url: (window as unknown as { __FIXTURE__: string }).__FIXTURE__ }, georeference: { reference }, ...(o.gpuBytes ? { cache: { gpuBytes: o.gpuBytes } } : {}) }));
   layer.on("error", (e) => state.errors.push({ code: e.code, message: e.message }));
   layer.on("capabilityunsupported", (e) => state.events.push({ capability: e.capability, required: e.required, action: e.action }));
+  layer.on("rasterskipped", (e) => state.skips.push({ rasterId: e.rasterId, rule: e.rule, message: e.message }));
   let served = !state.stroke.length;
   const entities = (): RawEntity[] => [{ entityId: "e0", kind: "exact", geometry: { type: "polyline", points: state.stroke }, bounds: { minX: 0, minY: 0, maxX: 1000, maxY: 1000 } }];
   configureEngine(layer, {
@@ -167,6 +169,11 @@ export async function settle(): Promise<void> {
   }
 }
 
+/** `layer.update({ raster })`, the host's runtime switch. */
+export function setRaster(enabled: boolean): void {
+  state.layer!.update({ raster: { enabled } });
+}
+
 export function steadyFrames(n: number): void {
   state.renderMs = [];
   for (let i = 0; i < n; i++) frame(`steady${i}`);
@@ -181,6 +188,7 @@ export function stats() {
     held: state.held,
     errors: state.errors,
     events: state.events,
+    skips: state.skips,
     stateDiffs: state.stateDiffs,
     mainThreadDecodes: counters.mainDecodes,
     workerDecodes: state.workerDecodes,
