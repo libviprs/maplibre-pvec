@@ -9,7 +9,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const arg = (n, d) => { const i = process.argv.indexOf(`--${n}`); return i > 0 ? process.argv[i + 1] : d; };
-const { baselineKey, validateHardwareResult, validateSoftwareResult, validateBaselines } = await import(pathToFileURL(join(resolve(arg("bundle", ".cache/hw")), "hardware.mjs")).href);
+const { baselineKey, validateHardwareResult, validateSoftwareResult, validateRasterResult, validateBaselines } = await import(pathToFileURL(join(resolve(arg("bundle", ".cache/hw")), "hardware.mjs")).href);
 const file = join(root, "bench/baselines/renderer-baselines.json");
 let base = { schema: 1, tunedFrom: [], entries: {} };
 try { base = JSON.parse(await readFile(file, "utf8")); } catch {}
@@ -18,9 +18,19 @@ const inputs = process.argv.slice(2).filter((a, i, all) => !flags.has(a) && !fla
 for (const f of inputs) {
   const r = JSON.parse(await readFile(f, "utf8"));
   const software = r.environment?.softwareRenderer === true;
-  const errors = software ? validateSoftwareResult(r) : validateHardwareResult(r);
+  const rasterOnly = r.raster && !r.frames;
+  const errors = rasterOnly ? validateRasterResult(r, software) : software ? validateSoftwareResult(r) : validateHardwareResult(r);
   if (errors.length) throw new Error(`${f}: ${errors.join("; ")}`);
   const e = r.environment;
+  if (rasterOnly) {
+    // Rasters through the wired layer (#108): apart from the stroke entries, hardware and software kept separate.
+    const t = software ? (base.softwareRasterEntries ??= {}) : (base.rasterEntries ??= {});
+    t[software ? `${baselineKey(e.gpuRenderer, e.engine)} | ${e.arch}` : baselineKey(e.gpuRenderer, e.engine)] = {
+      engine: e.engine, arch: e.arch, os: e.os, softwareRenderer: software, ...(software ? { container: e.container } : {}), browserVersion: e.browserVersion,
+      source: relative(root, resolve(f)), raster: r.raster,
+    };
+    continue;
+  }
   const table = software ? (base.softwareEntries ??= {}) : base.entries;
   table[baselineKey(e.gpuRenderer, e.engine)] = {
     engine: e.engine, arch: e.arch, os: e.os, softwareRenderer: software, ...(software ? { container: e.container } : {}), browserVersion: e.browserVersion,

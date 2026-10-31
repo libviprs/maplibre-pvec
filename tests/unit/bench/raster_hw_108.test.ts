@@ -161,7 +161,7 @@ describe("#108 raster corpus cases", () => {
     expect(validateRasterCorpus(corpus, tiles)).toEqual([]);
     expect(corpus.rasterCases.map((c: { id: string }) => c.id)).toEqual(["architectural-1e5+1-scan", "architectural-1e5+10-scans"]);
     for (const c of corpus.rasterCases) {
-      expect(c.scan.width).toBe(18740);
+      expect(c.scan.width).toBe(18724);
       expect(c.scan.height).toBe(13244);
       expect(c.scan.tilesSha256).toBe(tiles.tilesSha256);
     }

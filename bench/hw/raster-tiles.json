@@ -1,0 +1,132 @@
+{
+  "pillow": "11.0.0",
+  "tilesSha256": "302afc1bbecd5bd92d0b7bf453d2b4d01c0eccddae08adaa740aa7c57f555b3b",
+  "tiles": [
+    {
+      "variant": "png-gray1",
+      "edge": 256,
+      "file": "png-gray1-256.png",
+      "bytes": 2499,
+      "sha256": "d5e6ba1d3b2039dd54994e2f09610454e94ebef1d38f15d4173c0a0ef8768864"
+    },
+    {
+      "variant": "png-gray8",
+      "edge": 256,
+      "file": "png-gray8-256.png",
+      "bytes": 34467,
+      "sha256": "7cecf5c6090fc9f696bdc11b112d5f5cd8a40b78bb660fd30246b5096dc42ba0"
+    },
+    {
+      "variant": "png-rgba",
+      "edge": 256,
+      "file": "png-rgba-256.png",
+      "bytes": 54874,
+      "sha256": "6bc62c1089908efbf0bdffbe2565782e024d136432256826ef1010636b1fe567"
+    },
+    {
+      "variant": "jpeg-gray",
+      "edge": 256,
+      "file": "jpeg-gray-256.jpg",
+      "bytes": 32173,
+      "sha256": "7fbb40698747390d744a40de4edecefc0474b200bdd11f38248abe419151325d"
+    },
+    {
+      "variant": "jpeg-rgb",
+      "edge": 256,
+      "file": "jpeg-rgb-256.jpg",
+      "bytes": 32750,
+      "sha256": "64771e342a4c57aebfcbe3998efad75346bc4b5f148c7a78b38c50a839f6affc"
+    },
+    {
+      "variant": "webp-vp8l",
+      "edge": 256,
+      "file": "webp-vp8l-256.webp",
+      "bytes": 28198,
+      "sha256": "19eade78191c532fcb3c01d9e495ede4f00cb7bba3a1693e8f606d3d2dc1e41c"
+    },
+    {
+      "variant": "png-gray1",
+      "edge": 512,
+      "file": "png-gray1-512.png",
+      "bytes": 6038,
+      "sha256": "9dd65ee99287c6f088a679c5b2d858d34090c873f853e79c5bafc2f760ebfccd"
+    },
+    {
+      "variant": "png-gray8",
+      "edge": 512,
+      "file": "png-gray8-512.png",
+      "bytes": 146519,
+      "sha256": "dde9fbe208d85442aa8d8bb5f350faa76e33827b55eb0aad7a847e4132e69ed9"
+    },
+    {
+      "variant": "png-rgba",
+      "edge": 512,
+      "file": "png-rgba-512.png",
+      "bytes": 224988,
+      "sha256": "7bd6399cd421d8bde6cf81bff7e50e9d32a52148d70e7e20cda73bc9d025a741"
+    },
+    {
+      "variant": "jpeg-gray",
+      "edge": 512,
+      "file": "jpeg-gray-512.jpg",
+      "bytes": 98981,
+      "sha256": "3a55dacd8bd9c5e0da64286e630343fb8d67f048ea7f8a4671afd696b95c38ca"
+    },
+    {
+      "variant": "jpeg-rgb",
+      "edge": 512,
+      "file": "jpeg-rgb-512.jpg",
+      "bytes": 100641,
+      "sha256": "5b732b7c1d9ac8019872d1d6c9dc9015da2daf2132116ef8c74195dcc7d2d04e"
+    },
+    {
+      "variant": "webp-vp8l",
+      "edge": 512,
+      "file": "webp-vp8l-512.webp",
+      "bytes": 121022,
+      "sha256": "81fba384ba92ad309ea00ef6c485d125b2354d1f80557005e80041ff874b6a64"
+    },
+    {
+      "variant": "png-gray1",
+      "edge": 1024,
+      "file": "png-gray1-1024.png",
+      "bytes": 13569,
+      "sha256": "77c0a0724ead664e24eb04478fe278ece1c4c49fc3e3519df5450273a43660b4"
+    },
+    {
+      "variant": "png-gray8",
+      "edge": 1024,
+      "file": "png-gray8-1024.png",
+      "bytes": 608554,
+      "sha256": "ae0fabfdf6c26d47a04fcd820f04ff1e35b36b6ad1166909bb93bced46704b24"
+    },
+    {
+      "variant": "png-rgba",
+      "edge": 1024,
+      "file": "png-rgba-1024.png",
+      "bytes": 916073,
+      "sha256": "4a725ec7cc400dfbd183cf0586397bd7c44033112f399840cafdfe0862963114"
+    },
+    {
+      "variant": "jpeg-gray",
+      "edge": 1024,
+      "file": "jpeg-gray-1024.jpg",
+      "bytes": 296104,
+      "sha256": "06b2a0a61de6d997745ae05170499cd5fe66c10b4adbc8741d59ac918f44bc9d"
+    },
+    {
+      "variant": "jpeg-rgb",
+      "edge": 1024,
+      "file": "jpeg-rgb-1024.jpg",
+      "bytes": 301482,
+      "sha256": "522c0f13d9db2ace4c6137725c9eff8dbbf63f5dec17fd65a66781247b8f36ca"
+    },
+    {
+      "variant": "webp-vp8l",
+      "edge": 1024,
+      "file": "webp-vp8l-1024.webp",
+      "bytes": 506492,
+      "sha256": "5fe41f1e494a368d943e5c940a357c1172c1806d20d77ced994337b1eca8903c"
+    }
+  ]
+}

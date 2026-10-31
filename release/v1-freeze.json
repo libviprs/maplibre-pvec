@@ -157,6 +157,11 @@
     "POOL_DEFAULTS": {
       "minWorkers": 1,
       "maxWorkers": 4
+    },
+    "RASTER_DEFAULTS": {
+      "bytesPerTexel": 4,
+      "retainedLevelFactor": 2,
+      "textureShare": 1
     }
   }
 }
