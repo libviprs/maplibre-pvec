@@ -414,6 +414,7 @@ export class PVecLayer implements CustomLayerInterface {
         onStateDiff: deps.onStateDiff,
         cache: source.cache,
         rasters: rasters ?? undefined,
+        maxDecodedBytes: this.options.limits?.maxDecodedBytes,
         onRasterSkipped: (e) => this.emitter.emit("rasterskipped", e),
         onRasterFrame: deps.onRasterFrame,
         onRasterDecode: deps.onRasterDecode,

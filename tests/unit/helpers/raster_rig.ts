@@ -52,7 +52,7 @@ export class Rig {
     };
     const gl = glStub(this);
     this.renderer = new RasterRenderer({
-      gl: gl as never,
+      gl,
       cache: this.cache,
       provider,
       map: { triggerRepaint: () => undefined },
@@ -64,7 +64,7 @@ export class Rig {
       onError: (_where, e) => void this.errors.push(e),
       onFrame: (s) => void this.stats.push(s),
       ...(o.maxDecodedBytes !== undefined ? { maxDecodedBytes: o.maxDecodedBytes } : {}),
-    } as never);
+    });
   }
 
   frame(): RasterFrame {
@@ -143,7 +143,7 @@ class FakeWorker implements DecodeWorker {
   terminate(): void {}
 }
 
-function glStub(rig: Rig): object {
+function glStub(rig: Rig): WebGL2RenderingContext {
   const impl: Record<string, unknown> = {
     createTexture: () => {
       const t = {};
@@ -164,5 +164,5 @@ function glStub(rig: Rig): object {
   };
   return new Proxy(impl, {
     get: (t, k) => (k in t ? t[k as string] : typeof k === "string" && /^[A-Z][A-Z0-9_]*$/.test(k) ? 1 : () => undefined),
-  });
+  }) as unknown as WebGL2RenderingContext;
 }

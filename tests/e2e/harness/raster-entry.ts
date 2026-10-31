@@ -20,7 +20,9 @@ const geo = createGeoTransform(reference);
 const BACKGROUND = [223, 231, 238, 255];
 const STROKE_WIDTH = 4;
 const world = () => 512 * 2 ** ZOOM;
-const [CX, CY] = lngLatToMercator(...geo.forward(75, 48));
+const [CX0, CY0] = lngLatToMercator(...geo.forward(75, 48));
+/** The camera centre in mercator units; `setCamera` moves it in device pixels from where it started. */
+let CX = CX0, CY = CY0;
 const project = (sx: number, sy: number): [number, number] => {
   const [mx, my] = lngLatToMercator(...geo.forward(sx, sy));
   return [(mx - CX) * world() + W / 2, (my - CY) * world() + H / 2];
@@ -54,6 +56,7 @@ const state = {
   decodeMs: {} as Record<string, number[]>,
   workerDecodes: 0,
   held: 0,
+  tileRequests: 0,
   gate: undefined as { fromLevel: number; waiting: (() => void)[]; open: boolean } | undefined,
 };
 
@@ -68,7 +71,7 @@ export interface OpenOptions {
 
 export async function openRaster(o: OpenOptions): Promise<void> {
   if (state.layer && state.map && state.gl) state.layer.onRemove(state.map as never, state.gl);
-  Object.assign(state, { errors: [], events: [], skips: [], stateDiffs: [], frames: undefined, uploadsPerFrame: [], renderMs: [], decodeMs: {}, workerDecodes: 0, held: 0, gate: o.hold ? { ...o.hold, waiting: [], open: false } : undefined });
+  Object.assign(state, { errors: [], events: [], skips: [], stateDiffs: [], frames: undefined, uploadsPerFrame: [], renderMs: [], decodeMs: {}, workerDecodes: 0, held: 0, tileRequests: 0, gate: o.hold ? { ...o.hold, waiting: [], open: false } : undefined });
   counters.mainDecodes = 0;
   document.body.replaceChildren();
   const canvas = (state.canvas = document.createElement("canvas"));
@@ -97,6 +100,7 @@ export async function openRaster(o: OpenOptions): Promise<void> {
   const provider: RasterProvider = {
     placements: () => state.wire.map((w) => w.placement),
     tile: async (id, level, col, row) => {
+      state.tileRequests++;
       // the renderer owns the bytes it is handed (they are transferred to the decode worker), so hand out a copy
       const g = state.gate;
       if (g && !g.open && level >= g.fromLevel) {
@@ -169,6 +173,56 @@ export async function settle(): Promise<void> {
   }
 }
 
+/** Moves the camera to `px`, `py` device pixels from its starting point. */
+export function setCamera(o: { px: number; py: number }): void {
+  CX = CX0 + o.px / world();
+  CY = CY0 + o.py / world();
+}
+
+/** Pans for `ms` at `vx` device px a second, one layer frame per animation frame, and reports what the budgets did meanwhile. */
+export async function pan(o: { ms: number; vx: number; px0?: number }): Promise<{ frames: number; maxGpuTier: number; maxDecodedTier: number; glErrors: number; p95Ms: number; p95SteadyMs: number; p95UploadMs: number; p95PrepareMs: number; maxMs: number; stateDiffs: string[]; tileRequests: number; decodes: number }> {
+  const gl = state.gl!;
+  const t0 = performance.now();
+  const times: number[] = [], steady: number[] = [], upload: number[] = [], prepare: number[] = [];
+  let frames = 0, maxGpuTier = 0, maxDecodedTier = 0, glErrors = 0;
+  const px0 = o.px0 ?? 0;
+  while (performance.now() - t0 < o.ms) {
+    await new Promise<void>((r) => requestAnimationFrame(() => r()));
+    setCamera({ px: px0 + ((performance.now() - t0) / 1000) * o.vx, py: 0 });
+    gl.viewport(0, 0, W, H);
+    gl.clearColor(0.875, 0.906, 0.933, 1);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    const a = performance.now();
+    state.layer!.render(gl, {});
+    const ms = performance.now() - a;
+    times.push(ms);
+    (state.frames?.uploads ? upload : steady).push(ms);
+    if (state.frames) prepare.push(state.frames.renderMs);
+    frames++;
+    const d = state.layer!.getDiagnostics().bytes;
+    maxGpuTier = Math.max(maxGpuTier, d.gpuTier);
+    maxDecodedTier = Math.max(maxDecodedTier, d.decodedTier);
+    if (frames % 50 === 0) while (gl.getError() !== gl.NO_ERROR) glErrors++;
+  }
+  while (gl.getError() !== gl.NO_ERROR) glErrors++;
+  const p95 = (xs: number[]) => xs.sort((a, b) => a - b)[Math.floor(xs.length * 0.95)] ?? 0;
+  return { frames, maxGpuTier, maxDecodedTier, glErrors, p95Ms: p95(times), p95SteadyMs: p95(steady), p95UploadMs: p95(upload), p95PrepareMs: p95(prepare), maxMs: times.at(-1) ?? 0, stateDiffs: state.stateDiffs, tileRequests: state.tileRequests, decodes: state.workerDecodes };
+}
+
+/** Forces a context loss and waits for the restore, the way a browser reclaiming the GPU would. */
+export async function loseAndRestore(): Promise<void> {
+  const gl = state.gl!;
+  const ext = gl.getExtension("WEBGL_lose_context")!;
+  const lost = new Promise<void>((r) => state.canvas!.addEventListener("webglcontextlost", () => r(), { once: true }));
+  ext.loseContext();
+  await lost;
+  // restoreContext() is ignored unless the loss event has finished dispatching and was cancelled, so leave this task first.
+  await new Promise((r) => setTimeout(r, 50));
+  const back = new Promise<void>((r) => state.canvas!.addEventListener("webglcontextrestored", () => r(), { once: true }));
+  ext.restoreContext();
+  await Promise.race([back, new Promise<never>((_, rej) => setTimeout(() => rej(new Error("the context was not restored")), 8000))]);
+}
+
 /** `layer.update({ raster })`, the host's runtime switch. */
 export function setRaster(enabled: boolean): void {
   state.layer!.update({ raster: { enabled } });
@@ -186,6 +240,9 @@ export function stats() {
     textures: state.frames?.textures ?? 0,
     pending: state.frames?.pending ?? 0,
     held: state.held,
+    tileRequests: state.tileRequests,
+    gpuBudget: state.layer?.getDiagnostics().bytes.gpuTier ?? 0,
+    raster: state.frames,
     errors: state.errors,
     events: state.events,
     skips: state.skips,

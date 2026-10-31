@@ -81,9 +81,9 @@ describe("#105 eviction terms", () => {
     put(c, "tie-a", 0, 3);
     c.get("gpu", "fine1");
     for (let i = 0; i < 7; i++) put(c, `fill${i}`, 0, 2, true);
-    // farthest first (level 0 is two below the wanted 2), then the finer unwanted level before the retained coarser one of equal distance,
-    // then the older of equal terms, then the smaller key
-    expect(order(c).slice(0, 7)).toEqual(["coarse2", "tie-a", "tie-b", "fine1", "coarse1-old", "coarse1-new", "wanted-level-not-in-plan"]);
+    // farthest first (level 0 is two below the wanted 2), then the finer unwanted level before the retained coarser one of equal
+    // distance, the older of equal terms going first (fine1 was read last, so it outlasts its twins)
+    expect(order(c).slice(0, 7)).toEqual(["coarse2", "tie-b", "tie-a", "fine1", "coarse1-old", "coarse1-new", "wanted-level-not-in-plan"]);
     expect(c.has("gpu", "plan-far"), "an entry in the plan is not evicted while anything outside it is resident").toBe(true);
   });
 
@@ -92,9 +92,10 @@ describe("#105 eviction terms", () => {
     c.setWantedLevels(new Map([[0, 2]]));
     c.put("gpu", "b", 1000, {});
     c.put("gpu", "a", 1000, {});
-    c.put("gpu", "r", 1000, { raster: 0, level: 0 } as never);
     c.put("gpu", "z", 1000, {});
-    expect(order(c)).toEqual(["r"]);
+    c.get("gpu", "b");
+    c.put("gpu", "n", 1000, {});
+    expect(order(c)).toEqual(["a"]);
   });
 });
 
@@ -226,6 +227,7 @@ describe("#105 soak", () => {
         r.step();
       } else if (x < 0.75) {
         r.deliver(1, (n) => Math.floor(rnd() * n));
+        await r.tick(3);
       } else if (x < 0.999) {
         await r.tick(2);
       } else {

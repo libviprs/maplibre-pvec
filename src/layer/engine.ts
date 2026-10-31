@@ -33,6 +33,8 @@ export interface EngineInit {
   /** The raster stream of the file, or undefined when the module has no raster exports or the file no raster. */
   rasters?: RasterProvider | undefined;
   /** Tells the host which rasters this reader did not draw, once per raster. */
+  /** `limits.maxDecodedBytes`: the bitmaps of the raster path in flight stay under it. */
+  maxDecodedBytes?: number | undefined;
   onRasterSkipped?: ((e: RasterSkippedEvent) => void) | undefined;
   /** Debug hooks of the raster path: per frame stats and per tile decode time. */
   onRasterFrame?: ((s: RasterFrameStats) => void) | undefined;
@@ -118,6 +120,7 @@ export class StrokeEngine {
         provider: o.rasters,
         map: o.map,
         spawn: o.spawnDecode ?? spawnDecodeWorker,
+        maxDecodedBytes: o.maxDecodedBytes,
         refused: new Set((o.rasters.skipped?.() ?? []).map((s) => s.id)),
         onError: o.onError,
         onDecode: o.onRasterDecode,

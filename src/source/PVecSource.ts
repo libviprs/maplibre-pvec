@@ -1,3 +1,4 @@
+import { DEFAULT_MAX_DECODED_BYTES } from "../config/defaults";
 import { TieredCache, type Tier } from "./cache";
 import { RttBandwidthEstimator } from "./coalesce";
 import { bootstrap, type PVecHandle } from "./bootstrap";
@@ -77,7 +78,7 @@ const DEFAULT_CACHE_BUDGET: CacheBudgetBytes = {
   gpu: 128 * 1024 * 1024, // PROVISIONAL (M8.6)
 };
 const DEFAULT_LIMITS: PVecLimits = {
-  maxDecompressedBytes: 256 * 1024 * 1024,
+  maxDecompressedBytes: DEFAULT_MAX_DECODED_BYTES,
   maxEntities: 1 << 24,
   maxConcurrentRequests: 6, // PROVISIONAL (M8.6): the HTTP/1.1 per-origin connection count
   maxQueuedBytes: 64 * 1024 * 1024, // PROVISIONAL (M8.6)
