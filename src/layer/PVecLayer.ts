@@ -135,6 +135,7 @@ export class PVecLayer implements CustomLayerInterface {
     decodeMs: 0,
     tessMs: 0,
     queue: 0,
+    rasterSkipped: 0,
   };
 
   constructor(options: PVecLayerOptions) {
@@ -276,6 +277,7 @@ export class PVecLayer implements CustomLayerInterface {
       pendingFetches: this.n.pending,
       frames: this.n.frames,
       contextLosses: this.n.losses,
+      rasters: { drawn: this.rasters().length, skipped: this.n.rasterSkipped, ...(wired(this).strokes?.rasterAccounting() ?? { textureBytes: 0, decodesInFlight: 0 }) },
     };
   }
 
@@ -414,7 +416,7 @@ export class PVecLayer implements CustomLayerInterface {
         onStateDiff: deps.onStateDiff,
         cache: source.cache,
         rasters: rasters ?? undefined,
-        onRasterSkipped: (e) => this.emitter.emit("rasterskipped", e),
+        onRasterSkipped: (e) => (this.n.rasterSkipped++, this.emitter.emit("rasterskipped", e)),
         onRasterFrame: deps.onRasterFrame,
         onRasterDecode: deps.onRasterDecode,
         spawnDecode: deps.spawnDecode,

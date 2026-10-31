@@ -141,6 +141,11 @@ export class StrokeEngine {
     }));
   }
 
+  /** The raster counters of the snapshot. */
+  rasterAccounting(): { textureBytes: number; decodesInFlight: number } {
+    return { textureBytes: 0, decodesInFlight: 0 };
+  }
+
   /** `raster.enabled` at runtime: off draws no raster and starts no decode, on picks up where the cache left off. */
   setRasterEnabled(on: boolean): void {
     this.rasterOn = on;
