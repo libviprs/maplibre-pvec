@@ -6,7 +6,8 @@ import { BufferPool } from "../render/buffer_pool";
 import { packPolyline, splitHiLo } from "../render/buffer_layout";
 import { GlStateGuard } from "../render/gl_state";
 import { StrokeRenderer } from "../render/stroke/renderer";
-import { spawnDecodeWorker, type DecodeWorker } from "../render/raster/decode";
+import type { DecodeWorker } from "../render/raster/decode";
+import { spawnDecodeWorker } from "../workers/raster_decode";
 import { escapeAttribution, SKIP_TEXT } from "../render/raster/policy";
 import type { RasterProvider } from "../render/raster/provider";
 import { RasterRenderer, type RasterFrame, type RasterFrameStats } from "../render/raster/renderer";
@@ -134,6 +135,7 @@ export class StrokeEngine {
       maxDecodedBytes: o.maxDecodedBytes,
       refused: new Set((o.rasters.skipped?.() ?? []).map((s) => s.id)),
       onError: o.onError,
+      onRefused: (e) => o.onRasterSkipped?.(e),
       onDecode: o.onRasterDecode,
       onFrame: (st) => {
         this.lastRasterStats = st;
@@ -160,7 +162,7 @@ export class StrokeEngine {
 
   /** The rasters that draw, with their attribution escaped for an HTML sink. */
   rasterInfos(): RasterInfo[] {
-    return (this.raster?.placements ?? []).map((p) => ({
+    return (this.raster?.live() ?? []).map((p) => ({
       id: p.id,
       width: p.width,
       height: p.height,

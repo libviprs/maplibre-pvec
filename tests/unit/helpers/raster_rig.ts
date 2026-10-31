@@ -3,6 +3,7 @@ import type { Mat6, RasterPlacement } from "../../../src/render/raster/geometry"
 import type { DecodeReply, DecodeWorker } from "../../../src/render/raster/decode";
 import type { RasterProvider } from "../../../src/render/raster/provider";
 import { RasterRenderer, type RasterFrame, type RasterFrameStats } from "../../../src/render/raster/renderer";
+import { RasterRefusedError } from "../../../src/render/raster/provider";
 
 // A raster renderer with nothing real under it: a counting GL, decode workers whose replies the test releases by hand, and a
 // provider that logs every request. The bytes of every object are known, so a test totals them without asking the cache.
@@ -29,6 +30,12 @@ export class Rig {
   readonly posted: string[] = [];
   readonly stats: RasterFrameStats[] = [];
   readonly errors: unknown[] = [];
+  /** The refusals the renderer reported: one per refused raster. */
+  readonly refused: { rasterId: number; rule: string; message: string }[] = [];
+  /** Decodes answered with an error instead of a bitmap, while true. */
+  failDecodes = false;
+  /** Rasters whose `tile()` rejects with a refusal naming this rule. */
+  refuse = new Map<number, string>();
   /** Every vertex buffer the renderer sent to the GPU, in order. */
   readonly vertexUploads: Float32Array[] = [];
   /** Where the georeference puts the drawing: added to every corner's world position. */
@@ -48,6 +55,8 @@ export class Rig {
       tile: (id, level, col, row) => {
         const k = `r${id}/${level}/${col}/${row}`;
         this.requests.push(k);
+        const rule = this.refuse.get(id);
+        if (rule) return Promise.reject(new RasterRefusedError(rule, `${rule}: the module refused raster ${id}`));
         const n = 200 + ((id * 131 + level * 31 + col * 7 + row) % 50);
         this.encodedLen.set(k, n);
         // the first four bytes name the tile, so a fake worker knows which tile it holds
@@ -66,6 +75,7 @@ export class Rig {
         return w;
       },
       onError: (_where, e) => void this.errors.push(e),
+      onRefused: (e) => void this.refused.push(e),
       onFrame: (s) => void this.stats.push(s),
       ...(o.maxDecodedBytes !== undefined ? { maxDecodedBytes: o.maxDecodedBytes } : {}),
     });
@@ -142,6 +152,7 @@ class FakeWorker implements DecodeWorker {
   }
   reply(id: number): void {
     this.held.delete(id);
+    if (this.rig.failDecodes) return void this.onmessage?.({ data: { id, error: "EncodingError: the source image cannot be decoded" } });
     this.onmessage?.({ data: { id, bitmap: this.rig.postBitmap() as never, ms: 1 } });
   }
   terminate(): void {}

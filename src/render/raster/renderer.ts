@@ -3,11 +3,11 @@ import { DEFAULTS, DEFAULT_MAX_DECODED_BYTES } from "../../config/defaults";
 import { GenerationTracker, type JobTag } from "../../refine/generation";
 import type { TieredCache } from "../../source/cache";
 import { splitHiLo } from "../buffer_layout";
-import { fitLevels, takeUploads, tileTextureBytes, type FittedRaster } from "./budget";
+import { fitLevels, limitDecoded, takeUploads, tileTextureBytes, type FittedRaster } from "./budget";
 import { DecodePool, type DecodeWorker } from "./decode";
 import { apply, textureUv, tilesInView, type Mat6, type RasterPlacement, type RasterView, type TileId } from "./geometry";
 import { classifyRasters, drawOrder, escapeAttribution, type SkipReason } from "./policy";
-import type { RasterProvider } from "./provider";
+import { RasterRefusedError, type RasterProvider } from "./provider";
 
 type Gl2 = WebGL2RenderingContext;
 
@@ -55,6 +55,9 @@ export interface RasterFrameStats {
   encodedBytes: number;
   /** Tiles between the request and the bitmap landing in the decoded tier. */
   decodesInFlight: number;
+  /** Tiles that could not be decoded or fetched after the last attempt, and every failed attempt. */
+  failedTiles: number;
+  decodeFailures: number;
   /** Tiles asked of the provider so far. A context restore with the encoded bytes kept adds none. */
   requests: number;
 }
@@ -70,12 +73,17 @@ export interface RasterRendererInit {
   /** LIMIT-16 mirrored on the host side: bitmaps held or in flight never exceed it. Defaults to the source's limit. */
   maxDecodedBytes?: number | undefined;
   onError(where: string, e: unknown): void;
+  /** A raster the module refused by a rule: reported once, then dropped. */
+  onRefused?: ((e: { rasterId: number; rule: string; message: string }) => void) | undefined;
   onDecode?: ((e: { id: number; codec: number; ms: number }) => void) | undefined;
   onFrame?: ((s: RasterFrameStats) => void) | undefined;
   now?: (() => number) | undefined;
 }
 
 const MAX_IN_FLIGHT = 6;
+/** A tile that fails is tried this many times in all, with a wait that doubles from 30 frames, and then counts as missing. */
+const MAX_ATTEMPTS = 3;
+const RETRY_FRAMES = 30;
 const MAX_READY = 8;
 
 const key = (id: number, level: number, col: number, row: number) => `r${id}/${level}/${col}/${row}`;
@@ -112,6 +120,13 @@ export class RasterRenderer {
   /** The keys of the current plan: the fitted level's tiles and the coarser level kept under them. */
   private wantedKeys = new Set<string>();
   private requests = 0;
+  private frameNo = 0;
+  private failedTiles = 0;
+  private decodeFailures = 0;
+  private readonly attempts = new Map<string, number>();
+  private readonly retryAt = new Map<string, number>();
+  /** Rasters the module refused: they are neither requested nor drawn. */
+  private readonly dead = new Set<number>();
   private epoch = 0;
   private readonly maxDecoded: number;
   private readonly failed = new Set<string>();
@@ -126,7 +141,7 @@ export class RasterRenderer {
   private fitted = new Map<number, FittedRaster>();
   private lastMats: number[] = [];
   private version = 0;
-  private stats: RasterFrameStats = { levels: [], uploads: 0, uploadedBytes: 0, textures: 0, pending: 0, renderMs: 0, textureBytes: 0, decodedBytes: 0, encodedBytes: 0, decodesInFlight: 0, requests: 0 };
+  private stats: RasterFrameStats = { levels: [], uploads: 0, uploadedBytes: 0, textures: 0, pending: 0, renderMs: 0, textureBytes: 0, decodedBytes: 0, encodedBytes: 0, decodesInFlight: 0, failedTiles: 0, decodeFailures: 0, requests: 0 };
   private disposed = false;
 
   constructor(private readonly o: RasterRendererInit) {
@@ -144,14 +159,20 @@ export class RasterRenderer {
   }
 
   get drawsAnything(): boolean {
-    return this.placements.length > 0;
+    return this.live().length > 0;
+  }
+
+  /** The rasters that draw: the ones this reader can show and the module has not refused. */
+  live(): readonly RasterPlacement[] {
+    return this.placements.filter((p) => !this.dead.has(p.id));
   }
 
   /** Decide the levels, ask for what is missing and do this frame's uploads. Call once per frame, before `draw`. */
   prepare(f: RasterFrame): void {
     if (this.disposed) return;
     const t0 = (this.o.now ?? performance.now.bind(performance))();
-    const all = [...this.under, ...this.over];
+    this.frameNo++;
+    const all = [...this.under, ...this.over].filter((p) => !this.dead.has(p.id));
     const views = new Map<number, RasterView>();
     const mats: number[] = [this.version, this.o.cache.ceiling("gpu"), f.viewport[0], f.viewport[1]];
     for (const p of all) {
@@ -164,7 +185,8 @@ export class RasterRenderer {
     }
     // A steady frame (same camera, nothing in flight, nothing to upload) reuses last frame's choice outright.
     const same = mats.length === this.lastMats.length && mats.every((x, i) => x === this.lastMats[i]);
-    if (same && !this.ready.length && !this.inFlight.size) {
+    const retryDue = [...this.retryAt.values()].some((t) => t <= this.frameNo);
+    if (same && !this.ready.length && !this.inFlight.size && !retryDue) {
       this.stats.uploads = 0;
       this.stats.uploadedBytes = 0;
       this.account();
@@ -178,6 +200,8 @@ export class RasterRenderer {
         const share = this.o.cache.ceiling("gpu") / Math.max(1, all.length);
         this.fitted.set(p.id, fitLevels([p], views.get(p.id)!, share)[0]!);
       }
+      // LIMIT-16 on the host side bounds the plan too: a level whose tiles could not all be held decoded is not asked for.
+      limitDecoded(this.fitted, all, views, this.maxDecoded);
       this.plan(all);
     }
     this.request(all);
@@ -232,6 +256,7 @@ export class RasterRenderer {
       for (const [level, t] of wanted) {
         const kk = key(p.id, level, t.col, t.row);
         if (this.textures.has(kk) || this.inFlight.has(kk) || this.failed.has(kk) || this.bitmaps.has(kk)) continue;
+        if ((this.retryAt.get(kk) ?? 0) > this.frameNo) continue;
         if (this.inFlight.size >= MAX_IN_FLIGHT || this.ready.length >= MAX_READY) return;
         // LIMIT-16 on the host side: the bitmaps held plus the ones in flight, plus this one, stay under the cap.
         const bytes = tileTextureBytes(p.tileEdge);
@@ -267,16 +292,60 @@ export class RasterRenderer {
         const held = d.bitmap.width * d.bitmap.height * 4;
         if (!this.o.cache.put("decoded", kk, held, { ...meta, payload: d.bitmap })) return void (d.bitmap.close(), this.failed.add(kk));
         this.bitmaps.set(kk, d.bitmap);
+        this.attempts.delete(kk);
+        this.retryAt.delete(kk);
         this.ready.push({ key: kk, id: p.id, bytes: held });
         this.reconcileBitmaps();
       } catch (e) {
-        this.failed.add(kk);
-        if (!this.disposed) this.o.onError(`raster tile ${kk}`, e);
+        if (e instanceof RasterRefusedError) this.refuse(p, e);
+        else this.missing(kk, e);
       } finally {
         this.inFlight.delete(kk);
         if (!this.disposed) this.o.map.triggerRepaint?.();
       }
     })();
+  }
+
+  /** A tile that could not be had: tried again a bounded number of times, then counted as missing. Never a loop, never an exception. */
+  private missing(kk: string, e: unknown): void {
+    if (this.disposed) return;
+    const n = (this.attempts.get(kk) ?? 0) + 1;
+    this.attempts.set(kk, n);
+    this.decodeFailures++;
+    if (n >= MAX_ATTEMPTS) {
+      this.failed.add(kk);
+      this.retryAt.delete(kk);
+      this.failedTiles++;
+      this.o.onError(`raster tile ${kk}`, e);
+    } else {
+      this.retryAt.set(kk, this.frameNo + RETRY_FRAMES * 2 ** (n - 1));
+    }
+  }
+
+  /** The module refused this raster by a rule. One report, and nothing of it is drawn or asked for again. */
+  private refuse(p: RasterPlacement, e: RasterRefusedError): void {
+    if (this.dead.has(p.id) || this.disposed) return;
+    this.dead.add(p.id);
+    this.o.onRefused?.({ rasterId: p.id, rule: e.rule, message: e.message });
+    const gl = this.o.gl;
+    for (const [kk, tex] of this.textures) {
+      if (!kk.startsWith(`r${p.id}/`)) continue;
+      gl.deleteTexture(tex);
+      this.textures.delete(kk);
+      this.o.cache.drop("gpu", kk);
+    }
+    for (const r of [...this.ready]) {
+      if (r.id !== p.id) continue;
+      this.ready.splice(this.ready.indexOf(r), 1);
+      this.bitmaps.get(r.key)?.close();
+      this.bitmaps.delete(r.key);
+      this.o.cache.drop("decoded", r.key);
+    }
+    for (const kk of this.inFlight.keys()) if (kk.startsWith(`r${p.id}/`)) this.gens.next(this.noOf(kk));
+    this.used = this.used.filter((u) => u.p.id !== p.id);
+    this.fitted.delete(p.id);
+    this.lastMats = [];
+    this.o.map.triggerRepaint?.();
   }
 
   /** A bitmap whose decoded-tier entry was evicted is closed here, so the tier's bytes are the bitmaps alive. */
@@ -344,7 +413,7 @@ export class RasterRenderer {
     let pending = 0;
     for (const p of [...this.under, ...this.over]) {
       const fit = this.fitted.get(p.id);
-      if (!fit) continue;
+      if (!fit || this.dead.has(p.id)) continue;
       const span = p.tileEdge * 2 ** (p.levels - 1 - fit.level);
       for (const t of fit.tiles) {
         const rect: [number, number, number, number] = [t.col * span, t.row * span, (t.col + 1) * span, (t.row + 1) * span];
@@ -401,6 +470,8 @@ export class RasterRenderer {
     this.stats.encodedBytes = c.bytes("compressed");
     this.stats.decodesInFlight = this.inFlight.size;
     this.stats.requests = this.requests;
+    this.stats.failedTiles = this.failedTiles;
+    this.stats.decodeFailures = this.decodeFailures;
   }
 
   /** Draw the rasters of one band. Inside the caller's guard, after `prepare`. */
@@ -492,7 +563,7 @@ export class RasterRenderer {
   /** Called once after `draw` of both bands; reports the frame to the debug hook. */
   endFrame(): void {
     this.o.onFrame?.({ ...this.stats });
-    if (this.ready.length || this.inFlight.size) this.o.map.triggerRepaint?.();
+    if (this.ready.length || this.inFlight.size || this.retryAt.size) this.o.map.triggerRepaint?.();
   }
 
   /** The GL objects are gone. Tiles whose encoded bytes are still in the compressed tier decode again without a request. */

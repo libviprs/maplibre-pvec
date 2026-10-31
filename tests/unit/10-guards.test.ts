@@ -5,6 +5,8 @@ import { fileURLToPath } from "node:url";
 import {
   findConverterReferences,
   findExternalHosts,
+  findImageCodecs,
+  findMainThreadDecode,
   findStepParsing,
   findToleranceLiterals,
 } from "../conformance/guards";
@@ -90,5 +92,42 @@ describe("#10 no external host", () => {
   it("finds none in the browser specs or the origin script", () => {
     const files = [...walk(join(root, "tests", "e2e"), skip), "tools/fixture-origin.mjs"].filter((f) => existsSync(join(root, f)));
     expect(files.flatMap((f) => findExternalHosts(f, read(f), allowed))).toEqual([]);
+  });
+});
+
+describe("#107 rasters are decoded by the browser, in a worker, and by nothing of ours", () => {
+  it("flags a JS image codec and a main-thread decode path (the controls)", () => {
+    const fake = ["png", "js"].join("");
+    expect(findImageCodecs("src/x.ts", `import { PNG } from "${fake}";`)).toHaveLength(1);
+    expect(findImageCodecs("src/x.ts", `import { decode } from "jpeg-js";`)).toHaveLength(1);
+    expect(findImageCodecs("src/x.ts", `const w = await import("@jsquash/webp");`)).toHaveLength(1);
+    expect(findImageCodecs("src/x.ts", `import { x } from "./y";`)).toHaveLength(0);
+    expect(findMainThreadDecode("src/x.ts", "const i = new Image(); i.src = u;")).toHaveLength(1);
+    expect(findMainThreadDecode("src/x.ts", "const b = await createImageBitmap(blob);")).toHaveLength(1);
+    expect(findMainThreadDecode("src/x.ts", "let el: HTMLImageElement;")).toHaveLength(1);
+    expect(findMainThreadDecode("src/x.ts", "// the worker calls createImageBitmap(blob)")).toHaveLength(0);
+  });
+
+  const src = () => walk(join(root, "src"), skip).filter((f) => /\.ts$/.test(f));
+  it("no image codec dependency under src, and none in package.json", () => {
+    expect(src().flatMap((f) => findImageCodecs(f, read(f)))).toEqual([]);
+    const pkg = JSON.parse(read("package.json")) as { dependencies?: object; peerDependencies?: object; devDependencies?: object };
+    const names = [...Object.keys(pkg.dependencies ?? {}), ...Object.keys(pkg.peerDependencies ?? {})];
+    expect(names.filter((n) => /png|jpe?g|webp|image/i.test(n))).toEqual([]);
+  });
+
+  it("no decode call outside src/workers, and no Image element decode path anywhere under src", () => {
+    const hits = src()
+      .filter((f) => !f.startsWith("src/workers/"))
+      .flatMap((f) => findMainThreadDecode(f, read(f)));
+    expect(hits).toEqual([]);
+    // the one worker program calls it, with conversion and orientation off
+    expect(read("src/workers/raster_decode.ts")).toMatch(/createImageBitmap\([\s\S]*?colorSpaceConversion: "none", imageOrientation: "none", premultiplyAlpha: "premultiply"/);
+  });
+
+  it("the raster fixtures and specs name no external host", () => {
+    const files = [...walk(join(root, "tests/fixtures/raster"), skip), ...walk(join(root, "tests/e2e"), skip).filter((f) => /(107|raster)/.test(f))].filter((f) => /\.(ts|json|html)$/.test(f));
+    expect(files.length).toBeGreaterThan(2);
+    expect(files.flatMap((f) => findExternalHosts(f, read(f), ["localhost", "127.0.0.1"]))).toEqual([]);
   });
 });

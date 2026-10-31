@@ -197,3 +197,13 @@ What is done and tested: the level rule, the tiles in view with the `visible_box
 | Hardware GPU numbers for decode and upload | The runs are Chromium on SwiftShader (software GL). Decode time is the browser's, not the GPU's, but upload time is not representative. | The hardware lane of #82, once a raster fixture exists in `release/browser-grid.json`. |
 | The one-texel seam between edge-to-edge quads | Accepted in v1 (ADR 0009): `CLAMP_TO_EDGE`, no overlap, no mipmaps. | A producer that overlaps tiles by a texel, or a shader that insets the UV by half a texel at interior tile edges. |
 | The dated pointer in ADR 0018's open question 5 | The ADR lives in `libviprs/pvec`. | A small pvec PR once these numbers are merged. |
+
+## #107 Raster rows in the browser grid and the hostile-input specs
+
+What is done and tested: the decode rows in all four grid projects, the colour-chunk rows, the host side of the hostile cases (a refusal by rule, a corrupt body, a decode time bomb, the LIMIT-16 plan bound, attribution as text), the guards (no image codec under `src/`, no decode outside `src/workers/`) and the fixtures with digests. See `docs/raster-render.md`.
+
+| What | Why it is not done | What unblocks it |
+|---|---|---|
+| The thirteen corpus tiles refused by pvec's own sniffers, from this repository, and the polyglot never reaching `createImageBitmap` (asserted on the worker's call log) | There is no adapter from the pvec-wasm raster exports to `RasterProvider`, and `wasm/pvec_eval.wasm` is ABI 1 without them. The refusals in the spec come from the fixture provider. The `hostile-input` gate keeps its raster half pending in `tests/conformance/jobs.json` for that reason. | One adapter file over `raster_stat`, `raster_placement`, `raster_plan` and `raster_tile` (`libviprs/pvec` `docs/WASM_ABI.md`), a rebuilt module (the pin move of #100 and #110), and the same spec pointed at a pvec-written file from `pvec-testkit`'s `raster_hostile::file()`. |
+| The `getParameter`-free proof on WebKit and Firefox for the raster pass, and the compose spec on those engines | The compose spec is Chromium's (software GL flags, and Firefox needs the grid's X display). | Running `106-raster-compose.spec.ts` as a grid project. |
+| The `hostile` and compose rows in `release/browser-grid.json` for hardware | Software GL only. | The hardware lane of #82. |

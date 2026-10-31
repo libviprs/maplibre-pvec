@@ -17,3 +17,15 @@ export interface RasterProvider {
   /** Called once when the layer goes away. */
   release?(): void;
 }
+
+/**
+ * What a provider's `tile()` rejects with when the module refused the raster by a rule (a failed sniffer, a limit): the rule is
+ * `RASTER-NN` or `LIMIT-NN`. The layer reports it once as `rasterskipped`, stops asking for that raster and keeps drawing the rest.
+ * Any other rejection is a tile that could not be had, which is a missing tile.
+ */
+export class RasterRefusedError extends Error {
+  constructor(readonly rule: string, message: string) {
+    super(message);
+    this.name = "RasterRefusedError";
+  }
+}

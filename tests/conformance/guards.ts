@@ -47,3 +47,21 @@ export function findExternalHosts(file: string, text: string, allowed: string[])
   }
   return out;
 }
+
+/** A JavaScript image codec in the dependency graph: the browser decodes rasters, the add-on never does (ADR 0018). */
+export function findImageCodecs(file: string, text: string): Hit[] {
+  return scan(
+    file,
+    text,
+    [
+      /(?:from|require\(|import\()\s*["'](?:pngjs|upng-js|fast-png|jpeg-js|jpg-js|jpeg-decoder|@jsquash\/[\w-]+|libwebp[\w.-]*|webp-hero|webpjs|image-js|sharp|pica|omggif|utif)["'/]/,
+      /\b(?:inflateSync|Inflate)\b.*\b(?:IDAT|IHDR)\b/,
+    ],
+    true,
+  );
+}
+
+/** A decode path on the main thread: an `Image` element, or `createImageBitmap` outside src/workers. */
+export function findMainThreadDecode(file: string, text: string): Hit[] {
+  return scan(file, text, [/\bnew\s+Image\s*\(/, /\bHTMLImageElement\b/, /\bcreateImageBitmap\s*\(/, /\bImageDecoder\b/, /\bdocument\.createElement\(\s*["']img["']\s*\)/], true);
+}

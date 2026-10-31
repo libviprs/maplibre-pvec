@@ -7,8 +7,8 @@
       "engine": "chromium",
       "version": "111.0.5563.19",
       "kind": "grid",
-      "total": 2,
-      "passed": 2
+      "total": 4,
+      "passed": 4
     },
     {
       "engine": "chromium",
@@ -38,8 +38,8 @@
       "engine": "chromium",
       "version": "130.0.6723.31",
       "kind": "grid",
-      "total": 2,
-      "passed": 2
+      "total": 4,
+      "passed": 4
     },
     {
       "engine": "chromium",
@@ -69,8 +69,8 @@
       "engine": "firefox",
       "version": "131.0",
       "kind": "grid",
-      "total": 2,
-      "passed": 2
+      "total": 4,
+      "passed": 4
     },
     {
       "engine": "firefox",
@@ -100,8 +100,8 @@
       "engine": "webkit",
       "version": "18.0",
       "kind": "grid",
-      "total": 2,
-      "passed": 2
+      "total": 4,
+      "passed": 4
     },
     {
       "engine": "webkit",
