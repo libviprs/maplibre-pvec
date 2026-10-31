@@ -87,6 +87,7 @@ const RETRY_FRAMES = 30;
 const MAX_READY = 8;
 
 const key = (id: number, level: number, col: number, row: number) => `r${id}/${level}/${col}/${row}`;
+const sigOf = (q: { p: { id: number }; level: number; col: number; row: number; rect: number[] }) => `${q.p.id}|${q.level}|${q.col}|${q.row}|${q.rect.join(",")}`;
 
 interface Used {
   p: RasterPlacement;
@@ -138,6 +139,8 @@ export class RasterRenderer {
   private sent: (string | undefined)[] = [undefined, undefined];
   private u: Record<string, WebGLUniformLocation | null> = {};
   private used: Used[] = [];
+  /** Per band, the drawn quads in RasterId order and their signature, rebuilt only when `used` is replaced (a steady frame reuses them). */
+  private bands: { src: Used[]; quads: [Used[], Used[]]; sig: [string, string] } | undefined;
   private fitted = new Map<number, FittedRaster>();
   private lastMats: number[] = [];
   private version = 0;
@@ -478,7 +481,11 @@ export class RasterRenderer {
   draw(band: 0 | 1, f: RasterFrame): void {
     if (this.disposed) return;
     const gl = this.o.gl;
-    const quads = this.used.filter((u) => u.p.band === band).sort((a, b) => a.p.id - b.p.id);
+    if (this.bands?.src !== this.used) {
+      const per = [0, 1].map((b) => this.used.filter((u) => u.p.band === b).sort((x, y) => x.p.id - y.p.id)) as [Used[], Used[]];
+      this.bands = { src: this.used, quads: per, sig: [per[0].map(sigOf).join(";"), per[1].map(sigOf).join(";")] };
+    }
+    const quads = this.bands.quads[band];
     if (!quads.length) return;
     if (!this.program) this.build();
     gl.useProgram(this.program);
@@ -486,7 +493,7 @@ export class RasterRenderer {
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo[band]!);
     this.pointers();
     // The vertices are world positions, independent of the camera, so they are re-sent only when the set of quads changes.
-    const sig = quads.map((q) => `${q.p.id}|${q.level}|${q.col}|${q.row}|${q.rect.join(",")}`).join(";");
+    const sig = this.bands.sig[band];
     if (sig !== this.sent[band]) {
       const data = new Float32Array(quads.length * 24);
       quads.forEach((q, i) => data.set(this.quad(q, f), i * 24));
@@ -499,9 +506,12 @@ export class RasterRenderer {
     gl.uniform2fv(this.u.u_viewport!, f.viewport);
     gl.uniform1i(this.u.u_tex!, 0);
     gl.activeTexture(gl.TEXTURE0);
+    // Opacity belongs to the raster and the texture to the tile: both are set only when they change from the previous quad.
+    let opacity = -1;
+    let bound: WebGLTexture | undefined;
     quads.forEach((q, i) => {
-      gl.uniform1f(this.u.u_opacity!, q.p.opacity / 255);
-      gl.bindTexture(gl.TEXTURE_2D, q.tex);
+      if (q.p.opacity !== opacity) (opacity = q.p.opacity, gl.uniform1f(this.u.u_opacity!, opacity / 255));
+      if (q.tex !== bound) (bound = q.tex, gl.bindTexture(gl.TEXTURE_2D, q.tex));
       gl.drawArrays(gl.TRIANGLE_STRIP, i * 4, 4);
     });
   }

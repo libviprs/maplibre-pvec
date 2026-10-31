@@ -202,7 +202,8 @@ export const RASTER_VARIANTS = ["png-gray1", "png-gray8", "png-rgba", "jpeg-gray
 export const RASTER_EDGES = [256, 512, 1024] as const;
 export type RasterVariant = (typeof RASTER_VARIANTS)[number];
 export interface RasterDecodeRow { variant: RasterVariant; edge: number; samples: number; bytes: number; coldMs: number; p50Ms: number; p95Ms: number }
-export interface RasterUploadRow { edge: number; samples: number; p50Ms: number; p95Ms: number }
+/** `texImage2D` of an RGBA8 bitmap then `finish`; `sub*` is the same bitmap into immutable `texStorage2D` storage with `texSubImage2D`. */
+export interface RasterUploadRow { edge: number; samples: number; p50Ms: number; p95Ms: number; subP50Ms?: number; subP95Ms?: number }
 export interface RasterSceneRun {
   name: "strokes+1" | "strokes+10";
   rasters: number;

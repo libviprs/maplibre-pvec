@@ -96,7 +96,7 @@ if (cmd === "bundle") {
     page.setDefaultTimeout(0);
     if (process.argv.includes("--raster-only")) {
       await page.goto(`http://127.0.0.1:${server.address().port}/raster.html`);
-      rasterRaw = await page.evaluate((o) => window.HWR.run(o), { durationMs: duration, warmupMs: 3000, diffFrames: Number(arg("diff-frames", "400")) });
+      rasterRaw = await page.evaluate((o) => window.HWR.run(o), { durationMs: duration, warmupMs: 3000, diffFrames: Number(arg("diff-frames", "400")), profile });
       var version = browser.version();
       throw Object.assign(new Error("raster done"), { rasterDone: true });
     }

@@ -42,3 +42,4 @@ ADR 0018 in `libviprs/pvec` lets a PVec artifact carry raster tiles next to the 
 
 - The texture bound is a formula with a measured constant, and a view that does not fit draws coarser instead of failing.
 - ADR 0018's open question 5 on the renderer side is answered by `docs/raster-render.md`; a dated pointer goes into that ADR in `libviprs/pvec`.
+- 2026-10-31, ADR 0018 open question 5 (the texture constant, the per-plan cap and the Tier 0 cap): measured in #108 on three real renderers, with software GL kept apart as relative costs. The constant is `RASTER_DEFAULTS` in `src/config/defaults.ts`, frozen beside it in `release/v1-freeze.json`; the reasoning and the renderers it came from are in `docs/raster-render.md` and `docs/benchmark-report.md`. The pointer into the pvec ADR itself is edited in `libviprs/pvec` by its own task.

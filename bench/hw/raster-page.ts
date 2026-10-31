@@ -128,8 +128,21 @@ async function uploadTable(): Promise<RasterUploadRow[]> {
       gl.finish();
       if (i >= 0) t.push(performance.now() - s);
     }
+    // The same bitmap into immutable storage, to see whether re-specifying a texture is part of the cost.
+    const sub = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, sub);
+    gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA8, bitmap.width, bitmap.height);
+    const u: number[] = [];
+    for (let i = -3; i < 25; i++) {
+      const s = performance.now();
+      gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, gl.UNSIGNED_BYTE, bitmap);
+      gl.finish();
+      if (i >= 0) u.push(performance.now() - s);
+    }
+    gl.deleteTexture(sub);
+    gl.bindTexture(gl.TEXTURE_2D, tex);
     bitmap.close();
-    rows.push({ edge, samples: t.length, p50Ms: percentile(t, 50), p95Ms: percentile(t, 95) });
+    rows.push({ edge, samples: t.length, p50Ms: percentile(t, 50), p95Ms: percentile(t, 95), subP50Ms: percentile(u, 50), subP95Ms: percentile(u, 95) });
   }
   gl.deleteTexture(tex);
   return rows;
@@ -141,7 +154,7 @@ const watch = (): Watch => ({ last: undefined, peakTextures: 0, peakTextureBytes
 const seen = (w: Watch, st: RasterFrameStats) => { w.last = st; w.peakTextures = Math.max(w.peakTextures, st.textures); w.peakTextureBytes = Math.max(w.peakTextureBytes, st.textureBytes); if (st.uploads) w.uploads.push({ tiles: st.uploads, bytes: st.uploadedBytes }); };
 
 /** A run of the wired layer with rasters: `scans` A0 scans over the stroke scene (when `strokes`), the map panned and zoomed every frame. */
-async function scene(name: "strokes+1" | "strokes+10", scans: number, o: { durationMs: number; warmupMs: number; diffFrames: number }): Promise<RasterSceneRun> {
+async function scene(name: "strokes+1" | "strokes+10", scans: number, o: { durationMs: number; warmupMs: number; diffFrames: number; profile?: boolean }): Promise<RasterSceneRun> {
   const mk = (): { ps: RasterPlacement[]; w: Watch; extra: Parameters<typeof build>[1] } => {
     // Fit to the map: a scan spans 90 percent of the width, the scans are staggered a little so they do not coincide.
     const s = (CSS_W * 0.9) / A0.width;
@@ -157,11 +170,32 @@ async function scene(name: "strokes+1" | "strokes+10", scans: number, o: { durat
   let lastRenderMs = 0, lastCalls = 0, calls = 0;
   const orig = gl.drawArraysInstanced.bind(gl);
   gl.drawArraysInstanced = ((...a: Parameters<typeof orig>) => { calls++; return orig(...a); }) as typeof orig;
+  // --profile: JavaScript time and call counts per GL entry point inside layer.render, to see where a frame's CPU goes.
+  const glTime = new Map<string, { n: number; ms: number }>();
+  let inRender = false;
+  if (o.profile) {
+    for (const fname of Object.getOwnPropertyNames(WebGL2RenderingContext.prototype)) {
+      const fn = (gl as unknown as Record<string, unknown>)[fname];
+      if (typeof fn !== "function" || fname === "constructor") continue;
+      (gl as unknown as Record<string, unknown>)[fname] = (...a: unknown[]) => {
+        if (!inRender) return (fn as (...x: unknown[]) => unknown).apply(gl, a);
+        const t = performance.now();
+        const r = (fn as (...x: unknown[]) => unknown).apply(gl, a);
+        const e = glTime.get(fname) ?? { n: 0, ms: 0 };
+        e.n++; e.ms += performance.now() - t; glTime.set(fname, e);
+        return r;
+      };
+    }
+  }
+  const prepareMs: number[] = [];
   const inner = layer.render.bind(layer);
   layer.render = (g, args) => {
     const before = calls;
     const s = performance.now();
+    inRender = true;
     inner(g, args);
+    inRender = false;
+    if (m.w.last) prepareMs.push(m.w.last.renderMs);
     lastRenderMs = performance.now() - s;
     lastCalls = calls - before;
   };
@@ -229,6 +263,7 @@ async function scene(name: "strokes+1" | "strokes+10", scans: number, o: { durat
     },
     texture: { peakTextures: m.w.peakTextures, peakGpuTierBytes: Math.max(peakTier, m.w.peakTextureBytes), gpuBytes: GPU_CEILING },
     stateDiffs, errors: errors + errorsDebug, mainThreadDecodes,
+    ...(o.profile ? { profile: { prepareP50Ms: stats(prepareMs).p50, prepareP95Ms: stats(prepareMs).p95, gl: [...glTime].map(([name, v]) => ({ name, calls: v.n, ms: v.ms })).sort((x, y) => y.ms - x.ms).slice(0, 12), renders: render.length } } : {}),
   };
 }
 
@@ -320,7 +355,7 @@ async function replay(id: string, scans: number, on: boolean, runs: number): Pro
   return { case: id, rasters: on ? "on" : "off", runs, firstDrawingMs: median(first), p95FrameMs: median(p95), maxFrameMs: median(max), frames: count };
 }
 
-export async function run(o: { durationMs: number; warmupMs: number; diffFrames: number }) {
+export async function run(o: { durationMs: number; warmupMs: number; diffFrames: number; profile?: boolean }) {
   const canvas = document.createElement("canvas");
   const gl = canvas.getContext("webgl2")!;
   const info = gl.getExtension("WEBGL_debug_renderer_info");
