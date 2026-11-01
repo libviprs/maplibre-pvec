@@ -80,8 +80,10 @@ describe("#40 v1 gate", () => {
     expect(buildGate(root)).toEqual(gate);
   });
 
-  it("refuses the tag while a condition is deferred, and when an entry is removed", () => {
-    expect(evaluateRelease(gate).ok).toBe(false);
+  it("refuses the tag while a condition is deferred, and when an entry is removed; today's tree is met", () => {
+    const reopened = { conditions: gate.conditions.map((c: { id: string }) => (c.id === "examples_pass_network_denied" ? { ...c, status: "deferred" } : c)) };
+    expect(evaluateRelease(reopened).ok, "a deferred condition refuses the tag").toBe(false);
+    expect(evaluateRelease(gate).ok, "every condition of today's tree is met (#84 closed the last one)").toBe(true);
     const green = { conditions: [...REQUIRED_CONDITIONS, "raster_render_budget"].map((id: string) => ({ id, status: "met", measured: { rasterGridSpecs: 1, rasterCases: 2, rasterExamples: 1, rasterNames: 5 }, evidence: "synthetic evidence" })) };
     expect(evaluateRelease(green).ok).toBe(true);
     const missing = { conditions: green.conditions.slice(1) };
