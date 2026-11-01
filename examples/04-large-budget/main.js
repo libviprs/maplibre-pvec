@@ -18,6 +18,8 @@ try {
     id: "big",
     source: { url: new URL("/fixtures/large.pvec", location.href).href },
     cache: { gpuBytes: GPU_BUDGET },
+    // red strokes, so a stroke over a pixel centre is told from the gray pixels of the raster
+    style: { defaultColor: "#ff0000" },
     georeference: { reference: { kind: "affine", unit: "m", calibration: referenceArray(), crs } },
   });
   const errors = [];
@@ -80,7 +82,7 @@ try {
   let tested = 0;
   for (const c of centres) {
     const rgb = read(c.x, c.y);
-    // a stroke can cross a pixel centre: only a gray (r = g = b) black or white pixel is compared
+    // the strokes are red, so only a gray (r = g = b) black or white pixel is the raster's
     if (rgb[0] !== rgb[1] || rgb[1] !== rgb[2] || (rgb[0] > 40 && rgb[0] < 215)) continue;
     tested++;
     const want = expectedBit(c.px, c.py) ? 255 : 0;
