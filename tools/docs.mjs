@@ -218,9 +218,9 @@ function realEvaluatorSection(root) {
   }
   if (r.tier0Slices?.length) {
     out.push("### Tier 0 decoder slices on the real stream\n");
-    out.push("The default cursor of the layer drained by `Tier0Decoder` with its default slice size. A slice is one `decodeSlice` call; the ceiling is `DEFAULTS.maxSliceMs`. Opening the file in the evaluator is the cursor's first step and is reported on its own.\n");
-    out.push("| entry | entities | slices | slices over 8 ms | open (ms) | max slice (ms) | p99 slice (ms) | median slice (ms) | total (ms) |", "|---|---|---|---|---|---|---|---|---|");
-    for (const t of r.tier0Slices) out.push(`| ${t.id} | ${t.refused ? `refused: ${t.refused}` : t.entities} | ${t.slices} | ${t.overBudget ?? "n/a"} | ${fmt(t.openMs)} | ${fmt(t.maxSliceMs)} | ${t.p99SliceMs === undefined ? "n/a" : fmt(t.p99SliceMs)} | ${fmt(t.medianSliceMs)} | ${fmt(t.totalMs)} |`);
+    out.push("The default cursor of the layer drained by `Tier0Decoder` with its default slice size, and the cursor as it was before #125 under the same decoder, in the same run on the same host. A slice is one `decodeSlice` call; the ceiling is `DEFAULTS.maxSliceMs`. Opening the file in the evaluator is the cursor's first step and is reported on its own. Leaves is the number of leaves of the spatial directory (the 1e5 files are written with a leaf capacity of 1,024, the others with pvec's 32,768).\n");
+    out.push("| entry | cursor | leaves | entities | slices | slices over 8 ms | open (ms) | max slice (ms) | p99 slice (ms) | median slice (ms) | total (ms) |", "|---|---|---|---|---|---|---|---|---|---|---|");
+    for (const t of r.tier0Slices) out.push(`| ${t.id} | ${t.cursor ?? "n/a"} | ${t.leaves ?? "n/a"} | ${t.refused ? `refused: ${t.refused}` : t.entities} | ${t.slices} | ${t.overBudget ?? "n/a"} | ${fmt(t.openMs)} | ${fmt(t.maxSliceMs)} | ${t.p99SliceMs === undefined ? "n/a" : fmt(t.p99SliceMs)} | ${fmt(t.medianSliceMs)} | ${fmt(t.totalMs)} |`);
     out.push("");
   }
   for (const [name, label] of [["x86_64", "x86_64"], ["arm64", "arm64"]]) {

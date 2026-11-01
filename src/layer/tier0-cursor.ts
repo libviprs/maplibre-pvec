@@ -14,8 +14,8 @@ const MAX_SEGMENTS = 5e6;
 // The width of the whole drawing in screen pixels: a pixel of that view is the asked error, and the unit declared errors are given in.
 const FULL_VIEW_PX = 1920;
 // Entities of a leaf that are tessellated in one step, and of the advanced curves (a spline costs more than a segment).
-const PAGE_ENTITIES = 384;
-const ADVANCED_PAGE_ENTITIES = 96;
+const PAGE_ENTITIES = 256;
+const ADVANCED_PAGE_ENTITIES = 32;
 // A window with more entities than this is split in four before it is tessellated (a module without the per-leaf calls).
 const STEP_ENTITIES = 512;
 const MAX_DEPTH = 12;

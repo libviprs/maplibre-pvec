@@ -127,8 +127,8 @@ describe("#125 the default cursor walks leaves, and a leaf is a block", () => {
     const before = calls["tessellate_batch"] ?? 0;
     drain(tier0CursorOver(ev, bytes("leaf100"), extent(ev, bytes("leaf100"))));
     const pages = (calls["tessellate_batch"] ?? 0) - before;
-    // pages of at most 384 entities (96 for the advanced curves): eight leaves of about a hundred, plus the advanced ones
-    expect(pages).toBeLessThanOrEqual(FILES.leaf100.leaves + Math.ceil(n / 96));
+    // pages of at most 256 entities (32 for the advanced curves): eight leaves of about a hundred, plus the advanced ones
+    expect(pages).toBeLessThanOrEqual(FILES.leaf100.leaves + Math.ceil(n / 32));
   });
 
   it("a window answers the entities that meet it and no others", async () => {

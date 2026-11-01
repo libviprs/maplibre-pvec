@@ -35,7 +35,7 @@ export interface Tier0Limits { maxEntitiesPerBlock: number; maxSliceMs: number; 
 export class Tier0Decoder {
   private readonly limits: Tier0Limits;
   private decoded = 0;
-  /** The longest `next` of the cursor so far: a slice does not start another call that could not end inside the budget. */
+  /** The longest recent `next` of the cursor: a slice does not start another call that could not end inside the budget. It fades by 3 percent a slice, so one slow call (a first call, a collection) does not shorten every slice after it. */
   private longestCall = 0;
 
   constructor(l: Partial<Tier0Limits> = {}) {
@@ -51,6 +51,7 @@ export class Tier0Decoder {
     const start = this.limits.now();
     const draws: EntityDraw[] = [];
     let callStart = start;
+    let longestHere = 0;
     do {
       const batch = cursor.next(8);
       if (batch === null) { this.decoded = 0; return draws.length ? { draws } : null; }
@@ -59,9 +60,11 @@ export class Tier0Decoder {
       if (cursor.endsBlock?.()) this.decoded = 0;
       for (const e of batch) draws.push(toDraw(e));
       const now = this.limits.now();
-      this.longestCall = Math.max(this.longestCall, now - callStart);
+      longestHere = Math.max(longestHere, now - callStart);
+      this.longestCall = Math.max(this.longestCall, longestHere);
       callStart = now;
     } while (callStart - start + this.longestCall < this.limits.maxSliceMs);
+    this.longestCall = Math.max(longestHere, this.longestCall * 0.97);
     return { draws };
   }
 
