@@ -1,0 +1,6 @@
+{
+  "note": "Written by libviprs/pvec's emit_large_raster (pvec#251) at the commit below; tools/examples.sh builds it in a rust container and run.mjs refuses a file whose sha256 differs. 8192 by 8192 1-bit gray raster in 1024 tiles (85 tiles, 4 levels), one source unit a pixel, y up, with 400 seeded lines and 40 seeded curves over it.",
+  "pvecCommit": "232f876b1ae42713d3bf1870c09edd86f6ae00b0",
+  "args": ["--seed", "84", "--width", "8192", "--height", "8192", "--tile-edge", "1024", "--bit-depth", "1", "--lines", "400", "--curves", "40"],
+  "sha256": null
+}
