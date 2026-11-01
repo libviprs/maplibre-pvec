@@ -6,6 +6,7 @@
 //       [--software-ok "<container label, must say no GPU>"] (accept SwiftShader, written as a software result)
 //       [--diff-frames N] (GL state diff frames in the layer run, default 400; software runs use fewer)
 //       [--no-layer] (skip the second 60 s run of the same scene through the wired MapLibre layer)
+//       [--replay-light] (software GL: one run of 8 frames per step instead of three runs of 60, because a software frame takes seconds)
 //       [--no-replay] (raster-only: skip the corpus-case replay, for the repeat runs of the noise floor)
 //       [--raster-only] (#108: only the raster page, written as <date>-<host>-<engine>[-software]-raster.json; the bundle needs --tiles <dir>)
 //   node bench/hw/run.mjs bundle --out <dir> --tiles <dir>   also copies the pinned raster tiles (tools/raster-bench-tiles.sh) next to the page
@@ -99,7 +100,7 @@ if (cmd === "bundle") {
     if (process.argv.includes("--raster-only")) {
       page.on("console", (m) => { if (m.text().startsWith("[raster]")) console.log(m.text()); });
       await page.goto(`http://127.0.0.1:${server.address().port}/raster.html`);
-      rasterRaw = await page.evaluate((o) => window.HWR.run(o), { durationMs: duration, warmupMs: 3000, diffFrames: Number(arg("diff-frames", "400")), profile, replay: !process.argv.includes("--no-replay") });
+      rasterRaw = await page.evaluate((o) => window.HWR.run(o), { durationMs: duration, warmupMs: 3000, diffFrames: Number(arg("diff-frames", "400")), profile, replay: !process.argv.includes("--no-replay"), replayLight: process.argv.includes("--replay-light") });
       var version = browser.version();
       throw Object.assign(new Error("raster done"), { rasterDone: true });
     }

@@ -327,7 +327,7 @@ const median = (v: number[]) => [...v].sort((a, b) => a - b)[Math.floor(v.length
  * script of five zoom steps and a ring of pan steps (the shape of bench/lib/viewport.ts around this scene's native zoom 17).
  * First drawing is addLayer to the first frame that drew the strokes (and, with rasters on, a raster); frames are the render intervals.
  */
-async function replay(id: string, scans: number, on: boolean, runs: number): Promise<RasterReplayRow> {
+async function replay(id: string, scans: number, on: boolean, runs: number, framesPerStep = 60): Promise<RasterReplayRow> {
   const first: number[] = [], p95: number[] = [], max: number[] = [];
   let count = 0;
   for (let r = 0; r < runs; r++) {
@@ -353,7 +353,7 @@ async function replay(id: string, scans: number, on: boolean, runs: number): Pro
         // A scene that never draws everything (software GL) still gets its replay, with the first drawing recorded as the cap.
         else if (!drawnAt && ts - t0 > 120_000) { drawnAt = ts - t0; recording = true; }
         if (recording) { if (last) intervals.push(ts - last); last = ts; i++; }
-        const k = Math.floor(i / 60);
+        const k = Math.floor(i / framesPerStep);
         if (k >= 5 + 24) { rig.map.off("render", step); resolve(); return; }
         if (recording) {
           if (k < 5) rig.map.setZoom([16, 17, 18, 19, 17][k]!);
@@ -380,7 +380,7 @@ function timerResolution(): number {
   return Number.isFinite(best) ? Math.round(best * 1000) / 1000 : 0;
 }
 
-export async function run(o: { durationMs: number; warmupMs: number; diffFrames: number; profile?: boolean; replay?: boolean }) {
+export async function run(o: { durationMs: number; warmupMs: number; diffFrames: number; profile?: boolean; replay?: boolean; replayLight?: boolean }) {
   const canvas = document.createElement("canvas");
   const gl = canvas.getContext("webgl2")!;
   const info = gl.getExtension("WEBGL_debug_renderer_info");
@@ -401,6 +401,6 @@ export async function run(o: { durationMs: number; warmupMs: number; diffFrames:
   scenes.push(await scene("strokes+10", 10, o));
   say("scene 10 done");
   const replays: RasterReplayRow[] = [];
-  if (o.replay !== false) for (const [id, n] of [["architectural-1e5+1-scan", 1], ["architectural-1e5+10-scans", 10]] as const) for (const on of [true, false]) replays.push(await replay(id, n, on, 3));
+  if (o.replay !== false) for (const [id, n] of [["architectural-1e5+1-scan", 1], ["architectural-1e5+10-scans", 10]] as const) for (const on of [true, false]) replays.push(await replay(id, n, on, o.replayLight ? 1 : 3, o.replayLight ? 8 : 60));
   return { gpuRenderer, gpuVendor, timerResolutionMs: timerResolution(), dpr: devicePixelRatio, viewport: [CSS_W, CSS_H] as [number, number], timerQuery, raster: { decode, upload, scenes, fit: fits, firstDrawing: firstDrawings, replay: replays } };
 }
