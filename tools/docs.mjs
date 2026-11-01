@@ -194,26 +194,30 @@ function rasterSection(root, hw) {
   out.push("");
   out.push("#### The layer with one and ten scans\n");
   out.push("`strokes+0` is the stroke scene alone in the same session, the baseline the raster increment is read against. The increment and the all-frames p95 (comparable with the layer rows of #82) are recorded, not budgeted.\n");
-  out.push("| renderer | timer step (ms) | scene | steady frames: mean / p95 / p99 / max (ms) | upload frames: share / p50 / p95 / max (ms) | all frames p95 (ms) | increment over strokes-only: steady mean / p95 (ms) | frame p50 / p95 / max (ms) | frames with uploads / most tiles / most MiB / over budget | peak textures / peak gpu tier (MiB of 128) | state diffs / errors / main-thread decodes | source |", "|---|---|---|---|---|---|---|---|---|---|---|---|");
+  out.push("| renderer | timer step (ms) | scene | steady frames: mean / p95 / p99 / max (ms) | upload frames: count / share / p50 / p95 / max (ms) | all frames p95 (ms) | increment over strokes-only: steady mean / p95 (ms) | frame p50 / p95 / max (ms) | frames with uploads / most tiles / most MiB / over budget | peak textures / peak gpu tier (MiB of 128) | state diffs / errors / main-thread decodes | source |", "|---|---|---|---|---|---|---|---|---|---|---|---|");
   for (const { e, label } of cols) {
     const base = e.raster.scenes.find((x) => x.name === "strokes+0");
     for (const sc of e.raster.scenes) {
       const st = sc.render.steady, up = sc.render.uploadFrames;
       const inc = base && sc.name !== "strokes+0" ? `${f2(st.meanMs - base.render.steady.meanMs)} / ${f2(st.p95Ms - base.render.steady.p95Ms)}` : "n/a";
-      out.push(`| ${label} | ${e.timerResolutionMs ?? "n/a"} | ${sc.name} | ${f2(st.meanMs)} / ${f2(st.p95Ms)} / ${f2(st.p99Ms)} / ${f2(st.maxMs)} | ${(up.share * 100).toFixed(1)}% / ${f2(up.p50Ms)} / ${f2(up.p95Ms)} / ${f2(up.maxMs)} | ${f2(sc.render.p95Ms)} | ${inc} | ${f2(sc.frames.p50Ms)} / ${f2(sc.frames.p95Ms)} / ${f2(sc.frames.maxMs)} | ${sc.uploads.framesWithUploads} / ${sc.uploads.maxTilesPerFrame} / ${mib(sc.uploads.maxBytesPerFrame)} / ${sc.uploads.overBudgetFrames} | ${sc.texture.peakTextures} / ${mib(sc.texture.peakGpuTierBytes)} | ${sc.stateDiffs} / ${sc.errors} / ${sc.mainThreadDecodes} | \`${e.source}\` |`);
+      out.push(`| ${label} | ${e.timerResolutionMs ?? "n/a"} | ${sc.name} | ${f2(st.meanMs)} / ${f2(st.p95Ms)} / ${f2(st.p99Ms)} / ${f2(st.maxMs)} | ${up.frames} / ${(up.share * 100).toFixed(1)}% / ${f2(up.p50Ms)} / ${f2(up.p95Ms)} / ${f2(up.maxMs)} | ${f2(sc.render.p95Ms)} | ${inc} | ${f2(sc.frames.p50Ms)} / ${f2(sc.frames.p95Ms)} / ${f2(sc.frames.maxMs)} | ${sc.uploads.framesWithUploads} / ${sc.uploads.maxTilesPerFrame} / ${mib(sc.uploads.maxBytesPerFrame)} / ${sc.uploads.overBudgetFrames} | ${sc.texture.peakTextures} / ${mib(sc.texture.peakGpuTierBytes)} | ${sc.stateDiffs} / ${sc.errors} / ${sc.mainThreadDecodes} | \`${e.source}\` |`);
     }
   }
   out.push("");
+  out.push("Frames longer than one 60 fps frame (16.7 ms), listed and not averaged away:\n");
+  out.push("| renderer | scene | steady frames over 16.7 ms (ms) | upload frames over 16.7 ms (ms) |", "|---|---|---|---|");
+  for (const { label, e } of cols) for (const sc of e.raster.scenes) out.push(`| ${label} | ${sc.name} | ${sc.render.steady.over16_7Ms.map((v) => f2(v)).join(", ") || "none"} | ${sc.render.uploadFrames.over16_7Ms.map((v) => f2(v)).join(", ") || "none"} |`);
+  out.push("");
   if (hard.length) {
     out.push("#### The render budget on the real renderers\n");
-    out.push("ADR 0009, Budget. Steady frames: at most 1.5 ms, read as the p95 or, where the timer step is 1 ms or coarser, as the mean. Upload frames: render p95 at most the steady figure plus 2 ms plus the `texImage2D` p95 of a 512 px tile, and no frame over the byte budget plus one tile.\n");
-    out.push("| renderer | scene | statistic | steady (ms) | budget (ms) | upload frames p95 (ms) | upload bound (ms) | over-budget frames |", "|---|---|---|---|---|---|---|---|");
+    out.push("ADR 0009, Budget. Steady frames: at most 1.5 ms, read as the p95 or, where the timer step is 1 ms or coarser, as the mean. Upload frames: render p95 (p50 when there are fewer than 20 of them) at most the steady figure plus 2 ms plus the `texImage2D` p95 of a 512 px tile, and no frame over the byte budget plus one tile.\n");
+    out.push("| renderer | scene | statistic | steady (ms) | budget (ms) | upload frames (count) | upload statistic | upload frames value (ms) | upload bound (ms) | over-budget frames |", "|---|---|---|---|---|---|---|---|---|---|");
     for (const [k, e] of hard) {
       const clamped = (e.timerResolutionMs ?? 0) >= 1;
       const up512 = e.raster.upload.find((u) => u.edge === 512)?.p95Ms ?? 0;
       for (const sc of e.raster.scenes.filter((x) => x.rasters > 0)) {
         const v = clamped ? sc.render.steady.meanMs : sc.render.steady.p95Ms;
-        out.push(`| ${rendererOf(k)}, ${e.engine}, ${e.arch} | ${sc.name} | ${clamped ? "mean" : "p95"} | ${f2(v)} | 1.5 | ${f2(sc.render.uploadFrames.p95Ms)} | ${f2(v + 2 + up512)} | ${sc.uploads.overBudgetFrames} |`);
+        out.push(`| ${rendererOf(k)}, ${e.engine}, ${e.arch} | ${sc.name} | ${clamped ? "mean" : "p95"} | ${f2(v)} | 1.5 | ${sc.render.uploadFrames.frames} | ${sc.render.uploadFrames.frames >= 20 ? "p95" : "p50"} | ${f2(sc.render.uploadFrames.frames >= 20 ? sc.render.uploadFrames.p95Ms : sc.render.uploadFrames.p50Ms)} | ${f2(v + 2 + up512)} | ${sc.uploads.overBudgetFrames} |`);
       }
     }
     out.push("");

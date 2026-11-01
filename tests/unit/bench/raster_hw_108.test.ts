@@ -22,8 +22,8 @@ const scene = (name: "strokes+1" | "strokes+10", rasters: number): RasterResult[
   name, rasters, durationMs: 60000, segments: 1_000_000, frames,
   render: {
     p50Ms: 0.2, p95Ms: 0.5, maxMs: 1.1,
-    steady: { frames: 3300, meanMs: 0.25, p50Ms: 0.2, p95Ms: 0.4, p99Ms: 0.6, maxMs: 1.1 },
-    uploadFrames: { frames: 200, share: 0.057, p50Ms: 0.5, p95Ms: 0.9, maxMs: 1.1 },
+    steady: { frames: 3300, meanMs: 0.25, p50Ms: 0.2, p95Ms: 0.4, p99Ms: 0.6, maxMs: 1.1, over16_7Ms: [] },
+    uploadFrames: { frames: 200, share: 0.057, p50Ms: 0.5, p95Ms: 0.9, maxMs: 1.1, over16_7Ms: [] },
   },
   uploads: { framesWithUploads: 40, maxTilesPerFrame: 4, maxBytesPerFrame: 4 << 20, overBudgetFrames: 0 },
   texture: { peakTextures: 80, peakGpuTierBytes: 80 << 20, gpuBytes: 128 << 20 },
@@ -128,10 +128,27 @@ describe("#108 raster result files", () => {
     bytes.raster.scenes[0]!.uploads.overBudgetFrames = 1;
     expect(rasterBudgetProblems(bytes).join()).toMatch(/byte budget plus one tile/);
   });
+  it("with fewer than 20 upload frames the bound is asserted on their p50, because their p95 is their max, and the hitch is still listed", () => {
+    const few = good();
+    const sc = few.raster.scenes[0]!;
+    sc.render.uploadFrames = { frames: 8, share: 0.017, p50Ms: 3.9, p95Ms: 32.3, maxMs: 32.3, over16_7Ms: [32.3] };
+    expect(rasterBudgetProblems(few), "a 32 ms hitch among 8 upload frames: p50 3.9 is inside 0.4 + 2 + 0.6").toEqual([]);
+    expect(sc.render.uploadFrames.over16_7Ms).toEqual([32.3]);
+    sc.render.uploadFrames.p50Ms = 3.2;
+    expect(rasterBudgetProblems(few).join(), "p50 3.2 is over the bound of 3.0 ms").toMatch(/render p50 3\.2 ms over upload frames \(8\)/);
+    const many = good();
+    many.raster.scenes[0]!.render.uploadFrames = { frames: 20, share: 0.04, p50Ms: 1, p95Ms: 32.3, maxMs: 32.3, over16_7Ms: [32.3] };
+    expect(rasterBudgetProblems(many).join(), "with 20 frames the p95 counts").toMatch(/render p95 32\.3 ms over upload frames \(20\)/);
+  });
+  it("refuse a result that does not list the frames over 16.7 ms", () => {
+    const r = good();
+    delete (r.raster.scenes[0]!.render.uploadFrames as { over16_7Ms?: unknown }).over16_7Ms;
+    expect(validateRasterResult(r, false).join()).toMatch(/over16_7Ms/);
+  });
   it("on an engine whose timer is clamped to 1 ms the steady mean is asserted, not the clamped p95", () => {
     const w = good();
     w.environment.timerResolutionMs = 1;
-    w.raster.scenes[1]!.render.steady = { frames: 3300, meanMs: 1.2, p50Ms: 1, p95Ms: 2, p99Ms: 3, maxMs: 6 };
+    w.raster.scenes[1]!.render.steady = { frames: 3300, meanMs: 1.2, p50Ms: 1, p95Ms: 2, p99Ms: 3, maxMs: 6, over16_7Ms: [] };
     expect(rasterBudgetProblems(w), "p95 reads 2 ms but the mean is 1.2 ms").toEqual([]);
     w.raster.scenes[1]!.render.steady.meanMs = 1.6;
     expect(rasterBudgetProblems(w).join()).toMatch(/steady render mean 1\.6/);
@@ -261,6 +278,7 @@ describe("#108 the texture constant", () => {
     expect(rb.steadyP95Ms).toBe(RASTER_RENDER_STEADY_P95_MS);
     expect(rb.softwareFeedsBudget ?? freeze.rasterProvenance.softwareFeedsBudget).toBe(false);
     expect(rb.statistic).toMatch(/mean/);
+    expect(rb.uploadFrames, "the 20-frame rule is written into the provenance, not left as a silent deviation").toMatch(/at least 20 upload frames.*p50/);
     const keys = Object.keys(json("bench/baselines/renderer-baselines.json").rasterEntries).sort();
     expect([...freeze.rasterProvenance.renderers].sort()).toEqual(keys);
   });
