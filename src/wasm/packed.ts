@@ -23,10 +23,10 @@ export function bindPacked(ev: Evaluator) {
   const x = ev.instance.exports as unknown as Record<string, Fn> & { memory: WebAssembly.Memory };
   const call = (name: string, ...a: number[]): number => (x[name] as Fn)(...a);
   const mem = (): WebAssembly.Memory => x.memory;
-  // A handle is an i32 on the wire. The ABI's error codes are -1 to -5; pvec-wasm lets a handle's
+  // A handle is an i32 on the wire. The ABI's error codes are -1 to -11 (-11 is a batch past the vertex bound, libviprs/pvec#236); pvec-wasm lets a handle's
   // generation grow into the sign bit after 32768 reuses of a slot (libviprs/pvec#203), which reads as a
-  // large negative number. Anything below -5 is such a handle, so give it back as the unsigned number it is.
-  const handle = (r: number): number => (r < -5 ? r >>> 0 : r);
+  // large negative number. Anything below -11 is such a handle, so give it back as the unsigned number it is.
+  const handle = (r: number): number => (r < -11 ? r >>> 0 : r);
   const put = (src: Uint8Array | Float64Array, align: number): [number, number] => {
     const bytes = new Uint8Array(src.buffer, src.byteOffset, src.byteLength);
     const ptr = call("__wbindgen_malloc", bytes.length, align) >>> 0;
@@ -87,6 +87,16 @@ export function bindPacked(ev: Evaluator) {
     tier0Viewport(file: number, minX: number, minY: number, maxX: number, maxY: number): number {
       return handle(call("tier0_viewport", file, minX, minY, maxX, maxY));
     },
+    /** The Tier 0 stream of one leaf (libviprs/pvec#238), without a window. Only a module that exports `tier0_leaf` has it: test `hasLeafCalls`. */
+    tier0Leaf(file: number, cell: number): number {
+      return handle(call("tier0_leaf", file, cell));
+    },
+    /** A page of one leaf's entities, ascending by id, as a batch (libviprs/pvec#238). Cell 0 is the advanced curves. */
+    queryLeaf(file: number, cell: number, first: number, count: number): number {
+      return handle(call("query_leaf", file, cell, first, count));
+    },
+    /** Whether the module exports the per-leaf calls `tier0_leaf` and `query_leaf` (additions to ABI 2). */
+    hasLeafCalls: typeof x["tier0_leaf"] === "function" && typeof x["query_leaf"] === "function",
     /** 0 entries, 1 exact, 2 previews, 3 infeasible, 4 uncovered, 5 leaves read, 6 leaves with no block, 7 advanced bounds meet the window. */
     tier0Stat: (result: number, which: number): number => call("tier0_stat", result, which),
     tier0Views(result: number): { ids: Uint32Array; codes: Uint32Array; errors: Float64Array; offsets: Uint32Array; vertices: Float64Array } {

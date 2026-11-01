@@ -65,10 +65,172 @@ The same raw run and layer run in a linux/arm64 container on an Apple Silicon Ma
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver) | chromium 130.0.6723.31 | arm64 | 1 | 1 | 10 | 14.1 | 0.3 | 0.6 | 1.2 | 6 / 9.6 | 0.3 / 2.7 | 16 | 4 | 0 / 0 | `bench/results/hw/2026-10-31-macbook-docker-arm64-linux-chromium-software.json` |
 
+### Rasters through the wired layer
+
+Scans of A0 at 400 dpi (18724 by 13244 px, 512 px tiles, seven levels) over the 1e6-segment stroke scene, drawn by `createPVecLayer` on a real MapLibre map with the stand-in cursor and a fixture provider in place of the pvec-wasm raster exports. The tiles are the pinned ones of `bench/hw/raster-tiles.json` (one per codec variant and tile size, built by `tools/raster-bench-tiles.sh`), decoded by the shipped decode worker with `createImageBitmap` and uploaded under the 4 MiB and 2 ms budget. The map pans and breathes its zoom by 0.8 of a level every frame, 60 s after a 3 s warm-up, so levels change and decodes run while the frames are timed. Upload counts run from the first frame after `addLayer`, so the fill of the scene is in them. Render CPU is the JavaScript time inside `layer.render`, split in two populations: steady frames (no tile uploaded) carry the budget of ADR 0009, 1.5 ms at the 95th percentile on every real renderer (the mean where the timer resolves 1 ms or coarser, which is WebKit's), and frames that upload a tile are held to one rule: none takes longer than one 60 fps frame (16.7 ms) and none uploads more than the byte budget plus one tile (the p95, the count and the maximum are recorded). ADR 0005's 1 ms stays the pipeline's number. Every row is from the result file in its last column and says which renderer and arch produced it.
+
+#### Decode per tile (worker, `createImageBitmap`, ms)
+
+Each cell is median / 95th percentile over warm decodes, then the first decode in a fresh worker (cold). Time is the one the worker measures around `createImageBitmap`, so none of it is on the main thread.
+
+| codec variant | tile edge | bytes | ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version), chromium 149.0.7827.55, arm64 | Apple GPU, webkit 26.5, arm64 | ANGLE (Intel, Mesa Intel(R) Graphics (ADL GT2), OpenGL ES 3.2), chromium 130.0.6723.31, x64 | ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver), chromium 130.0.6723.31, arm64, software GL, no GPU | ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver), chromium 130.0.6723.31, x64, software GL, no GPU |
+|---|---|---|---|---|---|---|---|
+| png-gray1 | 256 | 2499 | 0.10 / 0.20 (cold 0.40) | 1.00 / 1.00 (cold 1.00) | 1.10 / 1.30 (cold 15.7) | 0.60 / 0.80 (cold 1.10) | 1.20 / 1.50 (cold 2.20) |
+| png-gray1 | 512 | 6038 | 0.30 / 0.40 (cold 0.40) | 1.00 / 1.00 (cold 1.00) | 2.70 / 3.20 (cold 3.80) | 1.20 / 1.30 (cold 1.70) | 2.20 / 2.80 (cold 3.40) |
+| png-gray1 | 1024 | 13569 | 1.00 / 1.10 (cold 1.10) | 3.00 / 3.00 (cold 3.00) | 5.60 / 7.80 (cold 6.30) | 3.10 / 3.40 (cold 3.80) | 5.70 / 7.30 (cold 6.30) |
+| png-gray8 | 256 | 34467 | 0.30 / 0.40 (cold 0.40) | 1.00 / 1.00 (cold 1.00) | 2.00 / 2.40 (cold 3.00) | 1.20 / 1.30 (cold 1.50) | 2.80 / 3.10 (cold 2.90) |
+| png-gray8 | 512 | 146519 | 1.00 / 1.10 (cold 1.10) | 2.00 / 3.00 (cold 2.00) | 7.10 / 7.70 (cold 8.20) | 3.60 / 3.70 (cold 4.10) | 6.60 / 8.00 (cold 8.10) |
+| png-gray8 | 1024 | 608554 | 3.50 / 4.10 (cold 3.70) | 7.00 / 7.00 (cold 6.00) | 17.0 / 23.5 (cold 24.6) | 11.7 / 11.8 (cold 11.7) | 18.5 / 23.3 (cold 26.0) |
+| png-rgba | 256 | 54874 | 0.50 / 0.60 (cold 0.80) | 1.00 / 1.00 (cold 1.00) | 2.30 / 2.60 (cold 3.30) | 1.30 / 1.40 (cold 1.90) | 2.40 / 2.80 (cold 3.00) |
+| png-rgba | 512 | 224988 | 1.80 / 2.00 (cold 2.00) | 2.00 / 3.00 (cold 2.00) | 6.60 / 8.00 (cold 8.60) | 4.30 / 4.40 (cold 5.10) | 7.30 / 8.20 (cold 8.70) |
+| png-rgba | 1024 | 916073 | 7.00 / 7.30 (cold 7.20) | 9.00 / 9.00 (cold 9.00) | 21.2 / 25.3 (cold 22.7) | 14.1 / 14.4 (cold 14.3) | 19.0 / 26.4 (cold 20.4) |
+| jpeg-gray | 256 | 32173 | 0.30 / 0.40 (cold 0.40) | 1.00 / 1.00 (cold 1.00) | 1.50 / 1.70 (cold 14.2) | 0.80 / 0.90 (cold 1.30) | 1.50 / 1.90 (cold 2.30) |
+| jpeg-gray | 512 | 98981 | 0.90 / 1.00 (cold 1.10) | 2.00 / 2.00 (cold 2.00) | 3.50 / 4.00 (cold 4.60) | 1.90 / 2.00 (cold 2.30) | 3.60 / 4.50 (cold 4.00) |
+| jpeg-gray | 1024 | 296104 | 3.00 / 3.50 (cold 3.00) | 4.00 / 5.00 (cold 4.00) | 8.20 / 10.9 (cold 8.20) | 4.90 / 5.20 (cold 5.00) | 8.10 / 9.80 (cold 8.00) |
+| jpeg-rgb | 256 | 32750 | 0.30 / 0.50 (cold 1.10) | 1.00 / 1.00 (cold 1.00) | 1.60 / 1.70 (cold 2.80) | 0.90 / 1.00 (cold 1.40) | 1.50 / 1.90 (cold 2.60) |
+| jpeg-rgb | 512 | 100641 | 0.90 / 1.00 (cold 1.20) | 2.00 / 2.00 (cold 1.00) | 4.40 / 4.60 (cold 13.3) | 2.00 / 2.10 (cold 2.50) | 4.70 / 5.30 (cold 3.90) |
+| jpeg-rgb | 1024 | 301482 | 3.10 / 3.20 (cold 3.20) | 3.00 / 4.00 (cold 4.00) | 7.80 / 10.9 (cold 10.4) | 5.10 / 5.20 (cold 5.30) | 12.4 / 13.9 (cold 14.9) |
+| webp-vp8l | 256 | 28198 | 0.40 / 0.50 (cold 0.60) | 0.00 / 1.00 (cold 1.00) | 1.80 / 2.30 (cold 3.00) | 1.00 / 1.10 (cold 1.50) | 2.30 / 2.60 (cold 2.80) |
+| webp-vp8l | 512 | 121022 | 1.20 / 1.40 (cold 1.40) | 2.00 / 2.00 (cold 1.00) | 5.20 / 6.00 (cold 5.10) | 2.60 / 2.80 (cold 3.30) | 5.90 / 6.70 (cold 8.20) |
+| webp-vp8l | 1024 | 506492 | 4.70 / 4.80 (cold 4.90) | 6.00 / 6.00 (cold 6.00) | 12.0 / 15.9 (cold 12.5) | 8.50 / 9.00 (cold 8.90) | 16.9 / 25.8 (cold 17.5) |
+
+#### `texImage2D` of one RGBA8 tile, then `finish` (ms, median / 95th percentile)
+
+| tile edge | bytes of texture | ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version), chromium 149.0.7827.55, arm64 | Apple GPU, webkit 26.5, arm64 | ANGLE (Intel, Mesa Intel(R) Graphics (ADL GT2), OpenGL ES 3.2), chromium 130.0.6723.31, x64 | ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver), chromium 130.0.6723.31, arm64, software GL, no GPU | ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver), chromium 130.0.6723.31, x64, software GL, no GPU |
+|---|---|---|---|---|---|---|
+| 256 | 262144 | 0.00 / 0.10 | 0.00 / 1.00 | 0.30 / 0.70 | 0.10 / 0.30 | 0.30 / 0.60 |
+| 512 | 1048576 | 0.10 / 0.20 | 0.00 / 1.00 | 1.40 / 1.70 | 0.20 / 0.30 | 0.60 / 1.00 |
+| 1024 | 4194304 | 0.40 / 0.60 | 1.00 / 2.00 | 2.40 / 3.00 | 1.30 / 1.40 | 3.20 / 3.80 |
+
+#### The layer with one and ten scans
+
+`strokes+0` is the stroke scene alone in the same session, the baseline the raster increment is read against. The increment and the all-frames p95 (comparable with the layer rows of #82) are recorded, not budgeted.
+
+| renderer | timer step (ms) | scene | steady frames: mean / p95 / p99 / max (ms) | upload frames: count / share / p50 / p95 / max (ms) | all frames p95 (ms) | increment over strokes-only: steady mean / p95 (ms) | frame p50 / p95 / max (ms) | frames with uploads / most tiles / most MiB / over budget | peak textures / peak gpu tier (MiB of 128) | state diffs / errors / main-thread decodes | source |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version), chromium 149.0.7827.55, arm64 | 0.1 | strokes+0 | 0.04 / 0.10 / 0.20 / 0.20 | 0 / 0.0% / 0.00 / 0.00 / 0.00 | 0.10 | n/a | 8.40 / 9.80 / 17.4 | 0 / 0 / 0.0 / 0 | 0 / 0.0 | 0 / 0 / 0 | `bench/results/hw/2026-11-01-macbook-m5-chromium-raster.json` |
+| ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version), chromium 149.0.7827.55, arm64 | 0.1 | strokes+1 | 0.07 / 0.20 / 0.20 / 0.30 | 32 / 0.5% / 0.70 / 10.1 / 10.9 | 0.20 | 0.03 / 0.10 | 8.60 / 10.5 / 20.0 | 60 / 4 / 4.0 / 0 | 90 / 90.0 | 0 / 0 / 0 | `bench/results/hw/2026-11-01-macbook-m5-chromium-raster.json` |
+| ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version), chromium 149.0.7827.55, arm64 | 0.1 | strokes+10 | 0.13 / 0.20 / 0.30 / 0.40 | 64 / 1.0% / 0.70 / 1.00 / 8.50 | 0.30 | 0.09 / 0.10 | 9.50 / 11.6 / 20.9 | 86 / 4 / 4.0 / 0 | 128 / 128.0 | 0 / 0 / 0 | `bench/results/hw/2026-11-01-macbook-m5-chromium-raster.json` |
+| Apple GPU, webkit 26.5, arm64 | 1 | strokes+0 | 0.17 / 1.00 / 1.00 / 1.00 | 0 / 0.0% / 0.00 / 0.00 / 0.00 | 1.00 | n/a | 17.0 / 18.0 / 21.0 | 0 / 0 / 0.0 / 0 | 0 / 0.0 | 0 / 0 / 0 | `bench/results/hw/2026-11-01-macbook-m5-webkit-raster.json` |
+| Apple GPU, webkit 26.5, arm64 | 1 | strokes+1 | 0.33 / 1.00 / 1.00 / 2.00 | 28 / 0.8% / 2.00 / 3.00 / 3.00 | 1.00 | 0.16 / 0.00 | 17.0 / 18.0 / 28.0 | 57 / 4 / 4.0 / 0 | 90 / 90.0 | 0 / 0 / 0 | `bench/results/hw/2026-11-01-macbook-m5-webkit-raster.json` |
+| Apple GPU, webkit 26.5, arm64 | 1 | strokes+10 | 0.46 / 1.00 / 1.00 / 2.00 | 44 / 1.2% / 2.00 / 3.00 / 4.00 | 1.00 | 0.28 / 0.00 | 17.0 / 18.0 / 25.0 | 67 / 4 / 4.0 / 0 | 120 / 120.0 | 0 / 0 / 0 | `bench/results/hw/2026-11-01-macbook-m5-webkit-raster.json` |
+| ANGLE (Intel, Mesa Intel(R) Graphics (ADL GT2), OpenGL ES 3.2), chromium 130.0.6723.31, x64 | 0.1 | strokes+0 | 0.32 / 0.50 / 0.60 / 0.70 | 0 / 0.0% / 0.00 / 0.00 / 0.00 | 0.50 | n/a | 136.1 / 144.3 / 285.1 | 0 / 0 / 0.0 / 0 | 0 / 0.0 | 0 / 0 / 0 | `bench/results/hw/2026-11-01-nas-intel-adl-gt2-chromium-raster.json` |
+| ANGLE (Intel, Mesa Intel(R) Graphics (ADL GT2), OpenGL ES 3.2), chromium 130.0.6723.31, x64 | 0.1 | strokes+1 | 0.57 / 0.80 / 0.90 / 1.00 | 14 / 3.1% / 3.00 / 6.30 / 6.30 | 0.90 | 0.26 / 0.30 | 140.5 / 145.1 / 172.7 | 44 / 3 / 3.0 / 0 | 69 / 69.0 | 0 / 0 / 0 | `bench/results/hw/2026-11-01-nas-intel-adl-gt2-chromium-raster.json` |
+| ANGLE (Intel, Mesa Intel(R) Graphics (ADL GT2), OpenGL ES 3.2), chromium 130.0.6723.31, x64 | 0.1 | strokes+10 | 0.88 / 1.10 / 1.10 / 26.3 | 4 / 0.9% / 3.70 / 4.30 / 4.30 | 1.10 | 0.56 / 0.60 | 146.2 / 154.8 / 303.9 | 39 / 3 / 3.0 / 0 | 66 / 66.0 | 0 / 0 / 0 | `bench/results/hw/2026-11-01-nas-intel-adl-gt2-chromium-raster.json` |
+| ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver), chromium 130.0.6723.31, arm64, software GL, no GPU | 0.1 | strokes+0 | 0.23 / 0.30 / 0.30 / 0.30 | 0 / 0.0% / 0.00 / 0.00 / 0.00 | 0.30 | n/a | 14252.0 / 21255.2 / 21255.2 | 0 / 0 / 0.0 / 0 | 0 / 0.0 | 0 / 0 / 0 | `bench/results/hw/2026-11-01-mercury-colima-arm64-linux-chromium-software-raster.json` |
+| ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver), chromium 130.0.6723.31, arm64, software GL, no GPU | 0.1 | strokes+1 | 0.26 / 0.30 / 0.30 / 0.30 | 0 / 0.0% / 0.00 / 0.00 / 0.00 | 0.30 | 0.03 / 0.00 | 14262.2 / 18638.9 / 18638.9 | 7 / 4 / 4.0 / 0 | 20 / 20.0 | 0 / 0 / 0 | `bench/results/hw/2026-11-01-mercury-colima-arm64-linux-chromium-software-raster.json` |
+| ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver), chromium 130.0.6723.31, arm64, software GL, no GPU | 0.1 | strokes+10 | 0.50 / 0.50 / 0.50 / 0.50 | 0 / 0.0% / 0.00 / 0.00 / 0.00 | 0.50 | 0.27 / 0.20 | 20796.5 / 34783.6 / 34783.6 | 25 / 4 / 4.0 / 0 | 60 / 60.0 | 0 / 0 / 0 | `bench/results/hw/2026-11-01-mercury-colima-arm64-linux-chromium-software-raster.json` |
+| ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver), chromium 130.0.6723.31, x64, software GL, no GPU | 0.1 | strokes+0 | 0.32 / 0.40 / 0.40 / 0.40 | 0 / 0.0% / 0.00 / 0.00 / 0.00 | 0.40 | n/a | 10589.2 / 11732.9 / 11732.9 | 0 / 0 / 0.0 / 0 | 0 / 0.0 | 0 / 0 / 0 | `bench/results/hw/2026-11-01-nas-x64-linux-chromium-software-raster.json` |
+| ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver), chromium 130.0.6723.31, x64, software GL, no GPU | 0.1 | strokes+1 | 1.28 / 2.70 / 2.70 / 2.70 | 0 / 0.0% / 0.00 / 0.00 / 0.00 | 2.70 | 0.96 / 2.30 | 10810.7 / 21870.0 / 21870.0 | 18 / 3 / 3.0 / 0 | 20 / 20.0 | 0 / 0 / 0 | `bench/results/hw/2026-11-01-nas-x64-linux-chromium-software-raster.json` |
+| ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver), chromium 130.0.6723.31, x64, software GL, no GPU | 0.1 | strokes+10 | 0.00 / 0.00 / 0.00 / 0.00 | 2 / 100.0% / 6.90 / 11.7 / 11.7 | 11.7 | -0.32 / -0.40 | 21851.8 / 22504.0 / 22504.0 | 38 / 3 / 3.0 / 0 | 42 / 42.0 | 0 / 0 / 0 | `bench/results/hw/2026-11-01-nas-x64-linux-chromium-software-raster.json` |
+
+Frames longer than one 60 fps frame (16.7 ms), listed and not averaged away:
+
+| renderer | scene | steady frames over 16.7 ms (ms) | upload frames over 16.7 ms (ms) |
+|---|---|---|---|
+| ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version), chromium 149.0.7827.55, arm64 | strokes+0 | none | none |
+| ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version), chromium 149.0.7827.55, arm64 | strokes+1 | none | none |
+| ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version), chromium 149.0.7827.55, arm64 | strokes+10 | none | none |
+| Apple GPU, webkit 26.5, arm64 | strokes+0 | none | none |
+| Apple GPU, webkit 26.5, arm64 | strokes+1 | none | none |
+| Apple GPU, webkit 26.5, arm64 | strokes+10 | none | none |
+| ANGLE (Intel, Mesa Intel(R) Graphics (ADL GT2), OpenGL ES 3.2), chromium 130.0.6723.31, x64 | strokes+0 | none | none |
+| ANGLE (Intel, Mesa Intel(R) Graphics (ADL GT2), OpenGL ES 3.2), chromium 130.0.6723.31, x64 | strokes+1 | none | none |
+| ANGLE (Intel, Mesa Intel(R) Graphics (ADL GT2), OpenGL ES 3.2), chromium 130.0.6723.31, x64 | strokes+10 | 26.3 | none |
+| ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver), chromium 130.0.6723.31, arm64, software GL, no GPU | strokes+0 | none | none |
+| ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver), chromium 130.0.6723.31, arm64, software GL, no GPU | strokes+1 | none | none |
+| ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver), chromium 130.0.6723.31, arm64, software GL, no GPU | strokes+10 | none | none |
+| ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver), chromium 130.0.6723.31, x64, software GL, no GPU | strokes+0 | none | none |
+| ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver), chromium 130.0.6723.31, x64, software GL, no GPU | strokes+1 | none | none |
+| ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver), chromium 130.0.6723.31, x64, software GL, no GPU | strokes+10 | none | none |
+
+#### The render budget on the real renderers
+
+ADR 0009, Budget. Steady frames: at most 1.5 ms, read as the p95 or, where the timer step is 1 ms or coarser, as the mean. Upload frames: none longer than 16.7 ms, and no frame over the byte budget plus one tile.
+
+| renderer | scene | statistic | steady (ms) | budget (ms) | upload frames (count) | upload frames p95 / max (ms) | upload frames over 16.7 ms | over-budget frames |
+|---|---|---|---|---|---|---|---|---|
+| ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version), chromium, arm64 | strokes+1 | p95 | 0.20 | 1.5 | 32 | 10.1 / 10.9 | 0 | 0 |
+| ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version), chromium, arm64 | strokes+10 | p95 | 0.20 | 1.5 | 64 | 1.00 / 8.50 | 0 | 0 |
+| Apple GPU, webkit, arm64 | strokes+1 | mean | 0.33 | 1.5 | 28 | 3.00 / 3.00 | 0 | 0 |
+| Apple GPU, webkit, arm64 | strokes+10 | mean | 0.46 | 1.5 | 44 | 3.00 / 4.00 | 0 | 0 |
+| ANGLE (Intel, Mesa Intel(R) Graphics (ADL GT2), OpenGL ES 3.2), chromium, x64 | strokes+1 | p95 | 0.80 | 1.5 | 14 | 6.30 / 6.30 | 0 | 0 |
+| ANGLE (Intel, Mesa Intel(R) Graphics (ADL GT2), OpenGL ES 3.2), chromium, x64 | strokes+10 | p95 | 1.10 | 1.5 | 4 | 4.30 / 4.30 | 0 | 0 |
+
+#### Intel ADL GT2: repeat runs, the noise floor and the observed hitch
+
+The full run behind the table above and the scenes-only repeats (`bench/results/hw/repeats`, the same bundle, taken one at a time when the shared host's load average was under 3). The steady p95 varies by a tenth of a millisecond between runs. A steady frame of about 25 to 26 ms shows up in most runs, once or twice, in any scene including the stroke-only one, so it does not come from the raster pass; the cause is not confirmed (a driver stall or garbage collection are the guesses) and it is outside the raster budget. Steady frames over 16.7 ms are listed with the scene they fell in.
+
+| run | host load start / end (6 cpus) | scene | steady p95 / mean (ms) | steady frames over 16.7 ms (ms) | upload frames: count / max (ms) |
+|---|---|---|---|---|---|
+| full run | 2.75 / 6.21 | strokes+0 | 0.50 / 0.32 | none | 0 / 0.00 |
+| full run | 2.75 / 6.21 | strokes+1 | 0.80 / 0.57 | none | 14 / 6.30 |
+| full run | 2.75 / 6.21 | strokes+10 | 1.10 / 0.88 | 26.3 | 4 / 4.30 |
+| r2 | 2.85 / 4.29 | strokes+0 | 0.50 / 0.39 | 26.1 | 0 / 0.00 |
+| r2 | 2.85 / 4.29 | strokes+1 | 0.80 / 0.58 | none | 13 / 4.30 |
+| r2 | 2.85 / 4.29 | strokes+10 | 1.00 / 0.82 | none | 4 / 3.80 |
+| r3 | 3.29 / 4.26 | strokes+0 | 0.50 / 0.33 | none | 0 / 0.00 |
+| r3 | 3.29 / 4.26 | strokes+1 | 0.80 / 0.69 | 26.2, 24.8 | 12 / 4.30 |
+| r3 | 3.29 / 4.26 | strokes+10 | 1.10 / 0.83 | none | 4 / 4.90 |
+| r4 | 2.9 / 5.54 | strokes+0 | 0.50 / 0.34 | none | 0 / 0.00 |
+| r4 | 2.9 / 5.54 | strokes+1 | 0.80 / 0.60 | none | 12 / 5.30 |
+| r4 | 2.9 / 5.54 | strokes+10 | 1.10 / 0.88 | none | 4 / 4.00 |
+| r5 | 2.93 / 3.39 | strokes+0 | 0.40 / 0.31 | none | 0 / 0.00 |
+| r5 | 2.93 / 3.39 | strokes+1 | 0.90 / 0.61 | none | 11 / 4.00 |
+| r5 | 2.93 / 3.39 | strokes+10 | 1.00 / 0.80 | none | 4 / 4.10 |
+
+Runs with at least one steady frame over 16.7 ms: 3 of 5.
+
+#### Two scans at one scan pixel per device pixel, against the gpu ceiling
+
+The view that holds the most tiles. Two full-resolution views at 4K do not fit 128 MiB, so the fit rule steps a level down; the table shows what stayed resident and which levels drew.
+
+| renderer | view (device px) | peak textures | peak gpu tier (MiB of 128) | levels drawn at the end |
+|---|---|---|---|---|
+| ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version), chromium 149.0.7827.55, arm64 | 1080p (1920 by 1080) | 35 | 35.0 | 6 |
+| ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version), chromium 149.0.7827.55, arm64 | 4k (3840 by 2160) | 30 | 30.0 | 5 |
+| Apple GPU, webkit 26.5, arm64 | 1080p (1920 by 1080) | 35 | 35.0 | 6 |
+| Apple GPU, webkit 26.5, arm64 | 4k (3840 by 2160) | 30 | 30.0 | 5 |
+| ANGLE (Intel, Mesa Intel(R) Graphics (ADL GT2), OpenGL ES 3.2), chromium 130.0.6723.31, x64 | 1080p (1920 by 1080) | 35 | 35.0 | 6 |
+| ANGLE (Intel, Mesa Intel(R) Graphics (ADL GT2), OpenGL ES 3.2), chromium 130.0.6723.31, x64 | 4k (3840 by 2160) | 30 | 30.0 | 5 |
+| ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver), chromium 130.0.6723.31, arm64, software GL, no GPU | 1080p (1920 by 1080) | 35 | 35.0 | 6 |
+| ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver), chromium 130.0.6723.31, arm64, software GL, no GPU | 4k (3840 by 2160) | 30 | 30.0 | 5 |
+| ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver), chromium 130.0.6723.31, x64, software GL, no GPU | 1080p (1920 by 1080) | 35 | 35.0 | 6 |
+| ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver), chromium 130.0.6723.31, x64, software GL, no GPU | 4k (3840 by 2160) | 30 | 30.0 | 5 |
+
+#### Corpus raster cases replayed through the layer, rasters on and off
+
+The two raster cases of `bench/corpus/corpus.json` (the 1e5-segment stand-in strokes plus one scan and plus ten), replayed through `createPVecLayer` with `raster.enabled` true and false: five zoom steps and a ring of 24 pan steps, 60 frames each, median of three runs. First drawing is `addLayer` to the first frame that drew the strokes and, with rasters on, a raster. Frame times are render-event intervals. The add-on's own numbers for the viewport scripts are these; the 30 registry cases still replay without the add-on in `bench/results` (no real Tier 0 cursor is wired in yet).
+
+| renderer | case | rasters | first drawing (ms) | frame p95 / max (ms) | frames |
+|---|---|---|---|---|---|
+| ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version), chromium 149.0.7827.55, arm64 | architectural-1e5+1-scan | on | 29 | 9.00 / 10.3 | 1739 |
+| ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version), chromium 149.0.7827.55, arm64 | architectural-1e5+1-scan | off | 25 | 9.00 / 9.80 | 1739 |
+| ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version), chromium 149.0.7827.55, arm64 | architectural-1e5+10-scans | on | 31 | 9.00 / 9.90 | 1739 |
+| ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version), chromium 149.0.7827.55, arm64 | architectural-1e5+10-scans | off | 17 | 8.90 / 10.9 | 1739 |
+| Apple GPU, webkit 26.5, arm64 | architectural-1e5+1-scan | on | 31 | 17.0 / 25.0 | 1739 |
+| Apple GPU, webkit 26.5, arm64 | architectural-1e5+1-scan | off | 25 | 17.0 / 22.0 | 1739 |
+| Apple GPU, webkit 26.5, arm64 | architectural-1e5+10-scans | on | 43 | 18.0 / 27.0 | 1739 |
+| Apple GPU, webkit 26.5, arm64 | architectural-1e5+10-scans | off | 23 | 17.0 / 29.0 | 1739 |
+| ANGLE (Intel, Mesa Intel(R) Graphics (ADL GT2), OpenGL ES 3.2), chromium 130.0.6723.31, x64 | architectural-1e5+1-scan | on | 734 | 239.5 / 525.8 | 1739 |
+| ANGLE (Intel, Mesa Intel(R) Graphics (ADL GT2), OpenGL ES 3.2), chromium 130.0.6723.31, x64 | architectural-1e5+1-scan | off | 379 | 77.9 / 618.5 | 1739 |
+| ANGLE (Intel, Mesa Intel(R) Graphics (ADL GT2), OpenGL ES 3.2), chromium 130.0.6723.31, x64 | architectural-1e5+10-scans | on | 756 | 91.6 / 2304.8 | 1739 |
+| ANGLE (Intel, Mesa Intel(R) Graphics (ADL GT2), OpenGL ES 3.2), chromium 130.0.6723.31, x64 | architectural-1e5+10-scans | off | 376 | 80.7 / 2345.0 | 1739 |
+| ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver), chromium 130.0.6723.31, arm64, software GL, no GPU | architectural-1e5+1-scan | on | 76 | 4750.9 / 5521.0 | 231 |
+| ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver), chromium 130.0.6723.31, arm64, software GL, no GPU | architectural-1e5+1-scan | off | 43 | 2682.1 / 6932.3 | 231 |
+| ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver), chromium 130.0.6723.31, arm64, software GL, no GPU | architectural-1e5+10-scans | on | 70 | 4903.7 / 5423.1 | 231 |
+| ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver), chromium 130.0.6723.31, arm64, software GL, no GPU | architectural-1e5+10-scans | off | 42 | 2707.6 / 5493.9 | 231 |
+| ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver), chromium 130.0.6723.31, x64, software GL, no GPU | architectural-1e5+1-scan | on | 697 | 3043.9 / 5021.7 | 231 |
+| ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver), chromium 130.0.6723.31, x64, software GL, no GPU | architectural-1e5+1-scan | off | 4021 | 1952.9 / 3163.5 | 231 |
+| ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver), chromium 130.0.6723.31, x64, software GL, no GPU | architectural-1e5+10-scans | on | 354 | 2861.9 / 4259.6 | 231 |
+| ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver), chromium 130.0.6723.31, x64, software GL, no GPU | architectural-1e5+10-scans | off | 112 | 2466.3 / 3266.4 | 231 |
+
+The software GL rows (SwiftShader on the CPU, a linux container, no GPU) are relative costs. They say the page, the decode worker and the layer work there and what a frame costs in software; they are not GPU numbers, they are not tuning input, and no budget or frozen value reads from them. The frame counts are low because software drawing of the 1e6-segment scene takes seconds a frame.
+
 ## Real pvec evaluator and real .pvec bytes
 
-- `spikes/pvec-real/results.json`: chromium 130.0.6723.31, linux/x64 container, `libviprs/pvec` `ab3c2cf`, ABI version 2
-- module 716752 bytes, compile 46.3 ms, instantiate 0.4 ms
+- `spikes/pvec-real/results.json`: chromium 130.0.6723.31, linux/x64 container, `libviprs/pvec` `fc5ca4a`, ABI version 2
+- module 751260 bytes, compile 73.5 ms, instantiate 0.6 ms
 - the docker host was shared and loaded while this ran, so every time here is an upper bound and only the shape is a result
 - the subject is the shipped evaluator through the packed binding; the arrays are views over linear memory, nothing is copied
 
@@ -78,46 +240,46 @@ One evaluation is a batch of the fixture's entities tessellated to a drawing-siz
 
 | fixture | entities | one evaluation (ns) | vertices | ns/vertex at 1e2 | 1e3 | 1e4 | 1e5 |
 |---|---|---|---|---|---|---|---|
-| arc-seam-001 | 1 | 87719 | 33 | 1648.4 | 1594.7 | 1626 | 1580.2 |
-| bezier-d3-001 | 1 | 102389 | 65 | 1586.5 | 1614.2 | 1620 | 1839.6 |
-| bspline-d3-001 | 1 | 208000 | 113 | 1802.4 | 2836.4 | 1908 | 1787.2 |
-| bspline-d5-001 | 1 | 184500 | 99 | 1881.3 | 1937.5 | 2102 | 1941.2 |
-| bulge-arc-001 | 2 | 104167 | 66 | 1578.9 | 1638.5 | 1700 | 1732.8 |
-| bulge-arc-neg-001 | 2 | 104530 | 66 | 1665.0 | 1688.9 | 1694 | 1698.8 |
-| circle-001 | 1 | 200000 | 129 | 1512.6 | 1530 | 1554 | 1740.2 |
-| closed-by-endpoint-001 | 1 | 265000 | 142 | 1766.1 | 1722.2 | 1756 | 1759.2 |
-| closed-periodic-001 | 1 | 298500 | 177 | 1676.0 | 1823.5 | 1760 | 1963.6 |
-| ellipse-001 | 1 | 345000 | 129 | 2663.7 | 2583.3 | 1732 | 2522.8 |
-| elliptical-arc-001 | 1 | 106762 | 65 | 1618.3 | 2157.1 | 2722 | 1678 |
-| large-coords-001 | 1 | 4358 | 4 | n/a | n/a | n/a | 739.3 |
-| layer-state-001 | 3 | 2291 | 6 | n/a | n/a | n/a | n/a |
-| line-001 | 1 | 1503 | 2 | n/a | n/a | n/a | n/a |
-| lwpolyline-closed-001 | 1 | 2199 | 5 | n/a | n/a | n/a | n/a |
-| nested-blocks-001 | 1 | 1514 | 2 | n/a | n/a | n/a | n/a |
-| nonuniform-scale-circle-001 | 1 | 446500 | 177 | 2529.4 | 1700 | 1646 | 1577.2 |
-| nonuniform-scale-rotated-001 | 1 | 296000 | 177 | 1734.1 | 1683.3 | 1570 | 1576.6 |
-| nonunit-weight-001 | 1 | 55351 | 35 | 1681.6 | 1688.9 | 1698 | 1709 |
-| nurbs-d2-offconic-001 | 1 | 105634 | 65 | 1653.8 | 1694.4 | 1708 | 1725 |
-| nurbs-d3-001 | 1 | 169000 | 93 | 1829.3 | 1881.3 | 1912 | 1846.8 |
-| polyline-001 | 1 | 2195 | 5 | n/a | n/a | n/a | n/a |
-| polyline2d-001 | 1 | 2227 | 5 | n/a | n/a | n/a | n/a |
-| reflection-001 | 1 | 53286 | 33 | 1714.3 | 1700 | 1750 | 2025.4 |
-| repeated-knot-c0-001 | 1 | 194500 | 111 | 1761.8 | 1841.2 | 1792 | 1752.2 |
-| rotation-irrational-001 | 1 | 1660 | 2 | n/a | n/a | n/a | n/a |
-| tiny-radius-001 | 1 | 1860 | 2 | 1527.9 | 1589.5 | 1649.8 | 1608.4 |
-| uniform-scale-001 | 1 | 414000 | 257 | 1563.3 | 1610.5 | 1530 | 1679.2 |
+| arc-seam-001 | 1 | 49261 | 33 | 1546.4 | 1555 | 1568 | 1647.4 |
+| bezier-d3-001 | 1 | 102730 | 65 | 1586.5 | 1619.4 | 1604 | 1626.2 |
+| bspline-d3-001 | 1 | 184500 | 113 | 1639.3 | 1672.2 | 1696 | 1664.8 |
+| bspline-d5-001 | 1 | 175000 | 99 | 1781.1 | 1805.9 | 1818 | 1816.2 |
+| bulge-arc-001 | 2 | 97097 | 66 | 1492.5 | 1566.6 | 1550 | 1569.4 |
+| bulge-arc-neg-001 | 2 | 98361 | 66 | 1522.8 | 1575 | 1580 | 1558.6 |
+| circle-001 | 1 | 193500 | 129 | 1477.8 | 1500 | 1506 | 1530.4 |
+| closed-by-endpoint-001 | 1 | 235000 | 142 | 1639.3 | 1694.4 | 1692 | 1684.2 |
+| closed-periodic-001 | 1 | 289500 | 177 | 1592.6 | 1688.9 | 1694 | 1670.4 |
+| ellipse-001 | 1 | 198000 | 129 | 1505 | 1525 | 1520 | 1530.6 |
+| elliptical-arc-001 | 1 | 98684 | 65 | 1530.6 | 1570 | 1562 | 1598.2 |
+| large-coords-001 | 1 | 2516 | 4 | n/a | n/a | n/a | 672.6 |
+| layer-state-001 | 3 | 2178 | 6 | n/a | n/a | n/a | n/a |
+| line-001 | 1 | 1461 | 2 | n/a | n/a | n/a | n/a |
+| lwpolyline-closed-001 | 1 | 2081 | 5 | n/a | n/a | n/a | n/a |
+| nested-blocks-001 | 1 | 1421 | 2 | n/a | n/a | n/a | n/a |
+| nonuniform-scale-circle-001 | 1 | 271000 | 177 | 1520.2 | 1535 | 1530 | 1793 |
+| nonuniform-scale-rotated-001 | 1 | 272000 | 177 | 1520.2 | 1535 | 1528 | 1522.8 |
+| nonunit-weight-001 | 1 | 53381 | 35 | 1615.0 | 1663.2 | 2166 | 1668.8 |
+| nurbs-d2-offconic-001 | 1 | 103093 | 65 | 1587.3 | 1636.8 | 1640 | 1668.6 |
+| nurbs-d3-001 | 1 | 155500 | 93 | 1676.0 | 1733.3 | 1736 | 1737.8 |
+| polyline-001 | 1 | 2069 | 5 | n/a | n/a | n/a | n/a |
+| polyline2d-001 | 1 | 2057 | 5 | n/a | n/a | n/a | n/a |
+| reflection-001 | 1 | 49423 | 33 | 1530.6 | 1560 | 1578 | 1577.4 |
+| repeated-knot-c0-001 | 1 | 183000 | 111 | 1643.5 | 1688.9 | 1704 | 2140.6 |
+| rotation-irrational-001 | 1 | 3107 | 2 | n/a | n/a | n/a | n/a |
+| tiny-radius-001 | 1 | 3465 | 2 | 2272.7 | 1540 | 1525.8 | 1734.8 |
+| uniform-scale-001 | 1 | 392500 | 257 | 1500.2 | 1530 | 1568 | 1539.6 |
 
 ### Packed output on the generated corpus entries
 
 | entry | file | entities | open (ms) | whole drawing (ms) | ns/entity | ns/vertex | 25 percent window (ms) | 5 percent window (ms) | JS heap bytes/entity |
 |---|---|---|---|---|---|---|---|---|---|
-| architectural-1e5 | 1.81 MB | 100000 | 49.4 | 166.5 | 1665 | 577 | 34.4 | 2.6 | -0.35 |
-| architectural-1e6 | 17.82 MB | 1000000 | 655.6 | 1057.6 | 1058 | 405 | 166.9 | 15 | 0.00 |
-| mep-1e5 | 2.37 MB | 100000 | 47.5 | 277.9 | 2779 | 699 | 59.5 | 5.8 | 0.01 |
-| pathological-1e3 | 757.5 kB | 917 | 5 | 52.8 | 57579 | 1241 | 0.1 | 0 | -50.72 |
-| spline-heavy-1e5 | 12.34 MB | 100000 | 196.2 | 1285.3 | 12853 | 1275 | 225.5 | 38.1 | -0.14 |
+| architectural-1e5 | 1.81 MB | 100000 | 46.9 | 150 | 1500 | 520 | 37.1 | 2.4 | -0.35 |
+| architectural-1e6 | 17.82 MB | 1000000 | 679.7 | 975.6 | 976 | 374 | 215.1 | 17.5 | 0.00 |
+| mep-1e5 | 2.37 MB | 100000 | 46.4 | 287.7 | 2877 | 724 | 58.4 | 5.5 | 0.01 |
+| pathological-1e3 | 757.5 kB | 917 | 4.9 | 51.7 | 56379 | 1215 | 0.2 | 0 | -50.77 |
+| spline-heavy-1e5 | 12.34 MB | 100000 | 183.2 | 1204.1 | 12041 | 1195 | 197.7 | 27 | -0.14 |
 
-Leak check: 6000 open, query, tessellate and release cycles left linear memory at 37962 pages (37962 before, 37962 after the first half).
+Leak check: 6000 open, query, tessellate and release cycles left linear memory at 13384 pages (13384 before, 13384 after the first half).
 
 ### Preview error accounting and viewport coverage
 
@@ -165,41 +327,46 @@ The files are the corpus entries written with a spatial directory and one Tier 0
 
 | entry | window (share of extent) | entities | entries | exact | previews | infeasible | uncovered | leaves read | missing |
 |---|---|---|---|---|---|---|---|---|---|
-| architectural-1e5 | 1 | 100000 | 99075 | 98160 | 915 | 0 | 925 | 4 | 0 |
-| architectural-1e5 | 0.25 | 11553 | 11447 | 11343 | 104 | 0 | 106 | 3 | 0 |
-| architectural-1e5 | 0.05 | 607 | 605 | 603 | 2 | 0 | 2 | 3 | 0 |
+| architectural-1e5 | 1 | 99968 | 99043 | 98128 | 915 | 0 | 925 | 97 | 0 |
+| architectural-1e5 | 0.25 | 8332 | 8256 | 8195 | 61 | 0 | 76 | 20 | 0 |
+| architectural-1e5 | 0.05 | 388 | 384 | 383 | 1 | 0 | 4 | 6 | 0 |
 | architectural-1e6 | 1 | 1000000 | 990560 | 981337 | 9223 | 0 | 9440 | 31 | 0 |
 | architectural-1e6 | 0.25 | 102465 | 101520 | 100576 | 944 | 0 | 945 | 12 | 0 |
 | architectural-1e6 | 0.05 | 4588 | 4534 | 4496 | 38 | 0 | 54 | 6 | 0 |
-| mep-1e5 | 1 | 100000 | 96745 | 94398 | 2347 | 0 | 3255 | 3 | 0 |
-| mep-1e5 | 0.25 | 11212 | 10851 | 10616 | 235 | 0 | 361 | 3 | 0 |
-| mep-1e5 | 0.05 | 582 | 564 | 557 | 7 | 0 | 18 | 3 | 0 |
+| mep-1e5 | 1 | 99904 | 96649 | 94302 | 2347 | 0 | 3255 | 95 | 0 |
+| mep-1e5 | 0.25 | 9855 | 9544 | 9340 | 204 | 0 | 311 | 25 | 0 |
+| mep-1e5 | 0.05 | 569 | 557 | 550 | 7 | 0 | 12 | 6 | 0 |
 | pathological-1e3 | 1 | 914 | 747 | 747 | 0 | 0 | 167 | 1 | 0 |
 | pathological-1e3 | 0.25 | 57 | 43 | 43 | 0 | 0 | 14 | 1 | 0 |
 | pathological-1e3 | 0.05 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 |
-| spline-heavy-1e5 | 1 | 100000 | 40089 | 35012 | 5077 | 0 | 59911 | 2 | 0 |
-| spline-heavy-1e5 | 0.25 | 7426 | 3004 | 2629 | 375 | 0 | 4422 | 2 | 0 |
-| spline-heavy-1e5 | 0.05 | 385 | 163 | 147 | 16 | 0 | 222 | 2 | 0 |
+| spline-heavy-1e5 | 1 | 100000 | 40089 | 35012 | 5077 | 0 | 59911 | 40 | 0 |
+| spline-heavy-1e5 | 0.25 | 7426 | 3004 | 2629 | 375 | 0 | 4422 | 13 | 0 |
+| spline-heavy-1e5 | 0.05 | 385 | 163 | 147 | 16 | 0 | 222 | 4 | 0 |
 
 | entry | previews checked | worst measured over declared | all within declared |
 |---|---|---|---|
-| architectural-1e5 | 3 | 0.91 | yes |
+| architectural-1e5 | 7 | 0.91 | yes |
 | architectural-1e6 | 13 | 0.91 | yes |
-| mep-1e5 | 27 | 0.91 | yes |
+| mep-1e5 | 17 | 0.91 | yes |
 | pathological-1e3 | 0 | 0.00 | yes |
 | spline-heavy-1e5 | 89 | 0.91 | yes |
 
 ### Tier 0 decoder slices on the real stream
 
-The default cursor of the layer drained by `Tier0Decoder` with its default slice size. A slice is one `decodeSlice` call; the ceiling is `DEFAULTS.maxSliceMs`. Opening the file in the evaluator is the cursor's first step and is reported on its own.
+The default cursor of the layer drained by `Tier0Decoder` with its default slice size, and the cursor as it was before #125 under the same decoder, in the same run on the same host. A slice is one `decodeSlice` call; the ceiling is `DEFAULTS.maxSliceMs`. Opening the file in the evaluator is the cursor's first step and is reported on its own. Leaves is the number of leaves of the spatial directory (the 1e5 files are written with a leaf capacity of 1,024, the others with pvec's 32,768). These rows are from pvec `wasm-v1-fc5ca4a` (the cheaper tessellation of pvec#243), measured with the docker host's one-minute load under its 28 cpus at three polls in a row (12 to 18 at the start). The rows from `wasm-v1-c4f71b3` had a longest slice of 8.1 / 38.2 / 11.6 / 48.9 / 15.5 ms for architectural-1e5 / architectural-1e6 / mep-1e5 / pathological-1e3 / spline-heavy-1e5. The 8 ms bound is not met (maplibre-pvec#125 stays open). The longest slices are the release of the file handle when the walk ends (5 to 40 ms, growing with the file) and, in pathological-1e3, four single splines of 10,000 control points that cost 11 to 14 ms each in one `tessellate_batch` call.
 
-| entry | entities | slices | slices over 8 ms | open (ms) | max slice (ms) | p99 slice (ms) | median slice (ms) | total (ms) |
-|---|---|---|---|---|---|---|---|---|
-| architectural-1e5 | 100000 | 109 | 99 | 62.9 | 15.4 | 12 | 8.7 | 964.7 |
-| architectural-1e6 | refused: block exceeds maxEntitiesPerBlock (200000) | 940 | 934 | 15949.8 | 49.1 | 16.2 | 12.5 | 11974.9 |
-| mep-1e5 | 100000 | 230 | 217 | 44.1 | 24.2 | 16.2 | 8.7 | 2054.6 |
-| pathological-1e3 | 917 | 2 | 2 | 5 | 48 | 48 | 12 | 60.7 |
-| spline-heavy-1e5 | 100000 | 308 | 293 | 181.1 | 14.3 | 11.6 | 9.1 | 2863.7 |
+| entry | cursor | leaves | entities | slices | slices over 8 ms | open (ms) | max slice (ms) | p99 slice (ms) | median slice (ms) | total (ms) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| architectural-1e5 | leaves (#125) | 97 | 99968 | 27 | 1 | 50.4 | 9.5 | 9.5 | 6.9 | 189.8 |
+| architectural-1e5 | boxes (before #125) | 97 | 99968 | 266 | 2 | 47.1 | 15.1 | 7.8 | 6.2 | 1586.8 |
+| architectural-1e6 | leaves (#125) | 31 | 1000000 | 437 | 7 | 423.9 | 38.5 | 9.1 | 4.9 | 1946.6 |
+| architectural-1e6 | boxes (before #125) | 31 | refused: block exceeds maxEntitiesPerBlock (200000) | 2991 | 153 | 410.2 | 51.7 | 19.1 | 6.2 | 13036.3 |
+| mep-1e5 | leaves (#125) | 95 | 99904 | 34 | 3 | 55.6 | 11.5 | 11.5 | 6.6 | 237.8 |
+| mep-1e5 | boxes (before #125) | 95 | 99904 | 395 | 4 | 59.7 | 11.4 | 8.1 | 6.2 | 2406.7 |
+| pathological-1e3 | leaves (#125) | 1 | 914 | 22 | 1 | 4.9 | 50.9 | 50.9 | 0 | 51.3 |
+| pathological-1e3 | boxes (before #125) | 1 | 917 | 20 | 2 | 5 | 49.2 | 49.2 | 0 | 63.9 |
+| spline-heavy-1e5 | leaves (#125) | 40 | 100000 | 136 | 1 | 188.8 | 15.4 | 7.6 | 7.2 | 979 |
+| spline-heavy-1e5 | boxes (before #125) | 40 | 100000 | 943 | 47 | 191.3 | 11.1 | 9.3 | 4.7 | 4739.8 |
 
 ### Range bootstrap on real files, x86_64
 
@@ -207,34 +374,34 @@ The default cursor of the layer drained by `Tier0Decoder` with its default slice
 
 | file | bytes | blocks | RTT (ms) | bootstrap requests | bootstrap bytes | bootstrap (ms) | full: requests / bytes / ms | 25 percent: requests / bytes / ms | 5 percent: requests / bytes / ms |
 |---|---|---|---|---|---|---|---|---|---|
-| line-001 | 400 B | 1 | 0 | 2 | 464 B | 55.6 | 1 / 40 B / 1.6 | 1 / 40 B / 1.5 | 1 / 40 B / 1.5 |
-| nurbs-d3-001 | 1.0 kB | 6 | 0 | 2 | 1.4 kB | 46.2 | 1 / 34 B / 1.5 | 1 / 34 B / 1.5 | 1 / 34 B / 1.5 |
-| architectural-1e5 | 2.04 MB | 27 | 0 | 2 | 5.8 kB | 145.3 | 14 / 1.75 MB / 11 | 11 / 1.73 MB / 6 | 11 / 1.73 MB / 6.6 |
-| architectural-1e6 | 19.29 MB | 198 | 0 | 2 | 16.8 kB | 246.7 | 115 / 17.20 MB / 135.8 | 48 / 6.79 MB / 36.3 | 26 / 3.37 MB / 14.3 |
-| mep-1e5 | 2.70 MB | 34 | 0 | 2 | 6.3 kB | 72.2 | 12 / 2.08 MB / 7.4 | 12 / 2.07 MB / 4.4 | 11 / 2.06 MB / 4.1 |
-| pathological-1e3 | 757.9 kB | 38 | 0 | 2 | 6.5 kB | 225.8 | 10 / 17.9 kB / 6.4 | 10 / 17.9 kB / 2.6 | 10 / 17.9 kB / 2.8 |
-| spline-heavy-1e5 | 13.50 MB | 605 | 0 | 2 | 42.8 kB | 58.6 | 106 / 1.64 MB / 25.1 | 34 / 1.09 MB / 5 | 14 / 939.4 kB / 5.7 |
-| line-001 | 400 B | 1 | 100 | 2 | 464 B | 202.9 | 1 / 40 B / 101.3 | 1 / 40 B / 100.7 | 1 / 40 B / 101.3 |
-| nurbs-d3-001 | 1.0 kB | 6 | 100 | 2 | 1.4 kB | 202.9 | 1 / 34 B / 101.3 | 1 / 34 B / 101.2 | 1 / 34 B / 101.1 |
-| architectural-1e5 | 2.04 MB | 27 | 100 | 2 | 5.8 kB | 202.7 | 14 / 1.75 MB / 105.4 | 11 / 1.73 MB / 107.3 | 11 / 1.73 MB / 104.6 |
-| architectural-1e6 | 19.29 MB | 198 | 100 | 2 | 16.8 kB | 203.7 | 115 / 17.20 MB / 159.9 | 48 / 6.79 MB / 118.6 | 26 / 3.37 MB / 107.6 |
-| mep-1e5 | 2.70 MB | 34 | 100 | 2 | 6.3 kB | 205.7 | 12 / 2.08 MB / 103.7 | 12 / 2.07 MB / 103.6 | 11 / 2.06 MB / 104 |
-| pathological-1e3 | 757.9 kB | 38 | 100 | 2 | 6.5 kB | 202.6 | 10 / 17.9 kB / 102.5 | 10 / 17.9 kB / 102.3 | 10 / 17.9 kB / 103.1 |
-| spline-heavy-1e5 | 13.50 MB | 605 | 100 | 2 | 42.8 kB | 203.9 | 106 / 1.64 MB / 117.7 | 34 / 1.09 MB / 135.1 | 14 / 939.4 kB / 103.1 |
+| line-001 | 400 B | 1 | 0 | 2 | 464 B | 3.9 | 1 / 40 B / 0.4 | 1 / 40 B / 1.4 | 1 / 40 B / 1.4 |
+| nurbs-d3-001 | 1.0 kB | 6 | 0 | 2 | 1.4 kB | 3.5 | 1 / 34 B / 1.5 | 1 / 34 B / 1.4 | 1 / 34 B / 1.4 |
+| architectural-1e5 | 2.20 MB | 494 | 0 | 2 | 35.7 kB | 55.2 | 331 / 1.80 MB / 213.9 | 64 / 384.7 kB / 8.3 | 12 / 76.5 kB / 3.5 |
+| architectural-1e6 | 19.29 MB | 198 | 0 | 2 | 16.8 kB | 35.6 | 115 / 17.20 MB / 157.1 | 48 / 6.79 MB / 48.5 | 26 / 3.37 MB / 20.4 |
+| mep-1e5 | 2.95 MB | 497 | 0 | 2 | 35.9 kB | 55.5 | 346 / 2.20 MB / 73.2 | 83 / 522.3 kB / 12 | 12 / 82.0 kB / 2.5 |
+| pathological-1e3 | 757.9 kB | 38 | 0 | 2 | 6.5 kB | 39.7 | 10 / 17.9 kB / 2.7 | 10 / 17.9 kB / 2.5 | 10 / 17.9 kB / 2 |
+| spline-heavy-1e5 | 13.65 MB | 795 | 0 | 2 | 55.0 kB | 19.7 | 242 / 1.76 MB / 35.3 | 75 / 519.6 kB / 5.4 | 23 / 155.0 kB / 2.8 |
+| line-001 | 400 B | 1 | 100 | 2 | 464 B | 202.4 | 1 / 40 B / 100.9 | 1 / 40 B / 100.3 | 1 / 40 B / 100.9 |
+| nurbs-d3-001 | 1.0 kB | 6 | 100 | 2 | 1.4 kB | 204 | 1 / 34 B / 101.5 | 1 / 34 B / 101.9 | 1 / 34 B / 101.8 |
+| architectural-1e5 | 2.20 MB | 494 | 100 | 2 | 35.7 kB | 202.8 | 331 / 1.80 MB / 153.4 | 64 / 384.7 kB / 108.3 | 12 / 76.5 kB / 104.7 |
+| architectural-1e6 | 19.29 MB | 198 | 100 | 2 | 16.8 kB | 203.5 | 115 / 17.20 MB / 137.9 | 48 / 6.79 MB / 113.9 | 26 / 3.37 MB / 106.5 |
+| mep-1e5 | 2.95 MB | 497 | 100 | 2 | 35.9 kB | 206.1 | 346 / 2.20 MB / 141.5 | 83 / 522.3 kB / 108.4 | 12 / 82.0 kB / 101.7 |
+| pathological-1e3 | 757.9 kB | 38 | 100 | 2 | 6.5 kB | 202.8 | 10 / 17.9 kB / 102.1 | 10 / 17.9 kB / 102 | 10 / 17.9 kB / 101.7 |
+| spline-heavy-1e5 | 13.65 MB | 795 | 100 | 2 | 55.0 kB | 202.5 | 242 / 1.76 MB / 127.4 | 75 / 519.6 kB / 106.6 | 23 / 155.0 kB / 101.6 |
 
 With the spatial directory, a window reads the prefix, the directory and the hot blocks of the leaves it touches (bytes and share of the file):
 
 | file | bytes | 25 percent window | 5 percent window |
 |---|---|---|---|
-| architectural-1e5 | 2.04 MB | 3 cells, 1.73 MB (84.7%) | 3 cells, 1.73 MB (84.7%) |
+| architectural-1e5 | 2.20 MB | 23 cells, 427.9 kB (19.4%) | 5 cells, 96.7 kB (4.4%) |
 | architectural-1e5-plain | 1.81 MB | 3 cells, 1.73 MB (95.3%) | 3 cells, 1.73 MB (95.3%) |
 | architectural-1e6 | 19.29 MB | 12 cells, 6.74 MB (34.9%) | 6 cells, 3.34 MB (17.3%) |
 | architectural-1e6-plain | 17.82 MB | 12 cells, 6.74 MB (37.8%) | 6 cells, 3.34 MB (18.8%) |
-| mep-1e5 | 2.70 MB | 3 cells, 2.05 MB (75.9%) | 3 cells, 2.05 MB (75.9%) |
+| mep-1e5 | 2.95 MB | 23 cells, 527.3 kB (17.9%) | 4 cells, 96.3 kB (3.3%) |
 | mep-1e5-plain | 2.37 MB | 3 cells, 2.05 MB (86.5%) | 3 cells, 2.05 MB (86.5%) |
 | pathological-1e3 | 757.9 kB | 1 cells, 17.3 kB (2.3%) | 1 cells, 17.3 kB (2.3%) |
 | pathological-1e3-plain | 757.5 kB | 1 cells, 17.3 kB (2.3%) | 1 cells, 17.3 kB (2.3%) |
-| spline-heavy-1e5 | 13.50 MB | 2 cells, 890.0 kB (6.6%) | 2 cells, 890.0 kB (6.6%) |
+| spline-heavy-1e5 | 13.65 MB | 13 cells, 335.1 kB (2.5%) | 4 cells, 105.6 kB (0.8%) |
 | spline-heavy-1e5-plain | 12.34 MB | 2 cells, 890.0 kB (7.2%) | 2 cells, 890.0 kB (7.2%) |
 
 ### Range bootstrap on real files, arm64

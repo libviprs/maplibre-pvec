@@ -1,10 +1,10 @@
 {
   "browser": "chromium 130.0.6723.31",
   "platform": "linux/x64",
-  "pvecCommit": "ab3c2cf1db54e3523a616dddc135ae1188c03260",
-  "wasmBytes": 716752,
-  "compileMs": 46.3,
-  "instantiateMs": 0.4,
+  "pvecCommit": "fc5ca4a6cf59eff6339ed11d0931eec81d7feb30",
+  "wasmBytes": 751260,
+  "compileMs": 73.5,
+  "instantiateMs": 0.6,
   "abiVersion": 2,
   "fixtures": [
     {
@@ -12,9 +12,9 @@
       "entities": 1,
       "vertsAtEps1e3": 33,
       "singleEvaluation": {
-        "medianNsPerCall": 87719.29824561403,
-        "minNsPerCall": 84078.212690087,
-        "maxNsPerCall": 94043.88714733542,
+        "medianNsPerCall": 49261.08374384236,
+        "minNsPerCall": 48465.266558966076,
+        "maxNsPerCall": 53667.26296958855,
         "vertices": 33
       },
       "amortised": [
@@ -24,8 +24,8 @@
           "vertices": 100,
           "failed": 0,
           "eps": 0.0002162908596914493,
-          "nsPerVertex": 1648.352,
-          "nsPerCall": 164835
+          "nsPerVertex": 1546.392,
+          "nsPerCall": 154639
         },
         {
           "targetVertices": 1000,
@@ -33,8 +33,8 @@
           "vertices": 1000,
           "failed": 0,
           "eps": 0.0000033795827541047023,
-          "nsPerVertex": 1594.737,
-          "nsPerCall": 1594737
+          "nsPerVertex": 1555,
+          "nsPerCall": 1555000
         },
         {
           "targetVertices": 10000,
@@ -42,8 +42,8 @@
           "vertices": 10000,
           "failed": 0,
           "eps": 1.3201497647320245e-8,
-          "nsPerVertex": 1626,
-          "nsPerCall": 16260000
+          "nsPerVertex": 1568,
+          "nsPerCall": 15680000
         },
         {
           "targetVertices": 100000,
@@ -51,8 +51,8 @@
           "vertices": 100000,
           "failed": 0,
           "eps": 2.0627338629818368e-10,
-          "nsPerVertex": 1580.2,
-          "nsPerCall": 158020000
+          "nsPerVertex": 1647.4,
+          "nsPerCall": 164740000
         }
       ]
     },
@@ -61,9 +61,9 @@
       "entities": 1,
       "vertsAtEps1e3": 65,
       "singleEvaluation": {
-        "medianNsPerCall": 102389.07849829351,
-        "minNsPerCall": 102040.8163265306,
-        "maxNsPerCall": 104152.24880495698,
+        "medianNsPerCall": 102730.37591485033,
+        "minNsPerCall": 101694.91525423729,
+        "maxNsPerCall": 104529.61672473868,
         "vertices": 65
       },
       "amortised": [
@@ -82,8 +82,8 @@
           "vertices": 1001,
           "failed": 0,
           "eps": 0.000005642412640209018,
-          "nsPerVertex": 1614.175,
-          "nsPerCall": 1615789
+          "nsPerVertex": 1619.433,
+          "nsPerCall": 1621053
         },
         {
           "targetVertices": 10000,
@@ -91,8 +91,8 @@
           "vertices": 10000,
           "failed": 0,
           "eps": 2.8386626474163046e-8,
-          "nsPerVertex": 1620,
-          "nsPerCall": 16200000
+          "nsPerVertex": 1604,
+          "nsPerCall": 16040000
         },
         {
           "targetVertices": 100000,
@@ -100,8 +100,8 @@
           "vertices": 100000,
           "failed": 0,
           "eps": 3.967465661278825e-10,
-          "nsPerVertex": 1839.6,
-          "nsPerCall": 183960000
+          "nsPerVertex": 1626.2,
+          "nsPerCall": 162620000
         }
       ]
     },
@@ -110,9 +110,9 @@
       "entities": 1,
       "vertsAtEps1e3": 113,
       "singleEvaluation": {
-        "medianNsPerCall": 207999.99952316284,
-        "minNsPerCall": 206499.99976158142,
-        "maxNsPerCall": 209000.00095367432,
+        "medianNsPerCall": 184500.00047683716,
+        "minNsPerCall": 184499.99928474426,
+        "maxNsPerCall": 185000,
         "vertices": 113
       },
       "amortised": [
@@ -122,8 +122,8 @@
           "vertices": 100,
           "failed": 0,
           "eps": 0.0011717842497548881,
-          "nsPerVertex": 1802.395,
-          "nsPerCall": 180240
+          "nsPerVertex": 1639.344,
+          "nsPerCall": 163934
         },
         {
           "targetVertices": 1000,
@@ -131,8 +131,8 @@
           "vertices": 1000,
           "failed": 0,
           "eps": 0.000011206474161940442,
-          "nsPerVertex": 2836.364,
-          "nsPerCall": 2836364
+          "nsPerVertex": 1672.222,
+          "nsPerCall": 1672222
         },
         {
           "targetVertices": 10000,
@@ -140,8 +140,8 @@
           "vertices": 10000,
           "failed": 0,
           "eps": 1.3624220883135368e-7,
-          "nsPerVertex": 1908,
-          "nsPerCall": 19080000
+          "nsPerVertex": 1696,
+          "nsPerCall": 16960000
         },
         {
           "targetVertices": 100000,
@@ -149,8 +149,8 @@
           "vertices": 100000,
           "failed": 0,
           "eps": 1.1242324416137546e-9,
-          "nsPerVertex": 1787.2,
-          "nsPerCall": 178720000
+          "nsPerVertex": 1664.8,
+          "nsPerCall": 166480000
         }
       ]
     },
@@ -159,9 +159,9 @@
       "entities": 1,
       "vertsAtEps1e3": 99,
       "singleEvaluation": {
-        "medianNsPerCall": 184499.99928474426,
-        "minNsPerCall": 183500.00023841858,
-        "maxNsPerCall": 187000.00047683716,
+        "medianNsPerCall": 175000,
+        "minNsPerCall": 173999.99976158142,
+        "maxNsPerCall": 177999.99952316284,
         "vertices": 99
       },
       "amortised": [
@@ -171,8 +171,8 @@
           "vertices": 100,
           "failed": 0,
           "eps": 0.0009474635256553758,
-          "nsPerVertex": 1881.25,
-          "nsPerCall": 188125
+          "nsPerVertex": 1781.065,
+          "nsPerCall": 178107
         },
         {
           "targetVertices": 1000,
@@ -180,8 +180,8 @@
           "vertices": 1000,
           "failed": 0,
           "eps": 0.000011661984528866302,
-          "nsPerVertex": 1937.5,
-          "nsPerCall": 1937500
+          "nsPerVertex": 1805.882,
+          "nsPerCall": 1805882
         },
         {
           "targetVertices": 10000,
@@ -189,8 +189,8 @@
           "vertices": 10000,
           "failed": 0,
           "eps": 1.2418441525834184e-7,
-          "nsPerVertex": 2102,
-          "nsPerCall": 21020000
+          "nsPerVertex": 1818,
+          "nsPerCall": 18180000
         },
         {
           "targetVertices": 100000,
@@ -198,8 +198,8 @@
           "vertices": 100000,
           "failed": 0,
           "eps": 1.0127087933945117e-9,
-          "nsPerVertex": 1941.2,
-          "nsPerCall": 194120000
+          "nsPerVertex": 1816.2,
+          "nsPerCall": 181620000
         }
       ]
     },
@@ -208,9 +208,9 @@
       "entities": 2,
       "vertsAtEps1e3": 66,
       "singleEvaluation": {
-        "medianNsPerCall": 104166.66666666667,
-        "minNsPerCall": 100671.14093959732,
-        "maxNsPerCall": 106382.97872340426,
+        "medianNsPerCall": 97096.7738859115,
+        "minNsPerCall": 96463.02250803859,
+        "maxNsPerCall": 97719.86970684039,
         "vertices": 66
       },
       "amortised": [
@@ -220,8 +220,8 @@
           "vertices": 100,
           "failed": 0,
           "eps": 0.0008423329825962116,
-          "nsPerVertex": 1578.947,
-          "nsPerCall": 157895
+          "nsPerVertex": 1492.537,
+          "nsPerCall": 149254
         },
         {
           "targetVertices": 1000,
@@ -229,8 +229,8 @@
           "vertices": 999,
           "failed": 0,
           "eps": 0.000013162063484211237,
-          "nsPerVertex": 1638.481,
-          "nsPerCall": 1636842
+          "nsPerVertex": 1566.567,
+          "nsPerCall": 1565000
         },
         {
           "targetVertices": 10000,
@@ -238,8 +238,8 @@
           "vertices": 10000,
           "failed": 0,
           "eps": 5.141434837724274e-8,
-          "nsPerVertex": 1700,
-          "nsPerCall": 17000000
+          "nsPerVertex": 1550,
+          "nsPerCall": 15500000
         },
         {
           "targetVertices": 100000,
@@ -247,8 +247,8 @@
           "vertices": 100000,
           "failed": 0,
           "eps": 8.033491789574428e-10,
-          "nsPerVertex": 1732.8,
-          "nsPerCall": 173280000
+          "nsPerVertex": 1569.4,
+          "nsPerCall": 156940000
         }
       ]
     },
@@ -257,9 +257,9 @@
       "entities": 2,
       "vertsAtEps1e3": 66,
       "singleEvaluation": {
-        "medianNsPerCall": 104529.61672473868,
-        "minNsPerCall": 103806.22837370243,
-        "maxNsPerCall": 106737.5883142999,
+        "medianNsPerCall": 98360.65573770492,
+        "minNsPerCall": 98039.2156862745,
+        "maxNsPerCall": 98360.65573770492,
         "vertices": 66
       },
       "amortised": [
@@ -269,8 +269,8 @@
           "vertices": 99,
           "failed": 0,
           "eps": 0.000680591958226389,
-          "nsPerVertex": 1665.002,
-          "nsPerCall": 164835
+          "nsPerVertex": 1522.765,
+          "nsPerCall": 150754
         },
         {
           "targetVertices": 1000,
@@ -278,8 +278,8 @@
           "vertices": 1000,
           "failed": 0,
           "eps": 0.00001063453881566857,
-          "nsPerVertex": 1688.889,
-          "nsPerCall": 1688889
+          "nsPerVertex": 1575,
+          "nsPerCall": 1575000
         },
         {
           "targetVertices": 10000,
@@ -287,8 +287,8 @@
           "vertices": 10000,
           "failed": 0,
           "eps": 4.154118529752364e-8,
-          "nsPerVertex": 1694,
-          "nsPerCall": 16940000
+          "nsPerVertex": 1580,
+          "nsPerCall": 15800000
         },
         {
           "targetVertices": 100000,
@@ -296,8 +296,8 @@
           "vertices": 100000,
           "failed": 0,
           "eps": 6.490810044625308e-10,
-          "nsPerVertex": 1698.8,
-          "nsPerCall": 169880000
+          "nsPerVertex": 1558.6,
+          "nsPerCall": 155860000
         }
       ]
     },
@@ -306,9 +306,9 @@
       "entities": 1,
       "vertsAtEps1e3": 129,
       "singleEvaluation": {
-        "medianNsPerCall": 200000,
-        "minNsPerCall": 195999.99904632568,
-        "maxNsPerCall": 202000.00047683716,
+        "medianNsPerCall": 193500.00023841858,
+        "minNsPerCall": 191999.99928474426,
+        "maxNsPerCall": 193500.00023841858,
         "vertices": 129
       },
       "amortised": [
@@ -318,8 +318,8 @@
           "vertices": 100,
           "failed": 0,
           "eps": 0.003478120207564749,
-          "nsPerVertex": 1512.563,
-          "nsPerCall": 151256
+          "nsPerVertex": 1477.833,
+          "nsPerCall": 147783
         },
         {
           "targetVertices": 1000,
@@ -327,8 +327,8 @@
           "vertices": 1000,
           "failed": 0,
           "eps": 0.00005435637148873086,
-          "nsPerVertex": 1530,
-          "nsPerCall": 1530000
+          "nsPerVertex": 1500,
+          "nsPerCall": 1500000
         },
         {
           "targetVertices": 10000,
@@ -336,8 +336,8 @@
           "vertices": 10000,
           "failed": 0,
           "eps": 2.1233023989946642e-7,
-          "nsPerVertex": 1554,
-          "nsPerCall": 15540000
+          "nsPerVertex": 1506,
+          "nsPerCall": 15060000
         },
         {
           "targetVertices": 100000,
@@ -345,8 +345,8 @@
           "vertices": 100000,
           "failed": 0,
           "eps": 3.3176600187640466e-9,
-          "nsPerVertex": 1740.2,
-          "nsPerCall": 174020000
+          "nsPerVertex": 1530.4,
+          "nsPerCall": 153040000
         }
       ]
     },
@@ -355,9 +355,9 @@
       "entities": 1,
       "vertsAtEps1e3": 142,
       "singleEvaluation": {
-        "medianNsPerCall": 265000,
-        "minNsPerCall": 255000,
-        "maxNsPerCall": 308500.0002384186,
+        "medianNsPerCall": 235000,
+        "minNsPerCall": 234499.99928474426,
+        "maxNsPerCall": 237000.00047683716,
         "vertices": 142
       },
       "amortised": [
@@ -367,8 +367,8 @@
           "vertices": 100,
           "failed": 0,
           "eps": 0.002114439739604002,
-          "nsPerVertex": 1766.082,
-          "nsPerCall": 176608
+          "nsPerVertex": 1639.344,
+          "nsPerCall": 163934
         },
         {
           "targetVertices": 1000,
@@ -376,8 +376,8 @@
           "vertices": 1000,
           "failed": 0,
           "eps": 0.00002237258601765718,
-          "nsPerVertex": 1722.222,
-          "nsPerCall": 1722222
+          "nsPerVertex": 1694.444,
+          "nsPerCall": 1694444
         },
         {
           "targetVertices": 10000,
@@ -385,8 +385,8 @@
           "vertices": 10000,
           "failed": 0,
           "eps": 2.1946864884644414e-7,
-          "nsPerVertex": 1756,
-          "nsPerCall": 17560000
+          "nsPerVertex": 1692,
+          "nsPerCall": 16920000
         },
         {
           "targetVertices": 100000,
@@ -394,8 +394,8 @@
           "vertices": 100000,
           "failed": 0,
           "eps": 2.039391639937231e-9,
-          "nsPerVertex": 1759.2,
-          "nsPerCall": 175920000
+          "nsPerVertex": 1684.2,
+          "nsPerCall": 168420000
         }
       ]
     },
@@ -404,9 +404,9 @@
       "entities": 1,
       "vertsAtEps1e3": 177,
       "singleEvaluation": {
-        "medianNsPerCall": 298500.0002384186,
-        "minNsPerCall": 297000.00047683716,
-        "maxNsPerCall": 303000.00071525574,
+        "medianNsPerCall": 289499.99928474426,
+        "minNsPerCall": 287500,
+        "maxNsPerCall": 291499.9997615814,
         "vertices": 177
       },
       "amortised": [
@@ -416,8 +416,8 @@
           "vertices": 100,
           "failed": 0,
           "eps": 0.0022166806233466867,
-          "nsPerVertex": 1675.978,
-          "nsPerCall": 167598
+          "nsPerVertex": 1592.593,
+          "nsPerCall": 159259
         },
         {
           "targetVertices": 1000,
@@ -425,8 +425,8 @@
           "vertices": 1000,
           "failed": 0,
           "eps": 0.00002528764145710553,
-          "nsPerVertex": 1823.529,
-          "nsPerCall": 1823529
+          "nsPerVertex": 1688.889,
+          "nsPerCall": 1688889
         },
         {
           "targetVertices": 10000,
@@ -434,8 +434,8 @@
           "vertices": 10000,
           "failed": 0,
           "eps": 3.4677032343585185e-7,
-          "nsPerVertex": 1760,
-          "nsPerCall": 17600000
+          "nsPerVertex": 1694,
+          "nsPerCall": 16940000
         },
         {
           "targetVertices": 100000,
@@ -443,8 +443,8 @@
           "vertices": 100000,
           "failed": 0,
           "eps": 2.2523993699492315e-9,
-          "nsPerVertex": 1963.6,
-          "nsPerCall": 196360000
+          "nsPerVertex": 1670.4,
+          "nsPerCall": 167040000
         }
       ]
     },
@@ -453,9 +453,9 @@
       "entities": 1,
       "vertsAtEps1e3": 129,
       "singleEvaluation": {
-        "medianNsPerCall": 345000,
-        "minNsPerCall": 343500.0002384186,
-        "maxNsPerCall": 347500,
+        "medianNsPerCall": 197999.99952316284,
+        "minNsPerCall": 197999.99952316284,
+        "maxNsPerCall": 198500.00023841858,
         "vertices": 129
       },
       "amortised": [
@@ -465,8 +465,8 @@
           "vertices": 100,
           "failed": 0,
           "eps": 0.003752082346111406,
-          "nsPerVertex": 2663.717,
-          "nsPerCall": 266372
+          "nsPerVertex": 1505,
+          "nsPerCall": 150500
         },
         {
           "targetVertices": 1000,
@@ -474,8 +474,8 @@
           "vertices": 1000,
           "failed": 0,
           "eps": 0.000058119209581594704,
-          "nsPerVertex": 2583.333,
-          "nsPerCall": 2583333
+          "nsPerVertex": 1525,
+          "nsPerCall": 1525000
         },
         {
           "targetVertices": 10000,
@@ -483,8 +483,8 @@
           "vertices": 10000,
           "failed": 0,
           "eps": 2.3108479399253926e-7,
-          "nsPerVertex": 1732,
-          "nsPerCall": 17320000
+          "nsPerVertex": 1520,
+          "nsPerCall": 15200000
         },
         {
           "targetVertices": 100000,
@@ -492,8 +492,8 @@
           "vertices": 100000,
           "failed": 0,
           "eps": 3.5795928949248736e-9,
-          "nsPerVertex": 2522.8,
-          "nsPerCall": 252280000
+          "nsPerVertex": 1530.6,
+          "nsPerCall": 153060000
         }
       ]
     },
@@ -502,9 +502,9 @@
       "entities": 1,
       "vertsAtEps1e3": 65,
       "singleEvaluation": {
-        "medianNsPerCall": 106761.56583629893,
-        "minNsPerCall": 105263.15789473684,
-        "maxNsPerCall": 107526.8817204301,
+        "medianNsPerCall": 98684.21052631579,
+        "minNsPerCall": 98360.65573770492,
+        "maxNsPerCall": 99009.900990099,
         "vertices": 65
       },
       "amortised": [
@@ -514,8 +514,8 @@
           "vertices": 100,
           "failed": 0,
           "eps": 0.00045803049527784885,
-          "nsPerVertex": 1618.28,
-          "nsPerCall": 161828
+          "nsPerVertex": 1530.612,
+          "nsPerCall": 153061
         },
         {
           "targetVertices": 1000,
@@ -523,8 +523,8 @@
           "vertices": 1000,
           "failed": 0,
           "eps": 0.0000071248748892332306,
-          "nsPerVertex": 2157.143,
-          "nsPerCall": 2157143
+          "nsPerVertex": 1570,
+          "nsPerCall": 1570000
         },
         {
           "targetVertices": 10000,
@@ -532,8 +532,8 @@
           "vertices": 10000,
           "failed": 0,
           "eps": 2.81504145868843e-8,
-          "nsPerVertex": 2722,
-          "nsPerCall": 27220000
+          "nsPerVertex": 1562,
+          "nsPerCall": 15620000
         },
         {
           "targetVertices": 100000,
@@ -541,8 +541,8 @@
           "vertices": 100000,
           "failed": 0,
           "eps": 4.3699559706420054e-10,
-          "nsPerVertex": 1678,
-          "nsPerCall": 167800000
+          "nsPerVertex": 1598.2,
+          "nsPerCall": 159820000
         }
       ]
     },
@@ -551,9 +551,9 @@
       "entities": 1,
       "vertsAtEps1e3": 4,
       "singleEvaluation": {
-        "medianNsPerCall": 4357.931435212086,
-        "minNsPerCall": 2348.888192922017,
-        "maxNsPerCall": 4873.294346978558,
+        "medianNsPerCall": 2515.9342502515933,
+        "minNsPerCall": 2401.5369836695486,
+        "maxNsPerCall": 2825.923134890731,
         "vertices": 4
       },
       "amortised": [
@@ -584,8 +584,8 @@
           "vertices": 126708,
           "failed": 0,
           "eps": 8.726838392745023e-10,
-          "nsPerVertex": 739.338,
-          "nsPerCall": 93680000
+          "nsPerVertex": 672.57,
+          "nsPerCall": 85220000
         }
       ]
     },
@@ -594,9 +594,9 @@
       "entities": 3,
       "vertsAtEps1e3": 6,
       "singleEvaluation": {
-        "medianNsPerCall": 2290.7758094074525,
-        "minNsPerCall": 2271.178741766977,
-        "maxNsPerCall": 2297.266253158741,
+        "medianNsPerCall": 2178.1746896101067,
+        "minNsPerCall": 2163.565556036348,
+        "maxNsPerCall": 2196.9974368363237,
         "vertices": 6
       },
       "amortised": [
@@ -635,9 +635,9 @@
       "entities": 1,
       "vertsAtEps1e3": 2,
       "singleEvaluation": {
-        "medianNsPerCall": 1502.7048687637748,
-        "minNsPerCall": 1487.5049583498612,
-        "maxNsPerCall": 1513.622603430878,
+        "medianNsPerCall": 1460.9915262491477,
+        "minNsPerCall": 1430.8198597796538,
+        "maxNsPerCall": 1614.0313122074567,
         "vertices": 2
       },
       "amortised": [
@@ -676,9 +676,9 @@
       "entities": 1,
       "vertsAtEps1e3": 5,
       "singleEvaluation": {
-        "medianNsPerCall": 2198.768689533861,
-        "minNsPerCall": 2178.0165529258024,
-        "maxNsPerCall": 4596.9966288691385,
+        "medianNsPerCall": 2080.5881129065815,
+        "minNsPerCall": 2069.9648105982196,
+        "maxNsPerCall": 2094.3870427254956,
         "vertices": 5
       },
       "amortised": [
@@ -717,9 +717,9 @@
       "entities": 1,
       "vertsAtEps1e3": 2,
       "singleEvaluation": {
-        "medianNsPerCall": 1513.851743452591,
-        "minNsPerCall": 1510.0417778225199,
-        "maxNsPerCall": 1737.7201112140872,
+        "medianNsPerCall": 1420.992800303145,
+        "minNsPerCall": 1395.6084852995907,
+        "maxNsPerCall": 1454.474934548628,
         "vertices": 2
       },
       "amortised": [
@@ -758,9 +758,9 @@
       "entities": 1,
       "vertsAtEps1e3": 177,
       "singleEvaluation": {
-        "medianNsPerCall": 446500.0009536743,
-        "minNsPerCall": 300500.00071525574,
-        "maxNsPerCall": 447999.99952316284,
+        "medianNsPerCall": 271000.0002384186,
+        "minNsPerCall": 269500.00047683716,
+        "maxNsPerCall": 272500,
         "vertices": 177
       },
       "amortised": [
@@ -770,8 +770,8 @@
           "vertices": 100,
           "failed": 0,
           "eps": 0.0032680255352715653,
-          "nsPerVertex": 2529.412,
-          "nsPerCall": 252941
+          "nsPerVertex": 1520.202,
+          "nsPerCall": 152020
         },
         {
           "targetVertices": 1000,
@@ -779,8 +779,8 @@
           "vertices": 1000,
           "failed": 0,
           "eps": 0.0000396439363345989,
-          "nsPerVertex": 1700,
-          "nsPerCall": 1700000
+          "nsPerVertex": 1535,
+          "nsPerCall": 1535000
         },
         {
           "targetVertices": 10000,
@@ -788,8 +788,8 @@
           "vertices": 10000,
           "failed": 0,
           "eps": 3.3419187655390696e-7,
-          "nsPerVertex": 1646,
-          "nsPerCall": 16460000
+          "nsPerVertex": 1530,
+          "nsPerCall": 15300000
         },
         {
           "targetVertices": 100000,
@@ -797,8 +797,8 @@
           "vertices": 100000,
           "failed": 0,
           "eps": 3.1369853520342995e-9,
-          "nsPerVertex": 1577.2,
-          "nsPerCall": 157720000
+          "nsPerVertex": 1793,
+          "nsPerCall": 179300000
         }
       ]
     },
@@ -807,9 +807,9 @@
       "entities": 1,
       "vertsAtEps1e3": 177,
       "singleEvaluation": {
-        "medianNsPerCall": 296000.0002384186,
-        "minNsPerCall": 293000.00071525574,
-        "maxNsPerCall": 313999.9997615814,
+        "medianNsPerCall": 271999.99928474426,
+        "minNsPerCall": 271499.9997615814,
+        "maxNsPerCall": 273999.9997615814,
         "vertices": 177
       },
       "amortised": [
@@ -819,8 +819,8 @@
           "vertices": 100,
           "failed": 0,
           "eps": 0.0032680255352715653,
-          "nsPerVertex": 1734.104,
-          "nsPerCall": 173410
+          "nsPerVertex": 1520.202,
+          "nsPerCall": 152020
         },
         {
           "targetVertices": 1000,
@@ -828,8 +828,8 @@
           "vertices": 1000,
           "failed": 0,
           "eps": 0.000039643936334203904,
-          "nsPerVertex": 1683.333,
-          "nsPerCall": 1683333
+          "nsPerVertex": 1535,
+          "nsPerCall": 1535000
         },
         {
           "targetVertices": 10000,
@@ -837,8 +837,8 @@
           "vertices": 10000,
           "failed": 0,
           "eps": 3.341918764363304e-7,
-          "nsPerVertex": 1570,
-          "nsPerCall": 15700000
+          "nsPerVertex": 1528,
+          "nsPerCall": 15280000
         },
         {
           "targetVertices": 100000,
@@ -846,8 +846,8 @@
           "vertices": 100000,
           "failed": 0,
           "eps": 3.136985387351614e-9,
-          "nsPerVertex": 1576.6,
-          "nsPerCall": 157660000
+          "nsPerVertex": 1522.8,
+          "nsPerCall": 152280000
         }
       ]
     },
@@ -856,9 +856,9 @@
       "entities": 1,
       "vertsAtEps1e3": 35,
       "singleEvaluation": {
-        "medianNsPerCall": 55350.553505535056,
-        "minNsPerCall": 55147.05882352941,
-        "maxNsPerCall": 55535.055614485515,
+        "medianNsPerCall": 53380.78291814947,
+        "minNsPerCall": 53097.345132743365,
+        "maxNsPerCall": 53571.42857142857,
         "vertices": 35
       },
       "amortised": [
@@ -868,8 +868,8 @@
           "vertices": 100,
           "failed": 0,
           "eps": 0.00010954985735614054,
-          "nsPerVertex": 1681.564,
-          "nsPerCall": 168156
+          "nsPerVertex": 1614.973,
+          "nsPerCall": 161497
         },
         {
           "targetVertices": 1000,
@@ -877,8 +877,8 @@
           "vertices": 1000,
           "failed": 0,
           "eps": 0.0000010711398859640825,
-          "nsPerVertex": 1688.889,
-          "nsPerCall": 1688889
+          "nsPerVertex": 1663.158,
+          "nsPerCall": 1663158
         },
         {
           "targetVertices": 10000,
@@ -886,8 +886,8 @@
           "vertices": 10000,
           "failed": 0,
           "eps": 1.0866815534494037e-8,
-          "nsPerVertex": 1698,
-          "nsPerCall": 16980000
+          "nsPerVertex": 2166,
+          "nsPerCall": 21660000
         },
         {
           "targetVertices": 100000,
@@ -895,8 +895,8 @@
           "vertices": 100000,
           "failed": 0,
           "eps": 1.0964660610278462e-10,
-          "nsPerVertex": 1709,
-          "nsPerCall": 170900000
+          "nsPerVertex": 1668.8,
+          "nsPerCall": 166880000
         }
       ]
     },
@@ -905,9 +905,9 @@
       "entities": 1,
       "vertsAtEps1e3": 65,
       "singleEvaluation": {
-        "medianNsPerCall": 105633.80281690141,
-        "minNsPerCall": 104895.1048951049,
-        "maxNsPerCall": 106761.56583629893,
+        "medianNsPerCall": 103092.78350515464,
+        "minNsPerCall": 102040.8163265306,
+        "maxNsPerCall": 104529.61672473868,
         "vertices": 65
       },
       "amortised": [
@@ -917,8 +917,8 @@
           "vertices": 100,
           "failed": 0,
           "eps": 0.0004128128179862305,
-          "nsPerVertex": 1653.846,
-          "nsPerCall": 165385
+          "nsPerVertex": 1587.302,
+          "nsPerCall": 158730
         },
         {
           "targetVertices": 1000,
@@ -926,8 +926,8 @@
           "vertices": 1000,
           "failed": 0,
           "eps": 0.000005036373381642158,
-          "nsPerVertex": 1694.444,
-          "nsPerCall": 1694444
+          "nsPerVertex": 1636.842,
+          "nsPerCall": 1636842
         },
         {
           "targetVertices": 10000,
@@ -935,8 +935,8 @@
           "vertices": 10000,
           "failed": 0,
           "eps": 5.3414008642010515e-8,
-          "nsPerVertex": 1708,
-          "nsPerCall": 17080000
+          "nsPerVertex": 1640,
+          "nsPerCall": 16400000
         },
         {
           "targetVertices": 100000,
@@ -944,8 +944,8 @@
           "vertices": 100000,
           "failed": 0,
           "eps": 3.94811478429744e-10,
-          "nsPerVertex": 1725,
-          "nsPerCall": 172500000
+          "nsPerVertex": 1668.6,
+          "nsPerCall": 166860000
         }
       ]
     },
@@ -954,9 +954,9 @@
       "entities": 1,
       "vertsAtEps1e3": 93,
       "singleEvaluation": {
-        "medianNsPerCall": 169000.00095367432,
-        "minNsPerCall": 168500.00023841858,
-        "maxNsPerCall": 173500.00023841858,
+        "medianNsPerCall": 155500.00071525574,
+        "minNsPerCall": 155000,
+        "maxNsPerCall": 156499.99976158142,
         "vertices": 93
       },
       "amortised": [
@@ -966,8 +966,8 @@
           "vertices": 100,
           "failed": 0,
           "eps": 0.0008078833037597063,
-          "nsPerVertex": 1829.268,
-          "nsPerCall": 182927
+          "nsPerVertex": 1675.978,
+          "nsPerCall": 167598
         },
         {
           "targetVertices": 1000,
@@ -975,8 +975,8 @@
           "vertices": 1000,
           "failed": 0,
           "eps": 0.000009002850438344173,
-          "nsPerVertex": 1881.25,
-          "nsPerCall": 1881250
+          "nsPerVertex": 1733.333,
+          "nsPerCall": 1733333
         },
         {
           "targetVertices": 10000,
@@ -984,8 +984,8 @@
           "vertices": 10000,
           "failed": 0,
           "eps": 1.0962096658844882e-7,
-          "nsPerVertex": 1912,
-          "nsPerCall": 19120000
+          "nsPerVertex": 1736,
+          "nsPerCall": 17360000
         },
         {
           "targetVertices": 100000,
@@ -993,8 +993,8 @@
           "vertices": 100000,
           "failed": 0,
           "eps": 7.946057978835607e-10,
-          "nsPerVertex": 1846.8,
-          "nsPerCall": 184680000
+          "nsPerVertex": 1737.8,
+          "nsPerCall": 173780000
         }
       ]
     },
@@ -1003,9 +1003,9 @@
       "entities": 1,
       "vertsAtEps1e3": 5,
       "singleEvaluation": {
-        "medianNsPerCall": 2195.0684129655374,
-        "minNsPerCall": 2189.940871596467,
-        "maxNsPerCall": 2243.1583669807087,
+        "medianNsPerCall": 2068.8228398041515,
+        "minNsPerCall": 2067.397146991937,
+        "maxNsPerCall": 2092.3420281768726,
         "vertices": 5
       },
       "amortised": [
@@ -1044,9 +1044,9 @@
       "entities": 1,
       "vertsAtEps1e3": 5,
       "singleEvaluation": {
-        "medianNsPerCall": 2227.0061613837133,
-        "minNsPerCall": 2218.6067149829905,
-        "maxNsPerCall": 2235.30288354072,
+        "medianNsPerCall": 2057.189878625797,
+        "minNsPerCall": 2046.5243195306637,
+        "maxNsPerCall": 2089.7185845639456,
         "vertices": 5
       },
       "amortised": [
@@ -1085,9 +1085,9 @@
       "entities": 1,
       "vertsAtEps1e3": 33,
       "singleEvaluation": {
-        "medianNsPerCall": 53285.968028419185,
-        "minNsPerCall": 53003.5335689046,
-        "maxNsPerCall": 53380.78291814947,
+        "medianNsPerCall": 49423.39373970346,
+        "minNsPerCall": 49099.836333878884,
+        "maxNsPerCall": 49586.776859504134,
         "vertices": 33
       },
       "amortised": [
@@ -1097,8 +1097,8 @@
           "vertices": 100,
           "failed": 0,
           "eps": 0.00021196271378501333,
-          "nsPerVertex": 1714.286,
-          "nsPerCall": 171429
+          "nsPerVertex": 1530.612,
+          "nsPerCall": 153061
         },
         {
           "targetVertices": 1000,
@@ -1106,8 +1106,8 @@
           "vertices": 1000,
           "failed": 0,
           "eps": 0.0000033119905305064914,
-          "nsPerVertex": 1700,
-          "nsPerCall": 1700000
+          "nsPerVertex": 1560,
+          "nsPerCall": 1560000
         },
         {
           "targetVertices": 10000,
@@ -1115,8 +1115,8 @@
           "vertices": 10000,
           "failed": 0,
           "eps": 1.2937467678091866e-8,
-          "nsPerVertex": 1750,
-          "nsPerCall": 17500000
+          "nsPerVertex": 1578,
+          "nsPerCall": 15780000
         },
         {
           "targetVertices": 100000,
@@ -1124,8 +1124,8 @@
           "vertices": 100000,
           "failed": 0,
           "eps": 2.0214791822141295e-10,
-          "nsPerVertex": 2025.4,
-          "nsPerCall": 202540000
+          "nsPerVertex": 1577.4,
+          "nsPerCall": 157740000
         }
       ]
     },
@@ -1134,9 +1134,9 @@
       "entities": 1,
       "vertsAtEps1e3": 111,
       "singleEvaluation": {
-        "medianNsPerCall": 194499.99928474426,
-        "minNsPerCall": 193500.00023841858,
-        "maxNsPerCall": 197000.00047683716,
+        "medianNsPerCall": 182999.99952316284,
+        "minNsPerCall": 182500,
+        "maxNsPerCall": 183500.00023841858,
         "vertices": 111
       },
       "amortised": [
@@ -1146,8 +1146,8 @@
           "vertices": 99,
           "failed": 0,
           "eps": 0.0016697684466455626,
-          "nsPerVertex": 1761.804,
-          "nsPerCall": 174419
+          "nsPerVertex": 1643.462,
+          "nsPerCall": 162703
         },
         {
           "targetVertices": 1000,
@@ -1155,8 +1155,8 @@
           "vertices": 1000,
           "failed": 0,
           "eps": 0.00000826738726643307,
-          "nsPerVertex": 1841.176,
-          "nsPerCall": 1841176
+          "nsPerVertex": 1688.889,
+          "nsPerCall": 1688889
         },
         {
           "targetVertices": 10000,
@@ -1164,8 +1164,8 @@
           "vertices": 10000,
           "failed": 0,
           "eps": 1.2006503397868958e-7,
-          "nsPerVertex": 1792,
-          "nsPerCall": 17920000
+          "nsPerVertex": 1704,
+          "nsPerCall": 17040000
         },
         {
           "targetVertices": 100000,
@@ -1173,8 +1173,8 @@
           "vertices": 100001,
           "failed": 0,
           "eps": 1.537979984728295e-9,
-          "nsPerVertex": 1752.182,
-          "nsPerCall": 175220000
+          "nsPerVertex": 2140.579,
+          "nsPerCall": 214060000
         }
       ]
     },
@@ -1183,9 +1183,9 @@
       "entities": 1,
       "vertsAtEps1e3": 2,
       "singleEvaluation": {
-        "medianNsPerCall": 1660.3021749958493,
-        "minNsPerCall": 1643.925694558606,
-        "maxNsPerCall": 2396.3575365444526,
+        "medianNsPerCall": 3106.5548306927617,
+        "minNsPerCall": 3081.980686254366,
+        "maxNsPerCall": 3124.349093938763,
         "vertices": 2
       },
       "amortised": [
@@ -1224,9 +1224,9 @@
       "entities": 1,
       "vertsAtEps1e3": 2,
       "singleEvaluation": {
-        "medianNsPerCall": 1860.4651162790697,
-        "minNsPerCall": 1841.3945494721336,
-        "maxNsPerCall": 1887.267237040765,
+        "medianNsPerCall": 3464.6033029218156,
+        "minNsPerCall": 3434.065934065934,
+        "maxNsPerCall": 3509.592887225082,
         "vertices": 2
       },
       "amortised": [
@@ -1236,8 +1236,8 @@
           "vertices": 100,
           "failed": 0,
           "eps": 1.2647709840184201e-8,
-          "nsPerVertex": 1527.919,
-          "nsPerCall": 152792
+          "nsPerVertex": 2272.727,
+          "nsPerCall": 227273
         },
         {
           "targetVertices": 1000,
@@ -1245,8 +1245,8 @@
           "vertices": 1000,
           "failed": 0,
           "eps": 1.9765947043389178e-10,
-          "nsPerVertex": 1589.474,
-          "nsPerCall": 1589474
+          "nsPerVertex": 1540,
+          "nsPerCall": 1540000
         },
         {
           "targetVertices": 10000,
@@ -1254,8 +1254,8 @@
           "vertices": 10001,
           "failed": 0,
           "eps": 7.721355835566244e-13,
-          "nsPerVertex": 1649.835,
-          "nsPerCall": 16500000
+          "nsPerVertex": 1525.847,
+          "nsPerCall": 15260000
         },
         {
           "targetVertices": 100000,
@@ -1263,8 +1263,8 @@
           "vertices": 100001,
           "failed": 0,
           "eps": 1.206200166565108e-14,
-          "nsPerVertex": 1608.384,
-          "nsPerCall": 160840000
+          "nsPerVertex": 1734.783,
+          "nsPerCall": 173480000
         }
       ]
     },
@@ -1273,9 +1273,9 @@
       "entities": 1,
       "vertsAtEps1e3": 257,
       "singleEvaluation": {
-        "medianNsPerCall": 413999.9997615814,
-        "minNsPerCall": 406499.9997615814,
-        "maxNsPerCall": 415500.00071525574,
+        "medianNsPerCall": 392500,
+        "minNsPerCall": 392000.00047683716,
+        "maxNsPerCall": 393499.9990463257,
         "vertices": 257
       },
       "amortised": [
@@ -1285,8 +1285,8 @@
           "vertices": 101,
           "failed": 0,
           "eps": 0.004742891192133649,
-          "nsPerVertex": 1563.314,
-          "nsPerCall": 157895
+          "nsPerVertex": 1500.15,
+          "nsPerCall": 151515
         },
         {
           "targetVertices": 1000,
@@ -1294,8 +1294,8 @@
           "vertices": 1000,
           "failed": 0,
           "eps": 0.00007412232475735304,
-          "nsPerVertex": 1610.526,
-          "nsPerCall": 1610526
+          "nsPerVertex": 1530,
+          "nsPerCall": 1530000
         },
         {
           "targetVertices": 10000,
@@ -1303,8 +1303,8 @@
           "vertices": 10000,
           "failed": 0,
           "eps": 2.895412362302586e-7,
-          "nsPerVertex": 1530,
-          "nsPerCall": 15300000
+          "nsPerVertex": 1568,
+          "nsPerCall": 15680000
         },
         {
           "targetVertices": 100000,
@@ -1312,8 +1312,8 @@
           "vertices": 100000,
           "failed": 0,
           "eps": 4.524081843978672e-9,
-          "nsPerVertex": 1679.2,
-          "nsPerCall": 167920000
+          "nsPerVertex": 1539.6,
+          "nsPerCall": 153960000
         }
       ]
     }
@@ -1322,8 +1322,8 @@
     {
       "id": "architectural-1e5",
       "fileBytes": 1810416,
-      "openMs": 49.4,
-      "queryAllMs": 1,
+      "openMs": 46.9,
+      "queryAllMs": 0.7,
       "entities": 100000,
       "extent": [
         -6548.238,
@@ -1334,30 +1334,30 @@
       "viewports": [
         {
           "fraction": 1,
-          "queryMs": 0.9,
+          "queryMs": 0.7,
           "entities": 100000,
           "f64": {
-            "tessellateMs": 166.5,
+            "tessellateMs": 150,
             "vertices": 288587,
             "failed": 0,
-            "nsPerEntity": 1665,
-            "nsPerVertex": 577,
+            "nsPerEntity": 1500,
+            "nsPerVertex": 520,
             "wasmPagesGrown": 0
           },
           "f32": {
-            "tessellateMs": 162.6,
+            "tessellateMs": 150.8,
             "vertices": 288587,
             "failed": 0,
-            "nsPerEntity": 1626,
-            "nsPerVertex": 563,
+            "nsPerEntity": 1508,
+            "nsPerVertex": 523,
             "wasmPagesGrown": 0
           },
           "heap": {
             "calls": 50,
             "entitiesPerCall": 100000,
-            "growthBytes": -1765456,
+            "growthBytes": -1767856,
             "afterGcBytes": -1812632,
-            "bytesPerEntity": -0.35309
+            "bytesPerEntity": -0.35357
           }
         },
         {
@@ -1365,19 +1365,19 @@
           "queryMs": 0.6,
           "entities": 11553,
           "f64": {
-            "tessellateMs": 34.4,
+            "tessellateMs": 37.1,
             "vertices": 40605,
             "failed": 0,
-            "nsPerEntity": 2978,
-            "nsPerVertex": 847,
+            "nsPerEntity": 3211,
+            "nsPerVertex": 914,
             "wasmPagesGrown": 0
           },
           "f32": {
-            "tessellateMs": 34.8,
+            "tessellateMs": 30.3,
             "vertices": 40605,
             "failed": 0,
-            "nsPerEntity": 3012,
-            "nsPerVertex": 857,
+            "nsPerEntity": 2623,
+            "nsPerVertex": 746,
             "wasmPagesGrown": 0
           }
         },
@@ -1386,19 +1386,19 @@
           "queryMs": 0.7,
           "entities": 607,
           "f64": {
-            "tessellateMs": 2.6,
+            "tessellateMs": 2.4,
             "vertices": 2645,
             "failed": 0,
-            "nsPerEntity": 4283,
-            "nsPerVertex": 983,
+            "nsPerEntity": 3954,
+            "nsPerVertex": 907,
             "wasmPagesGrown": 0
           },
           "f32": {
-            "tessellateMs": 2.6,
+            "tessellateMs": 2.4,
             "vertices": 2645,
             "failed": 0,
-            "nsPerEntity": 4283,
-            "nsPerVertex": 983,
+            "nsPerEntity": 3954,
+            "nsPerVertex": 907,
             "wasmPagesGrown": 0
           }
         }
@@ -1407,8 +1407,8 @@
     {
       "id": "architectural-1e6",
       "fileBytes": 17824896,
-      "openMs": 655.6,
-      "queryAllMs": 16.4,
+      "openMs": 679.7,
+      "queryAllMs": 7.8,
       "entities": 1000000,
       "extent": [
         -5942.31,
@@ -1419,71 +1419,71 @@
       "viewports": [
         {
           "fraction": 1,
-          "queryMs": 10.3,
+          "queryMs": 8.2,
           "entities": 1000000,
           "f64": {
-            "tessellateMs": 1057.6,
+            "tessellateMs": 975.6,
             "vertices": 2608762,
             "failed": 0,
-            "nsPerEntity": 1058,
-            "nsPerVertex": 405,
+            "nsPerEntity": 976,
+            "nsPerVertex": 374,
             "wasmPagesGrown": 1025
           },
           "f32": {
-            "tessellateMs": 1054.4,
+            "tessellateMs": 969.5,
             "vertices": 2608762,
             "failed": 0,
-            "nsPerEntity": 1054,
-            "nsPerVertex": 404,
+            "nsPerEntity": 970,
+            "nsPerVertex": 372,
             "wasmPagesGrown": 0
           },
           "heap": {
             "calls": 50,
             "entitiesPerCall": 1000000,
-            "growthBytes": 44896,
-            "afterGcBytes": 5840,
-            "bytesPerEntity": 0.0009
+            "growthBytes": 41096,
+            "afterGcBytes": 5736,
+            "bytesPerEntity": 0.00082
           }
         },
         {
           "fraction": 0.25,
-          "queryMs": 6.5,
+          "queryMs": 10.1,
           "entities": 102465,
           "f64": {
-            "tessellateMs": 166.9,
+            "tessellateMs": 215.1,
             "vertices": 302419,
             "failed": 0,
-            "nsPerEntity": 1629,
-            "nsPerVertex": 552,
+            "nsPerEntity": 2099,
+            "nsPerVertex": 711,
             "wasmPagesGrown": 0
           },
           "f32": {
-            "tessellateMs": 167.6,
+            "tessellateMs": 230.6,
             "vertices": 302419,
             "failed": 0,
-            "nsPerEntity": 1636,
-            "nsPerVertex": 554,
+            "nsPerEntity": 2251,
+            "nsPerVertex": 763,
             "wasmPagesGrown": 0
           }
         },
         {
           "fraction": 0.05,
-          "queryMs": 6.5,
+          "queryMs": 11.8,
           "entities": 4588,
           "f64": {
-            "tessellateMs": 15,
+            "tessellateMs": 17.5,
             "vertices": 17494,
             "failed": 0,
-            "nsPerEntity": 3269,
-            "nsPerVertex": 857,
+            "nsPerEntity": 3814,
+            "nsPerVertex": 1000,
             "wasmPagesGrown": 0
           },
           "f32": {
-            "tessellateMs": 15.3,
+            "tessellateMs": 19.3,
             "vertices": 17494,
             "failed": 0,
-            "nsPerEntity": 3335,
-            "nsPerVertex": 875,
+            "nsPerEntity": 4207,
+            "nsPerVertex": 1103,
             "wasmPagesGrown": 0
           }
         }
@@ -1492,8 +1492,8 @@
     {
       "id": "mep-1e5",
       "fileBytes": 2370104,
-      "openMs": 47.5,
-      "queryAllMs": 0.7,
+      "openMs": 46.4,
+      "queryAllMs": 0.5,
       "entities": 100000,
       "extent": [
         -12906.153,
@@ -1507,60 +1507,60 @@
           "queryMs": 0.8,
           "entities": 100000,
           "f64": {
-            "tessellateMs": 277.9,
+            "tessellateMs": 287.7,
             "vertices": 397384,
             "failed": 0,
-            "nsPerEntity": 2779,
-            "nsPerVertex": 699,
+            "nsPerEntity": 2877,
+            "nsPerVertex": 724,
             "wasmPagesGrown": 0
           },
           "f32": {
-            "tessellateMs": 276.3,
+            "tessellateMs": 337.2,
             "vertices": 397384,
             "failed": 0,
-            "nsPerEntity": 2763,
-            "nsPerVertex": 695,
+            "nsPerEntity": 3372,
+            "nsPerVertex": 849,
             "wasmPagesGrown": 0
           },
           "heap": {
             "calls": 50,
             "entitiesPerCall": 100000,
-            "growthBytes": 44776,
+            "growthBytes": 42376,
             "afterGcBytes": 5572,
-            "bytesPerEntity": 0.00896
+            "bytesPerEntity": 0.00848
           }
         },
         {
           "fraction": 0.25,
-          "queryMs": 0.7,
+          "queryMs": 0.8,
           "entities": 11212,
           "f64": {
-            "tessellateMs": 59.5,
+            "tessellateMs": 58.4,
             "vertices": 60714,
             "failed": 0,
-            "nsPerEntity": 5307,
-            "nsPerVertex": 980,
+            "nsPerEntity": 5209,
+            "nsPerVertex": 962,
             "wasmPagesGrown": 0
           },
           "f32": {
-            "tessellateMs": 59.5,
+            "tessellateMs": 58.3,
             "vertices": 60714,
             "failed": 0,
-            "nsPerEntity": 5307,
-            "nsPerVertex": 980,
+            "nsPerEntity": 5200,
+            "nsPerVertex": 960,
             "wasmPagesGrown": 0
           }
         },
         {
           "fraction": 0.05,
-          "queryMs": 0.7,
+          "queryMs": 0.8,
           "entities": 582,
           "f64": {
-            "tessellateMs": 5.8,
+            "tessellateMs": 5.5,
             "vertices": 4861,
             "failed": 0,
-            "nsPerEntity": 9966,
-            "nsPerVertex": 1193,
+            "nsPerEntity": 9450,
+            "nsPerVertex": 1131,
             "wasmPagesGrown": 0
           },
           "f32": {
@@ -1577,7 +1577,7 @@
     {
       "id": "pathological-1e3",
       "fileBytes": 757488,
-      "openMs": 5,
+      "openMs": 4.9,
       "queryAllMs": 0,
       "entities": 917,
       "extent": [
@@ -1592,27 +1592,27 @@
           "queryMs": 0,
           "entities": 917,
           "f64": {
-            "tessellateMs": 52.8,
+            "tessellateMs": 51.7,
             "vertices": 42561,
             "failed": 0,
-            "nsPerEntity": 57579,
-            "nsPerVertex": 1241,
+            "nsPerEntity": 56379,
+            "nsPerVertex": 1215,
             "wasmPagesGrown": 0
           },
           "f32": {
-            "tessellateMs": 52.8,
+            "tessellateMs": 51.8,
             "vertices": 42561,
             "failed": 0,
-            "nsPerEntity": 57579,
-            "nsPerVertex": 1241,
+            "nsPerEntity": 56489,
+            "nsPerVertex": 1217,
             "wasmPagesGrown": 0
           },
           "heap": {
             "calls": 50,
             "entitiesPerCall": 917,
-            "growthBytes": -2325328,
+            "growthBytes": -2327728,
             "afterGcBytes": -2364384,
-            "bytesPerEntity": -50.71599
+            "bytesPerEntity": -50.76833
           }
         },
         {
@@ -1620,11 +1620,11 @@
           "queryMs": 0,
           "entities": 57,
           "f64": {
-            "tessellateMs": 0.1,
+            "tessellateMs": 0.2,
             "vertices": 198,
             "failed": 0,
-            "nsPerEntity": 1754,
-            "nsPerVertex": 505,
+            "nsPerEntity": 3509,
+            "nsPerVertex": 1010,
             "wasmPagesGrown": 0
           },
           "f32": {
@@ -1638,7 +1638,7 @@
         },
         {
           "fraction": 0.05,
-          "queryMs": 0.1,
+          "queryMs": 0,
           "entities": 0,
           "f64": {
             "tessellateMs": 0,
@@ -1662,8 +1662,8 @@
     {
       "id": "spline-heavy-1e5",
       "fileBytes": 12341936,
-      "openMs": 196.2,
-      "queryAllMs": 0.7,
+      "openMs": 183.2,
+      "queryAllMs": 0.5,
       "entities": 100000,
       "extent": [
         -4522.676,
@@ -1674,71 +1674,71 @@
       "viewports": [
         {
           "fraction": 1,
-          "queryMs": 0.8,
+          "queryMs": 0.9,
           "entities": 100000,
           "f64": {
-            "tessellateMs": 1285.3,
+            "tessellateMs": 1204.1,
             "vertices": 1007892,
             "failed": 0,
-            "nsPerEntity": 12853,
-            "nsPerVertex": 1275,
+            "nsPerEntity": 12041,
+            "nsPerVertex": 1195,
             "wasmPagesGrown": 0
           },
           "f32": {
-            "tessellateMs": 1274.5,
+            "tessellateMs": 1207.1,
             "vertices": 1007892,
             "failed": 0,
-            "nsPerEntity": 12745,
-            "nsPerVertex": 1265,
+            "nsPerEntity": 12071,
+            "nsPerVertex": 1198,
             "wasmPagesGrown": 0
           },
           "heap": {
             "calls": 50,
             "entitiesPerCall": 100000,
-            "growthBytes": -712712,
+            "growthBytes": -715112,
             "afterGcBytes": -751916,
-            "bytesPerEntity": -0.14254
+            "bytesPerEntity": -0.14302
           }
         },
         {
           "fraction": 0.25,
-          "queryMs": 1.2,
+          "queryMs": 1,
           "entities": 7427,
           "f64": {
-            "tessellateMs": 225.5,
+            "tessellateMs": 197.7,
             "vertices": 127454,
             "failed": 0,
-            "nsPerEntity": 30362,
-            "nsPerVertex": 1769,
+            "nsPerEntity": 26619,
+            "nsPerVertex": 1551,
             "wasmPagesGrown": 0
           },
           "f32": {
-            "tessellateMs": 223.1,
+            "tessellateMs": 196.8,
             "vertices": 127454,
             "failed": 0,
-            "nsPerEntity": 30039,
-            "nsPerVertex": 1750,
+            "nsPerEntity": 26498,
+            "nsPerVertex": 1544,
             "wasmPagesGrown": 0
           }
         },
         {
           "fraction": 0.05,
-          "queryMs": 0.9,
+          "queryMs": 0.6,
           "entities": 385,
           "f64": {
-            "tessellateMs": 38.1,
+            "tessellateMs": 27,
             "vertices": 14854,
             "failed": 0,
-            "nsPerEntity": 98961,
-            "nsPerVertex": 2565,
+            "nsPerEntity": 70130,
+            "nsPerVertex": 1818,
             "wasmPagesGrown": 0
           },
           "f32": {
-            "tessellateMs": 44.2,
+            "tessellateMs": 27.1,
             "vertices": 14854,
             "failed": 0,
-            "nsPerEntity": 114805,
-            "nsPerVertex": 2976,
+            "nsPerEntity": 70390,
+            "nsPerVertex": 1824,
             "wasmPagesGrown": 0
           }
         }
@@ -3180,63 +3180,143 @@
   "tier0Slices": [
     {
       "id": "architectural-1e5",
-      "entities": 100000,
-      "slices": 109,
-      "maxSliceMs": 15.4,
-      "p99SliceMs": 12,
-      "overBudget": 99,
-      "medianSliceMs": 8.7,
-      "totalMs": 964.7,
-      "openMs": 62.9,
+      "cursor": "leaves (#125)",
+      "leaves": 97,
+      "entities": 99968,
+      "slices": 27,
+      "maxSliceMs": 9.5,
+      "p99SliceMs": 9.5,
+      "overBudget": 1,
+      "medianSliceMs": 6.9,
+      "totalMs": 189.8,
+      "openMs": 50.4,
+      "platform": "chromium, Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, l"
+    },
+    {
+      "id": "architectural-1e5",
+      "cursor": "boxes (before #125)",
+      "leaves": 97,
+      "entities": 99968,
+      "slices": 266,
+      "maxSliceMs": 15.1,
+      "p99SliceMs": 7.8,
+      "overBudget": 2,
+      "medianSliceMs": 6.2,
+      "totalMs": 1586.8,
+      "openMs": 47.1,
       "platform": "chromium, Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, l"
     },
     {
       "id": "architectural-1e6",
-      "entities": 199749,
-      "slices": 940,
-      "maxSliceMs": 49.1,
-      "p99SliceMs": 16.2,
-      "overBudget": 934,
-      "medianSliceMs": 12.5,
-      "totalMs": 11974.9,
-      "openMs": 15949.8,
+      "cursor": "leaves (#125)",
+      "leaves": 31,
+      "entities": 1000000,
+      "slices": 437,
+      "maxSliceMs": 38.5,
+      "p99SliceMs": 9.1,
+      "overBudget": 7,
+      "medianSliceMs": 4.9,
+      "totalMs": 1946.6,
+      "openMs": 423.9,
+      "platform": "chromium, Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, l"
+    },
+    {
+      "id": "architectural-1e6",
+      "cursor": "boxes (before #125)",
+      "leaves": 31,
+      "entities": 199861,
+      "slices": 2991,
+      "maxSliceMs": 51.7,
+      "p99SliceMs": 19.1,
+      "overBudget": 153,
+      "medianSliceMs": 6.2,
+      "totalMs": 13036.3,
+      "openMs": 410.2,
       "refused": "block exceeds maxEntitiesPerBlock (200000)",
       "platform": "chromium, Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, l"
     },
     {
       "id": "mep-1e5",
-      "entities": 100000,
-      "slices": 230,
-      "maxSliceMs": 24.2,
-      "p99SliceMs": 16.2,
-      "overBudget": 217,
-      "medianSliceMs": 8.7,
-      "totalMs": 2054.6,
-      "openMs": 44.1,
+      "cursor": "leaves (#125)",
+      "leaves": 95,
+      "entities": 99904,
+      "slices": 34,
+      "maxSliceMs": 11.5,
+      "p99SliceMs": 11.5,
+      "overBudget": 3,
+      "medianSliceMs": 6.6,
+      "totalMs": 237.8,
+      "openMs": 55.6,
+      "platform": "chromium, Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, l"
+    },
+    {
+      "id": "mep-1e5",
+      "cursor": "boxes (before #125)",
+      "leaves": 95,
+      "entities": 99904,
+      "slices": 395,
+      "maxSliceMs": 11.4,
+      "p99SliceMs": 8.1,
+      "overBudget": 4,
+      "medianSliceMs": 6.2,
+      "totalMs": 2406.7,
+      "openMs": 59.7,
       "platform": "chromium, Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, l"
     },
     {
       "id": "pathological-1e3",
+      "cursor": "leaves (#125)",
+      "leaves": 1,
+      "entities": 914,
+      "slices": 22,
+      "maxSliceMs": 50.9,
+      "p99SliceMs": 50.9,
+      "overBudget": 1,
+      "medianSliceMs": 0,
+      "totalMs": 51.3,
+      "openMs": 4.9,
+      "platform": "chromium, Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, l"
+    },
+    {
+      "id": "pathological-1e3",
+      "cursor": "boxes (before #125)",
+      "leaves": 1,
       "entities": 917,
-      "slices": 2,
-      "maxSliceMs": 48,
-      "p99SliceMs": 48,
+      "slices": 20,
+      "maxSliceMs": 49.2,
+      "p99SliceMs": 49.2,
       "overBudget": 2,
-      "medianSliceMs": 12,
-      "totalMs": 60.7,
+      "medianSliceMs": 0,
+      "totalMs": 63.9,
       "openMs": 5,
       "platform": "chromium, Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, l"
     },
     {
       "id": "spline-heavy-1e5",
+      "cursor": "leaves (#125)",
+      "leaves": 40,
       "entities": 100000,
-      "slices": 308,
-      "maxSliceMs": 14.3,
-      "p99SliceMs": 11.6,
-      "overBudget": 293,
-      "medianSliceMs": 9.1,
-      "totalMs": 2863.7,
-      "openMs": 181.1,
+      "slices": 136,
+      "maxSliceMs": 15.4,
+      "p99SliceMs": 7.6,
+      "overBudget": 1,
+      "medianSliceMs": 7.2,
+      "totalMs": 979,
+      "openMs": 188.8,
+      "platform": "chromium, Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, l"
+    },
+    {
+      "id": "spline-heavy-1e5",
+      "cursor": "boxes (before #125)",
+      "leaves": 40,
+      "entities": 100000,
+      "slices": 943,
+      "maxSliceMs": 11.1,
+      "p99SliceMs": 9.3,
+      "overBudget": 47,
+      "medianSliceMs": 4.7,
+      "totalMs": 4739.8,
+      "openMs": 191.3,
       "platform": "chromium, Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, l"
     }
   ],
@@ -3247,45 +3327,45 @@
       "windows": [
         {
           "fraction": 1,
-          "entries": 99075,
-          "exact": 98160,
+          "entries": 99043,
+          "exact": 98128,
           "previews": 915,
           "infeasible": 0,
           "uncovered": 925,
-          "leavesRead": 4,
+          "leavesRead": 97,
           "leavesWithoutBlock": 0,
-          "entities": 100000,
+          "entities": 99968,
           "missing": 0
         },
         {
           "fraction": 0.25,
-          "entries": 11447,
-          "exact": 11343,
-          "previews": 104,
+          "entries": 8256,
+          "exact": 8195,
+          "previews": 61,
           "infeasible": 0,
-          "uncovered": 106,
-          "leavesRead": 3,
+          "uncovered": 76,
+          "leavesRead": 20,
           "leavesWithoutBlock": 0,
-          "entities": 11553,
+          "entities": 8332,
           "missing": 0
         },
         {
           "fraction": 0.05,
-          "entries": 605,
-          "exact": 603,
-          "previews": 2,
+          "entries": 384,
+          "exact": 383,
+          "previews": 1,
           "infeasible": 0,
-          "uncovered": 2,
-          "leavesRead": 3,
+          "uncovered": 4,
+          "leavesRead": 6,
           "leavesWithoutBlock": 0,
-          "entities": 607,
+          "entities": 388,
           "missing": 0
         }
       ],
       "coverageMissing": 0,
       "previews": [
         {
-          "entitiesChecked": 3,
+          "entitiesChecked": 7,
           "worstMeasuredOverDeclared": 0.909,
           "withinDeclared": true
         }
@@ -3347,45 +3427,45 @@
       "windows": [
         {
           "fraction": 1,
-          "entries": 96745,
-          "exact": 94398,
+          "entries": 96649,
+          "exact": 94302,
           "previews": 2347,
           "infeasible": 0,
           "uncovered": 3255,
-          "leavesRead": 3,
+          "leavesRead": 95,
           "leavesWithoutBlock": 0,
-          "entities": 100000,
+          "entities": 99904,
           "missing": 0
         },
         {
           "fraction": 0.25,
-          "entries": 10851,
-          "exact": 10616,
-          "previews": 235,
+          "entries": 9544,
+          "exact": 9340,
+          "previews": 204,
           "infeasible": 0,
-          "uncovered": 361,
-          "leavesRead": 3,
+          "uncovered": 311,
+          "leavesRead": 25,
           "leavesWithoutBlock": 0,
-          "entities": 11212,
+          "entities": 9855,
           "missing": 0
         },
         {
           "fraction": 0.05,
-          "entries": 564,
-          "exact": 557,
+          "entries": 557,
+          "exact": 550,
           "previews": 7,
           "infeasible": 0,
-          "uncovered": 18,
-          "leavesRead": 3,
+          "uncovered": 12,
+          "leavesRead": 6,
           "leavesWithoutBlock": 0,
-          "entities": 582,
+          "entities": 569,
           "missing": 0
         }
       ],
       "coverageMissing": 0,
       "previews": [
         {
-          "entitiesChecked": 27,
+          "entitiesChecked": 17,
           "worstMeasuredOverDeclared": 0.909,
           "withinDeclared": true
         }
@@ -3452,7 +3532,7 @@
           "previews": 5077,
           "infeasible": 0,
           "uncovered": 59911,
-          "leavesRead": 2,
+          "leavesRead": 40,
           "leavesWithoutBlock": 0,
           "entities": 100000,
           "missing": 0
@@ -3464,7 +3544,7 @@
           "previews": 375,
           "infeasible": 0,
           "uncovered": 4422,
-          "leavesRead": 2,
+          "leavesRead": 13,
           "leavesWithoutBlock": 0,
           "entities": 7426,
           "missing": 0
@@ -3476,7 +3556,7 @@
           "previews": 16,
           "infeasible": 0,
           "uncovered": 222,
-          "leavesRead": 2,
+          "leavesRead": 4,
           "leavesWithoutBlock": 0,
           "entities": 385,
           "missing": 0
@@ -3494,9 +3574,9 @@
   ],
   "leak": {
     "cycles": 6000,
-    "pagesBefore": 37962,
-    "pagesAfterFirst3000": 37962,
-    "pagesAfter6000": 37962,
+    "pagesBefore": 13384,
+    "pagesAfterFirst3000": 13384,
+    "pagesAfter6000": 13384,
     "note": "pages are 64 KiB; no growth between the two halves means no per-call leak"
   }
 }

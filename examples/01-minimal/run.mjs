@@ -19,7 +19,7 @@ mkdirSync(out, { recursive: true });
 
 const CSP = "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'";
 const cases = [
-  { name: "csp-ok", csp: CSP, expect: (r) => r.errors.length === 0 && r.wasm.abi === 1 && r.wasm.source === "default" && r.transport === "transfer" && r.crossOriginIsolated === false },
+  { name: "csp-ok", csp: CSP, expect: (r) => r.errors.length === 0 && [1, 2].includes(r.wasm.abi) && r.wasm.source === "default" && r.transport === "transfer" && r.crossOriginIsolated === false },
   { name: "csp-strict", csp: "default-src 'self'; script-src 'self'; style-src 'self'", expect: (r) => r.errors.length === 1 && r.errors[0].code === "wasm_unavailable" },
   { name: "blocked", csp: CSP, block: /\.wasm$/, expect: (r) => r.errors.length === 1 && r.errors[0].code === "wasm_unavailable" },
 ];

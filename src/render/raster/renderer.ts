@@ -401,14 +401,13 @@ export class RasterRenderer {
       this.bitmaps.delete(r.key);
       this.o.cache.drop("decoded", r.key);
     }
-    const taken = takeUploads(this.ready, { budgetBytes: DEFAULTS.uploadBudgetBytes, budgetMs: DEFAULTS.uploadBudgetMs, now });
     let bytes = 0;
-    for (const u of taken) {
+    const taken = takeUploads(this.ready, { budgetBytes: DEFAULTS.uploadBudgetBytes, budgetMs: DEFAULTS.uploadBudgetMs, now }, (u) => {
       const bitmap = this.bitmaps.get(u.key);
       this.bitmaps.delete(u.key);
-      if (!bitmap) continue;
+      if (!bitmap) return;
       const tex = gl.createTexture();
-      if (!tex) { bitmap.close(); this.o.cache.drop("decoded", u.key); continue; }
+      if (!tex) { bitmap.close(); this.o.cache.drop("decoded", u.key); return; }
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, tex);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -424,10 +423,10 @@ export class RasterRenderer {
       this.o.cache.drop("decoded", u.key);
       const level = Number(u.key.split("/")[1]);
       const stored = this.o.cache.put("gpu", u.key, u.bytes, { visible: true, payload: tex, raster: u.id, level });
-      if (!stored) { gl.deleteTexture(tex); this.failed.add(u.key); continue; }
+      if (!stored) { gl.deleteTexture(tex); this.failed.add(u.key); return; }
       this.textures.set(u.key, tex);
       bytes += u.bytes;
-    }
+    });
     // Evictions happen inside `put`; a texture whose entry is gone is deleted here, so the cache's bytes are the GL bytes.
     for (const [kk, tex] of this.textures) if (!this.o.cache.has("gpu", kk)) (gl.deleteTexture(tex), this.textures.delete(kk));
     this.reconcileBitmaps();

@@ -176,7 +176,7 @@ function rasterSection(root, hw) {
   const soft = Object.entries(hw.softwareRasterEntries ?? {});
   if (!hard.length && !soft.length) return [];
   const out = ["### Rasters through the wired layer\n"];
-  out.push("Scans of A0 at 400 dpi (18724 by 13244 px, 512 px tiles, seven levels) over the 1e6-segment stroke scene, drawn by `createPVecLayer` on a real MapLibre map with the stand-in cursor and a fixture provider in place of the pvec-wasm raster exports. The tiles are the pinned ones of `bench/hw/raster-tiles.json` (one per codec variant and tile size, built by `tools/raster-bench-tiles.sh`), decoded by the shipped decode worker with `createImageBitmap` and uploaded under the 4 MiB and 2 ms budget. The map pans and breathes its zoom by 0.8 of a level every frame, 60 s after a 3 s warm-up, so levels change and decodes run while the frames are timed. Upload counts run from the first frame after `addLayer`, so the fill of the scene is in them. Render CPU is the JavaScript time inside `layer.render`, split in two populations: steady frames (no tile uploaded) carry the budget of ADR 0009, 1.5 ms at the 95th percentile on every real renderer (the mean where the timer resolves 1 ms or coarser, which is WebKit's), and upload frames are governed by the upload budget (4 MiB and 2 ms, no frame over the byte budget plus one tile, render p95 at most the steady figure plus 2 ms plus the `texImage2D` p95 of the tile size). ADR 0005's 1 ms stays the pipeline's number. Every row is from the result file in its last column and says which renderer and arch produced it.\n");
+  out.push("Scans of A0 at 400 dpi (18724 by 13244 px, 512 px tiles, seven levels) over the 1e6-segment stroke scene, drawn by `createPVecLayer` on a real MapLibre map with the stand-in cursor and a fixture provider in place of the pvec-wasm raster exports. The tiles are the pinned ones of `bench/hw/raster-tiles.json` (one per codec variant and tile size, built by `tools/raster-bench-tiles.sh`), decoded by the shipped decode worker with `createImageBitmap` and uploaded under the 4 MiB and 2 ms budget. The map pans and breathes its zoom by 0.8 of a level every frame, 60 s after a 3 s warm-up, so levels change and decodes run while the frames are timed. Upload counts run from the first frame after `addLayer`, so the fill of the scene is in them. Render CPU is the JavaScript time inside `layer.render`, split in two populations: steady frames (no tile uploaded) carry the budget of ADR 0009, 1.5 ms at the 95th percentile on every real renderer (the mean where the timer resolves 1 ms or coarser, which is WebKit's), and frames that upload a tile are held to one rule: none takes longer than one 60 fps frame (16.7 ms) and none uploads more than the byte budget plus one tile (the p95, the count and the maximum are recorded). ADR 0005's 1 ms stays the pipeline's number. Every row is from the result file in its last column and says which renderer and arch produced it.\n");
   const cols = [...hard.map(([k, e]) => ({ k, e, label: `${rendererOf(k)}, ${e.engine} ${e.browserVersion}, ${e.arch}` })), ...soft.map(([k, e]) => ({ k, e, label: `${rendererOf(k)}, ${e.engine} ${e.browserVersion}, ${e.arch}, software GL, no GPU` }))];
   out.push("#### Decode per tile (worker, `createImageBitmap`, ms)\n");
   out.push("Each cell is median / 95th percentile over warm decodes, then the first decode in a fresh worker (cold). Time is the one the worker measures around `createImageBitmap`, so none of it is on the main thread.\n");
@@ -211,17 +211,42 @@ function rasterSection(root, hw) {
   out.push("");
   if (hard.length) {
     out.push("#### The render budget on the real renderers\n");
-    out.push("ADR 0009, Budget. Steady frames: at most 1.5 ms, read as the p95 or, where the timer step is 1 ms or coarser, as the mean. Upload frames: render p95 (p50 when there are fewer than 20 of them) at most the steady figure plus 2 ms plus the `texImage2D` p95 of a 512 px tile, and no frame over the byte budget plus one tile.\n");
-    out.push("| renderer | scene | statistic | steady (ms) | budget (ms) | upload frames (count) | upload statistic | upload frames value (ms) | upload bound (ms) | over-budget frames |", "|---|---|---|---|---|---|---|---|---|---|");
+    out.push("ADR 0009, Budget. Steady frames: at most 1.5 ms, read as the p95 or, where the timer step is 1 ms or coarser, as the mean. Upload frames: none longer than 16.7 ms, and no frame over the byte budget plus one tile.\n");
+    out.push("| renderer | scene | statistic | steady (ms) | budget (ms) | upload frames (count) | upload frames p95 / max (ms) | upload frames over 16.7 ms | over-budget frames |", "|---|---|---|---|---|---|---|---|---|");
     for (const [k, e] of hard) {
       const clamped = (e.timerResolutionMs ?? 0) >= 1;
-      const up512 = e.raster.upload.find((u) => u.edge === 512)?.p95Ms ?? 0;
       for (const sc of e.raster.scenes.filter((x) => x.rasters > 0)) {
         const v = clamped ? sc.render.steady.meanMs : sc.render.steady.p95Ms;
-        out.push(`| ${rendererOf(k)}, ${e.engine}, ${e.arch} | ${sc.name} | ${clamped ? "mean" : "p95"} | ${f2(v)} | 1.5 | ${sc.render.uploadFrames.frames} | ${sc.render.uploadFrames.frames >= 20 ? "p95" : "p50"} | ${f2(sc.render.uploadFrames.frames >= 20 ? sc.render.uploadFrames.p95Ms : sc.render.uploadFrames.p50Ms)} | ${f2(v + 2 + up512)} | ${sc.uploads.overBudgetFrames} |`);
+        out.push(`| ${rendererOf(k)}, ${e.engine}, ${e.arch} | ${sc.name} | ${clamped ? "mean" : "p95"} | ${f2(v)} | 1.5 | ${sc.render.uploadFrames.frames} | ${f2(sc.render.uploadFrames.p95Ms)} / ${f2(sc.render.uploadFrames.maxMs)} | ${sc.render.uploadFrames.over16_7Ms.length} | ${sc.uploads.overBudgetFrames} |`);
       }
     }
     out.push("");
+  }
+  // The repeat runs of the Intel row: the noise floor and every steady frame over one 60 fps frame, run by run.
+  const repDir = path.join(root, "bench/results/hw/repeats");
+  const reps = existsSync(repDir) ? readdirSync(repDir).filter((f) => f.endsWith(".json")).sort() : [];
+  if (reps.length) {
+    const runs = reps.map((f) => ({ f, r: JSON.parse(readFileSync(path.join(repDir, f), "utf8")) }));
+    const base = hard.find(([k]) => /Intel/.test(k));
+    out.push("#### Intel ADL GT2: repeat runs, the noise floor and the observed hitch\n");
+    out.push("The full run behind the table above and the scenes-only repeats (`bench/results/hw/repeats`, the same bundle, taken one at a time when the shared host's load average was under 3). The steady p95 varies by a tenth of a millisecond between runs. A steady frame of about 25 to 26 ms shows up in most runs, once or twice, in any scene including the stroke-only one, so it does not come from the raster pass; the cause is not confirmed (a driver stall or garbage collection are the guesses) and it is outside the raster budget. Steady frames over 16.7 ms are listed with the scene they fell in.\n");
+    out.push("| run | host load start / end (6 cpus) | scene | steady p95 / mean (ms) | steady frames over 16.7 ms (ms) | upload frames: count / max (ms) |", "|---|---|---|---|---|---|");
+    const rows = [];
+    if (base) rows.push({ name: "full run", env: { hostLoad: base[1].hostLoad }, scenes: base[1].raster.scenes });
+    for (const { f, r } of runs) rows.push({ name: f.replace(/^.*-raster-?/, "").replace(/\.json$/, "") || f, env: r.environment, scenes: r.raster.scenes });
+    let hitchRuns = 0;
+    for (const x of rows) {
+      let any = false;
+      for (const sc of x.scenes) {
+        const h = sc.render.steady.over16_7Ms;
+        if (h.length) any = true;
+        const l = x.env.hostLoad;
+        out.push(`| ${x.name} | ${l ? `${l.start} / ${l.end}` : "n/a"} | ${sc.name} | ${f2(sc.render.steady.p95Ms)} / ${f2(sc.render.steady.meanMs)} | ${h.map((v) => f2(v)).join(", ") || "none"} | ${sc.render.uploadFrames.frames} / ${f2(sc.render.uploadFrames.maxMs)} |`);
+      }
+      if (any) hitchRuns++;
+    }
+    out.push("");
+    out.push(`Runs with at least one steady frame over 16.7 ms: ${hitchRuns} of ${rows.length}.\n`);
   }
   out.push("#### Two scans at one scan pixel per device pixel, against the gpu ceiling\n");
   out.push("The view that holds the most tiles. Two full-resolution views at 4K do not fit 128 MiB, so the fit rule steps a level down; the table shows what stayed resident and which levels drew.\n");
@@ -309,9 +334,9 @@ function realEvaluatorSection(root) {
   }
   if (r.tier0Slices?.length) {
     out.push("### Tier 0 decoder slices on the real stream\n");
-    out.push("The default cursor of the layer drained by `Tier0Decoder` with its default slice size. A slice is one `decodeSlice` call; the ceiling is `DEFAULTS.maxSliceMs`. Opening the file in the evaluator is the cursor's first step and is reported on its own.\n");
-    out.push("| entry | entities | slices | slices over 8 ms | open (ms) | max slice (ms) | p99 slice (ms) | median slice (ms) | total (ms) |", "|---|---|---|---|---|---|---|---|---|");
-    for (const t of r.tier0Slices) out.push(`| ${t.id} | ${t.refused ? `refused: ${t.refused}` : t.entities} | ${t.slices} | ${t.overBudget ?? "n/a"} | ${fmt(t.openMs)} | ${fmt(t.maxSliceMs)} | ${t.p99SliceMs === undefined ? "n/a" : fmt(t.p99SliceMs)} | ${fmt(t.medianSliceMs)} | ${fmt(t.totalMs)} |`);
+    out.push("The default cursor of the layer drained by `Tier0Decoder` with its default slice size, and the cursor as it was before #125 under the same decoder, in the same run on the same host. A slice is one `decodeSlice` call; the ceiling is `DEFAULTS.maxSliceMs`. Opening the file in the evaluator is the cursor's first step and is reported on its own. Leaves is the number of leaves of the spatial directory (the 1e5 files are written with a leaf capacity of 1,024, the others with pvec's 32,768). These rows are from pvec `wasm-v1-fc5ca4a` (the cheaper tessellation of pvec#243), measured with the docker host's one-minute load under its 28 cpus at three polls in a row (12 to 18 at the start). The rows from `wasm-v1-c4f71b3` had a longest slice of 8.1 / 38.2 / 11.6 / 48.9 / 15.5 ms for architectural-1e5 / architectural-1e6 / mep-1e5 / pathological-1e3 / spline-heavy-1e5. The 8 ms bound is not met (maplibre-pvec#125 stays open). The longest slices are the release of the file handle when the walk ends (5 to 40 ms, growing with the file) and, in pathological-1e3, four single splines of 10,000 control points that cost 11 to 14 ms each in one `tessellate_batch` call.\n");
+    out.push("| entry | cursor | leaves | entities | slices | slices over 8 ms | open (ms) | max slice (ms) | p99 slice (ms) | median slice (ms) | total (ms) |", "|---|---|---|---|---|---|---|---|---|---|---|");
+    for (const t of r.tier0Slices) out.push(`| ${t.id} | ${t.cursor ?? "n/a"} | ${t.leaves ?? "n/a"} | ${t.refused ? `refused: ${t.refused}` : t.entities} | ${t.slices} | ${t.overBudget ?? "n/a"} | ${fmt(t.openMs)} | ${fmt(t.maxSliceMs)} | ${t.p99SliceMs === undefined ? "n/a" : fmt(t.p99SliceMs)} | ${fmt(t.medianSliceMs)} | ${fmt(t.totalMs)} |`);
     out.push("");
   }
   for (const [name, label] of [["x86_64", "x86_64"], ["arm64", "arm64"]]) {

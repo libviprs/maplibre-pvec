@@ -34,7 +34,7 @@ const map = new maplibregl.Map({
   style: { version: 8, sources: {}, layers: [{ id: "bg", type: "background", paint: { "background-color": "#dfe7ee" } }] },
 });
 let attribution;
-const frame = () => new Promise((r) => map.once("render", () => r()));
+const frame = () => new Promise((r) => (map.once("render", () => r()), map.triggerRepaint()));
 
 /** The map canvas read back through a 2D canvas: the pixels that are not the background colour, and the pixel at a device point. */
 function canvasPixels(at) {
@@ -54,6 +54,7 @@ function canvasPixels(at) {
 
 let layer;
 async function open(key) {
+  console.log(`[ex07] open ${key} at ${Math.round(performance.now())} ms`);
   if (layer) map.removeLayer(layer.id);
   if (attribution) (map.removeControl(attribution), (attribution = undefined));
   const f = FILES[key];
@@ -67,15 +68,17 @@ async function open(key) {
   await layer.whenReady();
   let painted = { painted: 0, pixel: [0, 0, 0] };
   const centre = map.project([8.54, 47.37]);
+  // Draw until the scan has been decoded and uploaded, then for 6 seconds more: the file's linework (its Tier 0 stream) arrives in steps.
+  let ready = -1, readyAt = 0;
   for (let i = 0; i < 600; i++) {
     map.triggerRepaint();
     await frame();
     const d = layer.getDiagnostics().rasters;
-    if (i > 5 && d.drawn > 0 && d.decodesInFlight === 0) {
-      painted = canvasPixels(centre);
-      if (painted.painted > 0) break;
-    }
+    if (ready < 0 && i > 5 && d.drawn > 0 && d.decodesInFlight === 0) (ready = i, (readyAt = performance.now()));
+    if (ready >= 0 && performance.now() - readyAt > 6000) break;
   }
+  painted = canvasPixels(centre);
+  console.log(`[ex07] ${key} read at ${Math.round(performance.now())} ms, ready frame ${ready}`);
   const rasters = layer.rasters();
   const tbody = document.querySelector("#rasters tbody");
   const ul = document.getElementById("skipped");
