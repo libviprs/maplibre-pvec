@@ -107,6 +107,12 @@ export function bindPacked(ev: Evaluator) {
       };
       return { ids: v(Uint32Array, 0), codes: v(Uint32Array, 1), errors: v(Float64Array, 2), offsets: v(Uint32Array, 3), vertices: v(Float64Array, 4) };
     },
+    /** The exact distance in source units from a point to an entity of the file (libviprs/pvec#252), NaN when there is none. */
+    entityDistance: (file: number, entityId: number, x: number, y: number): number => call("entity_distance", file, entityId, x, y),
+    /** 1 when the entity meets the box, 0 when it does not, a negative ABI code otherwise (libviprs/pvec#252). */
+    entityTouchesBox: (file: number, entityId: number, minX: number, minY: number, maxX: number, maxY: number): number => call("entity_touches_box", file, entityId, minX, minY, maxX, maxY),
+    /** Whether the module exports the two distance calls (a version 2 module from before libviprs/pvec#252 does not). */
+    hasDistanceCalls: typeof x["entity_distance"] === "function" && typeof x["entity_touches_box"] === "function",
     failed: (result: number): number => call("tessellation_failed", result),
     conformance: (result: number): number => call("tessellation_conformance", result),
     origin: (result: number): [number, number] => [call("tessellation_origin_x", result), call("tessellation_origin_y", result)],

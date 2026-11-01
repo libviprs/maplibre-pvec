@@ -23,6 +23,7 @@ import { controlOf, engineDepsOf, registerControl, type EngineHooks, type LayerC
 import { watchContextLoss } from "../render/gl_state";
 import { fullViewPx } from "./tier0-cursor";
 import { TierRefiner } from "./refinement";
+import { buildQueryEngine } from "./query";
 
 type Gl = WebGLRenderingContext | WebGL2RenderingContext;
 
@@ -49,6 +50,7 @@ interface Wiring {
   map?: MapLibreMap | undefined;
   refiner?: TierRefiner | undefined;
   unsettle?: (() => void) | undefined;
+  closeQuery?: (() => void) | undefined;
 }
 const wiring = new WeakMap<object, Wiring>();
 const wired = (layer: object): Wiring => {
@@ -189,6 +191,8 @@ export class PVecLayer implements CustomLayerInterface {
       [
         "refine",
         () => {
+          wired(this).closeQuery?.();
+          wired(this).closeQuery = undefined;
           wired(this).unsettle?.();
           wired(this).unsettle = undefined;
           wired(this).refiner?.cancel();
@@ -458,6 +462,7 @@ export class PVecLayer implements CustomLayerInterface {
         this.n.decodeMs += performance.now() - t0;
         this.guard(() => engine.setDraws(draws), "upload");
         controlOf(this).markTier0Complete({ viewportId: "main", blocksUsed: Math.max(1, blocks) });
+        await attachQueryEngine(this, deps, h, evaluator, engine, draws, (entityId) => this.resolveStyle({ entityId }).widthPx / 2, (entityId) => this.isEntityVisible({ entityId }), (e) => (this.query = e));
         await startRefinement(this, deps, h, evaluator, engine, draws, map, signal, (f, w) => this.guard(f, w));
       } else {
         map.triggerRepaint?.();
@@ -535,6 +540,35 @@ export class PVecLayer implements CustomLayerInterface {
       addCoalesced: (n) => void (this.n.coalesced += n),
     };
   }
+}
+
+/** The query API: the module's exact distance behind the index of the Tier 0 draws. Without the distance calls the query methods keep throwing, as before. */
+async function attachQueryEngine(
+  layer: PVecLayer,
+  deps: ReturnType<typeof engineDepsOf>,
+  handle: PVecHandle,
+  evaluator: Evaluator,
+  engine: StrokeEngine,
+  draws: Parameters<TierRefiner["start"]>[0],
+  halfWidthPx: (entityId: string) => number,
+  visible: (entityId: string) => boolean,
+  attach: (e: QueryEngine) => void,
+): Promise<void> {
+  const exact = await deps.openDistance(handle, evaluator);
+  if (!exact) return;
+  const b = handle.manifest.sourceBounds;
+  wired(layer).closeQuery = () => exact.close();
+  attach(
+    buildQueryEngine({
+      exact,
+      draws,
+      tier0Px: fullViewPx([b.minX, b.minY, b.maxX, b.maxY]),
+      view: () => engine.pickView(),
+      generation: (entityId) => wired(layer).refiner?.generationOf(entityId) ?? 0,
+      halfWidthPx,
+      visible,
+    }),
+  );
 }
 
 /** Tier 1: when the camera rests, the strokes in view that are coarser than the policy allows are walked again by the module. */

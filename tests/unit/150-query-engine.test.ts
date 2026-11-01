@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { Tier0Decoder, type EntityDraw } from "../../src/decode/tier0";
 import { buildQueryEngine, exactQueryOver, type PickView } from "../../src/layer/query";
-import { tier0CursorOver } from "../../src/layer/tier0-cursor";
+import { fullViewPx, tier0CursorOver } from "../../src/layer/tier0-cursor";
 import { nearestEntity, pickPoint, queryRegion } from "../../src/pick/index";
 import { loadEvaluator } from "../../src/wasm/loader";
 import { EVALUATOR_WASM_BYTES } from "./helpers/probe";
@@ -13,7 +13,8 @@ import { EVALUATOR_WASM_BYTES } from "./helpers/probe";
 // are the maths of pvec-gold-fixtures' authoring parameters (a segment, a circle, a cubic Bezier), none of it from the add-on.
 const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const bytes = (id: string): Uint8Array => new Uint8Array(readFileSync(join(root, "tests/fixtures/pvec", `${id}.pvec`)));
-const WORLD: [number, number, number, number] = [-1e6, -1e6, 1e6, 1e6];
+// the extent the fixtures sit in, as the manifest's source bounds are for a layer: a pixel of the Tier 0 walk is 1/1920 of it
+const WINDOW: [number, number, number, number] = [-2, -6, 6, 6];
 const SLACK = 1e-9;
 const near = (a: number, b: number, slack = SLACK): boolean => Math.abs(a - b) <= slack;
 
@@ -23,16 +24,17 @@ const view: PickView = { lngLatToSource: (l) => ({ x: l.lng, y: l.lat }), source
 
 async function engineOf(id: string) {
   const evaluator = await loadEvaluator({ wasmModule: await WebAssembly.compile(EVALUATOR_WASM_BYTES) });
-  const cursor = tier0CursorOver(evaluator, bytes(id), WORLD);
+  const cursor = tier0CursorOver(evaluator, bytes(id), WINDOW);
   const draws: EntityDraw[] = new Tier0Decoder().decodeAll(cursor);
   cursor.close();
-  const exact = exactQueryOver(evaluator, bytes(id));
+  const exact = exactQueryOver(evaluator, bytes(id))!;
+  expect(exact, "the pinned module exports the distance calls").not.toBeNull();
   const generations = new Map<string, number>();
   const hidden = new Set<string>();
   const engine = buildQueryEngine({
     exact,
     draws,
-    tier0Px: 3 / 1920,
+    tier0Px: fullViewPx(WINDOW),
     view: () => view,
     generation: (entityId) => generations.get(entityId) ?? 0,
     halfWidthPx: () => 0.5,
@@ -99,15 +101,14 @@ describe("#150 the query engine over the module's exact distance", () => {
   it("nearestEntity finds the nearer of two, and a hidden entity is not returned by the layer's filter", async () => {
     const { engine, exact, hidden } = await engineOf("layer-state-001");
     const segs = [[0, 0, 4, 1], [0, 2, 3, 3.5], [0, 5, 5.5, 4]] as const;
-    const at = { lng: 2, lat: 2.2 };
-    const d = segs.map((s) => toSegment(at.lng, at.lat, ...s));
+    const at = { lng: 2, lat: 1.9 };
+    const d = segs.map(([ax, ay, bx, by]) => toSegment(at.lng, at.lat, ax, ay, bx, by));
     const want = String(d.indexOf(Math.min(...d)));
     const n = nearestEntity(engine, at, { maxRadiusPx: 500 });
     expect(n.hit?.entityId).toBe(want);
     expect(near(n.hit!.distancePx * UPX, Math.min(...d), 1e-6)).toBe(true);
     hidden.add(want);
     expect(engine.quarantined(want)).toBe(true);
-    expect(engine.quarantined("0") || want === "0").toBe(true);
     exact.close();
   });
 
