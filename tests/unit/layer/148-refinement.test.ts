@@ -7,11 +7,11 @@ import { TierRefiner, type RefineView, type RefinementSource } from "../../../sr
 import { countingGl, fakeMap, rig, type Rig } from "../api/helpers";
 
 // Issue 148: the layer drives Tier 1 refinement and emits tier0complete. The orchestrator is tested with stand-ins for the view and for
-// the module (a curve costs more points at a finer tolerance, a line is always its two end points); the layer is tested for the event.
+// the module (a curve costs more points at a finer chord, a line is always its two end points); the layer is tested for the event.
 
 const TIER0_PX = 0.01; // source units of one pixel of the full view the Tier 0 errors are declared in
-const arc = (id: string, tolerance: number): RawEntity => {
-  const n = 3 + Math.min(500, Math.ceil(Math.sqrt(1 / Math.max(tolerance, 1e-9))));
+const arc = (id: string, chord: number): RawEntity => {
+  const n = 3 + Math.min(500, Math.ceil(Math.sqrt(1 / Math.max(chord, 1e-9))));
   const points: number[] = [];
   for (let i = 0; i < n; i++) points.push(i / n * 10, Math.sin(i / n * Math.PI) * 5);
   return { entityId: id, kind: "preview", geometry: { type: "polyline", points }, bounds: { minX: 0, minY: 0, maxX: 10, maxY: 5 }, declaredErrorPx: 1 };
@@ -21,11 +21,11 @@ const far = (id: string): RawEntity => ({ ...arc(id, 1), bounds: { minX: 1000, m
 const drawOf = (e: RawEntity): EntityDraw => ({ kind: "preview", entityId: e.entityId, generation: 0, geometry: e.geometry, bounds: e.bounds, declaredErrorPx: 1, conformance: "display-fidelity" });
 
 function world() {
-  const asked: { window: readonly number[]; tolerance: number }[] = [];
+  const asked: { window: readonly number[]; chord: number }[] = [];
   const source: RefinementSource = {
-    cursorFor(window, tolerance) {
-      asked.push({ window, tolerance });
-      const all = [arc("1", tolerance), line("2"), far("3")].filter((e) => e.bounds.maxX >= window[0] && e.bounds.minX <= window[2] && e.bounds.maxY >= window[1] && e.bounds.minY <= window[3]);
+    cursorFor(window, chord) {
+      asked.push({ window, chord });
+      const all = [arc("1", chord), line("2"), far("3")].filter((e) => e.bounds.maxX >= window[0] && e.bounds.minX <= window[2] && e.bounds.maxY >= window[1] && e.bounds.minY <= window[3]);
       let done = false;
       const cursor: BlockCursor & { close(): void } = { next: () => (done ? null : ((done = true), all)), close: () => undefined };
       return cursor;
@@ -66,11 +66,11 @@ describe("#148 refinement after the camera settles", () => {
     const e = w.events[0]!;
     expect(e.entityId).toBe("1");
     expect(e.generation).toBe(1);
-    expect(e.priorErrorPx).toBeCloseTo(8, 6);
-    expect(e.nextErrorPx).toBeCloseTo(0.5, 6);
+    expect(e.priorErrorPx).toBe(TIER0_PX * 800);
+    expect(e.nextErrorPx).toBe((0.5 / 800) * 800);
     // the cursor was asked for the view's window at 0.5 device px
     expect(w.asked).toHaveLength(1);
-    expect(w.asked[0]!.tolerance).toBeCloseTo(0.5 / 800, 12);
+    expect(w.asked[0]!.chord).toBe(0.5 / 800);
     // the layer is handed the whole set again with the curve replaced and the other two draws kept
     expect(w.sets).toHaveLength(1);
     expect(w.sets[0]!.map((d) => d.entityId).sort()).toEqual(["1", "2", "3"]);
@@ -101,7 +101,7 @@ describe("#148 refinement after the camera settles", () => {
     w.refiner.settle();
     await w.refiner.whenIdle();
     expect(w.events.map((e) => [e.entityId, e.generation])).toEqual([["1", 1], ["1", 2]]);
-    expect(w.events[1]!.priorErrorPx).toBeCloseTo(0.5 * 8, 6);
+    expect(w.events[1]!.priorErrorPx).toBe((0.5 / 800) * 6400);
   });
 
   it("asks nothing twice for a view it has already refined", async () => {
@@ -136,9 +136,9 @@ describe("#148 refinement after the camera settles", () => {
     w.refiner.settle();
     await w.refiner.whenIdle();
     expect(w.events).toHaveLength(1);
-    expect(w.events[0]!.nextErrorPx).toBeCloseTo(0.5, 6);
-    expect(w.events[0]!.priorErrorPx).toBeCloseTo(16, 6);
-    expect(w.asked.at(-1)!.tolerance).toBeCloseTo(0.5 / 1600, 12);
+    expect(w.events[0]!.nextErrorPx).toBe((0.5 / 1600) * 1600);
+    expect(w.events[0]!.priorErrorPx).toBe(TIER0_PX * 1600);
+    expect(w.asked.at(-1)!.chord).toBe(0.5 / 1600);
   });
 
   it("with no readable view (no georeference, no canvas) it does nothing", async () => {

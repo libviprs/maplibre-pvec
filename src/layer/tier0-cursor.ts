@@ -39,7 +39,7 @@ const retained = new WeakMap<object, Uint8Array>();
 /** The refinement walk of a file `openTier0Cursor` read, or null when it did not (a module without the Tier 0 calls, a stand-in cursor). */
 export function refinementOver(handle: PVecHandle, evaluator: Evaluator): RefinementSource | null {
   const bytes = retained.get(handle);
-  return bytes ? { cursorFor: (window, tolerance) => tier0CursorOver(evaluator, bytes, window, { tolerance }) } : null;
+  return bytes ? { cursorFor: (window, chord) => tier0CursorOver(evaluator, bytes, window, { chord }) } : null;
 }
 
 /** `a` to `b` of a vertex array as a plain array. A sized loop is four to five times cheaper than `Array.from` (which grows an array through an iterator), and it makes no garbage to collect inside a slice. */
@@ -83,14 +83,14 @@ export function tier0CursorOver(
   evaluator: Evaluator,
   bytes: Uint8Array,
   window: readonly [number, number, number, number],
-  options: { tolerance?: number } = {},
+  options: { chord?: number } = {},
 ): BlockCursor & { close(): void } {
   const rt = bindPacked(evaluator);
   const file = rt.open(bytes);
   if (file < 0) throw new PVecError("load_failed", `the evaluator refused the file (code ${file})`);
-  // With a tolerance asked for, every entity of the window is tessellated at it (a pixel of this walk is that tolerance) and the stored previews are left out.
-  const exact = options.tolerance !== undefined;
-  const px = options.tolerance ?? fullViewPx(window);
+  // With a chord asked for, every entity of the window is tessellated at it (a pixel of this walk is that chord) and the stored previews are left out.
+  const exact = options.chord !== undefined;
+  const px = options.chord ?? fullViewPx(window);
   const chain = [1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1e9, px];
   const hasDirectory = rt.directoryStat(file, 0) === 1;
   const seen = new Set<number>();

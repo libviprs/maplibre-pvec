@@ -10,9 +10,9 @@ export interface RefineView {
   pxPerSource: number;
 }
 
-/** The module's walk of the file at a tolerance asked for, in source units. The caller closes the cursor. */
+/** The module's walk of the file at a chord asked for, in source units. The caller closes the cursor. */
 export interface RefinementSource {
-  cursorFor(window: Box, tolerance: number): BlockCursor & { close(): void };
+  cursorFor(window: Box, chord: number): BlockCursor & { close(): void };
 }
 
 export interface RefinerInit {
@@ -31,7 +31,7 @@ export interface RefinerInit {
 interface Shown {
   draw: EntityDraw;
   /** Tolerance in source units the polyline was tessellated at. 0 for an entity that is exact. */
-  tolerance: number;
+  chord: number;
   generation: number;
 }
 
@@ -63,7 +63,7 @@ export class TierRefiner {
   /** The Tier 0 draws now on screen. Starts a first run, because the camera may already be closer than the declared errors allow. */
   start(draws: readonly EntityDraw[]): void {
     this.shown.clear();
-    for (const d of draws) this.shown.set(d.entityId, { draw: d, tolerance: d.kind === "preview" ? d.declaredErrorPx * this.o.tier0Px : 0, generation: 0 });
+    for (const d of draws) this.shown.set(d.entityId, { draw: d, chord: d.kind === "preview" ? d.declaredErrorPx * this.o.tier0Px : 0, generation: 0 });
     this.settle();
   }
 
@@ -115,10 +115,10 @@ export class TierRefiner {
     const view = this.o.view();
     const scale = view?.pxPerSource ?? 0;
     if (!view || !(Number.isFinite(scale) && scale > 0)) return;
-    const wanted = (s: Shown): boolean => s.tolerance * scale > REFINE_DEFAULTS.refinePx && meets(s.draw.bounds, view.window);
+    const wanted = (s: Shown): boolean => s.chord * scale > REFINE_DEFAULTS.refinePx && meets(s.draw.bounds, view.window);
     if (![...this.shown.values()].some(wanted)) return;
-    const tolerance = REFINE_DEFAULTS.targetPx / scale;
-    const cursor = this.o.source.cursorFor(view.window, tolerance);
+    const chord = REFINE_DEFAULTS.targetPx / scale;
+    const cursor = this.o.source.cursorFor(view.window, chord);
     this.cursor = cursor;
     const replaced: Array<{ id: string; draw: EntityDraw; priorErrorPx: number }> = [];
     const decoder = new Tier0Decoder();
@@ -127,8 +127,8 @@ export class TierRefiner {
         for (const d of slice.draws) {
           const cur = this.shown.get(d.entityId);
           if (!cur || !wanted(cur)) continue;
-          if (sameGeometry(cur.draw.geometry, d.geometry)) cur.tolerance = 0;
-          else replaced.push({ id: d.entityId, draw: d, priorErrorPx: cur.tolerance * scale });
+          if (sameGeometry(cur.draw.geometry, d.geometry)) cur.chord = 0;
+          else replaced.push({ id: d.entityId, draw: d, priorErrorPx: cur.chord * scale });
         }
         await new Promise<void>((resolve) => void setTimeout(resolve, 0));
         if (token !== this.token) return;
@@ -142,9 +142,9 @@ export class TierRefiner {
     for (const r of replaced) {
       const cur = this.shown.get(r.id)!;
       cur.generation++;
-      cur.tolerance = tolerance;
-      cur.draw = { ...r.draw, generation: cur.generation, ...(r.draw.kind === "preview" ? { declaredErrorPx: tolerance / this.o.tier0Px } : {}) } as EntityDraw;
-      events.push({ entityId: r.id, generation: cur.generation, priorErrorPx: r.priorErrorPx, nextErrorPx: tolerance * scale });
+      cur.chord = chord;
+      cur.draw = { ...r.draw, generation: cur.generation, ...(r.draw.kind === "preview" ? { declaredErrorPx: chord / this.o.tier0Px } : {}) } as EntityDraw;
+      events.push({ entityId: r.id, generation: cur.generation, priorErrorPx: r.priorErrorPx, nextErrorPx: chord * scale });
     }
     this.o.setDraws([...this.shown.values()].map((s) => s.draw));
     for (const e of events) this.o.report(e);

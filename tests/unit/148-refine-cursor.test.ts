@@ -7,15 +7,15 @@ import { tier0CursorOver } from "../../src/layer/tier0-cursor";
 import { loadEvaluator } from "../../src/wasm/loader";
 import { EVALUATOR_WASM_BYTES } from "./helpers/probe";
 
-// Issue 148: the cursor the refinement runs on. A tolerance asked for in source units tessellates every entity of the window at that
-// tolerance and ignores the stored previews, so the module (not this add-on) decides how many vertices a finer tolerance needs.
+// Issue 148: the cursor the refinement runs on. A chord asked for in source units tessellates every entity of the window at that
+// chord and ignores the stored previews, so the module (not this add-on) decides how many vertices a finer chord needs.
 const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const bytes = (id: string): Uint8Array => new Uint8Array(readFileSync(join(root, "tests/fixtures/pvec", `${id}.pvec`)));
 const WORLD: [number, number, number, number] = [-1e6, -1e6, 1e6, 1e6];
 
-async function draws(id: string, tolerance: number | undefined) {
+async function draws(id: string, chord: number | undefined) {
   const evaluator = await loadEvaluator({ wasmModule: await WebAssembly.compile(EVALUATOR_WASM_BYTES) });
-  const cursor = tier0CursorOver(evaluator, bytes(id), WORLD, tolerance === undefined ? undefined : { tolerance });
+  const cursor = tier0CursorOver(evaluator, bytes(id), WORLD, chord === undefined ? undefined : { chord });
   try {
     return new Tier0Decoder().decodeAll(cursor);
   } finally {
@@ -24,9 +24,9 @@ async function draws(id: string, tolerance: number | undefined) {
 }
 const vertices = (d: Awaited<ReturnType<typeof draws>>) => d.reduce((n, e) => n + (e.geometry.type === "polyline" || e.geometry.type === "line" ? e.geometry.points.length / 2 : 0), 0);
 
-describe("#148 tier0CursorOver with a tolerance", () => {
+describe("#148 tier0CursorOver with a chord", () => {
   for (const id of ["circle-001", "bezier-d3-001", "nurbs-d3-001"]) {
-    it(`${id}: a tolerance a hundred times finer gives more vertices, and the default is unchanged`, async () => {
+    it(`${id}: a chord a hundred times finer gives more vertices, and the default is unchanged`, async () => {
       const dflt = await draws(id, undefined);
       const coarse = await draws(id, 0.1);
       const fine = await draws(id, 0.001);
@@ -36,7 +36,7 @@ describe("#148 tier0CursorOver with a tolerance", () => {
     });
   }
 
-  it("a straight line is the same two points at any tolerance", async () => {
+  it("a straight line is the same two points at any chord", async () => {
     const a = await draws("line-001", 0.1);
     const b = await draws("line-001", 0.0001);
     expect(a.map((d) => d.geometry)).toEqual(b.map((d) => d.geometry));
