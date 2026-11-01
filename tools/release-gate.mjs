@@ -20,6 +20,18 @@ export const REQUIRED_CONDITIONS = [
   "api_report_identical_to_baseline",
 ];
 
+/**
+ * What rasters add to the freeze (#110), without touching the list above: a measured key inside four of the conditions, and one more row.
+ * `evaluateRelease` refuses a gate that lacks the row or a key, so a raster row cannot be removed quietly.
+ */
+export const RASTER_CONDITIONS = ["raster_render_budget"];
+export const RASTER_MEASURED = {
+  conformance_green_every_browser_row: "rasterGridSpecs",
+  gates_green_frozen_corpus: "rasterCases",
+  examples_pass_network_denied: "rasterExamples",
+  api_report_identical_to_baseline: "rasterNames",
+};
+
 const DEFERRED = "docs/deferred.md#issue-40-v1-freeze-and-documentation";
 export const sha256 = (s) => createHash("sha256").update(s).digest("hex");
 const root0 = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -70,6 +82,35 @@ export function wiredLayerEvidence(root) {
   };
 }
 
+/** The render budget of ADR 0009 on a real renderer's baseline entry: the same rule as `rasterBudgetProblems` in bench/lib/hardware.ts. */
+function rasterBudget(root) {
+  const freeze = readJson(root, "release/v1-freeze.json");
+  const rb = freeze.rasterProvenance?.renderBudget;
+  const base = readJson(root, "bench/baselines/renderer-baselines.json");
+  const entries = base.rasterEntries ?? {};
+  const renderers = {};
+  const problems = [];
+  const FRAME = 16.7;
+  for (const [key, e] of Object.entries(entries)) {
+    const clamped = (e.timerResolutionMs ?? 0) >= 1;
+    let steady = 0, upload = 0, over = 0;
+    for (const sc of e.raster.scenes.filter((x) => x.rasters > 0)) {
+      const v = clamped ? sc.render.steady.meanMs : sc.render.steady.p95Ms;
+      steady = Math.max(steady, v);
+      upload = Math.max(upload, sc.render.uploadFrames.p95Ms);
+      over += sc.render.uploadFrames.over16_7Ms.length + sc.uploads.overBudgetFrames;
+      if (!(v <= rb.steadyP95Ms)) problems.push(`${key} ${sc.name}: steady ${v}`);
+    }
+    for (const f of e.raster.fit) if (!(f.peakGpuTierBytes <= f.gpuBytes)) problems.push(`${key} ${f.view}: over the gpu ceiling`);
+    if (over > 0) problems.push(`${key}: ${over} upload frames over ${FRAME} ms or over the byte budget`);
+    renderers[key] = { steady: Math.round(steady * 100) / 100, statistic: clamped ? "mean" : "p95", uploadFramesP95Ms: Math.round(upload * 100) / 100 };
+  }
+  const names = Object.keys(renderers).sort();
+  const frozen = [...(freeze.rasterProvenance?.renderers ?? [])].sort();
+  if (JSON.stringify(names) !== JSON.stringify(frozen)) problems.push("the baselines and the freeze file name different renderers");
+  return { met: rb !== undefined && names.length >= 3 && problems.length === 0, renderers, problems, steadyP95Ms: rb?.steadyP95Ms };
+}
+
 export function buildGate(root = root0) {
   const compat = readJson(root, "compatibility.json");
   const corpus = readJson(root, "bench/corpus/corpus.json");
@@ -93,9 +134,13 @@ export function buildGate(root = root0) {
   const onlyByDesign = notEmittedIds.every((id) => byDesign.includes(id));
   const inPassSet = corpus.cases.filter((c) => c.pvec.status === "PRESENT" && /QUARANTINED/.test(c.evidenceClass)).length;
   const exampleDirs = readdirSync(path.join(root, "examples")).filter((d) => /^\d\d-/.test(d)).length;
+  const rasterExamples = readdirSync(path.join(root, "examples")).filter((d) => /^\d\d-raster/.test(d)).length;
+  const rasterGridSpecs = readdirSync(path.join(root, "tests/e2e/grid")).filter((f) => /raster.*\.spec\.ts$/.test(f)).length;
   const live = buildApiReport(root).text;
   const change = classifyApiChange(freeze.api.symbols, apiSymbols(live));
   const apiSame = live === report && sha256(live) === freeze.api.reportSha256;
+  const rasterNames = report.split(/^### /m).slice(1).filter((sym) => /raster/i.test(sym)).length;
+  const rb = rasterBudget(root);
 
   const layer = wiredLayerEvidence(root);
   const cond = (id, spec, met, measured, evidence) => ({
@@ -105,10 +150,10 @@ export function buildGate(root = root0) {
     schema: 1,
     note: "Produced by tools/release-gate.mjs. The release step refuses to tag unless every condition is present and met.",
     conditions: [
-      cond(REQUIRED_CONDITIONS[0], "conformance suite green on every supported browser row (M2.8 / M7.7)", supported === rows.length,
-        { supportedRows: supported, rows: rows.length }, "compatibility.json browsers against release/browser-grid.json (tools/run-grid.sh): every row supported and every grid run passed"),
-      cond(REQUIRED_CONDITIONS[1], "all gates green on the frozen corpus after tuning (M8.2 - M8.5, M8.6)", present.length + notEmitted === corpus.cases.length && pending === 0 && onlyByDesign && latest.variance.ok,
-        { casesWithPvecBytes: present.length, notEmittedByPvec: notEmitted, cases: corpus.cases.length, refusedByDesign: notEmittedIds, varianceOk: latest.variance.ok },
+      cond(REQUIRED_CONDITIONS[0], "conformance suite green on every supported browser row (M2.8 / M7.7)", supported === rows.length && rasterGridSpecs >= 1,
+        { supportedRows: supported, rows: rows.length, rasterGridSpecs }, "compatibility.json browsers against release/browser-grid.json (tools/run-grid.sh): every row supported and every grid run passed, the raster grid specs (tests/e2e/grid/*raster*) among them"),
+      cond(REQUIRED_CONDITIONS[1], "all gates green on the frozen corpus after tuning (M8.2 - M8.5, M8.6)", present.length + notEmitted === corpus.cases.length && pending === 0 && onlyByDesign && latest.variance.ok && (corpus.rasterCases?.length ?? 0) >= 2,
+        { casesWithPvecBytes: present.length, notEmittedByPvec: notEmitted, cases: corpus.cases.length, refusedByDesign: notEmittedIds, varianceOk: latest.variance.ok, rasterCases: corpus.rasterCases?.length ?? 0 },
         "bench/corpus/corpus.json pvec.status, latest bench/results file: 28 of 30 emitted, the other two (near-singular-001, translation-001) are refused by design in libviprs/pvec ADR 0017"),
       cond(REQUIRED_CONDITIONS[2], "no QUARANTINED fixture in the pass set (EPIC O classes)", inPassSet === 0 && present.length > 0 && pending === 0,
         { quarantined: inPassSet, passSetCases: present.length }, "the pass set is the corpus cases with real .pvec bytes from pvec's generator; none of them is QUARANTINED"),
@@ -119,19 +164,25 @@ export function buildGate(root = root0) {
         { leakTests: "lifecycle.test.ts (structural)", contextLossSnapshot: layer.lossOk, ...layer.lossMeasured },
         layer.lossOk ? "release/evidence/83-wired-layer.json: forced WEBGL_lose_context on a WebGL2 canvas through the layer, zero new range requests, snapshot within 0.1 percent; coexistence with MapLibre's own layers on a real map" : "no evidence from the wired layer: release/evidence/83-wired-layer.json is missing or outside its limits"),
       cond(REQUIRED_CONDITIONS[5], "examples pass with outbound network denied (M7.8)", exampleDirs >= 6 && latest.deniedHosts.length === 0,
-        { examplesWritten: exampleDirs, examplesPlanned: 6, deniedHosts: latest.deniedHosts.length }, "examples/README.md: 01-minimal runs against its own 127.0.0.1 server, 02 to 06 are not written"),
+        { examplesWritten: exampleDirs, examplesPlanned: 6, deniedHosts: latest.deniedHosts.length, rasterExamples }, "examples/README.md: 01-minimal and 07-raster-underlay run against their own 127.0.0.1 servers, 02 to 06 are not written (#84)"),
       cond(REQUIRED_CONDITIONS[6], "API report identical to the committed baseline (M7.1)", apiSame && change === "none",
-        { reportSha256: sha256(live), change }, "etc/maplibre-pvec.api.md regenerated from the sources and compared with release/v1-freeze.json"),
+        { reportSha256: sha256(live), change, rasterNames }, "etc/maplibre-pvec.api.md regenerated from the sources and compared with release/v1-freeze.json"),
+      cond(RASTER_CONDITIONS[0], "render CPU on frames without an upload under 1.5 ms p95 (the mean where the timer resolves 1 ms) on every real renderer, upload frames none longer than 16.7 ms and inside the byte budget (ADR 0009)", rb.met,
+        { steadyP95Ms: rb.steadyP95Ms, renderers: rb.renderers, ...(rb.problems.length ? { problems: rb.problems } : {}) }, "bench/baselines/renderer-baselines.json rasterEntries, from the result files under bench/results/hw, against rasterProvenance.renderBudget in release/v1-freeze.json"),
     ],
   };
 }
 
 export function evaluateRelease(gate) {
   const problems = [];
-  for (const id of REQUIRED_CONDITIONS) {
+  for (const id of [...REQUIRED_CONDITIONS, ...RASTER_CONDITIONS]) {
     const c = gate.conditions.find((x) => x.id === id);
     if (!c) problems.push(`missing condition ${id}`);
     else if (c.status !== "met") problems.push(`${id} is ${c.status}`);
+  }
+  for (const [id, key] of Object.entries(RASTER_MEASURED)) {
+    const c = gate.conditions.find((x) => x.id === id);
+    if (c && !(typeof c.measured === "object" && c.measured !== null && key in c.measured)) problems.push(`${id} lacks its raster row ${key}`);
   }
   return { ok: problems.length === 0, problems };
 }
