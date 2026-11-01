@@ -7,9 +7,9 @@ import { describe, expect, it } from "vitest";
 const root = join(__dirname, "../../..");
 const read = (p: string) => readFileSync(join(root, p), "utf8");
 
-const BUILT = ["01-minimal", "02-georeferenced", "03-refinement", "06-georeference-update"];
-const RECORDED = ["01-minimal", "02-georeferenced", "03-refinement", "06-georeference-update"];
-const BLOCKED = ["04-large-budget", "05-picking"];
+const BUILT = ["01-minimal", "02-georeferenced", "03-refinement", "05-picking", "06-georeference-update"];
+const RECORDED = ["01-minimal", "02-georeferenced", "03-refinement", "05-picking", "06-georeference-update"];
+const BLOCKED = ["04-large-budget"];
 
 describe("#124 examples 02 and 06 (slice of #84)", () => {
   it("the built examples have a page, a script and a runner, and the blocked ones are not faked", () => {
@@ -96,7 +96,7 @@ describe("#124 examples 02 and 06 (slice of #84)", () => {
   it("the committed run record lists the examples that ran, all passing, with no refused host", () => {
     const rec = JSON.parse(read("release/examples-run.json")) as { complete: boolean; results: Array<{ example: string; ok: boolean }>; deniedHosts: string[] };
     expect(rec.results.map((r) => r.example).sort()).toEqual(RECORDED);
-    expect(rec.complete, "four of six").toBe(false);
+    expect(rec.complete, "five of six").toBe(false);
     expect(rec.results.every((r) => r.ok)).toBe(true);
     expect(rec.deniedHosts).toEqual([]);
   });
@@ -105,7 +105,7 @@ describe("#124 examples 02 and 06 (slice of #84)", () => {
     expect(read("tools/release-gate.mjs")).toMatch(/examples-run\.json/);
     const gate = JSON.parse(read("release/v1-gate.json")) as { conditions: Array<{ id: string; status: string; measured: { examplesPassed: number; examplesPlanned: number } }> };
     const c = gate.conditions.find((x) => x.id === "examples_pass_network_denied")!;
-    expect(c.measured.examplesPassed).toBe(4);
+    expect(c.measured.examplesPassed).toBe(5);
     expect(c.measured.examplesPlanned).toBe(6);
     expect(c.status).not.toBe("met");
   });

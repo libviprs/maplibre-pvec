@@ -161,6 +161,32 @@ export class StrokeEngine {
   }
 
   /**
+   * The inverse of the layer's transform at a pick: lng/lat to source units through the current calibration, and the source units
+   * under one CSS pixel at that place, measured with the map's own projection. Undefined without a georeference.
+   */
+  pickView(): { lngLatToSource(l: { lng: number; lat: number }): { x: number; y: number }; sourceUnitsPerCssPx(l: { lng: number; lat: number }): number } | undefined {
+    const map = this.o.map;
+    if (!this.reference || typeof map.project !== "function" || typeof map.unproject !== "function") return undefined;
+    const geo = createGeoTransform(this.reference);
+    const toSource = (l: { lng: number; lat: number }) => {
+      const [x, y] = geo.inverse(l.lng, l.lat);
+      return { x, y };
+    };
+    return {
+      lngLatToSource: toSource,
+      sourceUnitsPerCssPx: (l) => {
+        const p = map.project([l.lng, l.lat]);
+        const o = toSource(l);
+        const step = (dx: number, dy: number): number => {
+          const q = toSource(map.unproject([p.x + dx, p.y + dy]));
+          return Math.hypot(q.x - o.x, q.y - o.y);
+        };
+        return Math.max(step(1, 0), step(0, 1));
+      },
+    };
+  }
+
+  /**
    * What the camera shows, for refinement: the source window under the canvas and device pixels per source unit near its
    * centre, from the map's own projection and the calibration. Undefined without a georeference, a canvas, or a view that
    * does not invert.

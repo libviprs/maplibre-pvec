@@ -36,6 +36,9 @@ export function fullViewPx(window: readonly [number, number, number, number]): n
 /** The artifact bytes `openTier0Cursor` read, kept for the life of the handle so a refinement walks them again without a request. */
 const retained = new WeakMap<object, Uint8Array>();
 
+/** The bytes of a file the default cursor read, or undefined. */
+export const retainedBytes = (handle: object): Uint8Array | undefined => retained.get(handle);
+
 /** The refinement walk of a file `openTier0Cursor` read, or null when it did not (a module without the Tier 0 calls, a stand-in cursor). */
 export function refinementOver(handle: PVecHandle, evaluator: Evaluator): RefinementSource | null {
   const bytes = retained.get(handle);

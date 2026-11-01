@@ -15,6 +15,10 @@
       "ok": true
     },
     {
+      "example": "05-picking",
+      "ok": true
+    },
+    {
       "example": "06-georeference-update",
       "ok": true
     }
