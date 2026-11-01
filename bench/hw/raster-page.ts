@@ -155,7 +155,7 @@ const watch = (): Watch => ({ last: undefined, peakTextures: 0, peakTextureBytes
 const seen = (w: Watch, st: RasterFrameStats) => { w.last = st; w.peakTextures = Math.max(w.peakTextures, st.textures); w.peakTextureBytes = Math.max(w.peakTextureBytes, st.textureBytes); if (st.uploads) w.uploads.push({ tiles: st.uploads, bytes: st.uploadedBytes }); };
 
 /** A run of the wired layer with rasters: `scans` A0 scans over the stroke scene (when `strokes`), the map panned and zoomed every frame. */
-async function scene(name: "strokes+1" | "strokes+10", scans: number, o: { durationMs: number; warmupMs: number; diffFrames: number; profile?: boolean }): Promise<RasterSceneRun> {
+async function scene(name: "strokes+0" | "strokes+1" | "strokes+10", scans: number, o: { durationMs: number; warmupMs: number; diffFrames: number; profile?: boolean }): Promise<RasterSceneRun> {
   const mk = (): { ps: RasterPlacement[]; w: Watch; extra: Parameters<typeof build>[1] } => {
     // Fit to the map: a scan spans 90 percent of the width, the scans are staggered a little so they do not coincide.
     const s = (CSS_W * 0.9) / A0.width;
@@ -206,7 +206,7 @@ async function scene(name: "strokes+1" | "strokes+10", scans: number, o: { durat
   let quiet = 0;
   const settling = frames(rig, undefined, 240_000, () => {
     const st = m.w.last;
-    const ok = lastCalls >= POLYLINES && !!st && st.pending === 0 && st.decodesInFlight === 0 && st.textures > 0;
+    const ok = lastCalls >= POLYLINES && (scans === 0 || (!!st && st.pending === 0 && st.decodesInFlight === 0 && st.textures > 0));
     quiet = ok ? quiet + 1 : 0;
     return quiet >= 3;
   });
@@ -264,6 +264,7 @@ async function scene(name: "strokes+1" | "strokes+10", scans: number, o: { durat
     },
     texture: { peakTextures: m.w.peakTextures, peakGpuTierBytes: Math.max(peakTier, m.w.peakTextureBytes), gpuBytes: GPU_CEILING },
     stateDiffs, errors: errors + errorsDebug, mainThreadDecodes,
+    phases: { ...(globalThis as { __RPROF?: Record<string, number> }).__RPROF },
     ...(o.profile ? { profile: { phases: { ...(globalThis as { __RPROF?: Record<string, number> }).__RPROF }, prepareP50Ms: stats(prepareMs).p50, prepareP95Ms: stats(prepareMs).p95, gl: [...glTime].map(([name, v]) => ({ name, calls: v.n, ms: v.ms })).sort((x, y) => y.ms - x.ms).slice(0, 12), renders: render.length } } : {}),
   };
 }
@@ -374,7 +375,7 @@ export async function run(o: { durationMs: number; warmupMs: number; diffFrames:
   say("fit views done");
   const firstDrawings = [await firstDrawing(25), await firstDrawing(5)];
   say("first drawing done");
-  const scenes = [await scene("strokes+1", 1, o)];
+  const scenes = [await scene("strokes+0", 0, o), await scene("strokes+1", 1, o)];
   say("scene 1 done");
   scenes.push(await scene("strokes+10", 10, o));
   say("scene 10 done");

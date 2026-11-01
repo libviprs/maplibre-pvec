@@ -205,7 +205,8 @@ export interface RasterDecodeRow { variant: RasterVariant; edge: number; samples
 /** `texImage2D` of an RGBA8 bitmap then `finish`; `sub*` is the same bitmap into immutable `texStorage2D` storage with `texSubImage2D`. */
 export interface RasterUploadRow { edge: number; samples: number; p50Ms: number; p95Ms: number; subP50Ms?: number; subP95Ms?: number }
 export interface RasterSceneRun {
-  name: "strokes+1" | "strokes+10";
+  /** `strokes+0` is the stroke scene alone in the same session, the baseline the render time of the other two is read against. */
+  name: "strokes+0" | "strokes+1" | "strokes+10";
   rasters: number;
   durationMs: number;
   segments: number;
@@ -218,6 +219,8 @@ export interface RasterSceneRun {
   errors: number;
   /** `createImageBitmap` and `Image.decode` calls seen on the main thread. */
   mainThreadDecodes: number;
+  /** Optional breakdown: milliseconds the raster renderer spent per phase over the run's frames, and how many frames. */
+  phases?: Record<string, number>;
 }
 export interface RasterFitRun { view: "1080p" | "4k"; deviceSize: [number, number]; rasters: number; gpuBytes: number; peakGpuTierBytes: number; textures: number; levels: number[] }
 export interface RasterFirstDrawing { mbit: number; ms: number; bytes: number }
