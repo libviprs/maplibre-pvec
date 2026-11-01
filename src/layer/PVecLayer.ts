@@ -404,7 +404,7 @@ export class PVecLayer implements CustomLayerInterface {
         bytesDecoded: 0,
         cacheTier: "network",
       });
-      const cursor = await deps.openCursor(h, evaluator);
+      const cursor = await deps.openCursor(h, evaluator, source);
       const map = wired(this).map;
       if (signal.aborted || (!cursor && !rasters) || !map) return;
       const engine = (wired(this).strokes = new StrokeEngine({
