@@ -207,6 +207,16 @@ What is done and tested: the decode rows in all four grid projects, the colour-c
 | The `getParameter`-free proof on WebKit and Firefox for the raster pass, and the compose spec on those engines | The compose spec is Chromium's (software GL flags, and Firefox needs the grid's X display). | Running `106-raster-compose.spec.ts` as a grid project. |
 | The `hostile` and compose rows in `release/browser-grid.json` for hardware | Software GL only. | The hardware lane of #82. |
 
+## #109 Example 07 and the raster documentation
+
+What is done and tested: `examples/07-raster-underlay/` (a scan under a drawing, from pvec's synthetic tiler output, against its own 127.0.0.1 server with every other origin refused), `docs/raster.md` (one page, one heading per subject, every `RASTER-NN` and `LIMIT-NN` rule named), the raster paragraphs in `docs/security-resource-limits.md`, `docs/range-cache-model.md` and `docs/georeferencing.md`, and the changelog entry.
+
+| Item | Why it cannot be done here | What unblocks it |
+|---|---|---|
+| An opacity slider in example 07 | The opacity is the file's: the public surface has `raster.enabled` and `layer.rasters()` and nothing that changes a placement, by design (ADR 0009). The example shows it read-only from `rasters()`. The band toggle is real: it switches between libviprs's two conversions of the same scan, band 0 and band 1 | A decision to add an option, which would be a freeze amendment for Rom |
+| A real photographed scan | The example uses libviprs's conversion of a generated PDF scan (a 64 by 48 ramp) and pvec's synthetic tiler output, not a photographed drawing | A real scan fixture in `libviprs/libviprs-tests` |
+| Examples 02 to 06 and the one CI job over all examples | #84 and PR #85 are not finished. Example 07 is added on main's harness (`examples/run-all.sh` runs every `examples/0*/run.mjs`), so it joins the job when that lands; the "examples pass" freeze condition stays deferred | #84 |
+
 ## #108 Hardware and software numbers for rasters, the texture constant and the retune
 
 What is done and tested: the raster page of the hardware harness (`bench/hw/raster-page.ts`): decode per tile for six codec variants at 256, 512 and 1024 px in the shipped worker, `texImage2D` per tile size, the wired layer on a real MapLibre map with the 1e6-segment stroke scene alone and with one and with ten A0 scans at 400 dpi (panning and zooming every frame, 60 s after a 3 s warm-up, frames split into steady and upload frames), a two-scan view at 1080p and 4K against the gpu ceiling, the first drawing over a paced link, and the two corpus raster cases replayed with rasters on and off. Real rows: Apple M5 (Chromium, Metal), Apple GPU (WebKit) and Intel ADL GT2 (Chromium). Software GL rows, labelled relative costs: linux/amd64 and linux/arm64 containers, no GPU. The texture constant is `RASTER_DEFAULTS`, frozen beside `defaults.ts`; its values (4, 2, 1) did not need to move. The render budget is ADR 0009's, 1.5 ms steady p95, which amends the 1 ms of the issue at Rom's instruction. The renderer retune kept: quad lists and signatures reused, opacity and texture set on change, memoised tile keys, a corner-box cull before the separating axis test, `texStorage2D` with `texSubImage2D`, and in the stroke pass one VAO per range with uniforms sent on change.
