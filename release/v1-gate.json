@@ -8,9 +8,10 @@
       "status": "met",
       "measured": {
         "supportedRows": 3,
-        "rows": 3
+        "rows": 3,
+        "rasterGridSpecs": 1
       },
-      "evidence": "compatibility.json browsers against release/browser-grid.json (tools/run-grid.sh): every row supported and every grid run passed"
+      "evidence": "compatibility.json browsers against release/browser-grid.json (tools/run-grid.sh): every row supported and every grid run passed, the raster grid specs (tests/e2e/grid/*raster*) among them"
     },
     {
       "id": "gates_green_frozen_corpus",
@@ -24,7 +25,8 @@
           "near-singular-001",
           "translation-001"
         ],
-        "varianceOk": true
+        "varianceOk": true,
+        "rasterCases": 2
       },
       "evidence": "bench/corpus/corpus.json pvec.status, latest bench/results file: 28 of 30 emitted, the other two (near-singular-001, translation-001) are refused by design in libviprs/pvec ADR 0017"
     },
@@ -72,11 +74,12 @@
       "spec": "examples pass with outbound network denied (M7.8)",
       "status": "deferred",
       "measured": {
-        "examplesWritten": 1,
+        "examplesWritten": 2,
         "examplesPlanned": 6,
-        "deniedHosts": 0
+        "deniedHosts": 0,
+        "rasterExamples": 1
       },
-      "evidence": "examples/README.md: 01-minimal runs against its own 127.0.0.1 server, 02 to 06 are not written",
+      "evidence": "examples/README.md: 01-minimal and 07-raster-underlay run against their own 127.0.0.1 servers, 02 to 06 are not written (#84)",
       "deferredIn": "docs/deferred.md#issue-40-v1-freeze-and-documentation"
     },
     {
@@ -85,9 +88,36 @@
       "status": "met",
       "measured": {
         "reportSha256": "6e573850bede9f0559a1d4ebc8e6e4bc273ee92342477413df488384467ff99c",
-        "change": "none"
+        "change": "none",
+        "rasterNames": 7
       },
       "evidence": "etc/maplibre-pvec.api.md regenerated from the sources and compared with release/v1-freeze.json"
+    },
+    {
+      "id": "raster_render_budget",
+      "spec": "render CPU on frames without an upload under 1.5 ms p95 (the mean where the timer resolves 1 ms) on every real renderer, upload frames none longer than 16.7 ms and inside the byte budget (ADR 0009)",
+      "status": "met",
+      "measured": {
+        "steadyP95Ms": 1.5,
+        "renderers": {
+          "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version) | chromium": {
+            "steady": 0.2,
+            "statistic": "p95",
+            "uploadFramesP95Ms": 10.1
+          },
+          "Apple GPU | webkit": {
+            "steady": 0.46,
+            "statistic": "mean",
+            "uploadFramesP95Ms": 3
+          },
+          "ANGLE (Intel, Mesa Intel(R) Graphics (ADL GT2), OpenGL ES 3.2) | chromium": {
+            "steady": 1.1,
+            "statistic": "p95",
+            "uploadFramesP95Ms": 6.3
+          }
+        }
+      },
+      "evidence": "bench/baselines/renderer-baselines.json rasterEntries, from the result files under bench/results/hw, against rasterProvenance.renderBudget in release/v1-freeze.json"
     }
   ]
 }
