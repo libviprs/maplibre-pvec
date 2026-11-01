@@ -219,8 +219,8 @@ function realEvaluatorSection(root) {
   if (r.tier0Slices?.length) {
     out.push("### Tier 0 decoder slices on the real stream\n");
     out.push("The default cursor of the layer drained by `Tier0Decoder` with its default slice size. A slice is one `decodeSlice` call; the ceiling is `DEFAULTS.maxSliceMs`. Opening the file in the evaluator is the cursor's first step and is reported on its own.\n");
-    out.push("| entry | entities | slices | open (ms) | max slice (ms) | median slice (ms) | total (ms) |", "|---|---|---|---|---|---|---|");
-    for (const t of r.tier0Slices) out.push(`| ${t.id} | ${t.refused ? `refused: ${t.refused}` : t.entities} | ${t.slices} | ${fmt(t.openMs)} | ${fmt(t.maxSliceMs)} | ${fmt(t.medianSliceMs)} | ${fmt(t.totalMs)} |`);
+    out.push("| entry | entities | slices | slices over 8 ms | open (ms) | max slice (ms) | p99 slice (ms) | median slice (ms) | total (ms) |", "|---|---|---|---|---|---|---|---|---|");
+    for (const t of r.tier0Slices) out.push(`| ${t.id} | ${t.refused ? `refused: ${t.refused}` : t.entities} | ${t.slices} | ${t.overBudget ?? "n/a"} | ${fmt(t.openMs)} | ${fmt(t.maxSliceMs)} | ${fmt(t.p99SliceMs ?? null)} | ${fmt(t.medianSliceMs)} | ${fmt(t.totalMs)} |`);
     out.push("");
   }
   for (const [name, label] of [["x86_64", "x86_64"], ["arm64", "arm64"]]) {

@@ -256,7 +256,7 @@ async function main(p) {
       refused = String(e && e.message || e);
     }
     cursor.close();
-    out.tier0Slices.push({ id, entities, slices: Math.max(0, times.length - 1), maxSliceMs: r3(Math.max(...times)), medianSliceMs: r3(median(times)), totalMs: r3(times.reduce((x, y) => x + y, 0)), openMs: r3(openMs), ...(refused ? { refused } : {}), platform: 'chromium, ' + navigator.userAgent.slice(0, 60) });
+    out.tier0Slices.push({ id, entities, slices: Math.max(0, times.length - 1), maxSliceMs: r3(Math.max(...times)), p99SliceMs: r3([...times].sort((x, y) => x - y)[Math.floor(times.length * 0.99)]), overBudget: times.filter((t) => t > 8).length, medianSliceMs: r3(median(times)), totalMs: r3(times.reduce((x, y) => x + y, 0)), openMs: r3(openMs), ...(refused ? { refused } : {}), platform: 'chromium, ' + navigator.userAgent.slice(0, 60) });
 
     // Stream audit: entries + uncovered is the window's entity count, and every preview stays within its declared error of a tight reference.
     const file = rt.open(bytes);
