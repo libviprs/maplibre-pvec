@@ -89,6 +89,8 @@ export interface RasterEntry {
   /** Software entries only. */
   container?: string;
   browserVersion: string;
+  /** The timer step the result was measured with: it decides whether the render budget reads a percentile or the mean. */
+  timerResolutionMs?: number;
   source: string;
   raster: RasterRun;
 }
@@ -178,6 +180,7 @@ export function validateBaselines(b: unknown): string[] {
     if (e.engine !== key.split(" | ")[1]) errors.push(`${key}: engine ${e.engine} does not match the key`);
     if (!e.source) errors.push(`${key}: source result file missing`);
     if (!e.raster?.decode?.length) errors.push(`${key}: raster entry has no decode table`);
+    if (!(typeof e.timerResolutionMs === "number" && e.timerResolutionMs > 0)) errors.push(`${key}: raster entry has no timerResolutionMs`);
   }
   for (const [key, e] of Object.entries(x.softwareRasterEntries ?? {})) {
     if (!isSoftwareRenderer(key) || e.softwareRenderer !== true) errors.push(`${key}: only software renderers go in softwareRasterEntries`);

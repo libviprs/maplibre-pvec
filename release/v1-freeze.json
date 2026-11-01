@@ -163,5 +163,20 @@
       "retainedLevelFactor": 2,
       "textureShare": 1
     }
+  },
+  "rasterProvenance": {
+    "measuredIn": "#108",
+    "renderers": [
+      "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version) | chromium",
+      "Apple GPU | webkit",
+      "ANGLE (Intel, Mesa Intel(R) Graphics (ADL GT2), OpenGL ES 3.2) | chromium"
+    ],
+    "softwareFeedsBudget": false,
+    "renderBudget": {
+      "steadyP95Ms": 1.5,
+      "statistic": "p95 of the render time of frames that uploaded no tile; the mean where the timer resolves 1 ms or coarser",
+      "uploadFrames": "render p95 over frames that uploaded a tile is at most the steady figure plus uploadBudgetMs plus the texImage2D p95 at the scene's tile size, and no frame uploads more than uploadBudgetBytes plus one tile",
+      "reference": "docs/adr/0009-raster-quads.md, Budget; ADR 0005's 1 ms stays the pipeline's number"
+    }
   }
 }

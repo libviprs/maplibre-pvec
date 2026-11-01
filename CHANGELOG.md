@@ -25,7 +25,7 @@ A minor change: nothing is removed or retyped. `PVecLayerOptions.raster` and `up
 
 ### Raster measurements and the texture constant (#108, display fidelity)
 
-`RASTER_DEFAULTS` in `src/config/defaults.ts` (bytes per texel, the retained-level factor and the texture share of `cache.gpuBytes`) and the same object in `release/v1-freeze.json` are new frozen budgets, equal by test, with the values the raster texture bound already used (4, 2 and 1). Nothing exported changed, so this is a patch-level change to the budgets and not a change to the public surface. The decode, upload and frame numbers for rasters in `docs/benchmark-report.md` are display-fidelity and frame-behaviour measurements, each named with its renderer, engine and arch; the software GL rows are relative costs and feed no budget.
+`RASTER_DEFAULTS` in `src/config/defaults.ts` (bytes per texel, the retained-level factor and the texture share of `cache.gpuBytes`) and the same object in `release/v1-freeze.json` are new frozen budgets, equal by test, with the values the raster texture bound already used (4, 2 and 1). Nothing exported changed, so this is a patch-level change to the budgets and not a change to the public surface. The render budget with rasters is 1.5 ms at the 95th percentile on frames that upload no tile, with uploads under the existing 2 ms budget; the issue's 1 ms was not reachable on the Intel row by construction (`docs/adr/0009-raster-quads.md`). The decode, upload and frame numbers for rasters in `docs/benchmark-report.md` are display-fidelity and frame-behaviour measurements, each named with its renderer, engine and arch; the software GL rows are relative costs and feed no budget.
 
 ### Measurements
 
