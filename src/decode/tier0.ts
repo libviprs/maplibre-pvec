@@ -22,10 +22,10 @@ export interface RawEntity {
 export interface BlockCursor { next(maxEntities: number): RawEntity[] | null; endsBlock?(): boolean }
 
 /** Exact cheap geometry. It has no conformance label and no error field. */
-export interface ExactDraw { kind: 'exact'; entityId: string; generation: 0; geometry: Geometry; bounds: Bounds }
+export interface ExactDraw { kind: 'exact'; entityId: string; generation: number; geometry: Geometry; bounds: Bounds }
 /** Bounded-error stand-in for a deferred analytic entity. */
 export interface PreviewDraw {
-  kind: 'preview'; entityId: string; generation: 0; geometry: Geometry; bounds: Bounds;
+  kind: 'preview'; entityId: string; generation: number; geometry: Geometry; bounds: Bounds;
   declaredErrorPx: number; conformance: 'display-fidelity';
 }
 export type EntityDraw = ExactDraw | PreviewDraw;

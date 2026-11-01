@@ -17,10 +17,12 @@ import { PVecSource } from "../source/PVecSource";
 import { GlResources } from "./glresources";
 import { StrokeEngine } from "./engine";
 import { assertMapLibreVersion, assertWebGL2 } from "../compat/detect";
-import { Tier0Decoder } from "../decode/tier0";
+import { Tier0Decoder, type BlockCursor } from "../decode/tier0";
 import type { Evaluator } from "../wasm/loader";
-import { engineDepsOf, registerControl, type EngineHooks, type LayerControl, type QueryEngine } from "./internal";
+import { controlOf, engineDepsOf, registerControl, type EngineHooks, type LayerControl, type QueryEngine } from "./internal";
 import { watchContextLoss } from "../render/gl_state";
+import { fullViewPx } from "./tier0-cursor";
+import { TierRefiner } from "./refinement";
 
 type Gl = WebGLRenderingContext | WebGL2RenderingContext;
 
@@ -45,6 +47,8 @@ interface Wiring {
   strokes?: StrokeEngine | undefined;
   evaluator?: Evaluator | undefined;
   map?: MapLibreMap | undefined;
+  refiner?: TierRefiner | undefined;
+  unsettle?: (() => void) | undefined;
 }
 const wiring = new WeakMap<object, Wiring>();
 const wired = (layer: object): Wiring => {
@@ -182,6 +186,15 @@ export class PVecLayer implements CustomLayerInterface {
     // then the wasm memory, then the caches that fed all of it.
     const steps: Array<[string, () => void]> = [
       ["abort", () => this.controller?.abort()],
+      [
+        "refine",
+        () => {
+          wired(this).unsettle?.();
+          wired(this).unsettle = undefined;
+          wired(this).refiner?.cancel();
+          wired(this).refiner = undefined;
+        },
+      ],
       ["workers", () => this.hooks.terminateWorkers?.()],
       [
         "gl",
@@ -233,7 +246,10 @@ export class PVecLayer implements CustomLayerInterface {
     validate(next);
     new PVecSource(toSource(next, (i, init) => globalThis.fetch(i, init)));
     this.options = next;
-    if ("georeference" in partial) wired(this).strokes?.setReference(next.georeference?.reference);
+    if ("georeference" in partial) {
+      wired(this).strokes?.setReference(next.georeference?.reference);
+      wired(this).refiner?.settle();
+    }
     if (partial.raster) wired(this).strokes?.setRasterEnabled(next.raster?.enabled !== false);
     this.hooks.onUpdate?.(partial);
   }
@@ -429,9 +445,20 @@ export class PVecLayer implements CustomLayerInterface {
       engine.setRasterEnabled(this.options.raster?.enabled !== false);
       if (cursor) {
         const t0 = performance.now();
-        const draws = new Tier0Decoder().decodeAll(cursor);
+        let blocks = 0;
+        const counted: BlockCursor = {
+          next: (n) => {
+            const r = cursor.next(n);
+            if (r && cursor.endsBlock?.()) blocks++;
+            return r;
+          },
+          ...(cursor.endsBlock ? { endsBlock: () => cursor.endsBlock!() } : {}),
+        };
+        const draws = new Tier0Decoder().decodeAll(counted);
         this.n.decodeMs += performance.now() - t0;
         this.guard(() => engine.setDraws(draws), "upload");
+        controlOf(this).markTier0Complete({ viewportId: "main", blocksUsed: Math.max(1, blocks) });
+        await startRefinement(this, deps, h, evaluator, engine, draws, map, signal, (f, w) => this.guard(f, w));
       } else {
         map.triggerRepaint?.();
       }
@@ -508,6 +535,26 @@ export class PVecLayer implements CustomLayerInterface {
       addCoalesced: (n) => void (this.n.coalesced += n),
     };
   }
+}
+
+/** Tier 1: when the camera rests, the strokes in view that are coarser than the policy allows are walked again by the module. */
+async function startRefinement(layer: PVecLayer, deps: ReturnType<typeof engineDepsOf>, handle: PVecHandle, evaluator: Evaluator, engine: StrokeEngine, draws: Parameters<TierRefiner["start"]>[0], map: MapLibreMap, signal: AbortSignal, guard: (f: () => void, where: string) => void): Promise<void> {
+  const source = await deps.openRefinement(handle, evaluator);
+  const b = handle.manifest.sourceBounds;
+  if (!source || signal.aborted) return;
+  const refiner = (wired(layer).refiner = new TierRefiner({
+    source,
+    view: () => engine.refineView(),
+    tier0Px: fullViewPx([b.minX, b.minY, b.maxX, b.maxY]),
+    setDraws: (all) => guard(() => engine.setDraws(all), "upload"),
+    report: (e) => controlOf(layer).reportRefinement(e),
+  }));
+  if (typeof map.on === "function") {
+    const rest = (): void => refiner.settle();
+    map.on("moveend", rest);
+    wired(layer).unsettle = () => map.off?.("moveend", rest);
+  }
+  refiner.start(draws);
 }
 
 /** Build a layer. Validates the options, makes no request and creates no worker or GL context. */

@@ -4,6 +4,7 @@ import { PVecError } from "../source/errors";
 import type { PVecSource } from "../source/PVecSource";
 import type { Evaluator } from "../wasm/loader";
 import { bindPacked } from "../wasm/packed";
+import type { RefinementSource } from "./refinement";
 
 // The evaluator opens a whole file from memory (its range-callback open waits on pvec's `http` feature), so
 // the artifact is read in ranges and handed over in one piece.
@@ -26,6 +27,20 @@ const MAX_DEPTH = 12;
 const CALL_MS = 1;
 // Stored previews are copied out this many to a step.
 const PREVIEW_STEP = 256;
+
+/** Source units of one pixel of a 1920 pixel view of `window`: the unit the Tier 0 errors are declared in. */
+export function fullViewPx(window: readonly [number, number, number, number]): number {
+  return Math.max(window[2] - window[0], window[3] - window[1], 1e-9) / FULL_VIEW_PX;
+}
+
+/** The artifact bytes `openTier0Cursor` read, kept for the life of the handle so a refinement walks them again without a request. */
+const retained = new WeakMap<object, Uint8Array>();
+
+/** The refinement walk of a file `openTier0Cursor` read, or null when it did not (a module without the Tier 0 calls, a stand-in cursor). */
+export function refinementOver(handle: PVecHandle, evaluator: Evaluator): RefinementSource | null {
+  const bytes = retained.get(handle);
+  return bytes ? { cursorFor: (window, tolerance) => tier0CursorOver(evaluator, bytes, window, { tolerance }) } : null;
+}
 
 /** `a` to `b` of a vertex array as a plain array. A sized loop is four to five times cheaper than `Array.from` (which grows an array through an iterator), and it makes no garbage to collect inside a slice. */
 const copied = (v: ArrayLike<number>, a: number, b: number): number[] => {
@@ -64,11 +79,18 @@ type Box = readonly [number, number, number, number];
  *
  * The cursor owns the file handle until it is drained, and gives it back on a later turn (not inside the `next` that returns the end of the walk, because freeing a file costs more than a slice may); call `close` to give it back early or at once.
  */
-export function tier0CursorOver(evaluator: Evaluator, bytes: Uint8Array, window: readonly [number, number, number, number]): BlockCursor & { close(): void } {
+export function tier0CursorOver(
+  evaluator: Evaluator,
+  bytes: Uint8Array,
+  window: readonly [number, number, number, number],
+  options: { tolerance?: number } = {},
+): BlockCursor & { close(): void } {
   const rt = bindPacked(evaluator);
   const file = rt.open(bytes);
   if (file < 0) throw new PVecError("load_failed", `the evaluator refused the file (code ${file})`);
-  const px = Math.max(window[2] - window[0], window[3] - window[1], 1e-9) / FULL_VIEW_PX;
+  // With a tolerance asked for, every entity of the window is tessellated at it (a pixel of this walk is that tolerance) and the stored previews are left out.
+  const exact = options.tolerance !== undefined;
+  const px = options.tolerance ?? fullViewPx(window);
   const chain = [1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1e9, px];
   const hasDirectory = rt.directoryStat(file, 0) === 1;
   const seen = new Set<number>();
@@ -129,7 +151,7 @@ export function tier0CursorOver(evaluator: Evaluator, bytes: Uint8Array, window:
   function* leaf(cell: number, hasBlock: boolean): Generator<void> {
     // An entity is in exactly one leaf, so only the stored previews and the entities of this leaf can overlap. A Set that held the whole file would rehash in one go, 10 to 20 ms, when it doubled.
     seen.clear();
-    if (hasBlock) {
+    if (hasBlock && !exact) {
       const stream = rt.tier0Leaf(file, cell);
       yield;
       if (stream >= 0) yield* storedPreviews(stream);
@@ -152,7 +174,7 @@ export function tier0CursorOver(evaluator: Evaluator, bytes: Uint8Array, window:
   }
   /** A window of a module with no per-leaf calls: its stored previews, then boxes of a few hundred entities. */
   function* box(w: Box, depth: number, top: boolean): Generator<void> {
-    if (top && hasDirectory) {
+    if (top && hasDirectory && !exact) {
       const stream = rt.tier0Viewport(file, ...w);
       yield;
       if (stream >= 0) yield* storedPreviews(stream);
@@ -252,6 +274,7 @@ export async function openTier0Cursor(handle: PVecHandle, evaluator: Evaluator, 
   for (let at = 0; at < bytes.length; at += CHUNK) {
     bytes.set(await source.readRange(at, Math.min(CHUNK, bytes.length - at), signal ? { signal } : {}), at);
   }
+  retained.set(handle, bytes);
   const b = handle.manifest.sourceBounds;
   return tier0CursorOver(evaluator, bytes, [b.minX, b.minY, b.maxX, b.maxY]);
 }
