@@ -72,16 +72,15 @@
     {
       "id": "examples_pass_network_denied",
       "spec": "examples pass with outbound network denied (M7.8)",
-      "status": "deferred",
+      "status": "met",
       "measured": {
-        "examplesWritten": 6,
-        "examplesPassed": 5,
+        "examplesWritten": 7,
+        "examplesPassed": 6,
         "examplesPlanned": 6,
         "deniedHosts": 0,
         "rasterExamples": 1
       },
-      "evidence": "release/examples-run.json: the summary of tools/examples.sh, six examples against their own 127.0.0.1 server with outbound network denied",
-      "deferredIn": "docs/deferred.md#issue-40-v1-freeze-and-documentation"
+      "evidence": "release/examples-run.json: the summary of tools/examples.sh, six examples against their own 127.0.0.1 server with outbound network denied"
     },
     {
       "id": "api_report_identical_to_baseline",

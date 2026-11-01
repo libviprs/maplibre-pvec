@@ -1,6 +1,6 @@
 {
   "planned": 6,
-  "complete": false,
+  "complete": true,
   "results": [
     {
       "example": "01-minimal",
@@ -12,6 +12,10 @@
     },
     {
       "example": "03-refinement",
+      "ok": true
+    },
+    {
+      "example": "04-large-budget",
       "ok": true
     },
     {
