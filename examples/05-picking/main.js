@@ -3,7 +3,7 @@
 // does not touch the add-on), asks for the nearest entity, queries regions, and clicks the canvas. Distances are CSS pixels. Nothing
 // leaves 127.0.0.1.
 import { createPVecLayer } from "/pkg/index.js";
-import { BEZIER, CIRCLE, LINES, bezierAt, lngLatOf, referenceFor, toBezier, toCircle, toSegment } from "/lib/picktruth.mjs";
+import { BEZIER, CIRCLE, LINES, bezierAt, lngLatOf, referenceFor, sourceOf, toBezier, toCircle, toSegment } from "/lib/picktruth.mjs";
 import { frames, openMap } from "/lib/map.js";
 
 const crs = { id: "EPSG:4326", forward: (x, y) => [x, y], inverse: (lng, lat) => [lng, lat] };
@@ -81,14 +81,16 @@ try {
     canvas.addEventListener("click", (e) => {
       const r = canvas.getBoundingClientRect();
       const l = map.unproject([e.clientX - r.left, e.clientY - r.top]);
-      clicks.push(summary(layers.circle.pickPoint({ lng: l.lng, lat: l.lat }, { tolerancePx: 3 })));
+      clicks.push({ at: l, hits: summary(layers.circle.pickPoint({ lng: l.lng, lat: l.lat }, { tolerancePx: 3 })) });
     });
     const a = (200 * Math.PI) / 180, rr = CIRCLE.r + 2 / pxu;
     const x = CIRCLE.cx + rr * Math.cos(a), y = CIRCLE.cy + rr * Math.sin(a);
     const p = map.project(lngLatOf("circle", x, y));
     const box = canvas.getBoundingClientRect();
     canvas.dispatchEvent(new MouseEvent("click", { clientX: box.left + p.x, clientY: box.top + p.y, bubbles: true }));
-    rec({ name: "click 2 px outside the circle", got: clicks[0] ?? [], want: [{ id: "0", distancePx: toCircle(x, y) * pxu }] });
+    // a constructed click event has whole-pixel coordinates, so the truth is the maths at the point the page was actually clicked
+    const [cx, cy] = clicks[0] ? sourceOf("circle", clicks[0].at.lng, clicks[0].at.lat) : [x, y];
+    rec({ name: "click 2 px outside the circle", got: clicks[0]?.hits ?? [], want: [{ id: "0", distancePx: toCircle(cx, cy) * pxu }] });
   }
   window.__result = { errors, probes, pxu, ids: NAMES.map((n) => [n, layers[n].getDiagnostics().frames]) };
   document.getElementById("status").dataset.state = errors.length ? "error" : "ready";

@@ -10,6 +10,8 @@ export const K = { kx: 1e-4 / COS_LAT, ky: 1e-4, e: 8.54, f: 47.37 };
 export const referenceFor = (name) => [K.kx, 0, 0, K.ky, K.e + K.kx * ORIGINS[name][0], K.f + K.ky * ORIGINS[name][1]];
 /** lng/lat of a source point of a drawing. */
 export const lngLatOf = (name, x, y) => [K.e + K.kx * (ORIGINS[name][0] + x), K.f + K.ky * (ORIGINS[name][1] + y)];
+/** Source coordinates of a lng/lat on a drawing. */
+export const sourceOf = (name, lng, lat) => [(lng - K.e) / K.kx - ORIGINS[name][0], (lat - K.f) / K.ky - ORIGINS[name][1]];
 
 export function toSegment(px, py, [ax, ay, bx, by]) {
   const dx = bx - ax, dy = by - ay;
