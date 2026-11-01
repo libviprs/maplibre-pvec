@@ -69,3 +69,11 @@ describe("#80 the layer's default openCursor reads the real Tier 0 stream", () =
     expect(harness).toMatch(/openTier0Cursor/);
   });
 });
+
+describe("#80 the default cursor needs the module's Tier 0 exports", () => {
+  it("is null for an evaluator that does not export the stream, so a raster-only or stub setup keeps its old events", async () => {
+    const stub = { instance: {} as WebAssembly.Instance, abiVersion: 2, source: "injected" as const };
+    const handle = { artifactLength: 0 } as never;
+    expect(await engineDepsOf({}).openCursor(handle, stub, {} as never)).toBeNull();
+  });
+});
