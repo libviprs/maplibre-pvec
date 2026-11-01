@@ -316,7 +316,8 @@ export function validateRasterResult(r: unknown, software: boolean): string[] {
     for (const k of ["count", "p50Ms", "p95Ms", "maxMs"] as const) if (!finite(s.frames?.[k])) errors.push(`raster.scenes ${name} frames.${k} is missing`);
     for (const k of ["p50Ms", "p95Ms", "maxMs"] as const) if (!finite(s.render?.[k])) errors.push(`raster.scenes ${name} render.${k} is missing`);
     for (const k of ["meanMs", "p50Ms", "p95Ms", "p99Ms", "maxMs"] as const) if (!finite(s.render?.steady?.[k])) errors.push(`raster.scenes ${name} render.steady.${k} is missing`);
-    if (!(s.render?.steady?.frames > 0)) errors.push(`raster.scenes ${name} has no steady frames`);
+    // Software GL draws a frame in seconds, so a 60 s window may hold only a handful of frames and none of them steady.
+    if (!software && !(s.render?.steady?.frames > 0)) errors.push(`raster.scenes ${name} has no steady frames`);
     for (const k of ["frames", "share", "p50Ms", "p95Ms", "maxMs"] as const) if (!finite(s.render?.uploadFrames?.[k])) errors.push(`raster.scenes ${name} render.uploadFrames.${k} is missing`);
     if (!Array.isArray(s.render?.uploadFrames?.over16_7Ms) || !Array.isArray(s.render?.steady?.over16_7Ms)) errors.push(`raster.scenes ${name} render.*.over16_7Ms (the frames longer than 16.7 ms) is missing`);
     if (!finite(s.uploads?.maxBytesPerFrame) || !finite(s.uploads?.maxTilesPerFrame)) errors.push(`raster.scenes ${name} uploads per frame are missing`);

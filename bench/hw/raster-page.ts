@@ -215,7 +215,7 @@ async function scene(name: "strokes+0" | "strokes+1" | "strokes+10", scans: numb
 
   const interval: number[] = [], render: number[] = [], steadyMs: number[] = [], uploadMs: number[] = [];
   const uploadTrace: { frame: number; ms: number; tiles: number; mib: number; prepareMs: number }[] = [];
-  let peakTier = 0, last = 0, start = 0, i = 0;
+  let peakTier = 0, last = 0, start = 0, i = 0, windowMs = 0;
   const budget = DEFAULTS.uploadBudgetBytes, tile = EDGE * EDGE * RASTER_DEFAULTS.bytesPerTexel;
   await new Promise<void>((resolve) => {
     const step = () => {
@@ -232,7 +232,7 @@ async function scene(name: "strokes+0" | "strokes+1" | "strokes+10", scans: numb
         last = ts;
       }
       i++;
-      if (ts - start >= o.warmupMs + o.durationMs + 1000) { map.off("render", step); resolve(); return; }
+      if (ts - start >= o.warmupMs + o.durationMs + 1000) { windowMs = ts - (start + o.warmupMs); map.off("render", step); resolve(); return; }
       // Pan side to side and breathe the zoom by 0.8 of a level, so the level rule moves and tiles keep arriving.
       map.setCenter([CENTER[0] + Math.sin(i / 90) * 500 * LON_PER_PX, CENTER[1] + Math.cos(i / 130) * 250 * LAT_PER_PX]);
       map.setZoom(17 + 0.8 * Math.sin(i / 300));
@@ -241,7 +241,9 @@ async function scene(name: "strokes+0" | "strokes+1" | "strokes+10", scans: numb
     map.on("render", step);
     map.triggerRepaint();
   });
-  const recordedMs = interval.reduce((a, b) => a + b, 0);
+  // The recorded window is the wall time from the end of the warm-up to the last frame, not the sum of the intervals: with frames that take
+  // seconds (software GL) the sum leaves out the time before the first recorded frame.
+  const recordedMs = Math.max(windowMs, interval.reduce((a, b) => a + b, 0));
   const errors = rig.errors();
   const mainThreadDecodes = counters.mainDecodes;
   map.remove();
