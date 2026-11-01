@@ -68,7 +68,11 @@ export type { BytesEvent };
 const engineDefaults: EngineDeps = {
   loadEvaluator: () => loadEvaluator(),
   maplibreVersion: () => (globalThis as { maplibregl?: { getVersion?: () => string } }).maplibregl?.getVersion?.(),
-  openCursor: (handle, evaluator, source) => openTier0Cursor(handle, evaluator, source),
+  // A module without the Tier 0 exports (ABI 1, or a stand-in) has no stream to drive, which is a layer without strokes, not an error.
+  openCursor: (handle, evaluator, source) =>
+    typeof (evaluator.instance.exports as Record<string, unknown> | undefined)?.["tier0_viewport"] === "function"
+      ? openTier0Cursor(handle, evaluator, source)
+      : Promise.resolve(null),
   // The raster stream of the file through the module's exports (libviprs/pvec#221). Null when the file declares no raster, or the
   // module predates the exports, and the layer then draws as it did before.
   openRasters: (handle, evaluator, source) =>
