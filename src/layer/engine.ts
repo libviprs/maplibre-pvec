@@ -160,6 +160,40 @@ export class StrokeEngine {
     this.o.map.triggerRepaint?.();
   }
 
+  /**
+   * What the camera shows, for refinement: the source window under the canvas and device pixels per source unit near its
+   * centre, from the map's own projection and the calibration. Undefined without a georeference, a canvas, or a view that
+   * does not invert.
+   */
+  refineView(): { window: [number, number, number, number]; pxPerSource: number } | undefined {
+    const map = this.o.map;
+    const reference = this.reference;
+    if (!reference || typeof map.project !== "function" || typeof map.unproject !== "function" || typeof map.getCanvas !== "function") return undefined;
+    const cssW = map.getCanvas().clientWidth, cssH = map.getCanvas().clientHeight;
+    if (!(cssW > 0 && cssH > 0)) return undefined;
+    try {
+      const geo = createGeoTransform(reference);
+      const corners = ([[0, 0], [cssW, 0], [cssW, cssH], [0, cssH]] as const).map(([x, y]) => {
+        const l = map.unproject([x, y]);
+        return geo.inverse(l.lng, l.lat);
+      });
+      const xs = corners.map((c) => c[0]), ys = corners.map((c) => c[1]);
+      const window: [number, number, number, number] = [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)];
+      const dpr = this.gl.drawingBufferWidth / cssW;
+      const cx = (window[0] + window[2]) / 2, cy = (window[1] + window[3]) / 2;
+      const span = Math.max(window[2] - window[0], window[3] - window[1]) / 100;
+      const at = (x: number, y: number): [number, number] => {
+        const p = map.project(mercatorToLngLat(...sourceToWorld(geo, x, y)));
+        return [p.x * dpr, p.y * dpr];
+      };
+      const o = at(cx, cy), ex = at(cx + span, cy), ey = at(cx, cy + span);
+      const pxPerSource = Math.max(Math.hypot(ex[0] - o[0], ex[1] - o[1]), Math.hypot(ey[0] - o[0], ey[1] - o[1])) / span;
+      return [...window, pxPerSource].every(Number.isFinite) && pxPerSource > 0 ? { window, pxPerSource } : undefined;
+    } catch {
+      return undefined;
+    }
+  }
+
   /** The rasters that draw, with their attribution escaped for an HTML sink. */
   rasterInfos(): RasterInfo[] {
     return (this.raster?.live() ?? []).map((p) => ({

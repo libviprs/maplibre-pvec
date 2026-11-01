@@ -9,7 +9,8 @@ import type { Evaluator } from "../wasm/loader";
 import type { BlockCursor } from "../decode/tier0";
 import type { PVecHandle } from "../source/bootstrap";
 import type { PVecSource } from "../source/PVecSource";
-import { openTier0Cursor } from "./tier0-cursor";
+import { openTier0Cursor, refinementOver } from "./tier0-cursor";
+import type { RefinementSource } from "./refinement";
 import type { DecodeWorker } from "../render/raster/decode";
 import type { RasterProvider } from "../render/raster/provider";
 import type { RasterFrameStats } from "../render/raster/renderer";
@@ -73,6 +74,8 @@ const engineDefaults: EngineDeps = {
     typeof (evaluator.instance.exports as Record<string, unknown> | undefined)?.["tier0_viewport"] === "function"
       ? openTier0Cursor(handle, evaluator, source)
       : Promise.resolve(null),
+  // The walk the refinement repeats at a finer tolerance: null unless the default cursor read the file, so a stand-in cursor is never refined.
+  openRefinement: (handle, evaluator) => Promise.resolve(refinementOver(handle, evaluator)),
   // The raster stream of the file through the module's exports (libviprs/pvec#221). Null when the file declares no raster, or the
   // module predates the exports, and the layer then draws as it did before.
   openRasters: (handle, evaluator, source) =>
@@ -104,6 +107,8 @@ export interface EngineDeps {
   maplibreVersion(): string | undefined;
   /** A cursor over the Tier 0 blocks, or null when the evaluator offers no decoder to drive. */
   openCursor(handle: PVecHandle, evaluator: Evaluator, source: PVecSource): Promise<BlockCursor | null>;
+  /** The module's walk of the file at a tolerance, for Tier 1 refinement, or null when the file was not read by the default cursor. */
+  openRefinement(handle: PVecHandle, evaluator: Evaluator): Promise<RefinementSource | null>;
   /** The raster stream of the file behind a seam, or null when the module lacks the raster exports or the file has no raster. */
   openRasters(handle: PVecHandle, evaluator: Evaluator, source: RangeReader): Promise<RasterProvider | null>;
   /** Debug hooks of the raster path: per frame stats, per tile decode time, and the worker the decode runs in. */

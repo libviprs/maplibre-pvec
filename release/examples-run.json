@@ -11,6 +11,10 @@
       "ok": true
     },
     {
+      "example": "03-refinement",
+      "ok": true
+    },
+    {
       "example": "06-georeference-update",
       "ok": true
     }

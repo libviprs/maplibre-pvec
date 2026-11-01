@@ -8,6 +8,10 @@
 
 Targets and thresholds are the frozen `REFINE_DEFAULTS` and `QUEUE_DEFAULTS`.
 
+## What the layer drives (#148)
+
+After the first full Tier 0 decode the layer emits `tier0complete` once. When the camera has rested for `idleMs` (and after a new georeference), it works out each visible entity's displayed error in device pixels (the tolerance it was tessellated at times the scale now). Those above the 1.0 px refine threshold are walked again by the module at 0.5 px for that scale, their polylines are replaced, and each is reported through `refinement` with a generation that only goes up. An entity the module returns unchanged is exact and is not asked again. A camera move, a new georeference or removing the layer drops the run in flight. The walk reads the artifact bytes the Tier 0 cursor already held, so nothing is fetched twice.
+
 ## Limits of what is verified
 
 The mechanics are tested in Node against an evaluator test double and a virtual clock, because no released PVec WASM artifact exists. The frame budgets are therefore the add-on's own CPU cost, not browser frame times with a compositor. Coarsening reports candidates but does not queue a job. See [deferred work](deferred.md), issue 58.
