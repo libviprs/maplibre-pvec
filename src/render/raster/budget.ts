@@ -60,9 +60,9 @@ export function limitDecoded(fits: Map<number, FittedRaster>, ps: readonly Raste
 
 /**
  * Takes the uploads one frame may do from the head of `queue`: at least one, then until the byte or the millisecond
- * budget is spent (the rule of `BufferPool.flush`).
+ * budget is spent (the rule of `BufferPool.flush`). With `each`, a tile is uploaded as soon as it is taken, so the clock sees the upload.
  */
-export function takeUploads<T extends { bytes: number }>(queue: T[], o: { budgetBytes: number; budgetMs: number; now: () => number }): T[] {
+export function takeUploads<T extends { bytes: number }>(queue: T[], o: { budgetBytes: number; budgetMs: number; now: () => number }, each?: (u: T) => void): T[] {
   const start = o.now();
   const taken: T[] = [];
   let sent = 0;
@@ -70,6 +70,9 @@ export function takeUploads<T extends { bytes: number }>(queue: T[], o: { budget
     if (sent > 0 && (sent >= o.budgetBytes || o.now() - start >= o.budgetMs)) break;
     const u = queue.shift()!;
     taken.push(u);
+    // The caller's upload runs here, before the next test of the clock: the millisecond budget is spent on the upload itself, so a tile
+    // that blocks on the driver ends the frame's uploads (a selection made first and uploaded after would never see the time).
+    each?.(u);
     sent += u.bytes;
   }
   return taken;

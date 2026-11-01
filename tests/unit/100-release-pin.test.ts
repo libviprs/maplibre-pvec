@@ -8,11 +8,11 @@ const pin = JSON.parse(readFileSync("wasm/pvec.pin.json", "utf8")) as {
   release?: { commit: string; abiVersion: number };
 };
 
-// The published libviprs/pvec release wasm-v1-ab3c2cf (libviprs/pvec#202), which carries the raster exports the adapter calls.
+// The published libviprs/pvec release wasm-v1-c4f71b3, which carries the raster exports the adapter calls (pvec#202) and the per-leaf calls the Tier 0 cursor walks (pvec#238).
 const RELEASE = {
-  commit: "ab3c2cf1db54e3523a616dddc135ae1188c03260",
-  bytes: 716752,
-  sha256: "3e8c4b498fabe5d5d4f4b3050d2fa34584263f98c0985076d7c0af242dad43d0",
+  commit: "c4f71b39324ef6d78de1731ac51a4ad49b01fd8e",
+  bytes: 750956,
+  sha256: "c73c94595c00f106071c458442d08fafa68031456ef70695f93e619ed8a029eb",
 };
 
 describe("#100 the evaluator is the published pvec release", () => {

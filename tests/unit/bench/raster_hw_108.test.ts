@@ -36,7 +36,7 @@ const good = (): RasterResult => ({
   environment: {
     host: "test host", os: "macOS", arch: "arm64", cpu: "Apple M5", engine: "chromium", browserVersion: "149.0.0.0",
     gpuRenderer: "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)", gpuVendor: "Google Inc. (Apple)",
-    softwareRenderer: false, dpr: 2, viewport: [1600, 1000], timerQuery: true, timerResolutionMs: 0.1,
+    softwareRenderer: false, dpr: 2, viewport: [1600, 1000], timerQuery: true, timerResolutionMs: 0.1, hostLoad: { start: 1.2, end: 2.1, cpus: 10 },
   },
   raster: {
     decode: RASTER_VARIANTS.flatMap((variant) => RASTER_EDGES.map((edge) => ({ variant, edge, samples: 30, bytes: 1000, coldMs: 12, p50Ms: 1.2, p95Ms: 2.5 }))),
@@ -111,34 +111,23 @@ describe("#108 raster result files", () => {
     r.raster.replay = r.raster.replay.filter((x) => !(x.case === "architectural-1e5+10-scans" && x.rasters === "off"));
     expect(validateRasterResult(r, false).join()).toMatch(/replay.*10-scans.*off/);
   });
-  it("asserts the steady p95 against 1.5 ms, upload frames against the upload budget's own rule, and the byte budget", () => {
+  it("asserts the steady p95 against 1.5 ms, no upload frame longer than 16.7 ms, and the byte budget", () => {
     expect(RASTER_RENDER_STEADY_P95_MS).toBe(1.5);
     expect(rasterBudgetProblems(good())).toEqual([]);
     const steady = good();
     steady.raster.scenes[1]!.render.steady.p95Ms = 1.6;
     expect(rasterBudgetProblems(steady).join()).toMatch(/strokes\+10.*steady render p95 1\.6 ms is over 1\.5/);
-    // all-frames p95 above 1.5 ms alone is not a miss: the upload frames carry their own bound
-    const allFrames = good();
-    allFrames.raster.scenes[1]!.render.p95Ms = 4;
-    expect(rasterBudgetProblems(allFrames)).toEqual([]);
-    const upload = good();
-    upload.raster.scenes[0]!.render.uploadFrames.p95Ms = 0.4 + 2 + 0.6 + 0.1;
-    expect(rasterBudgetProblems(upload).join()).toMatch(/upload frames|over upload frames/);
+    // the all-frames p95 and the p95 of upload frames are recorded, not asserted
+    const recorded = good();
+    recorded.raster.scenes[1]!.render.p95Ms = 4;
+    recorded.raster.scenes[1]!.render.uploadFrames = { frames: 32, share: 0.005, p50Ms: 0.7, p95Ms: 10.1, maxMs: 10.9, over16_7Ms: [] };
+    expect(rasterBudgetProblems(recorded), "a 10 ms upload frame is under one 60 fps frame").toEqual([]);
+    const hitch = good();
+    hitch.raster.scenes[0]!.render.uploadFrames = { frames: 8, share: 0.017, p50Ms: 3.9, p95Ms: 32.3, maxMs: 32.3, over16_7Ms: [32.3] };
+    expect(rasterBudgetProblems(hitch).join()).toMatch(/strokes\+1: an upload frame took 32\.3 ms, longer than one 60 fps frame \(16\.7 ms\); 1 of 8/);
     const bytes = good();
     bytes.raster.scenes[0]!.uploads.overBudgetFrames = 1;
     expect(rasterBudgetProblems(bytes).join()).toMatch(/byte budget plus one tile/);
-  });
-  it("with fewer than 20 upload frames the bound is asserted on their p50, because their p95 is their max, and the hitch is still listed", () => {
-    const few = good();
-    const sc = few.raster.scenes[0]!;
-    sc.render.uploadFrames = { frames: 8, share: 0.017, p50Ms: 3.9, p95Ms: 32.3, maxMs: 32.3, over16_7Ms: [32.3] };
-    expect(rasterBudgetProblems(few), "a 32 ms hitch among 8 upload frames: p50 3.9 is inside 0.4 + 2 + 0.6").toEqual([]);
-    expect(sc.render.uploadFrames.over16_7Ms).toEqual([32.3]);
-    sc.render.uploadFrames.p50Ms = 3.2;
-    expect(rasterBudgetProblems(few).join(), "p50 3.2 is over the bound of 3.0 ms").toMatch(/render p50 3\.2 ms over upload frames \(8\)/);
-    const many = good();
-    many.raster.scenes[0]!.render.uploadFrames = { frames: 20, share: 0.04, p50Ms: 1, p95Ms: 32.3, maxMs: 32.3, over16_7Ms: [32.3] };
-    expect(rasterBudgetProblems(many).join(), "with 20 frames the p95 counts").toMatch(/render p95 32\.3 ms over upload frames \(20\)/);
   });
   it("refuse a result that does not list the frames over 16.7 ms", () => {
     const r = good();
@@ -152,6 +141,14 @@ describe("#108 raster result files", () => {
     expect(rasterBudgetProblems(w), "p95 reads 2 ms but the mean is 1.2 ms").toEqual([]);
     w.raster.scenes[1]!.render.steady.meanMs = 1.6;
     expect(rasterBudgetProblems(w).join()).toMatch(/steady render mean 1\.6/);
+  });
+  it("refuse a hardware result taken while the host had more runnable threads than cpus, but only record the load of a software one", () => {
+    const r = good();
+    r.environment.hostLoad = { start: 8, end: 21.6, cpus: 6 };
+    expect(validateRasterResult(r, false).join()).toMatch(/host was loaded/);
+    const s = soft();
+    s.environment.hostLoad = { start: 8, end: 21.6, cpus: 6 };
+    expect(validateRasterResult(s, true).join()).not.toMatch(/host was loaded/);
   });
   it("refuse a result with no timer resolution or no steady block", () => {
     const a = good();
@@ -278,7 +275,8 @@ describe("#108 the texture constant", () => {
     expect(rb.steadyP95Ms).toBe(RASTER_RENDER_STEADY_P95_MS);
     expect(rb.softwareFeedsBudget ?? freeze.rasterProvenance.softwareFeedsBudget).toBe(false);
     expect(rb.statistic).toMatch(/mean/);
-    expect(rb.uploadFrames, "the 20-frame rule is written into the provenance, not left as a silent deviation").toMatch(/at least 20 upload frames.*p50/);
+    expect(rb.uploadFrames, "the amendment is written into the provenance").toMatch(/longer than 16\.7 ms/);
+    expect(rb.amendment, "dated, approved by Rom, a change from the determination").toMatch(/2026-10-31.*Rom.*determination/);
     const keys = Object.keys(json("bench/baselines/renderer-baselines.json").rasterEntries).sort();
     expect([...freeze.rasterProvenance.renderers].sort()).toEqual(keys);
   });

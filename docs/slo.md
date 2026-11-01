@@ -13,3 +13,20 @@ From `bench/results/2026-10-29-85111e8.json` (linux/x86_64 native, chromium 130.
 | line-001 | 335.8 | none (recorded only) |
 | nurbs-d3-001 | 334.7 | none (recorded only) |
 | polyline2d-001 | 338.7 | none (recorded only) |
+
+## First drawing with a raster
+
+The time from `addLayer` to the first frame that draws a raster tile, for one A0 scan whose tiles come from the harness's own loopback origin paced to the link rate, with 20 ms of added latency and no slow start. It is recorded for the 25 Mbit/s and 5 Mbit/s links of the strokes' marks, against pvec's `tier0-4s-5mbit` and `directory-300ms` verdicts on the browser side. It is not the Tier 0 inline overview of a real `.pvec` (the raster stream is served by a fixture provider, and the Tier 0 stream is not wired into the layer yet, see [deferred work](deferred.md)), and the add-on's mark is not claimed.
+
+| renderer | link | first raster drawn (ms) | tile bytes fetched | source |
+|---|---|---|---|---|
+| ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version), chromium 149.0.7827.55, arm64 | 25 Mbit/s | 67 | 593886 | `bench/results/hw/2026-11-01-macbook-m5-chromium-raster.json` |
+| ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version), chromium 149.0.7827.55, arm64 | 5 Mbit/s | 243 | 593886 | `bench/results/hw/2026-11-01-macbook-m5-chromium-raster.json` |
+| Apple GPU, webkit 26.5, arm64 | 25 Mbit/s | 83 | 593886 | `bench/results/hw/2026-11-01-macbook-m5-webkit-raster.json` |
+| Apple GPU, webkit 26.5, arm64 | 5 Mbit/s | 235 | 593886 | `bench/results/hw/2026-11-01-macbook-m5-webkit-raster.json` |
+| ANGLE (Intel, Mesa Intel(R) Graphics (ADL GT2), OpenGL ES 3.2), chromium 130.0.6723.31, x64 | 25 Mbit/s | 722 | 593886 | `bench/results/hw/2026-11-01-nas-intel-adl-gt2-chromium-raster.json` |
+| ANGLE (Intel, Mesa Intel(R) Graphics (ADL GT2), OpenGL ES 3.2), chromium 130.0.6723.31, x64 | 5 Mbit/s | 736 | 593886 | `bench/results/hw/2026-11-01-nas-intel-adl-gt2-chromium-raster.json` |
+| ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver), chromium 130.0.6723.31, arm64, software GL, no GPU | 25 Mbit/s | 116 | 593886 | `bench/results/hw/2026-11-01-mercury-colima-arm64-linux-chromium-software-raster.json` |
+| ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver), chromium 130.0.6723.31, arm64, software GL, no GPU | 5 Mbit/s | 250 | 593886 | `bench/results/hw/2026-11-01-mercury-colima-arm64-linux-chromium-software-raster.json` |
+| ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver), chromium 130.0.6723.31, x64, software GL, no GPU | 25 Mbit/s | 128 | 395924 | `bench/results/hw/2026-11-01-nas-x64-linux-chromium-software-raster.json` |
+| ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver), chromium 130.0.6723.31, x64, software GL, no GPU | 5 Mbit/s | 271 | 593886 | `bench/results/hw/2026-11-01-nas-x64-linux-chromium-software-raster.json` |

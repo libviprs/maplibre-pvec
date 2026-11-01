@@ -214,7 +214,8 @@ async function scene(name: "strokes+0" | "strokes+1" | "strokes+10", scans: numb
   await settling;
 
   const interval: number[] = [], render: number[] = [], steadyMs: number[] = [], uploadMs: number[] = [];
-  let peakTier = 0, last = 0, start = 0, i = 0;
+  const uploadTrace: { frame: number; ms: number; tiles: number; mib: number; prepareMs: number }[] = [];
+  let peakTier = 0, last = 0, start = 0, i = 0, windowMs = 0;
   const budget = DEFAULTS.uploadBudgetBytes, tile = EDGE * EDGE * RASTER_DEFAULTS.bytesPerTexel;
   await new Promise<void>((resolve) => {
     const step = () => {
@@ -225,12 +226,13 @@ async function scene(name: "strokes+0" | "strokes+1" | "strokes+10", scans: numb
           interval.push(ts - last);
           render.push(lastRenderMs);
           (m.w.last && m.w.last.uploads > 0 ? uploadMs : steadyMs).push(lastRenderMs);
+          if (m.w.last && m.w.last.uploads > 0) uploadTrace.push({ frame: render.length, ms: lastRenderMs, tiles: m.w.last.uploads, mib: m.w.last.uploadedBytes / 1048576, prepareMs: m.w.last.renderMs });
           peakTier = Math.max(peakTier, layer.getDiagnostics().bytes.gpuTier);
         }
         last = ts;
       }
       i++;
-      if (ts - start >= o.warmupMs + o.durationMs + 1000) { map.off("render", step); resolve(); return; }
+      if (ts - start >= o.warmupMs + o.durationMs + 1000) { windowMs = ts - (start + o.warmupMs); map.off("render", step); resolve(); return; }
       // Pan side to side and breathe the zoom by 0.8 of a level, so the level rule moves and tiles keep arriving.
       map.setCenter([CENTER[0] + Math.sin(i / 90) * 500 * LON_PER_PX, CENTER[1] + Math.cos(i / 130) * 250 * LAT_PER_PX]);
       map.setZoom(17 + 0.8 * Math.sin(i / 300));
@@ -239,7 +241,9 @@ async function scene(name: "strokes+0" | "strokes+1" | "strokes+10", scans: numb
     map.on("render", step);
     map.triggerRepaint();
   });
-  const recordedMs = interval.reduce((a, b) => a + b, 0);
+  // The recorded window is the wall time from the end of the warm-up to the last frame, not the sum of the intervals: with frames that take
+  // seconds (software GL) the sum leaves out the time before the first recorded frame.
+  const recordedMs = Math.max(windowMs, interval.reduce((a, b) => a + b, 0));
   const errors = rig.errors();
   const mainThreadDecodes = counters.mainDecodes;
   map.remove();
@@ -273,6 +277,7 @@ async function scene(name: "strokes+0" | "strokes+1" | "strokes+10", scans: numb
     texture: { peakTextures: m.w.peakTextures, peakGpuTierBytes: Math.max(peakTier, m.w.peakTextureBytes), gpuBytes: GPU_CEILING },
     stateDiffs, errors: errors + errorsDebug, mainThreadDecodes,
     phases: { ...(globalThis as { __RPROF?: Record<string, number> }).__RPROF },
+    uploadTrace: uploadTrace.slice(0, 80),
     ...(o.profile ? { profile: { phases: { ...(globalThis as { __RPROF?: Record<string, number> }).__RPROF }, prepareP50Ms: stats(prepareMs).p50, prepareP95Ms: stats(prepareMs).p95, gl: [...glTime].map(([name, v]) => ({ name, calls: v.n, ms: v.ms })).sort((x, y) => y.ms - x.ms).slice(0, 12), renders: render.length } } : {}),
   };
 }
@@ -324,7 +329,7 @@ const median = (v: number[]) => [...v].sort((a, b) => a - b)[Math.floor(v.length
  * script of five zoom steps and a ring of pan steps (the shape of bench/lib/viewport.ts around this scene's native zoom 17).
  * First drawing is addLayer to the first frame that drew the strokes (and, with rasters on, a raster); frames are the render intervals.
  */
-async function replay(id: string, scans: number, on: boolean, runs: number): Promise<RasterReplayRow> {
+async function replay(id: string, scans: number, on: boolean, runs: number, framesPerStep = 60): Promise<RasterReplayRow> {
   const first: number[] = [], p95: number[] = [], max: number[] = [];
   let count = 0;
   for (let r = 0; r < runs; r++) {
@@ -350,7 +355,7 @@ async function replay(id: string, scans: number, on: boolean, runs: number): Pro
         // A scene that never draws everything (software GL) still gets its replay, with the first drawing recorded as the cap.
         else if (!drawnAt && ts - t0 > 120_000) { drawnAt = ts - t0; recording = true; }
         if (recording) { if (last) intervals.push(ts - last); last = ts; i++; }
-        const k = Math.floor(i / 60);
+        const k = Math.floor(i / framesPerStep);
         if (k >= 5 + 24) { rig.map.off("render", step); resolve(); return; }
         if (recording) {
           if (k < 5) rig.map.setZoom([16, 17, 18, 19, 17][k]!);
@@ -377,7 +382,7 @@ function timerResolution(): number {
   return Number.isFinite(best) ? Math.round(best * 1000) / 1000 : 0;
 }
 
-export async function run(o: { durationMs: number; warmupMs: number; diffFrames: number; profile?: boolean; replay?: boolean }) {
+export async function run(o: { durationMs: number; warmupMs: number; diffFrames: number; profile?: boolean; replay?: boolean; replayLight?: boolean }) {
   const canvas = document.createElement("canvas");
   const gl = canvas.getContext("webgl2")!;
   const info = gl.getExtension("WEBGL_debug_renderer_info");
@@ -398,6 +403,6 @@ export async function run(o: { durationMs: number; warmupMs: number; diffFrames:
   scenes.push(await scene("strokes+10", 10, o));
   say("scene 10 done");
   const replays: RasterReplayRow[] = [];
-  if (o.replay !== false) for (const [id, n] of [["architectural-1e5+1-scan", 1], ["architectural-1e5+10-scans", 10]] as const) for (const on of [true, false]) replays.push(await replay(id, n, on, 3));
+  if (o.replay !== false) for (const [id, n] of [["architectural-1e5+1-scan", 1], ["architectural-1e5+10-scans", 10]] as const) for (const on of [true, false]) replays.push(await replay(id, n, on, o.replayLight ? 1 : 3, o.replayLight ? 8 : 60));
   return { gpuRenderer, gpuVendor, timerResolutionMs: timerResolution(), dpr: devicePixelRatio, viewport: [CSS_W, CSS_H] as [number, number], timerQuery, raster: { decode, upload, scenes, fit: fits, firstDrawing: firstDrawings, replay: replays } };
 }
