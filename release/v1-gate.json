@@ -72,7 +72,7 @@
       "spec": "examples pass with outbound network denied (M7.8)",
       "status": "deferred",
       "measured": {
-        "examplesWritten": 1,
+        "examplesWritten": 2,
         "examplesPlanned": 6,
         "deniedHosts": 0
       },
