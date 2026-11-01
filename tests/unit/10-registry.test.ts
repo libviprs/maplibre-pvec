@@ -79,12 +79,12 @@ describe("#10 registry resolves the pinned corpus", () => {
     for (const f of reg.fixtures) expect(f.canonicalPvec).toEqual({ status: "PENDING", waitsOn: "libviprs/pvec#1 P2.4" });
   });
 
-  it("takes the canonical pvec from pvec's index: 22 present with their digests, 8 not emitted with pvec's reason (#80)", async () => {
+  it("takes the canonical pvec from pvec's index: 28 present with their digests, 2 not emitted with pvec's reason (#80)", async () => {
     const index = await loadPvecIndex(join(dirname(corpusDir), "pvec"));
     const reg = await loadRegistry(fsSource(corpusDir), pin, index);
-    expect(reg.fixtures.filter((f) => f.canonicalPvec.status === "PRESENT")).toHaveLength(22);
+    expect(reg.fixtures.filter((f) => f.canonicalPvec.status === "PRESENT")).toHaveLength(28);
     const none = reg.fixtures.filter((f) => f.canonicalPvec.status === "NOT_EMITTED");
-    expect(none.map((f) => f.id)).toContain("nested-blocks-001");
+    expect(none.map((f) => f.id)).toContain("near-singular-001");
     for (const f of none) expect((f.canonicalPvec as { reason: string }).reason).toContain(f.id);
     const line = reg.fixtures.find((f) => f.id === "line-001")!;
     expect(line.canonicalPvec).toMatchObject({ status: "PRESENT", sha256: index.artifacts["line-001"]!.sha256 });
