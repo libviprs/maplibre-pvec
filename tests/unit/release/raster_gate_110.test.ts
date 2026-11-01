@@ -7,7 +7,6 @@ import { describe, expect, it } from "vitest";
 import { RASTER_RENDER_STEADY_P95_MS, rasterBudgetProblems } from "../../../bench/lib/hardware";
 import { SUPPORTED_ABI_VERSIONS, loadEvaluator } from "../../../src/wasm/loader";
 import { RASTER_EXPORTS, hasRasterExports, openRasterProvider } from "../../../src/wasm/raster";
-import { RasterRefusedError } from "../../../src/render/raster/provider";
 import { REQUIRED_CONDITIONS, buildGate, evaluateRelease } from "../../../tools/release-gate.mjs";
 import { missingRasterExports } from "../../../tools/staged-wasm.mjs";
 import { EVALUATOR_WASM_BYTES } from "../helpers/probe";
@@ -79,10 +78,8 @@ describe("#110 the gate counts the raster rows", () => {
 
 describe("#110 the pin move and the loader", () => {
   const pin = json("wasm/pvec.pin.json");
-  it("pins a pvec commit that has the LIMIT-15 and refused-stream names (7e99ca0 or later), with the digest of the module on disk", () => {
-    expect(pin.pvecCommit).toMatch(/^[0-9a-f]{40}$/);
-    expect(pin.pvecCommit).not.toBe("e1b8124f00f5b3302d421062f3980e207f3b578b");
-    expect(pin.abiVersion).toBe(2);
+  it("names the published release (moved by #100, not here) with the digest of the module on disk", () => {
+    expect(pin.release?.commit).toBe(pin.pvecCommit);
     const bytes = readFileSync(path.join(root, pin.wasm.file));
     expect(bytes.length).toBe(pin.wasm.bytes);
     expect(createHash("sha256").update(bytes).digest("hex")).toBe(pin.wasm.sha256);
@@ -109,17 +106,11 @@ describe("#110 the pin move and the loader", () => {
   it("is the module the build ships: wasm/pvec_eval.wasm is the file the pin names", () => expect(existsSync(path.join(root, "wasm/pvec_eval.wasm"))).toBe(true));
 });
 
-describe("#110 the adapter names LIMIT-15 and a refused stream", () => {
+describe("#110 the adapter names a raster stream refused as a whole (LIMIT-15 by name is #100)", () => {
   const dir = path.join(root, "tests/fixtures/pvec-raster");
   const file = (rel: string) => new Uint8Array(readFileSync(path.join(dir, rel)));
   const reader = (b: Uint8Array) => ({ artifactLength: b.length as number | undefined, readRange: (o: number, n: number) => Promise.resolve(b.slice(o, o + n)) });
   const evaluator = async () => loadEvaluator({ wasmModule: await WebAssembly.compile(EVALUATOR_WASM_BYTES) });
-  it.each(["hostile/oversized-tile.pvec", "hostile/tile-at-limit-15-plus-one.pvec"])("%s: the tile call is refused with LIMIT-15 (-10, rule 15, family 1)", async (rel) => {
-    const p = (await openRasterProvider(await evaluator(), reader(file(rel))))!;
-    const err = await p.tile(0, 0, 0, 0).catch((e: unknown) => e);
-    expect(err).toBeInstanceOf(RasterRefusedError);
-    expect((err as RasterRefusedError).rule).toBe("LIMIT-15");
-  });
   it("a raster stream the rules refuse as a whole names its rule on the provider", async () => {
     const p = (await openRasterProvider(await evaluator(), reader(file("hostile/jpeg-under-an-rgba-placement.pvec"))))!;
     expect(p, "a provider with no rasters that says why").not.toBeNull();
