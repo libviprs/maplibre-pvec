@@ -14,11 +14,20 @@ const root = path.join(here, "..", "..");
 const outFile = process.argv[2] ?? path.join(here, "range-results.json");
 const lib = path.join(root, ".cache", "pvec-real-range.mjs");
 await build({ entryPoints: [path.join(here, "range-entry.ts")], bundle: true, format: "esm", platform: "node", outfile: lib, logLevel: "error" });
-const { PVecSource, bootstrap, BOOTSTRAP_MAX_REQUESTS } = await import(lib);
+const { PVecSource, bootstrap, BOOTSTRAP_MAX_REQUESTS, PREFIX_BYTES, loadEvaluator, bindPacked } = await import(lib);
+// The evaluator reads the spatial directory (ABI 2). What a window needs from the file is the prefix, the directory
+// section and the stored bytes of the hot blocks of the leaves the window touches.
+const evaluator = await loadEvaluator({ wasmModule: await WebAssembly.compile(fs.readFileSync(path.join(root, "wasm/pvec_eval.wasm"))) });
+const rt = bindPacked(evaluator);
 
 const dirs = [path.join(root, "tests/fixtures/pvec"), path.join(root, ".cache/pvec-large")];
 const files = dirs.flatMap((d) => (fs.existsSync(d) ? fs.readdirSync(d).filter((f) => f.endsWith(".pvec")).map((f) => path.join(d, f)) : []));
-const byName = new Map(files.map((f) => [path.basename(f, ".pvec"), f]));
+// The "-tier0" files carry the spatial directory; the run of an entry is named after the entry, and the plain layout is kept as "<name>-plain".
+const byName = new Map(files.map((f) => {
+  const n = path.basename(f, ".pvec");
+  const large = f.includes("pvec-large");
+  return [n.endsWith("-tier0") ? n.slice(0, -6) : large ? `${n}-plain` : n, f];
+}));
 
 function origin(rttMs) {
   const log = [];
@@ -66,6 +75,10 @@ for (const rtt of [0, 100]) {
         viewports: [],
       };
       const b = h.manifest.sourceBounds, w = b.maxX - b.minX, ht = b.maxY - b.minY;
+      const bytes = fs.readFileSync(file);
+      const handle = rt.open(new Uint8Array(bytes));
+      const hasDirectory = handle >= 0 && rt.directoryStat(handle, 0) === 1;
+      run.spatialDirectory = hasDirectory;
       for (const [pname, f] of Object.entries(presets)) {
         const cx = b.minX + w * 0.5, cy = b.minY + ht * 0.5;
         const chunks = src.queryBounds({ minX: cx - (w * f) / 2, minY: cy - (ht * f) / 2, maxX: cx + (w * f) / 2, maxY: cy + (ht * f) / 2 }).slice().sort((x, y) => x.offset - y.offset);
@@ -75,8 +88,19 @@ for (const rtt of [0, 100]) {
         const t1 = performance.now();
         await Promise.all(ranges.map(([s, e]) => src.readRange(s, e - s)));
         const ms = performance.now() - t1;
-        run.viewports.push({ preset: pname, chunks: chunks.length, ranges: ranges.length, requests: log.length - before, bytes: ranges.reduce((a, [s, e]) => a + (e - s), 0), serialRoundTrips: ranges.length ? 1 : 0, ms: +ms.toFixed(1), msTotalFromColdStart: +(bootMs + ms).toFixed(1) });
+        let spatial = null;
+        if (hasDirectory) {
+          const q = rt.directoryQuery(handle, cx - (w * f) / 2, cy - (ht * f) / 2, cx + (w * f) / 2, cy + (ht * f) / 2);
+          if (typeof q !== "number") {
+            // The prefix, the directory section and the hot blocks of the touched leaves, as the directory states them.
+            const cellBytes = q.bytes.reduce((a, x) => a + x, 0);
+            spatial = { cells: q.cells.length, bytes: Math.round(PREFIX_BYTES + (h.spatialDirectory?.length ?? 0) + cellBytes) };
+            rt.release(q.handle);
+          }
+        }
+        run.viewports.push({ preset: pname, ...(spatial ? { spatial } : {}), chunks: chunks.length, ranges: ranges.length, requests: log.length - before, bytes: ranges.reduce((a, [s, e]) => a + (e - s), 0), serialRoundTrips: ranges.length ? 1 : 0, ms: +ms.toFixed(1), msTotalFromColdStart: +(bootMs + ms).toFixed(1) });
       }
+      if (handle >= 0) rt.release(handle);
       results.runs.push(run);
     } finally { srv.close(); }
   }

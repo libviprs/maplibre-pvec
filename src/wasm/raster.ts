@@ -73,13 +73,13 @@ export async function openRasterProvider(ev: Evaluator, src: RangeReader): Promi
   const count = await serial(() => stat(0));
   if (count <= 0) return null;
 
-  /** The rule a skipped raster names, as `RASTER-0N`. */
+  /** The rule a skipped raster names, as `RASTER-0N` or `LIMIT-0N`: selector 2 is the family (an older build answers -3, which is RASTER). */
   const skippedList = async (): Promise<{ id: number; rule: string; message: string }[]> => {
     const n = await stat(1);
     const out: { id: number; rule: string; message: string }[] = [];
     for (let i = 0; i < n; i++) {
       const id = call("raster_skipped", file, i, 0), rule = call("raster_skipped", file, i, 1);
-      const name = `RASTER-${String(rule).padStart(2, "0")}`;
+      const name = `${call("raster_skipped", file, i, 2) === 1 ? "LIMIT" : "RASTER"}-${String(rule).padStart(2, "0")}`;
       out.push({ id, rule: name, message: `${name}: the module skipped raster ${id}` });
     }
     return out;

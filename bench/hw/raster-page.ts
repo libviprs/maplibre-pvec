@@ -213,7 +213,7 @@ async function scene(name: "strokes+0" | "strokes+1" | "strokes+10", scans: numb
   await layer.whenReady();
   await settling;
 
-  const interval: number[] = [], render: number[] = [];
+  const interval: number[] = [], render: number[] = [], steadyMs: number[] = [], uploadMs: number[] = [];
   let peakTier = 0, last = 0, start = 0, i = 0;
   const budget = DEFAULTS.uploadBudgetBytes, tile = EDGE * EDGE * RASTER_DEFAULTS.bytesPerTexel;
   await new Promise<void>((resolve) => {
@@ -224,6 +224,7 @@ async function scene(name: "strokes+0" | "strokes+1" | "strokes+10", scans: numb
         if (last) {
           interval.push(ts - last);
           render.push(lastRenderMs);
+          (m.w.last && m.w.last.uploads > 0 ? uploadMs : steadyMs).push(lastRenderMs);
           peakTier = Math.max(peakTier, layer.getDiagnostics().bytes.gpuTier);
         }
         last = ts;
@@ -254,10 +255,17 @@ async function scene(name: "strokes+0" | "strokes+1" | "strokes+10", scans: numb
   dbg.map.remove();
 
   const fs = stats(interval), rs = stats(render);
+  const part = (v: number[]) => (v.length ? stats(v) : { p50: 0, p95: 0, p99: 0, max: 0 });
+  const ss = part(steadyMs), us = part(uploadMs);
+  const mean = (v: number[]) => (v.length ? v.reduce((a, b) => a + b, 0) / v.length : 0);
   return {
     name, rasters: scans, durationMs: Math.round(recordedMs), segments: POLYLINES * 100_000,
     frames: { count: interval.length, p50Ms: fs.p50, p95Ms: fs.p95, p99Ms: fs.p99, maxMs: fs.max, over20Ms: interval.filter((v) => v > 20).length },
-    render: { p50Ms: rs.p50, p95Ms: rs.p95, maxMs: rs.max },
+    render: {
+      p50Ms: rs.p50, p95Ms: rs.p95, maxMs: rs.max,
+      steady: { frames: steadyMs.length, meanMs: mean(steadyMs), p50Ms: ss.p50, p95Ms: ss.p95, p99Ms: ss.p99, maxMs: ss.max, over16_7Ms: steadyMs.filter((v) => v > 16.7) },
+      uploadFrames: { frames: uploadMs.length, share: render.length ? uploadMs.length / render.length : 0, p50Ms: us.p50, p95Ms: us.p95, maxMs: us.max, over16_7Ms: uploadMs.filter((v) => v > 16.7) },
+    },
     uploads: {
       framesWithUploads: m.w.uploads.length, maxTilesPerFrame: Math.max(0, ...m.w.uploads.map((u) => u.tiles)), maxBytesPerFrame: Math.max(0, ...m.w.uploads.map((u) => u.bytes)),
       overBudgetFrames: m.w.uploads.filter((u) => u.bytes >= budget + tile).length,
@@ -359,7 +367,17 @@ async function replay(id: string, scans: number, on: boolean, runs: number): Pro
   return { case: id, rasters: on ? "on" : "off", runs, firstDrawingMs: median(first), p95FrameMs: median(p95), maxFrameMs: median(max), frames: count };
 }
 
-export async function run(o: { durationMs: number; warmupMs: number; diffFrames: number; profile?: boolean }) {
+/** The smallest positive step of `performance.now` over a burst of readings: 0.1 ms where Chromium coarsens it, 1 ms where WebKit clamps it. */
+function timerResolution(): number {
+  let best = Infinity;
+  for (let i = 0; i < 200_000; i++) {
+    const a = performance.now(), b = performance.now();
+    if (b > a && b - a < best) best = b - a;
+  }
+  return Number.isFinite(best) ? Math.round(best * 1000) / 1000 : 0;
+}
+
+export async function run(o: { durationMs: number; warmupMs: number; diffFrames: number; profile?: boolean; replay?: boolean }) {
   const canvas = document.createElement("canvas");
   const gl = canvas.getContext("webgl2")!;
   const info = gl.getExtension("WEBGL_debug_renderer_info");
@@ -380,6 +398,6 @@ export async function run(o: { durationMs: number; warmupMs: number; diffFrames:
   scenes.push(await scene("strokes+10", 10, o));
   say("scene 10 done");
   const replays: RasterReplayRow[] = [];
-  for (const [id, n] of [["architectural-1e5+1-scan", 1], ["architectural-1e5+10-scans", 10]] as const) for (const on of [true, false]) replays.push(await replay(id, n, on, 3));
-  return { gpuRenderer, gpuVendor, dpr: devicePixelRatio, viewport: [CSS_W, CSS_H] as [number, number], timerQuery, raster: { decode, upload, scenes, fit: fits, firstDrawing: firstDrawings, replay: replays } };
+  if (o.replay !== false) for (const [id, n] of [["architectural-1e5+1-scan", 1], ["architectural-1e5+10-scans", 10]] as const) for (const on of [true, false]) replays.push(await replay(id, n, on, 3));
+  return { gpuRenderer, gpuVendor, timerResolutionMs: timerResolution(), dpr: devicePixelRatio, viewport: [CSS_W, CSS_H] as [number, number], timerQuery, raster: { decode, upload, scenes, fit: fits, firstDrawing: firstDrawings, replay: replays } };
 }

@@ -1,8 +1,8 @@
 import type { Page } from "@playwright/test";
 import { buildSync } from "esbuild";
 import { resolve } from "node:path";
+import { readFileSync } from "node:fs";
 import { RangeOrigin } from "../../unit/helpers/origin";
-import { buildPvec, gridSpec } from "../../unit/helpers/fixture";
 
 const bundle = buildSync({
   entryPoints: [resolve("tests/e2e/harness/layer-entry.ts")],
@@ -20,10 +20,14 @@ export const launch = { args: ["--use-gl=angle", "--use-angle=swiftshader", "--e
 
 export interface Rig { origin: RangeOrigin; url: string; stop(): Promise<void>; gets(): number }
 
-/** A loopback range origin serving the fixture, and the page with the bundle loaded. */
-export async function rig(page: Page): Promise<Rig> {
-  const origin = new RangeOrigin(buildPvec(gridSpec()).bytes);
+const wasm = readFileSync(resolve("wasm/pvec_eval.wasm"));
+
+/** A loopback range origin serving a real .pvec from the corpus, and the page with the bundle loaded. */
+export async function rig(page: Page, fixture = "polyline-001"): Promise<Rig> {
+  const origin = new RangeOrigin(new Uint8Array(readFileSync(resolve("tests/fixtures/pvec", `${fixture}.pvec`))));
   const base = await origin.start();
+  // The module the layer finds next to the bundle: the one the package ships.
+  await page.route("**/pvec_eval.wasm", (r) => r.fulfill({ body: wasm, contentType: "application/wasm" }));
   await page.goto("/app/index.html");
   await page.addScriptTag({ content: bundle });
   return { origin, url: `${base}/p.pvec`, stop: () => origin.stop(), gets: () => origin.log.filter((l) => l.method === "GET").length };

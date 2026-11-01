@@ -26,7 +26,7 @@ for (const f of inputs) {
     // Rasters through the wired layer (#108): apart from the stroke entries, hardware and software kept separate.
     const t = software ? (base.softwareRasterEntries ??= {}) : (base.rasterEntries ??= {});
     t[software ? `${baselineKey(e.gpuRenderer, e.engine)} | ${e.arch}` : baselineKey(e.gpuRenderer, e.engine)] = {
-      engine: e.engine, arch: e.arch, os: e.os, softwareRenderer: software, ...(software ? { container: e.container } : {}), browserVersion: e.browserVersion,
+      engine: e.engine, arch: e.arch, os: e.os, softwareRenderer: software, ...(software ? { container: e.container } : {}), browserVersion: e.browserVersion, timerResolutionMs: e.timerResolutionMs, hostLoad: e.hostLoad,
       source: relative(root, resolve(f)), raster: r.raster,
     };
     continue;

@@ -28,3 +28,4 @@ Evidence (Chromium 130, 28 hardware threads, stand-in workload):
 - Deployments need no COOP/COEP. If a host provides them, a shared-memory path may be added later as an optimisation, not as a requirement.
 - The pool needs a cost-aware, priority-aware scheduler (`M6.4`); a plain FIFO is rejected by the 655 ms figure.
 - The knee has to be re-measured with the real WASM evaluator in the workers.
+- 2026-11-01: the 1 ms of main-thread time stays the number for the pipeline's blocking work. The layer's render budget with rasters is a refinement of it, measured with the renderer in front: 1.5 ms at the 95th percentile on frames that upload no tile, with uploads under the upload budget, in [ADR 0009](0009-raster-quads.md) (Budget and Consequences).

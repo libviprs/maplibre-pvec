@@ -30,6 +30,9 @@ export const REQUIRED_EXPORTS: readonly string[] = [
   "memory", "__wbindgen_malloc", "wasm_abi_version", "open", "query_viewport", "batch_len", "batch_truncated",
   "tessellate_batch", "buffer_len", "buffer_ptr", "buffer_elem", "tessellation_failed", "tessellation_conformance",
   "tessellation_origin_x", "tessellation_origin_y", "memory_epoch", "view_current", "force_grow", "release",
+  // ABI 2: the spatial directory and the Tier 0 stream (libviprs/pvec#201).
+  "directory_stat", "directory_bound", "directory_query", "cells_len", "cells_ptr", "cells_elem", "tier0_viewport", "tier0_stat",
+  "tier0_buffer_len", "tier0_buffer_ptr", "tier0_buffer_elem",
 ];
 
 const fail = (why: string, cause?: unknown): PVecError =>

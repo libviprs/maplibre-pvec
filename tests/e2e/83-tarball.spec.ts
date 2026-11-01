@@ -6,7 +6,6 @@ import type { AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { RangeOrigin } from "../unit/helpers/origin";
-import { buildPvec, gridSpec } from "../unit/helpers/fixture";
 import { launch } from "./harness/layer-run";
 
 // Issue 83: install the packed tarball into a clean project and render a fixture in a headless browser.
@@ -69,7 +68,10 @@ const map = new maplibregl.Map({ container: "m", center: [0, 0], zoom: 3, intera
   style: { version: 8, sources: { l: { type: "geojson", data: { type: "Feature", geometry: { type: "LineString", coordinates: [[-20, 0], [20, 0]] } } } },
     layers: [{ id: "bg", type: "background", paint: { "background-color": "#dfe7ee" } }, { id: "l", type: "line", source: "l", paint: { "line-color": "#112233", "line-width": 8 } }] } });
 await new Promise((r) => map.once("load", r));
-const layer = createPVecLayer({ id: "pvec", source: { url: q.get("fixture") } });
+// polyline-001 spans x -1.5 to 4 and y -1.25 to 3.25; three degrees per unit puts it about 180 pixels wide.
+const crs = { id: "EPSG:4326", forward: (x, y) => [x, y], inverse: (x, y) => [x, y] };
+const layer = createPVecLayer({ id: "pvec", source: { url: q.get("fixture") }, georeference: { reference: { kind: "affine", unit: "m", crs, calibration: [3, 0, 0, 3, -3.75, -3] } } });
+layer.registerComponent("style", { resolve: () => ({ widthPx: 4, dash: [], color: "#cc0000" }) });
 const errors = [];
 layer.on("error", (e) => errors.push(e.code));
 map.addLayer(layer);
@@ -79,13 +81,16 @@ const c = document.createElement("canvas"); c.width = map.getCanvas().width; c.h
 const x = c.getContext("2d"); x.drawImage(map.getCanvas(), 0, 0);
 const px = (a, b) => Array.from(x.getImageData(a, b, 1, 1).data);
 const mid = Math.floor(c.height / 2), dpr = c.width / 256;
-window.__result = { errors, diag: layer.getDiagnostics(), corner: px(2, 2), line: px(Math.floor(c.width / 2), mid), version: maplibregl.getVersion(), dpr };
+const all = x.getImageData(0, 0, c.width, c.height).data;
+let red = 0;
+for (let i = 0; i < all.length; i += 4) if (all[i] > 170 && all[i + 1] < 60 && all[i + 2] < 60) red++;
+window.__result = { errors, diag: layer.getDiagnostics(), red, corner: px(2, 2), line: px(Math.floor(c.width / 2), mid), version: maplibregl.getVersion(), dpr };
 document.title = "done";
 </script>`;
 
 test.describe("issue 83 the installed tarball on a real map", () => {
   test("adds the layer, opens the container and leaves MapLibre's layers rendering", async ({ page }) => {
-    const origin = new RangeOrigin(buildPvec(gridSpec()).bytes);
+    const origin = new RangeOrigin(new Uint8Array(readFileSync(join(process.cwd(), "tests/fixtures/pvec/polyline-001.pvec"))));
     const fx = await origin.start();
     const s = await serve(false);
     try {
@@ -93,8 +98,9 @@ test.describe("issue 83 the installed tarball on a real map", () => {
       page.on("request", (q) => void (q.url().startsWith("http") && outbound.add(new URL(q.url()).host)));
       await page.goto(`${s.base}/page.html?fixture=${encodeURIComponent(`${fx}/p.pvec`)}`);
       await page.waitForFunction("document.title === 'done'", undefined, { timeout: 60_000 });
-      const r = (await page.evaluate("window.__result")) as { errors: string[]; diag: { ranges: { issued: number }; frames: number }; corner: number[]; line: number[] };
+      const r = (await page.evaluate("window.__result")) as { errors: string[]; diag: { ranges: { issued: number }; frames: number }; corner: number[]; line: number[]; red: number };
       expect(r.errors).toEqual([]);
+      expect(r.red, "the installed layer draws the strokes of the real file").toBeGreaterThan(300);
       expect(r.diag.ranges.issued).toBeGreaterThan(0);
       expect(r.diag.frames).toBeGreaterThan(0);
       expect(r.corner.slice(0, 3)).toEqual([0xdf, 0xe7, 0xee]);
@@ -111,7 +117,7 @@ test.describe("issue 83 the installed tarball on a real map", () => {
   });
 
   test("with the evaluator blocked the installed layer reports wasm_unavailable once, requests nothing, and MapLibre still renders", async ({ page }) => {
-    const origin = new RangeOrigin(buildPvec(gridSpec()).bytes);
+    const origin = new RangeOrigin(new Uint8Array(readFileSync(join(process.cwd(), "tests/fixtures/pvec/polyline-001.pvec"))));
     const fx = await origin.start();
     const s = await serve(true);
     try {

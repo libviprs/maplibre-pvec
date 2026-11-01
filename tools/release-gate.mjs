@@ -85,7 +85,12 @@ export function buildGate(root = root0) {
   const supported = rows.filter((b) => b.status === "supported" && gridGreen && grid.runs.some((r) => r.kind === "grid" && r.engine === b.engine && r.version === b.tested)).length;
   const pending = corpus.cases.filter((c) => c.pvec.status === "PENDING").length;
   const present = corpus.cases.filter((c) => c.pvec.status === "PRESENT");
-  const notEmitted = corpus.cases.filter((c) => c.pvec.status === "NOT_EMITTED").length;
+  const notEmittedIds = corpus.cases.filter((c) => c.pvec.status !== "PRESENT" && c.pvec.status !== "PENDING").map((c) => c.fixtureId).sort();
+  const notEmitted = notEmittedIds.length;
+  // pvec refuses these two on purpose (libviprs/pvec ADR 0017, amendment 2026-10-31, and docs/CORPUS.md "Refusals by design"):
+  // near-singular-001 may emit no curve, translation-001 is a world-space line at z = 2 and the profile is 2D with no promotion.
+  const byDesign = ["near-singular-001", "translation-001"];
+  const onlyByDesign = notEmittedIds.every((id) => byDesign.includes(id));
   const inPassSet = corpus.cases.filter((c) => c.pvec.status === "PRESENT" && /QUARANTINED/.test(c.evidenceClass)).length;
   const exampleDirs = readdirSync(path.join(root, "examples")).filter((d) => /^\d\d-/.test(d)).length;
   const live = buildApiReport(root).text;
@@ -102,8 +107,9 @@ export function buildGate(root = root0) {
     conditions: [
       cond(REQUIRED_CONDITIONS[0], "conformance suite green on every supported browser row (M2.8 / M7.7)", supported === rows.length,
         { supportedRows: supported, rows: rows.length }, "compatibility.json browsers against release/browser-grid.json (tools/run-grid.sh): every row supported and every grid run passed"),
-      cond(REQUIRED_CONDITIONS[1], "all gates green on the frozen corpus after tuning (M8.2 - M8.5, M8.6)", present.length === corpus.cases.length && latest.variance.ok,
-        { casesWithPvecBytes: present.length, notEmittedByPvec: notEmitted, cases: corpus.cases.length, varianceOk: latest.variance.ok }, "bench/corpus/corpus.json pvec.status, latest bench/results file"),
+      cond(REQUIRED_CONDITIONS[1], "all gates green on the frozen corpus after tuning (M8.2 - M8.5, M8.6)", present.length + notEmitted === corpus.cases.length && pending === 0 && onlyByDesign && latest.variance.ok,
+        { casesWithPvecBytes: present.length, notEmittedByPvec: notEmitted, cases: corpus.cases.length, refusedByDesign: notEmittedIds, varianceOk: latest.variance.ok },
+        "bench/corpus/corpus.json pvec.status, latest bench/results file: 28 of 30 emitted, the other two (near-singular-001, translation-001) are refused by design in libviprs/pvec ADR 0017"),
       cond(REQUIRED_CONDITIONS[2], "no QUARANTINED fixture in the pass set (EPIC O classes)", inPassSet === 0 && present.length > 0 && pending === 0,
         { quarantined: inPassSet, passSetCases: present.length }, "the pass set is the corpus cases with real .pvec bytes from pvec's generator; none of them is QUARANTINED"),
       cond(REQUIRED_CONDITIONS[3], "WASM-blocked and non-isolated paths behave as documented (M7.6)", layer.wasmOk,
