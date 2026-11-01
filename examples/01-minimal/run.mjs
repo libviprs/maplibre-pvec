@@ -5,10 +5,11 @@
 //   blocked      the .wasm request is aborted                                 -> wasm_unavailable
 // Launch through /Users/rom/workspace/xdg-pw-lock.sh. The server is closed on every path.
 import { chromium } from "@playwright/test";
-import { mkdirSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { smallFixture } from "../lib/fixtures.mjs";
+import { denyExternal } from "../lib/deny.mjs";
 import { withServer } from "../lib/serve.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -25,11 +26,14 @@ const cases = [
 ];
 
 let failed = 0;
+const denied = new Set();
 const browser = await chromium.launch();
 try {
   for (const c of cases) {
     await withServer({ routes: { "/pkg": pkg, "/": join(here, "..") }, fixtures: { "/fixtures/small.pvec": smallFixture() }, csp: c.csp }, async (s) => {
-      const page = await browser.newPage();
+      const context = await browser.newContext();
+      const deny = await denyExternal(context, "127.0.0.1");
+      const page = await context.newPage();
       const pageErrors = [];
       page.on("pageerror", (e) => pageErrors.push(String(e)));
       if (c.block) await page.route(c.block, (r) => r.abort());
@@ -39,6 +43,8 @@ try {
       const r = JSON.parse(await page.locator("#out").textContent());
       await page.screenshot({ path: join(out, `01-minimal-${c.name}.png`) });
       await page.close();
+      deny.deniedHosts().forEach((h) => denied.add(h));
+      await context.close();
       const ok = c.expect(r) && pageErrors.length === 0;
       if (!ok) failed++;
       console.log(JSON.stringify({ case: c.name, ok, result: r, pageErrors }));
@@ -47,4 +53,6 @@ try {
 } finally {
   await browser.close();
 }
+writeFileSync(join(out, "01-minimal.result.json"), JSON.stringify({ example: "01-minimal", ok: failed === 0 && denied.size === 0, deniedHosts: [...denied] }) + "\n");
+if (denied.size) failed++;
 process.exit(failed ? 1 : 0);

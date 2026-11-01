@@ -134,6 +134,9 @@ export function buildGate(root = root0) {
   const onlyByDesign = notEmittedIds.every((id) => byDesign.includes(id));
   const inPassSet = corpus.cases.filter((c) => c.pvec.status === "PRESENT" && /QUARANTINED/.test(c.evidenceClass)).length;
   const exampleDirs = readdirSync(path.join(root, "examples")).filter((d) => /^\d\d-/.test(d)).length;
+  const runFile = path.join(root, "release/examples-run.json");
+  const run = existsSync(runFile) ? readJson(root, "release/examples-run.json") : { results: [], deniedHosts: ["no run record"] };
+  const examplesPassed = run.results.filter((r) => r.ok).length;
   const rasterExamples = readdirSync(path.join(root, "examples")).filter((d) => /^\d\d-raster/.test(d)).length;
   const rasterGridSpecs = readdirSync(path.join(root, "tests/e2e/grid")).filter((f) => /raster.*\.spec\.ts$/.test(f)).length;
   const live = buildApiReport(root).text;
@@ -163,8 +166,8 @@ export function buildGate(root = root0) {
       cond(REQUIRED_CONDITIONS[4], "lifecycle leak and context-loss tests green (M7.2)", layer.lossOk,
         { leakTests: "lifecycle.test.ts (structural)", contextLossSnapshot: layer.lossOk, ...layer.lossMeasured },
         layer.lossOk ? "release/evidence/83-wired-layer.json: forced WEBGL_lose_context on a WebGL2 canvas through the layer, zero new range requests, snapshot within 0.1 percent; coexistence with MapLibre's own layers on a real map" : "no evidence from the wired layer: release/evidence/83-wired-layer.json is missing or outside its limits"),
-      cond(REQUIRED_CONDITIONS[5], "examples pass with outbound network denied (M7.8)", exampleDirs >= 6 && latest.deniedHosts.length === 0,
-        { examplesWritten: exampleDirs, examplesPlanned: 6, deniedHosts: latest.deniedHosts.length, rasterExamples }, "examples/README.md: 01-minimal and 07-raster-underlay run against their own 127.0.0.1 servers, 02 to 06 are not written (#84)"),
+      cond(REQUIRED_CONDITIONS[5], "examples pass with outbound network denied (M7.8)", exampleDirs >= 6 && examplesPassed === 6 && run.deniedHosts.length === 0 && latest.deniedHosts.length === 0,
+        { examplesWritten: exampleDirs, examplesPassed, examplesPlanned: 6, deniedHosts: run.deniedHosts.length + latest.deniedHosts.length, rasterExamples }, "release/examples-run.json: the summary of tools/examples.sh, six examples against their own 127.0.0.1 server with outbound network denied"),
       cond(REQUIRED_CONDITIONS[6], "API report identical to the committed baseline (M7.1)", apiSame && change === "none",
         { reportSha256: sha256(live), change, rasterNames }, "etc/maplibre-pvec.api.md regenerated from the sources and compared with release/v1-freeze.json"),
       cond(RASTER_CONDITIONS[0], "render CPU on frames without an upload under 1.5 ms p95 (the mean where the timer resolves 1 ms) on every real renderer, upload frames none longer than 16.7 ms and inside the byte budget (ADR 0009)", rb.met,
