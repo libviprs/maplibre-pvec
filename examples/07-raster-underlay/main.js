@@ -34,7 +34,7 @@ const map = new maplibregl.Map({
   style: { version: 8, sources: {}, layers: [{ id: "bg", type: "background", paint: { "background-color": "#dfe7ee" } }] },
 });
 let attribution;
-const frame = () => new Promise((r) => map.once("render", () => r()));
+const frame = () => new Promise((r) => (map.once("render", () => r()), map.triggerRepaint()));
 
 /** The map canvas read back through a 2D canvas: the pixels that are not the background colour, and the pixel at a device point. */
 function canvasPixels(at) {
