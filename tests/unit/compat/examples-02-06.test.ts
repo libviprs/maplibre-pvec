@@ -8,12 +8,13 @@ const root = join(__dirname, "../../..");
 const read = (p: string) => readFileSync(join(root, p), "utf8");
 
 const BUILT = ["01-minimal", "02-georeferenced", "06-georeference-update"];
+const RECORDED = ["01-minimal", "02-georeferenced", "06-georeference-update"];
 const BLOCKED = ["03-refinement", "04-large-budget", "05-picking"];
 
 describe("#124 examples 02 and 06 (slice of #84)", () => {
   it("the built examples have a page, a script and a runner, and the blocked ones are not faked", () => {
     const dirs = readdirSync(join(root, "examples")).filter((d) => /^\d\d-/.test(d)).sort();
-    expect(dirs).toEqual(BUILT);
+    expect(dirs).toEqual([...BUILT, "07-raster-underlay"]);
     for (const d of BUILT) for (const f of ["index.html", "main.js", "run.mjs"]) expect(existsSync(join(root, "examples", d, f)), `${d}/${f}`).toBe(true);
   });
 
@@ -50,25 +51,31 @@ describe("#124 examples 02 and 06 (slice of #84)", () => {
     const [lng, lat] = t.lngLatOf(75, 47.5, cal);
     const [x, y] = t.sourceOf(lng, lat, cal);
     expect([x, y].map((v) => Math.round(v * 1e6) / 1e6)).toEqual([75, 47.5]);
-    expect(t.expectedAt(75, 47.5)).toEqual([Math.round(t.ramp(75)), Math.round(t.ramp(75)), Math.round(t.ramp(75))]);
+    expect(t.expectedAt(100, 20)).toEqual([Math.round(t.ramp(100)), Math.round(t.ramp(100)), Math.round(t.ramp(100))]);
     expect(t.expectedAt(10, 150)).toEqual(t.BACKGROUND);
     expect(t.expectedAt(25.5, 40), "near the edge a filter may blend, so no claim").toBeUndefined();
+    expect(t.expectedAt(75, 47.5), "on the stroke drawn across the scan, so no claim").toBeUndefined();
   });
 
-  it("the summary writes the run record, and exits 0 only with all six examples passed and no refused host", () => {
+  it("the summary writes the run record: exit 0 when what ran passed with no refused host, complete only at six", () => {
     const sum = join(root, "examples/lib/summary.mjs");
     const run = (results: object[]) => {
       const dir = mkdtempSync(join(tmpdir(), "ex-sum-"));
       results.forEach((r, i) => writeFileSync(join(dir, `0${i + 1}-x.result.json`), JSON.stringify(r)));
       const p = spawnSync("node", [sum, dir], { encoding: "utf8" });
-      return { status: p.status, summary: JSON.parse(readFileSync(join(dir, "summary.json"), "utf8")) as { results: object[]; deniedHosts: string[] } };
+      return { status: p.status, summary: JSON.parse(readFileSync(join(dir, "summary.json"), "utf8")) as { complete: boolean; planned: number; results: object[]; deniedHosts: string[] } };
     };
     const ok = (n: number) => ({ example: `0${n}-x`, ok: true, deniedHosts: [] });
     const three = run([ok(1), ok(2), ok(3)]);
-    expect(three.status, "three of six is not a pass").toBe(1);
+    expect(three.status, "what ran passed").toBe(0);
     expect(three.summary.results).toHaveLength(3);
-    expect(run([1, 2, 3, 4, 5, 6].map(ok)).status).toBe(0);
-    expect(run([...[1, 2, 3, 4, 5].map(ok), { example: "06-x", ok: true, deniedHosts: ["example.com"] }]).status).toBe(1);
+    expect(three.summary.complete, "three of six is not a complete record").toBe(false);
+    expect(three.summary.planned).toBe(6);
+    expect(run([...[1, 2].map(ok), { example: "03-x", ok: false, deniedHosts: [] }]).status, "a failing example fails the job").toBe(1);
+    const six = run([1, 2, 3, 4, 5, 6].map(ok));
+    expect([six.status, six.summary.complete]).toEqual([0, true]);
+    const denied = run([...[1, 2, 3, 4, 5].map(ok), { example: "06-x", ok: true, deniedHosts: ["example.com"] }]);
+    expect([denied.status, denied.summary.complete]).toEqual([1, false]);
   });
 
   it("run-all.sh runs every example, writes one summary and installs MapLibre next to the package", () => {
@@ -80,14 +87,15 @@ describe("#124 examples 02 and 06 (slice of #84)", () => {
 
   it("the README says which examples run and names what blocks each of the others", () => {
     const rows = read("examples/README.md").split("\n").filter((l) => /^\| `0\d-/.test(l));
-    expect(rows).toHaveLength(6);
+    expect(rows).toHaveLength(7);
     for (const d of BUILT) expect(rows.find((r) => r.includes(`\`${d}\``)), d).toMatch(/\| runs \|/);
     for (const d of BLOCKED) expect(rows.find((r) => r.includes(`\`${d}`)), d).toMatch(/\| blocked \|/);
   });
 
   it("the committed run record lists the examples that ran, all passing, with no refused host", () => {
-    const rec = JSON.parse(read("release/examples-run.json")) as { results: Array<{ example: string; ok: boolean }>; deniedHosts: string[] };
-    expect(rec.results.map((r) => r.example).sort()).toEqual(BUILT);
+    const rec = JSON.parse(read("release/examples-run.json")) as { complete: boolean; results: Array<{ example: string; ok: boolean }>; deniedHosts: string[] };
+    expect(rec.results.map((r) => r.example).sort()).toEqual(RECORDED);
+    expect(rec.complete, "three of six").toBe(false);
     expect(rec.results.every((r) => r.ok)).toBe(true);
     expect(rec.deniedHosts).toEqual([]);
   });

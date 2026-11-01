@@ -7,7 +7,7 @@ npm ci --no-audit --no-fund
 npm run build
 mkdir -p /tmp/consumer /tmp/packed
 TARBALL=$(npm pack --silent --pack-destination /tmp/packed)
-(cd /tmp/consumer && npm init -y >/dev/null && npm install --no-audit --no-fund "/tmp/packed/$TARBALL" >/dev/null)
+(cd /tmp/consumer && npm init -y >/dev/null && npm install --no-audit --no-fund "/tmp/packed/$TARBALL" maplibre-gl@4.7.1 >/dev/null)
 PKG=/tmp/consumer/node_modules/maplibre-pvec
 status=0
 for dir in examples/0*/; do

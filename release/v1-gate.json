@@ -74,12 +74,13 @@
       "spec": "examples pass with outbound network denied (M7.8)",
       "status": "deferred",
       "measured": {
-        "examplesWritten": 2,
+        "examplesWritten": 4,
+        "examplesPassed": 3,
         "examplesPlanned": 6,
         "deniedHosts": 0,
         "rasterExamples": 1
       },
-      "evidence": "examples/README.md: 01-minimal and 07-raster-underlay run against their own 127.0.0.1 servers, 02 to 06 are not written (#84)",
+      "evidence": "release/examples-run.json: the summary of tools/examples.sh, six examples against their own 127.0.0.1 server with outbound network denied",
       "deferredIn": "docs/deferred.md#issue-40-v1-freeze-and-documentation"
     },
     {

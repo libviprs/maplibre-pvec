@@ -1,5 +1,6 @@
 // Builds the example containers with the same builder the unit tests use, bundled on the fly.
 import { build } from "esbuild";
+import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -14,3 +15,6 @@ export { buildPvec, gridSpec };
 
 /** What the documentation samples fetch, by URL path. The same bytes whichever port the samples name. */
 export const docsFixtures = () => ({ "/plan.pvec": smallFixture() });
+
+/** The libviprs-converted scan: a 64 by 48 ramp painted 100 by 75 at source (25, 10), with a stroke across it. See lib/truth.mjs. */
+export const scanFixture = () => new Uint8Array(readFileSync(join(root, "tests/fixtures/pvec-raster/libviprs/scan_under_linework.pvec")));
