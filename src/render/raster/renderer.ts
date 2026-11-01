@@ -415,7 +415,10 @@ export class RasterRenderer {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, gl.RGBA, gl.UNSIGNED_BYTE, bitmap);
+      // Immutable storage and a sub-image upload: the driver allocates once, and on the Intel part (ADL GT2) this costs a quarter less than
+      // re-specifying the texture from the bitmap (`docs/benchmark-report.md`, the texImage2D table). The texture is never re-specified.
+      gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA8, bitmap.width, bitmap.height);
+      gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, gl.UNSIGNED_BYTE, bitmap);
       // The bitmap is closed and leaves the decoded tier before the texture enters the gpu tier: a tile is never both.
       bitmap.close();
       this.o.cache.drop("decoded", u.key);
