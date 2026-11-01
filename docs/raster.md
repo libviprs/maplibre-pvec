@@ -38,7 +38,7 @@ Band 0 draws before the strokes and band 1 after them; inside a band by `RasterI
 
 ## `visible_box` and the padded edge
 
-`visible_box` is the half-open pixel rectangle inside the image that draws; nothing outside it does, and a tile is clipped to it. The last tile of a row or column is padded by the producer. The padding colour bleeds half a texel into the visible edge through bilinear filtering, so the producer should replicate the edge into the padding (libviprs does).
+`visible_box` is the half-open pixel rectangle inside the image that draws; nothing outside it does, and a tile is clipped to it. The last tile of a row or column is padded by the producer. The padding colour bleeds half a texel into the visible edge through bilinear filtering, so the producer should replicate the edge into the padding.
 
 ## Attribution and escaping
 

@@ -14,6 +14,10 @@ source (unit) -> metres -> calibration -> CRS native -> lng/lat -> mercator -> c
 
 `layer.update({ georeference })` rebuilds the stroke tessellation and the corner positions of every raster quad (hi and lo split, in f64 first), through the same upload budget, and nothing else: textures, bitmaps and decodes in flight stay valid, because a decode does not depend on the transform, and no range is requested. The level of each raster is chosen again from the new scale. A transform epoch guards the rebuild, so positions made for the old georeference are never drawn after the new one is set. 1,000 updates in a row issue zero tile requests and zero range requests, and the scan edge still lands on the strokes (`106-raster-compose.spec.ts`).
 
+## Rasters
+
+There is one affine per raster, carried in the file (`pixel_to_source`, pixel to source space). The georeference above is the second half of the same chain: a raster corner goes pixel to source to world in f64 and then through the same hi and lo split as a stroke vertex, so a rotated, sheared or flipped placement costs nothing extra and the image lands on the linework. A raster cannot have a `projective` calibration of its own in v1. See [rasters](raster.md).
+
 ## Units
 
 | unit | metres per unit |

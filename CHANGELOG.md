@@ -27,6 +27,10 @@ A minor change: nothing is removed or retyped. `PVecLayerOptions.raster` and `up
 
 `RASTER_DEFAULTS` in `src/config/defaults.ts` (bytes per texel, the retained-level factor and the texture share of `cache.gpuBytes`) and the same object in `release/v1-freeze.json` are new frozen budgets, equal by test, with the values the raster texture bound already used (4, 2 and 1). Nothing exported changed, so this is a patch-level change to the budgets and not a change to the public surface. The decode, upload and frame numbers for rasters in `docs/benchmark-report.md` are display-fidelity and frame-behaviour measurements, each named with its renderer, engine and arch; the software GL rows are relative costs and feed no budget.
 
+### Example 07 and the raster documentation (#109, minor)
+
+Added, so a minor change and nothing removed: `examples/07-raster-underlay`, `docs/raster.md` and the raster paragraphs in the security, range and georeferencing pages. The numbers the new page quotes are display-fidelity and frame-behaviour measurements with their renderer and arch; software GL is called that where it appears and is a relative cost.
+
 ### Measurements
 
 The benchmark numbers are display-fidelity and frame-behaviour measurements on software GL (SwiftShader, native x86_64), recorded as relative costs. They say nothing about geometric accuracy. The mathematical tolerances and the three conformance classes belong to EPIC P and the shared numeric policy in `libviprs/pvec#1`, and I cite them rather than restate them. The numbers are in `docs/benchmark-report.md`.

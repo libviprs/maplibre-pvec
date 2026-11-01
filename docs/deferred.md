@@ -206,3 +206,13 @@ What is done and tested: the decode rows in all four grid projects, the colour-c
 | LIMIT-15 and a refused raster stream named in the ABI | Two corpus tiles (`oversized-tile`, `tile-at-limit-15-plus-one`) come back from `raster_tile` as the generic read failure -4, and `jpeg-under-an-rgba-placement` is refused at the stream with no rule. All three are refused and never decoded, but they are a missing tile and an `ignored` capability here, not a `rasterskipped` with a rule. | `libviprs/pvec#232`. |
 | The `getParameter`-free proof on WebKit and Firefox for the raster pass, and the compose spec on those engines | The compose spec is Chromium's (software GL flags, and Firefox needs the grid's X display). | Running `106-raster-compose.spec.ts` as a grid project. |
 | The `hostile` and compose rows in `release/browser-grid.json` for hardware | Software GL only. | The hardware lane of #82. |
+
+## #109 Example 07 and the raster documentation
+
+What is done and tested: `examples/07-raster-underlay/` (a scan under a drawing, from pvec's synthetic tiler output, against its own 127.0.0.1 server with every other origin refused), `docs/raster.md` (one page, one heading per subject, every `RASTER-NN` and `LIMIT-NN` rule named), the raster paragraphs in `docs/security-resource-limits.md`, `docs/range-cache-model.md` and `docs/georeferencing.md`, and the changelog entry.
+
+| Item | Why it cannot be done here | What unblocks it |
+|---|---|---|
+| A band toggle and an opacity slider in example 07 | The band and the opacity are the file's: the public surface has `raster.enabled` and `layer.rasters()` and nothing that changes a placement, by design (ADR 0009). The example shows both read-only from `rasters()` and toggles the rasters on and off. A band 0 file and a band 1 file would need a second fixture from pvec's writer. | A second synthetic fixture from the pvec tiler (a `Band::Under` placement), or a decision to add an option, which would be a freeze amendment for Rom |
+| The real scan fixture | `libviprs/libviprs#1328` is the scan producer; the example uses pvec's synthetic tiler output | `libviprs/libviprs#1328` |
+| Examples 02 to 06 and the one CI job over all examples | #84 and PR #85 are not finished. Example 07 is added on main's harness (`examples/run-all.sh` runs every `examples/0*/run.mjs`), so it joins the job when that lands; the "examples pass" freeze condition stays deferred | #84 |
