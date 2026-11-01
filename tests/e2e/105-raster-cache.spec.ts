@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { launch, SNAPSHOT_MATCH } from "./harness/layer-run";
 import { R, rasterRig } from "./harness/raster-run";
+import { steadyCpuWithinBudget } from "./harness/render-budget";
 import { buildRaster, type WireRaster } from "../unit/helpers/raster_fixture";
 
 // Issue 105 (RM1.3): the tile lifecycle on the real layer, in the same harness as 102. Run through /Users/rom/workspace/xdg-pw-lock.sh.
@@ -32,9 +33,9 @@ test.describe("issue 105 the tiers of a tile on the real layer", () => {
       expect(s.errors).toEqual([]);
       expect(s.mainThreadDecodes, "no decode on the main thread").toBe(0);
       expect(p.decodes, "decodes ran during the pan").toBeGreaterThan(20);
-      // The layer's own work per frame (levels, requests, uploads), which is what ADR 0005's 1 ms is about. The whole render call also
+      // The layer's own work per frame (levels, requests, uploads) against the render budget of ADR 0009. The whole render call also
       // waits on SwiftShader rasterising, so it is recorded as a relative cost of software GL and not asserted.
-      expect(p.p95PrepareMs, "layer CPU per frame with decodes running").toBeLessThan(1);
+      steadyCpuWithinBudget(p.p95PrepareMs, "layer CPU per frame with decodes running");
       evidence.pan = { ...p, endLevels: s.raster?.levels };
     } finally {
       await r.stop();

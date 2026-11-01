@@ -16,6 +16,10 @@ export interface HardwareEnvironment {
   dpr: number;
   viewport: [number, number];
   timerQuery: boolean;
+  /** Raster results: the smallest step of `performance.now` the page saw, in ms. 0.1 in Chromium, 1 where the engine clamps it (WebKit). */
+  timerResolutionMs?: number;
+  /** Raster results: the host's one-minute load average at the start and end of the run, and its logical cpus. */
+  hostLoad?: { start: number; end: number; cpus: number };
 }
 export interface UploadPoint { bytes: number; p50Ms: number; p95Ms: number }
 /** The same 1e6-segment scene driven through the wired MapLibre custom layer on a real map (#82 addendum). */
@@ -87,6 +91,9 @@ export interface RasterEntry {
   /** Software entries only. */
   container?: string;
   browserVersion: string;
+  /** The timer step the result was measured with: it decides whether the render budget reads a percentile or the mean. */
+  timerResolutionMs?: number;
+  hostLoad?: { start: number; end: number; cpus: number };
   source: string;
   raster: RasterRun;
 }
@@ -176,6 +183,7 @@ export function validateBaselines(b: unknown): string[] {
     if (e.engine !== key.split(" | ")[1]) errors.push(`${key}: engine ${e.engine} does not match the key`);
     if (!e.source) errors.push(`${key}: source result file missing`);
     if (!e.raster?.decode?.length) errors.push(`${key}: raster entry has no decode table`);
+    if (!(typeof e.timerResolutionMs === "number" && e.timerResolutionMs > 0)) errors.push(`${key}: raster entry has no timerResolutionMs`);
   }
   for (const [key, e] of Object.entries(x.softwareRasterEntries ?? {})) {
     if (!isSoftwareRenderer(key) || e.softwareRenderer !== true) errors.push(`${key}: only software renderers go in softwareRasterEntries`);
@@ -211,8 +219,19 @@ export interface RasterSceneRun {
   durationMs: number;
   segments: number;
   frames: LayerRun["frames"];
-  /** JavaScript time inside `layer.render` per frame, with the strokes and the raster pass and decodes running. */
-  render: { p50Ms: number; p95Ms: number; maxMs: number };
+  /**
+   * JavaScript time inside `layer.render` per frame, with the strokes, the raster pass and decodes running. `p50Ms`, `p95Ms` and `maxMs`
+   * are over all recorded frames (comparable with the layer rows of #82). The frames split in two populations: `steady` frames uploaded
+   * no tile and carry the budget, `uploadFrames` uploaded at least one and are governed by the upload budget (docs/adr/0009).
+   */
+  render: {
+    p50Ms: number;
+    p95Ms: number;
+    maxMs: number;
+    steady: { frames: number; meanMs: number; p50Ms: number; p95Ms: number; p99Ms: number; maxMs: number; over16_7Ms: number[] };
+    /** `over16_7Ms` lists every upload frame that took longer than one 60 fps frame: a hitch is recorded, never averaged away. */
+    uploadFrames: { frames: number; share: number; p50Ms: number; p95Ms: number; maxMs: number; over16_7Ms: number[] };
+  };
   uploads: { framesWithUploads: number; maxTilesPerFrame: number; maxBytesPerFrame: number; overBudgetFrames: number };
   texture: { peakTextures: number; peakGpuTierBytes: number; gpuBytes: number };
   stateDiffs: number;
@@ -241,7 +260,20 @@ export interface RasterResult {
   environment: HardwareEnvironment;
   raster: RasterRun;
 }
-export const RASTER_RENDER_P95_MS = 1;
+/**
+ * The render budget with rasters (ADR 0009, Budget): main-thread time inside `render` on frames that upload no tile, at the 95th percentile,
+ * on every real renderer. Where the engine clamps `performance.now` to 1 ms or coarser (`environment.timerResolutionMs`) the mean is
+ * asserted instead, because a percentile of clamped readings cannot be read below about 2 ms. ADR 0005's 1 ms stays the pipeline's number.
+ */
+export const RASTER_RENDER_STEADY_P95_MS = 1.5;
+/** The upload budget of the frozen DEFAULTS (ms), restated here because the harness bundle cannot import the runtime defaults. */
+export const RASTER_UPLOAD_BUDGET_MS = 2;
+/** Fewer upload frames than this and their p95 is their maximum: the bound is then asserted on the p50, and the hitches are listed. */
+export const RASTER_UPLOAD_P95_MIN_FRAMES = 20;
+/** One 60 fps frame, ms. */
+export const FRAME_60FPS_MS = 16.7;
+/** The tile edge of the scenes the harness draws. */
+export const RASTER_SCENE_EDGE = 512;
 
 /** A raster result file. `software` selects the labelled-container path; a hardware result may not say software. */
 export function validateRasterResult(r: unknown, software: boolean): string[] {
@@ -261,6 +293,7 @@ export function validateRasterResult(r: unknown, software: boolean): string[] {
   } else if (soft || env.softwareRenderer !== false) {
     errors.push(`environment says software rendering (${env.gpuRenderer}), numbers are not hardware numbers`);
   }
+  if (!(typeof env.timerResolutionMs === "number" && env.timerResolutionMs > 0)) errors.push("environment.timerResolutionMs is missing (the statistic of the render budget is chosen from it)");
   const x = res.raster;
   if (!x) return [...errors, "result has no raster block"];
   if (!x.decode?.length) errors.push("raster.decode table is missing");
@@ -280,6 +313,10 @@ export function validateRasterResult(r: unknown, software: boolean): string[] {
     if (!(s.durationMs >= MIN_RUN_MS)) errors.push(`raster.scenes ${name} durationMs must be at least ${MIN_RUN_MS} (the 60 s run)`);
     for (const k of ["count", "p50Ms", "p95Ms", "maxMs"] as const) if (!finite(s.frames?.[k])) errors.push(`raster.scenes ${name} frames.${k} is missing`);
     for (const k of ["p50Ms", "p95Ms", "maxMs"] as const) if (!finite(s.render?.[k])) errors.push(`raster.scenes ${name} render.${k} is missing`);
+    for (const k of ["meanMs", "p50Ms", "p95Ms", "p99Ms", "maxMs"] as const) if (!finite(s.render?.steady?.[k])) errors.push(`raster.scenes ${name} render.steady.${k} is missing`);
+    if (!(s.render?.steady?.frames > 0)) errors.push(`raster.scenes ${name} has no steady frames`);
+    for (const k of ["frames", "share", "p50Ms", "p95Ms", "maxMs"] as const) if (!finite(s.render?.uploadFrames?.[k])) errors.push(`raster.scenes ${name} render.uploadFrames.${k} is missing`);
+    if (!Array.isArray(s.render?.uploadFrames?.over16_7Ms) || !Array.isArray(s.render?.steady?.over16_7Ms)) errors.push(`raster.scenes ${name} render.*.over16_7Ms (the frames longer than 16.7 ms) is missing`);
     if (!finite(s.uploads?.maxBytesPerFrame) || !finite(s.uploads?.maxTilesPerFrame)) errors.push(`raster.scenes ${name} uploads per frame are missing`);
     if (!(s.texture?.gpuBytes > 0) || !finite(s.texture?.peakGpuTierBytes)) errors.push(`raster.scenes ${name} texture residency is missing`);
     if (s.stateDiffs !== 0) errors.push(`raster.scenes ${name} left GL state behind in ${s.stateDiffs} frame diffs`);
@@ -300,10 +337,29 @@ export function validateRasterResult(r: unknown, software: boolean): string[] {
   return errors;
 }
 
-/** The render budget (ADR 0005): main-thread time inside `render` stays under 1 ms at the 95th percentile with decodes running. */
-export function rasterBudgetProblems(r: Pick<RasterResult, "raster">): string[] {
+/**
+ * The budget of ADR 0009, asserted on a real renderer's result: steady frames inside `RASTER_RENDER_STEADY_P95_MS` (the mean where the
+ * timer resolves 1 ms or coarser), upload frames inside the upload budget's own rule (no frame over the byte budget plus one tile, and
+ * render p95 over upload frames at most the steady figure plus the 2 ms upload budget plus the file's own `texImage2D` p95 at the scene's
+ * tile size), and the gpu ceiling. Software GL is never asserted.
+ */
+export function rasterBudgetProblems(r: { raster: RasterRun; environment?: { timerResolutionMs?: number } }): string[] {
   const out: string[] = [];
-  for (const s of r.raster.scenes) if (!(s.render.p95Ms < RASTER_RENDER_P95_MS)) out.push(`${s.name}: render p95 ${s.render.p95Ms} ms is not under ${RASTER_RENDER_P95_MS} ms`);
+  const clamped = (r.environment?.timerResolutionMs ?? 0) >= 1;
+  const upload = r.raster.upload.find((u) => u.edge === RASTER_SCENE_EDGE)?.p95Ms ?? Infinity;
+  for (const s of r.raster.scenes) {
+    if (!(s.rasters > 0)) continue;
+    const steady = clamped ? s.render.steady.meanMs : s.render.steady.p95Ms;
+    const stat = clamped ? "mean" : "p95";
+    if (!(steady <= RASTER_RENDER_STEADY_P95_MS)) out.push(`${s.name}: steady render ${stat} ${steady} ms is over ${RASTER_RENDER_STEADY_P95_MS} ms`);
+    const uf = s.render.uploadFrames;
+    const enough = uf.frames >= RASTER_UPLOAD_P95_MIN_FRAMES;
+    const seen = enough ? uf.p95Ms : uf.p50Ms;
+    if (uf.frames > 0 && !(seen <= steady + RASTER_UPLOAD_BUDGET_MS + upload)) {
+      out.push(`${s.name}: render ${enough ? "p95" : "p50"} ${seen} ms over upload frames (${uf.frames}) is above ${steady} + ${RASTER_UPLOAD_BUDGET_MS} + ${upload} ms (steady, upload budget, texImage2D p95)`);
+    }
+    if (s.uploads.overBudgetFrames !== 0) out.push(`${s.name}: ${s.uploads.overBudgetFrames} frames uploaded more than the byte budget plus one tile`);
+  }
   for (const f of r.raster.fit) if (!(f.peakGpuTierBytes <= f.gpuBytes)) out.push(`${f.view}: ${f.peakGpuTierBytes} bytes over the ${f.gpuBytes} ceiling`);
   return out;
 }

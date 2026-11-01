@@ -6,12 +6,13 @@
 //       [--software-ok "<container label, must say no GPU>"] (accept SwiftShader, written as a software result)
 //       [--diff-frames N] (GL state diff frames in the layer run, default 400; software runs use fewer)
 //       [--no-layer] (skip the second 60 s run of the same scene through the wired MapLibre layer)
+//       [--no-replay] (raster-only: skip the corpus-case replay, for the repeat runs of the noise floor)
 //       [--raster-only] (#108: only the raster page, written as <date>-<host>-<engine>[-software]-raster.json; the bundle needs --tiles <dir>)
 //   node bench/hw/run.mjs bundle --out <dir> --tiles <dir>   also copies the pinned raster tiles (tools/raster-bench-tiles.sh) next to the page
 // `run` refuses a software renderer unless --software-ok names the container (then it is a software result). On the Mac it is launched through
 // /Users/rom/workspace/xdg-pw-lock.sh. In a container it gets the host's /dev/dri passed through.
 import { mkdir, readFile, readdir, copyFile, writeFile } from "node:fs/promises";
-import { cpus, platform, arch, release } from "node:os";
+import { cpus, platform, arch, release, loadavg } from "node:os";
 import { createRequire } from "node:module";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -89,6 +90,7 @@ if (cmd === "bundle") {
   await new Promise((r) => server.listen(0, "127.0.0.1", r));
   const browser = await pw[engine].launch({ headless: !process.argv.includes("--headed"), args: flags });
   const profile = process.argv.includes("--profile");
+  const loadStart = loadavg()[0];
   let raw, layerRaw, rasterRaw;
   try {
     const ctx = await browser.newContext({ viewport: { width: 1600, height: 1000 }, deviceScaleFactor: Number(arg("dpr", "2")) });
@@ -97,7 +99,7 @@ if (cmd === "bundle") {
     if (process.argv.includes("--raster-only")) {
       page.on("console", (m) => { if (m.text().startsWith("[raster]")) console.log(m.text()); });
       await page.goto(`http://127.0.0.1:${server.address().port}/raster.html`);
-      rasterRaw = await page.evaluate((o) => window.HWR.run(o), { durationMs: duration, warmupMs: 3000, diffFrames: Number(arg("diff-frames", "400")), profile });
+      rasterRaw = await page.evaluate((o) => window.HWR.run(o), { durationMs: duration, warmupMs: 3000, diffFrames: Number(arg("diff-frames", "400")), profile, replay: !process.argv.includes("--no-replay") });
       var version = browser.version();
       throw Object.assign(new Error("raster done"), { rasterDone: true });
     }
@@ -119,7 +121,7 @@ if (cmd === "bundle") {
   }
   if (rasterRaw) {
     const softwareOk = arg("software-ok", "");
-    const { raster, gpuRenderer, gpuVendor, dpr, viewport, timerQuery } = rasterRaw;
+    const { raster, gpuRenderer, gpuVendor, dpr, viewport, timerQuery, timerResolutionMs } = rasterRaw;
     const result = {
       schema: 1,
       commit: process.env.BENCH_COMMIT ?? "unknown",
@@ -127,17 +129,20 @@ if (cmd === "bundle") {
       environment: {
         host: arg("host", "unknown"), os: `${platform()} ${release()}`, arch: arch() === "arm64" ? "arm64" : "x64", cpu: cpus()[0]?.model ?? "unknown",
         ...(softwareOk ? { container: softwareOk } : {}), engine, browserVersion: version, gpuRenderer, gpuVendor, softwareRenderer: isSoftwareRenderer(`${gpuRenderer} ${gpuVendor}`),
-        dpr, viewport, timerQuery,
+        dpr, viewport, timerQuery, timerResolutionMs,
+        // The host's one-minute load average at the start and the end of the run (cpus: logical): other jobs on a shared machine move the numbers.
+        hostLoad: { start: Math.round(loadStart * 100) / 100, end: Math.round(loadavg()[0] * 100) / 100, cpus: cpus().length },
       },
       raster,
     };
-    const errors = validateRasterResult(result, !!softwareOk);
+    // --no-replay is for the repeat runs that document the noise floor: the scenes only, so the file is not a baseline source.
+    const errors = validateRasterResult(result, !!softwareOk).filter((e) => !(process.argv.includes("--no-replay") && /raster\.replay/.test(e)));
     const dir = resolve(arg("out", join(root, "bench/results/hw")));
     await mkdir(dir, { recursive: true });
     const file = join(dir, `${result.date.slice(0, 10)}-${arg("host", "host")}-${engine}${softwareOk ? "-software" : ""}-raster${errors.length ? ".rejected" : ""}.json`);
     await writeFile(file, JSON.stringify(result, null, 2) + "\n");
     console.log(`wrote ${file}`);
-    for (const p of rasterBudgetProblems(result)) console.log(`NOTE ${p}${softwareOk ? " (software GL, a relative cost)" : ""}`);
+    for (const p of rasterBudgetProblems(result)) console.log(`NOTE budget (steady frames, upload frames, ceiling): ${p}${softwareOk ? " (software GL, a relative cost, not asserted)" : ""}`);
     if (errors.length) { for (const e of errors) console.error(`FAIL ${e}`); process.exit(1); }
     process.exit(0);
   }

@@ -6,7 +6,7 @@ import * as defaults from "../../../src/config/defaults";
 import { fitLevels } from "../../../src/render/raster/budget";
 import type { RasterPlacement } from "../../../src/render/raster/geometry";
 import {
-  RASTER_EDGES, RASTER_VARIANTS, isSoftwareRenderer, rasterBudgetProblems, validateBaselines, validateRasterCorpus, validateRasterResult,
+  RASTER_EDGES, RASTER_RENDER_STEADY_P95_MS, RASTER_VARIANTS, isSoftwareRenderer, rasterBudgetProblems, validateBaselines, validateRasterCorpus, validateRasterResult,
   type RasterResult,
 } from "../../../bench/lib/hardware";
 import { generateDocs } from "../../../tools/docs.mjs";
@@ -19,7 +19,12 @@ const json = (p: string) => JSON.parse(readFileSync(path.join(root, p), "utf8"))
 
 const frames = { count: 3600, p50Ms: 16.7, p95Ms: 17.2, p99Ms: 18, maxMs: 25, over20Ms: 0 };
 const scene = (name: "strokes+1" | "strokes+10", rasters: number): RasterResult["raster"]["scenes"][number] => ({
-  name, rasters, durationMs: 60000, segments: 1_000_000, frames, render: { p50Ms: 0.2, p95Ms: 0.4, maxMs: 1.1 },
+  name, rasters, durationMs: 60000, segments: 1_000_000, frames,
+  render: {
+    p50Ms: 0.2, p95Ms: 0.5, maxMs: 1.1,
+    steady: { frames: 3300, meanMs: 0.25, p50Ms: 0.2, p95Ms: 0.4, p99Ms: 0.6, maxMs: 1.1, over16_7Ms: [] },
+    uploadFrames: { frames: 200, share: 0.057, p50Ms: 0.5, p95Ms: 0.9, maxMs: 1.1, over16_7Ms: [] },
+  },
   uploads: { framesWithUploads: 40, maxTilesPerFrame: 4, maxBytesPerFrame: 4 << 20, overBudgetFrames: 0 },
   texture: { peakTextures: 80, peakGpuTierBytes: 80 << 20, gpuBytes: 128 << 20 },
   stateDiffs: 0, errors: 0, mainThreadDecodes: 0,
@@ -31,7 +36,7 @@ const good = (): RasterResult => ({
   environment: {
     host: "test host", os: "macOS", arch: "arm64", cpu: "Apple M5", engine: "chromium", browserVersion: "149.0.0.0",
     gpuRenderer: "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)", gpuVendor: "Google Inc. (Apple)",
-    softwareRenderer: false, dpr: 2, viewport: [1600, 1000], timerQuery: true,
+    softwareRenderer: false, dpr: 2, viewport: [1600, 1000], timerQuery: true, timerResolutionMs: 0.1,
   },
   raster: {
     decode: RASTER_VARIANTS.flatMap((variant) => RASTER_EDGES.map((edge) => ({ variant, edge, samples: 30, bytes: 1000, coldMs: 12, p50Ms: 1.2, p95Ms: 2.5 }))),
@@ -106,11 +111,55 @@ describe("#108 raster result files", () => {
     r.raster.replay = r.raster.replay.filter((x) => !(x.case === "architectural-1e5+10-scans" && x.rasters === "off"));
     expect(validateRasterResult(r, false).join()).toMatch(/replay.*10-scans.*off/);
   });
-  it("reports the render budget separately: main-thread render p95 under 1 ms with decodes running", () => {
+  it("asserts the steady p95 against 1.5 ms, upload frames against the upload budget's own rule, and the byte budget", () => {
+    expect(RASTER_RENDER_STEADY_P95_MS).toBe(1.5);
     expect(rasterBudgetProblems(good())).toEqual([]);
+    const steady = good();
+    steady.raster.scenes[1]!.render.steady.p95Ms = 1.6;
+    expect(rasterBudgetProblems(steady).join()).toMatch(/strokes\+10.*steady render p95 1\.6 ms is over 1\.5/);
+    // all-frames p95 above 1.5 ms alone is not a miss: the upload frames carry their own bound
+    const allFrames = good();
+    allFrames.raster.scenes[1]!.render.p95Ms = 4;
+    expect(rasterBudgetProblems(allFrames)).toEqual([]);
+    const upload = good();
+    upload.raster.scenes[0]!.render.uploadFrames.p95Ms = 0.4 + 2 + 0.6 + 0.1;
+    expect(rasterBudgetProblems(upload).join()).toMatch(/upload frames|over upload frames/);
+    const bytes = good();
+    bytes.raster.scenes[0]!.uploads.overBudgetFrames = 1;
+    expect(rasterBudgetProblems(bytes).join()).toMatch(/byte budget plus one tile/);
+  });
+  it("with fewer than 20 upload frames the bound is asserted on their p50, because their p95 is their max, and the hitch is still listed", () => {
+    const few = good();
+    const sc = few.raster.scenes[0]!;
+    sc.render.uploadFrames = { frames: 8, share: 0.017, p50Ms: 3.9, p95Ms: 32.3, maxMs: 32.3, over16_7Ms: [32.3] };
+    expect(rasterBudgetProblems(few), "a 32 ms hitch among 8 upload frames: p50 3.9 is inside 0.4 + 2 + 0.6").toEqual([]);
+    expect(sc.render.uploadFrames.over16_7Ms).toEqual([32.3]);
+    sc.render.uploadFrames.p50Ms = 3.2;
+    expect(rasterBudgetProblems(few).join(), "p50 3.2 is over the bound of 3.0 ms").toMatch(/render p50 3\.2 ms over upload frames \(8\)/);
+    const many = good();
+    many.raster.scenes[0]!.render.uploadFrames = { frames: 20, share: 0.04, p50Ms: 1, p95Ms: 32.3, maxMs: 32.3, over16_7Ms: [32.3] };
+    expect(rasterBudgetProblems(many).join(), "with 20 frames the p95 counts").toMatch(/render p95 32\.3 ms over upload frames \(20\)/);
+  });
+  it("refuse a result that does not list the frames over 16.7 ms", () => {
     const r = good();
-    r.raster.scenes[1]!.render.p95Ms = 1.4;
-    expect(rasterBudgetProblems(r).join()).toMatch(/strokes\+10.*1 ms/);
+    delete (r.raster.scenes[0]!.render.uploadFrames as { over16_7Ms?: unknown }).over16_7Ms;
+    expect(validateRasterResult(r, false).join()).toMatch(/over16_7Ms/);
+  });
+  it("on an engine whose timer is clamped to 1 ms the steady mean is asserted, not the clamped p95", () => {
+    const w = good();
+    w.environment.timerResolutionMs = 1;
+    w.raster.scenes[1]!.render.steady = { frames: 3300, meanMs: 1.2, p50Ms: 1, p95Ms: 2, p99Ms: 3, maxMs: 6, over16_7Ms: [] };
+    expect(rasterBudgetProblems(w), "p95 reads 2 ms but the mean is 1.2 ms").toEqual([]);
+    w.raster.scenes[1]!.render.steady.meanMs = 1.6;
+    expect(rasterBudgetProblems(w).join()).toMatch(/steady render mean 1\.6/);
+  });
+  it("refuse a result with no timer resolution or no steady block", () => {
+    const a = good();
+    delete a.environment.timerResolutionMs;
+    expect(validateRasterResult(a, false).join()).toMatch(/timerResolutionMs/);
+    const b = good();
+    delete (b.raster.scenes[0]!.render as { steady?: unknown }).steady;
+    expect(validateRasterResult(b, false).join()).toMatch(/render\.steady/);
   });
 });
 
@@ -149,16 +198,16 @@ describe("#108 raster baselines", () => {
       expect(rasterBudgetProblems({ raster: e.raster }).filter((p) => /ceiling/.test(p)), k).toEqual([]);
     }
   });
-  it("render stays under 1 ms p95 with decodes running, and every renderer that misses it is named in deferred.md with its numbers", () => {
-    const deferred = readFileSync(path.join(root, "docs/deferred.md"), "utf8");
-    const misses: string[] = [];
-    for (const [k, e] of Object.entries<{ raster: RasterResult["raster"] }>(b.rasterEntries)) {
-      if (rasterBudgetProblems({ raster: e.raster }).some((p) => /render p95/.test(p))) {
-        misses.push(k);
-        expect(deferred, k).toContain(k.split(" | ")[0]!);
-      }
+  it("every real renderer meets the render budget of ADR 0009: steady frames at most 1.5 ms, upload frames inside the upload budget's rule", () => {
+    for (const [k, e] of Object.entries<{ raster: RasterResult["raster"]; timerResolutionMs?: number }>(b.rasterEntries)) {
+      expect(rasterBudgetProblems({ raster: e.raster, environment: { timerResolutionMs: e.timerResolutionMs } }), k).toEqual([]);
     }
-    expect(misses.length).toBeLessThan(Object.keys(b.rasterEntries).length);
+  });
+  it("the entry carries the timer resolution the statistic was chosen from, and WebKit's is the clamped one", () => {
+    for (const [k, e] of Object.entries<{ engine: string; timerResolutionMs?: number }>(b.rasterEntries)) {
+      expect(e.timerResolutionMs, k).toBeGreaterThan(0);
+      if (e.engine === "webkit") expect(e.timerResolutionMs, k).toBeGreaterThanOrEqual(1);
+    }
   });
   it("refuse a raster entry for a software renderer, and a software raster entry without the label", () => {
     const x = structuredClone(b);
@@ -221,6 +270,17 @@ describe("#108 the texture constant", () => {
     expect(fitLevels([p], view, need - 1)[0]!.level).toBeLessThan(f!.level);
     expect(d.textureShare).toBeGreaterThan(0);
     expect(d.textureShare).toBeLessThanOrEqual(1);
+  });
+  it("the render budget is frozen with its renderers, equal to the constant the gate asserts, and names the three real renderers", () => {
+    const freeze = json("release/v1-freeze.json");
+    const rb = freeze.rasterProvenance?.renderBudget;
+    expect(rb).toBeDefined();
+    expect(rb.steadyP95Ms).toBe(RASTER_RENDER_STEADY_P95_MS);
+    expect(rb.softwareFeedsBudget ?? freeze.rasterProvenance.softwareFeedsBudget).toBe(false);
+    expect(rb.statistic).toMatch(/mean/);
+    expect(rb.uploadFrames, "the 20-frame rule is written into the provenance, not left as a silent deviation").toMatch(/at least 20 upload frames.*p50/);
+    const keys = Object.keys(json("bench/baselines/renderer-baselines.json").rasterEntries).sort();
+    expect([...freeze.rasterProvenance.renderers].sort()).toEqual(keys);
   });
   it("every software GL provenance is called a relative cost in the freeze file and the changelog, and none feeds a budget", () => {
     const freeze = json("release/v1-freeze.json");

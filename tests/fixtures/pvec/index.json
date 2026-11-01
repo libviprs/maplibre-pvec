@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "generator": "pvec-testkit generate_all (P2.4)",
-  "pvecCommit": "e1b8124f00f5b3302d421062f3980e207f3b578b",
+  "pvecCommit": "ab3c2cf1db54e3523a616dddc135ae1188c03260",
   "corpusRevision": "r0-open",
   "note": "pvec vendors the r0-open bundle at libviprs/pvec-gold-fixtures f94f7f22. Fixtures whose record changed since then are in notEmitted until pvec re-pins.",
   "artifacts": {
@@ -125,7 +125,7 @@
     },
     "translation-001": {
       "status": "MISSING_CAPABILITY",
-      "reason": "translation-001/translation-001: missing capability `line`: `start` is off the drawing plane (z is not 0), and the profile is 2D with no implicit promotion"
+      "reason": "translation-001/translation-001: missing capability `line`: `start` is off the drawing plane (z is not 0), and the profile is 2D with no implicit promotion (refused by design, ADR 0017)"
     }
   }
 }

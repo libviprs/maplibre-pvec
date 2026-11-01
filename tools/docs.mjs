@@ -176,7 +176,7 @@ function rasterSection(root, hw) {
   const soft = Object.entries(hw.softwareRasterEntries ?? {});
   if (!hard.length && !soft.length) return [];
   const out = ["### Rasters through the wired layer\n"];
-  out.push("Scans of A0 at 400 dpi (18724 by 13244 px, 512 px tiles, seven levels) over the 1e6-segment stroke scene, drawn by `createPVecLayer` on a real MapLibre map with the stand-in cursor and a fixture provider in place of the pvec-wasm raster exports. The tiles are the pinned ones of `bench/hw/raster-tiles.json` (one per codec variant and tile size, built by `tools/raster-bench-tiles.sh`), decoded by the shipped decode worker with `createImageBitmap` and uploaded under the 4 MiB and 2 ms budget. The map pans and breathes its zoom by 0.8 of a level every frame, 60 s after a 3 s warm-up, so levels change and decodes run while the frames are timed. Upload counts run from the first frame after `addLayer`, so the fill of the scene is in them. Render CPU is the JavaScript time inside `layer.render`; the budget is ADR 0005's 1 ms. Every row is from the result file in its last column and says which renderer and arch produced it.\n");
+  out.push("Scans of A0 at 400 dpi (18724 by 13244 px, 512 px tiles, seven levels) over the 1e6-segment stroke scene, drawn by `createPVecLayer` on a real MapLibre map with the stand-in cursor and a fixture provider in place of the pvec-wasm raster exports. The tiles are the pinned ones of `bench/hw/raster-tiles.json` (one per codec variant and tile size, built by `tools/raster-bench-tiles.sh`), decoded by the shipped decode worker with `createImageBitmap` and uploaded under the 4 MiB and 2 ms budget. The map pans and breathes its zoom by 0.8 of a level every frame, 60 s after a 3 s warm-up, so levels change and decodes run while the frames are timed. Upload counts run from the first frame after `addLayer`, so the fill of the scene is in them. Render CPU is the JavaScript time inside `layer.render`, split in two populations: steady frames (no tile uploaded) carry the budget of ADR 0009, 1.5 ms at the 95th percentile on every real renderer (the mean where the timer resolves 1 ms or coarser, which is WebKit's), and upload frames are governed by the upload budget (4 MiB and 2 ms, no frame over the byte budget plus one tile, render p95 at most the steady figure plus 2 ms plus the `texImage2D` p95 of the tile size). ADR 0005's 1 ms stays the pipeline's number. Every row is from the result file in its last column and says which renderer and arch produced it.\n");
   const cols = [...hard.map(([k, e]) => ({ k, e, label: `${rendererOf(k)}, ${e.engine} ${e.browserVersion}, ${e.arch}` })), ...soft.map(([k, e]) => ({ k, e, label: `${rendererOf(k)}, ${e.engine} ${e.browserVersion}, ${e.arch}, software GL, no GPU` }))];
   out.push("#### Decode per tile (worker, `createImageBitmap`, ms)\n");
   out.push("Each cell is median / 95th percentile over warm decodes, then the first decode in a fresh worker (cold). Time is the one the worker measures around `createImageBitmap`, so none of it is on the main thread.\n");
@@ -194,13 +194,35 @@ function rasterSection(root, hw) {
   }
   out.push("");
   out.push("#### The layer with one and ten scans\n");
-  out.push("| renderer | scene | frame p50 / p95 / max (ms) | frames over 20 ms | render CPU p50 / p95 / max (ms) | frames with uploads / most tiles in a frame / most MiB in a frame / frames over budget | peak textures / peak gpu tier (MiB of 128) | state diffs / errors / main-thread decodes | source |", "|---|---|---|---|---|---|---|---|---|");
-  for (const { k, e, label } of cols) {
+  out.push("`strokes+0` is the stroke scene alone in the same session, the baseline the raster increment is read against. The increment and the all-frames p95 (comparable with the layer rows of #82) are recorded, not budgeted.\n");
+  out.push("| renderer | timer step (ms) | scene | steady frames: mean / p95 / p99 / max (ms) | upload frames: count / share / p50 / p95 / max (ms) | all frames p95 (ms) | increment over strokes-only: steady mean / p95 (ms) | frame p50 / p95 / max (ms) | frames with uploads / most tiles / most MiB / over budget | peak textures / peak gpu tier (MiB of 128) | state diffs / errors / main-thread decodes | source |", "|---|---|---|---|---|---|---|---|---|---|---|---|");
+  for (const { e, label } of cols) {
+    const base = e.raster.scenes.find((x) => x.name === "strokes+0");
     for (const sc of e.raster.scenes) {
-      out.push(`| ${label} | ${sc.name} | ${f2(sc.frames.p50Ms)} / ${f2(sc.frames.p95Ms)} / ${f2(sc.frames.maxMs)} | ${sc.frames.over20Ms} of ${sc.frames.count} | ${f2(sc.render.p50Ms)} / ${f2(sc.render.p95Ms)} / ${f2(sc.render.maxMs)} | ${sc.uploads.framesWithUploads} / ${sc.uploads.maxTilesPerFrame} / ${mib(sc.uploads.maxBytesPerFrame)} / ${sc.uploads.overBudgetFrames} | ${sc.texture.peakTextures} / ${mib(sc.texture.peakGpuTierBytes)} | ${sc.stateDiffs} / ${sc.errors} / ${sc.mainThreadDecodes} | \`${e.source}\` |`);
+      const st = sc.render.steady, up = sc.render.uploadFrames;
+      const inc = base && sc.name !== "strokes+0" ? `${f2(st.meanMs - base.render.steady.meanMs)} / ${f2(st.p95Ms - base.render.steady.p95Ms)}` : "n/a";
+      out.push(`| ${label} | ${e.timerResolutionMs ?? "n/a"} | ${sc.name} | ${f2(st.meanMs)} / ${f2(st.p95Ms)} / ${f2(st.p99Ms)} / ${f2(st.maxMs)} | ${up.frames} / ${(up.share * 100).toFixed(1)}% / ${f2(up.p50Ms)} / ${f2(up.p95Ms)} / ${f2(up.maxMs)} | ${f2(sc.render.p95Ms)} | ${inc} | ${f2(sc.frames.p50Ms)} / ${f2(sc.frames.p95Ms)} / ${f2(sc.frames.maxMs)} | ${sc.uploads.framesWithUploads} / ${sc.uploads.maxTilesPerFrame} / ${mib(sc.uploads.maxBytesPerFrame)} / ${sc.uploads.overBudgetFrames} | ${sc.texture.peakTextures} / ${mib(sc.texture.peakGpuTierBytes)} | ${sc.stateDiffs} / ${sc.errors} / ${sc.mainThreadDecodes} | \`${e.source}\` |`);
     }
   }
   out.push("");
+  out.push("Frames longer than one 60 fps frame (16.7 ms), listed and not averaged away:\n");
+  out.push("| renderer | scene | steady frames over 16.7 ms (ms) | upload frames over 16.7 ms (ms) |", "|---|---|---|---|");
+  for (const { label, e } of cols) for (const sc of e.raster.scenes) out.push(`| ${label} | ${sc.name} | ${sc.render.steady.over16_7Ms.map((v) => f2(v)).join(", ") || "none"} | ${sc.render.uploadFrames.over16_7Ms.map((v) => f2(v)).join(", ") || "none"} |`);
+  out.push("");
+  if (hard.length) {
+    out.push("#### The render budget on the real renderers\n");
+    out.push("ADR 0009, Budget. Steady frames: at most 1.5 ms, read as the p95 or, where the timer step is 1 ms or coarser, as the mean. Upload frames: render p95 (p50 when there are fewer than 20 of them) at most the steady figure plus 2 ms plus the `texImage2D` p95 of a 512 px tile, and no frame over the byte budget plus one tile.\n");
+    out.push("| renderer | scene | statistic | steady (ms) | budget (ms) | upload frames (count) | upload statistic | upload frames value (ms) | upload bound (ms) | over-budget frames |", "|---|---|---|---|---|---|---|---|---|---|");
+    for (const [k, e] of hard) {
+      const clamped = (e.timerResolutionMs ?? 0) >= 1;
+      const up512 = e.raster.upload.find((u) => u.edge === 512)?.p95Ms ?? 0;
+      for (const sc of e.raster.scenes.filter((x) => x.rasters > 0)) {
+        const v = clamped ? sc.render.steady.meanMs : sc.render.steady.p95Ms;
+        out.push(`| ${rendererOf(k)}, ${e.engine}, ${e.arch} | ${sc.name} | ${clamped ? "mean" : "p95"} | ${f2(v)} | 1.5 | ${sc.render.uploadFrames.frames} | ${sc.render.uploadFrames.frames >= 20 ? "p95" : "p50"} | ${f2(sc.render.uploadFrames.frames >= 20 ? sc.render.uploadFrames.p95Ms : sc.render.uploadFrames.p50Ms)} | ${f2(v + 2 + up512)} | ${sc.uploads.overBudgetFrames} |`);
+      }
+    }
+    out.push("");
+  }
   out.push("#### Two scans at one scan pixel per device pixel, against the gpu ceiling\n");
   out.push("The view that holds the most tiles. Two full-resolution views at 4K do not fit 128 MiB, so the fit rule steps a level down; the table shows what stayed resident and which levels drew.\n");
   out.push("| renderer | view (device px) | peak textures | peak gpu tier (MiB of 128) | levels drawn at the end |", "|---|---|---|---|---|");
@@ -275,6 +297,23 @@ function realEvaluatorSection(root) {
     }
     out.push("");
   }
+  if (r.tier0Stream?.length) {
+    out.push("### Tier 0 stream and spatial directory (ABI 2)\n");
+    out.push("The files are the corpus entries written with a spatial directory and one Tier 0 block per leaf. Entries are what the stream returns for a window; uncovered is what `query_viewport` returns for it less the entries (the advanced curves, which are in no leaf, and every entity of a leaf with no Tier 0 block). Missing is entries plus uncovered less the entity count of the window, so 0 means the audit loses nothing. Previews are checked one way: every point of a tight reference tessellation of the curve is within the declared error of the preview polyline.\n");
+    out.push("| entry | window (share of extent) | entities | entries | exact | previews | infeasible | uncovered | leaves read | missing |", "|---|---|---|---|---|---|---|---|---|---|");
+    for (const t of r.tier0Stream) for (const w of t.windows) out.push(`| ${t.id} | ${w.fraction} | ${w.entities} | ${w.entries} | ${w.exact} | ${w.previews} | ${w.infeasible} | ${w.uncovered} | ${w.leavesRead} | ${w.missing} |`);
+    out.push("");
+    out.push("| entry | previews checked | worst measured over declared | all within declared |", "|---|---|---|---|");
+    for (const t of r.tier0Stream) for (const p of t.previews) out.push(`| ${t.id} | ${p.entitiesChecked} | ${fr(p.worstMeasuredOverDeclared)} | ${p.withinDeclared ? "yes" : "NO"} |`);
+    out.push("");
+  }
+  if (r.tier0Slices?.length) {
+    out.push("### Tier 0 decoder slices on the real stream\n");
+    out.push("The default cursor of the layer drained by `Tier0Decoder` with its default slice size. A slice is one `decodeSlice` call; the ceiling is `DEFAULTS.maxSliceMs`. Opening the file in the evaluator is the cursor's first step and is reported on its own.\n");
+    out.push("| entry | entities | slices | slices over 8 ms | open (ms) | max slice (ms) | p99 slice (ms) | median slice (ms) | total (ms) |", "|---|---|---|---|---|---|---|---|---|");
+    for (const t of r.tier0Slices) out.push(`| ${t.id} | ${t.refused ? `refused: ${t.refused}` : t.entities} | ${t.slices} | ${t.overBudget ?? "n/a"} | ${fmt(t.openMs)} | ${fmt(t.maxSliceMs)} | ${t.p99SliceMs === undefined ? "n/a" : fmt(t.p99SliceMs)} | ${fmt(t.medianSliceMs)} | ${fmt(t.totalMs)} |`);
+    out.push("");
+  }
   for (const [name, label] of [["x86_64", "x86_64"], ["arm64", "arm64"]]) {
     const rf = path.join(root, `spikes/pvec-real/range-results-${name}.json`);
     if (!existsSync(rf)) continue;
@@ -289,6 +328,16 @@ function realEvaluatorSection(root) {
       out.push(`| ${x.name} | ${kb(x.fileBytes)} | ${x.bootstrap.blocks} | ${x.rttMs} | ${x.bootstrap.requests} | ${kb(x.bootstrap.bytes)} | ${fmt(x.bootstrap.ms)} | ${v("fullExtent")} | ${v("quarter")} | ${v("small")} |`);
     }
     out.push("");
+    const withDir = rr.runs.filter((y) => y.spatialDirectory && y.rttMs === 0 && !y.error);
+    if (withDir.length) {
+      out.push("With the spatial directory, a window reads the prefix, the directory and the hot blocks of the leaves it touches (bytes and share of the file):\n");
+      out.push("| file | bytes | 25 percent window | 5 percent window |", "|---|---|---|---|");
+      for (const x of withDir) {
+        const c = (p) => { const w = x.viewports.find((q) => q.preset === p); return w?.spatial ? `${w.spatial.cells} cells, ${kb(w.spatial.bytes)} (${(100 * w.spatial.bytes / x.fileBytes).toFixed(1)}%)` : "n/a"; };
+        out.push(`| ${x.name} | ${kb(x.fileBytes)} | ${c("quarter")} | ${c("small")} |`);
+      }
+      out.push("");
+    }
   }
   return out;
 }

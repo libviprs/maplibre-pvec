@@ -28,7 +28,9 @@ const payload = {
   sections,
   wasm: b64(path.join(root, "wasm/pvec_eval.wasm")),
   small: Object.fromEntries(Object.keys(index.artifacts).map((id) => [id, b64(path.join(fixtures, `${id}.pvec`))])),
-  large: Object.fromEntries(large.map((id) => [id, b64(path.join(largeDir, `${id}.pvec`))])),
+  large: Object.fromEntries(large.filter((id) => !id.endsWith("-tier0")).map((id) => [id, b64(path.join(largeDir, `${id}.pvec`))])),
+  // The same entries written with a spatial directory and Tier 0 blocks (pvec's indexed layout)
+  tier0: Object.fromEntries(large.filter((id) => id.endsWith("-tier0")).map((id) => [id.replace(/-tier0$/, ""), b64(path.join(largeDir, `${id}.pvec`))])),
 };
 
 const browser = await chromium.launch({ args: ["--enable-precise-memory-info", "--js-flags=--expose-gc"] });
@@ -50,4 +52,4 @@ const results = {
 };
 await browser.close();
 fs.writeFileSync(path.join(here, "results.json"), JSON.stringify(results, null, 2) + "\n");
-console.log(JSON.stringify({ wrote: "spikes/pvec-real/results.json", fixtures: Object.keys(payload.small).length, large }, null, 1));
+console.log(JSON.stringify({ wrote: "spikes/pvec-real/results.json", fixtures: Object.keys(payload.small).length, large, tier0: Object.keys(payload.tier0) }, null, 1));
