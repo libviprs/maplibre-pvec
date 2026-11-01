@@ -15,9 +15,10 @@ const GL = ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swifts
 
 /**
  * name: the example directory. fixtures: { "/fixtures/x.pvec": bytes }. check(result, page): returns the list of failures.
+ * launchArgs: extra Chromium flags; timeoutMs: how long the page may take to set its result.
  * The page sets window.__result when it is done (or window.__failed with a message).
  */
-export async function runExample({ name, fixtures, check }) {
+export async function runExample({ name, fixtures, check, launchArgs = [], timeoutMs = 90_000 }) {
   const arg = (k, d) => (process.argv.includes(k) ? process.argv[process.argv.indexOf(k) + 1] : d);
   const pkgRoot = resolve(arg("--pkg", "."));
   const pkg = join(pkgRoot, "dist");
@@ -27,7 +28,7 @@ export async function runExample({ name, fixtures, check }) {
   const failures = [];
   const denied = new Set();
   let log = [];
-  const browser = await chromium.launch({ args: GL });
+  const browser = await chromium.launch({ args: [...GL, ...launchArgs] });
   try {
     await withServer({ routes: { "/pkg": pkg, "/maplibre": maplibre, "/": examples }, fixtures }, async (s) => {
       const context = await browser.newContext({ viewport: { width: 700, height: 540 } });
@@ -39,7 +40,7 @@ export async function runExample({ name, fixtures, check }) {
       page.on("console", (m) => consoleLog.push(`${m.type()}: ${m.text()}`));
       try {
         await page.goto(`${s.url}/${name}/index.html`);
-        await page.waitForFunction("window.__result !== undefined || window.__failed !== undefined", undefined, { timeout: 90_000 });
+        await page.waitForFunction("window.__result !== undefined || window.__failed !== undefined", undefined, { timeout: timeoutMs });
         const failed = await page.evaluate("window.__failed");
         if (failed) failures.push(`page: ${failed}`);
         else failures.push(...(await check(await page.evaluate("window.__result"), { requests: () => s.log })));

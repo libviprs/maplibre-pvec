@@ -50,7 +50,7 @@ describe("#110 the gate counts the raster rows", () => {
       expect(rasterBudgetProblems({ raster: e.raster, environment: { timerResolutionMs: e.timerResolutionMs } })).toEqual([]);
     }
   });
-  it("--tag-check refuses when a raster row is removed, and the tag stays refused because the examples and corpus conditions are open", () => {
+  it("--tag-check refuses when a raster row is removed, and the examples condition is met now that all six examples pass", () => {
     const green = {
       conditions: [...REQUIRED_CONDITIONS, "raster_render_budget"].map((id: string) => ({
         id, status: "met", evidence: "synthetic evidence",
@@ -62,7 +62,7 @@ describe("#110 the gate counts the raster rows", () => {
     expect(evaluateRelease(noRow).problems.join(" ")).toContain("raster_render_budget");
     const noKey = { conditions: green.conditions.map((c) => (c.id === "examples_pass_network_denied" ? { ...c, measured: { rasterGridSpecs: 1 } } : c)) };
     expect(evaluateRelease(noKey).problems.join(" ")).toMatch(/examples_pass_network_denied.*rasterExamples/);
-    expect(evaluateRelease(gate).ok, "today's tree still has the examples condition open (#84)").toBe(false);
+    expect(evaluateRelease(gate).ok, "all six examples passed (#84), so the examples condition is met").toBe(true);
   });
   it("freezes raster as an optional capability, the texture constant and the render budget, and does not tag", () => {
     const f = json("release/v1-freeze.json");
