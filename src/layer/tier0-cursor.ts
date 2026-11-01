@@ -127,6 +127,8 @@ export function tier0CursorOver(evaluator: Evaluator, bytes: Uint8Array, window:
   let page = 16;
   /** One leaf (cell 0: the advanced curves): its stored previews, then its entities a page at a time. */
   function* leaf(cell: number, hasBlock: boolean): Generator<void> {
+    // An entity is in exactly one leaf, so only the stored previews and the entities of this leaf can overlap. A Set that held the whole file would rehash in one go, 10 to 20 ms, when it doubled.
+    seen.clear();
     if (hasBlock) {
       const stream = rt.tier0Leaf(file, cell);
       yield;
