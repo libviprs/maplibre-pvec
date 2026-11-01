@@ -213,8 +213,8 @@ What is done and tested: `examples/07-raster-underlay/` (a scan under a drawing,
 
 | Item | Why it cannot be done here | What unblocks it |
 |---|---|---|
-| A band toggle and an opacity slider in example 07 | The band and the opacity are the file's: the public surface has `raster.enabled` and `layer.rasters()` and nothing that changes a placement, by design (ADR 0009). The example shows both read-only from `rasters()` and toggles the rasters on and off. A band 0 file and a band 1 file would need a second fixture from pvec's writer. | A second synthetic fixture from the pvec tiler (a `Band::Under` placement), or a decision to add an option, which would be a freeze amendment for Rom |
-| The real scan fixture | `libviprs/libviprs#1328` is the scan producer; the example uses pvec's synthetic tiler output | `libviprs/libviprs#1328` |
+| An opacity slider in example 07 | The opacity is the file's: the public surface has `raster.enabled` and `layer.rasters()` and nothing that changes a placement, by design (ADR 0009). The example shows it read-only from `rasters()`. The band toggle is real: it switches between libviprs's two conversions of the same scan, band 0 and band 1 | A decision to add an option, which would be a freeze amendment for Rom |
+| A real photographed scan | The example uses libviprs's conversion of a generated PDF scan (a 64 by 48 ramp) and pvec's synthetic tiler output, not a photographed drawing | A real scan fixture in `libviprs/libviprs-tests` |
 | Examples 02 to 06 and the one CI job over all examples | #84 and PR #85 are not finished. Example 07 is added on main's harness (`examples/run-all.sh` runs every `examples/0*/run.mjs`), so it joins the job when that lands; the "examples pass" freeze condition stays deferred | #84 |
 
 ## #108 Hardware and software numbers for rasters, the texture constant and the retune
