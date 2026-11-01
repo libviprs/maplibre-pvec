@@ -181,14 +181,32 @@ async function main(p) {
   const account = (id, bytes, boxes, refRel, previewRels, hausMax) => {
     const { file, batch, n } = prep(bytes);
     const row = { id, entities: n };
-    const grab = (b, eps) => { const r = rt.tessellate(b, worldChain(eps), 5e6, "f64"); const v = rt.views(r); const o = polys(v); rt.release(r); return o; };
+    // A tight budget over a whole file can need more vertices than a result may hold (code -11, libviprs/pvec#236). The file is then
+    // asked for in a 16 by 16 grid of boxes over the extent found so far, and an entity that several boxes meet is kept once.
+    let extentSoFar = null;
+    const grab = (b, eps) => {
+      const r = rt.tessellate(b, worldChain(eps), 5e6, "f64");
+      if (r >= 0) { const v = rt.views(r); const o = polys(v); rt.release(r); return o; }
+      if (r !== -11 || !extentSoFar) throw new Error(`tessellate returned ${r}`);
+      const [gx0, gy0, gx1, gy1] = extentSoFar, N = 16, byId = new Map();
+      for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
+        const vb = rt.queryViewport(file, gx0 + (gx1 - gx0) * i / N, gy0 + (gy1 - gy0) * j / N, gx0 + (gx1 - gx0) * (i + 1) / N, gy0 + (gy1 - gy0) * (j + 1) / N, 1e7);
+        const rr = rt.tessellate(vb, worldChain(eps), 5e6, "f64");
+        if (rr < 0) throw new Error(`a piece of the grid was refused (${rr})`);
+        for (const e of polys(rt.views(rr))) if (!byId.has(e.id)) byId.set(e.id, e);
+        rt.release(rr); rt.release(vb);
+      }
+      return [...byId.values()].sort((a, c) => a.id - c.id);
+    };
     // The extent comes from the union of a few coarse-to-moderate tessellations: at a huge budget a full circle is
     // a single point, which would make the extent zero.
     let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
     for (const eps of [1e30, 1e3, 1, 1e-2]) {
       for (const e of grab(batch, eps)) for (const [x, y] of e.pts) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+      extentSoFar = [x0, y0, x1, y1];
     }
     const ext = Math.max(x1 - x0, y1 - y0, 1e-9);
+    extentSoFar = [x0, y0, x1, y1];
     row.extent = [x0, y0, x1, y1];
     const ref = grab(batch, ext * refRel);
     row.referenceBudget = ext * refRel;
@@ -236,27 +254,35 @@ async function main(p) {
   out.tier0Stream = [];
   for (const [id, b64] of want('tier0') ? Object.entries(p.tier0) : []) {
     const bytes = u8(b64);
-    const s0 = performance.now();
-    const cursor = PvecMlp.tier0CursorOver(ev, bytes, WORLD);
-    const openMs = performance.now() - s0;
-    const dec = new PvecMlp.Tier0Decoder();
-    const times = [];
-    let entities = 0;
-    // The decoder counts a whole cursor as one block, so a file over DEFAULTS.maxEntitiesPerBlock is refused by it. That is the layer's behaviour and it is recorded, not hidden.
-    let refused;
-    try {
-      for (;;) {
-        const a = performance.now();
-        const slice = dec.decodeSlice(cursor);
-        times.push(performance.now() - a);
-        if (!slice) break;
-        entities += slice.draws.length;
+    // The window is the extent of the drawing, as the layer gives it (the manifest's source bounds), so a pixel of the 1920 pixel view is a real size.
+    const f0 = rt.open(bytes);
+    const extent = [0, 1, 2, 3].map((n) => rt.directoryBound(f0, n));
+    const leaves = rt.directoryStat(f0, 1);
+    rt.release(f0);
+    for (const [cursorName, make] of [['leaves (#125)', PvecMlp.tier0CursorOver], ['boxes (before #125)', PvecMlp.tier0CursorBefore]]) {
+      const s0 = performance.now();
+      const cursor = make(ev, bytes, extent);
+      const openMs = performance.now() - s0;
+      const dec = new PvecMlp.Tier0Decoder();
+      const times = [];
+      let entities = 0;
+      // A cursor that does not say where its blocks end is one block, so a file over DEFAULTS.maxEntitiesPerBlock is refused by the decoder. That is recorded, not hidden.
+      let refused;
+      try {
+        for (;;) {
+          const a = performance.now();
+          const slice = dec.decodeSlice(cursor);
+          times.push(performance.now() - a);
+          if (!slice) break;
+          entities += slice.draws.length;
+        }
+      } catch (e) {
+        refused = String(e && e.message || e);
       }
-    } catch (e) {
-      refused = String(e && e.message || e);
+      cursor.close();
+      const sorted = [...times].sort((x, y) => x - y);
+      out.tier0Slices.push({ id, cursor: cursorName, leaves, entities, slices: Math.max(0, times.length - 1), maxSliceMs: r3(Math.max(...times)), p99SliceMs: r3(sorted[Math.floor(times.length * 0.99)]), overBudget: times.filter((t) => t > 8).length, medianSliceMs: r3(median(times)), totalMs: r3(times.reduce((x, y) => x + y, 0)), openMs: r3(openMs), ...(refused ? { refused } : {}), platform: 'chromium, ' + navigator.userAgent.slice(0, 60) });
     }
-    cursor.close();
-    out.tier0Slices.push({ id, entities, slices: Math.max(0, times.length - 1), maxSliceMs: r3(Math.max(...times)), p99SliceMs: r3([...times].sort((x, y) => x - y)[Math.floor(times.length * 0.99)]), overBudget: times.filter((t) => t > 8).length, medianSliceMs: r3(median(times)), totalMs: r3(times.reduce((x, y) => x + y, 0)), openMs: r3(openMs), ...(refused ? { refused } : {}), platform: 'chromium, ' + navigator.userAgent.slice(0, 60) });
 
     // Stream audit: entries + uncovered is the window's entity count, and every preview stays within its declared error of a tight reference.
     const file = rt.open(bytes);
