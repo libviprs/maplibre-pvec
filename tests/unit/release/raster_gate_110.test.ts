@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
@@ -8,7 +9,7 @@ import { SUPPORTED_ABI_VERSIONS, loadEvaluator } from "../../../src/wasm/loader"
 import { RASTER_EXPORTS, hasRasterExports, openRasterProvider } from "../../../src/wasm/raster";
 import { RasterRefusedError } from "../../../src/render/raster/provider";
 import { REQUIRED_CONDITIONS, buildGate, evaluateRelease } from "../../../tools/release-gate.mjs";
-import { resolveStagedWasm } from "../../../tools/staged-wasm.mjs";
+import { missingRasterExports } from "../../../tools/staged-wasm.mjs";
 import { EVALUATOR_WASM_BYTES } from "../helpers/probe";
 
 // Issue 110: the release gate with rasters inside it, the pin move and the freeze. The conditions keep their ids and their list; the
@@ -98,10 +99,12 @@ describe("#110 the pin move and the loader", () => {
     const bare = { exports: {} } as unknown as WebAssembly.Instance;
     expect(hasRasterExports({ instance: bare, abiVersion: 2, source: "injected", hasRaster: false })).toBe(false);
   });
-  it("the staged-wasm self-test fails a module whose bytes lack the raster exports (the previous pin)", () => {
-    expect(() => resolveStagedWasm(path.join(root, "wasm/pvec_eval.wasm"), { abiVersion: 2, rasterExports: [...RASTER_EXPORTS] })).not.toThrow();
-    const lacking = new Uint8Array(readFileSync(path.join(root, "wasm/pvec_eval.wasm")).subarray(0, 8));
-    expect(() => resolveStagedWasm(lacking as never, { abiVersion: 2, rasterExports: [...RASTER_EXPORTS] })).toThrow();
+  it("the staged-wasm self-test lists the raster exports a module lacks: none on the pinned module, all of them on a bare one", () => {
+    expect(missingRasterExports(path.join(root, "wasm/pvec_eval.wasm"), [...RASTER_EXPORTS])).toEqual([]);
+    const dir = mkdtempSync(path.join(tmpdir(), "bare-wasm-"));
+    writeFileSync(path.join(dir, "bare.wasm"), "\0asm-without-the-names");
+    expect(missingRasterExports(path.join(dir, "bare.wasm"), [...RASTER_EXPORTS])).toEqual([...RASTER_EXPORTS]);
+    rmSync(dir, { recursive: true, force: true });
   });
   it("is the module the build ships: wasm/pvec_eval.wasm is the file the pin names", () => expect(existsSync(path.join(root, "wasm/pvec_eval.wasm"))).toBe(true));
 });
