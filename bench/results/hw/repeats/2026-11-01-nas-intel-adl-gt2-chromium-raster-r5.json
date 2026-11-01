@@ -1,0 +1,555 @@
+{
+  "schema": 1,
+  "commit": "83bdda3",
+  "date": "2026-11-01T08:58:10.477Z",
+  "environment": {
+    "host": "nas-intel-adl-gt2",
+    "os": "linux 6.12.30+",
+    "arch": "x64",
+    "cpu": "Intel(R) Pentium(R) Gold 8505",
+    "engine": "chromium",
+    "browserVersion": "130.0.6723.31",
+    "gpuRenderer": "ANGLE (Intel, Mesa Intel(R) Graphics (ADL GT2), OpenGL ES 3.2)",
+    "gpuVendor": "Google Inc. (Intel)",
+    "softwareRenderer": false,
+    "dpr": 2,
+    "viewport": [
+      1600,
+      1000
+    ],
+    "timerQuery": true,
+    "timerResolutionMs": 0.1,
+    "hostLoad": {
+      "start": 2.93,
+      "end": 3.39,
+      "cpus": 6
+    }
+  },
+  "raster": {
+    "decode": [
+      {
+        "variant": "png-gray1",
+        "edge": 256,
+        "samples": 30,
+        "bytes": 2499,
+        "coldMs": 14.799999713897705,
+        "p50Ms": 1.0999999046325684,
+        "p95Ms": 1.5999999046325684
+      },
+      {
+        "variant": "png-gray1",
+        "edge": 512,
+        "samples": 20,
+        "bytes": 6038,
+        "coldMs": 3.700000286102295,
+        "p50Ms": 2.5,
+        "p95Ms": 2.700000286102295
+      },
+      {
+        "variant": "png-gray1",
+        "edge": 1024,
+        "samples": 12,
+        "bytes": 13569,
+        "coldMs": 6,
+        "p50Ms": 5.699999809265137,
+        "p95Ms": 6.599999904632568
+      },
+      {
+        "variant": "png-gray8",
+        "edge": 256,
+        "samples": 30,
+        "bytes": 34467,
+        "coldMs": 2.9000000953674316,
+        "p50Ms": 2.1999998092651367,
+        "p95Ms": 2.9000000953674316
+      },
+      {
+        "variant": "png-gray8",
+        "edge": 512,
+        "samples": 20,
+        "bytes": 146519,
+        "coldMs": 8.300000190734863,
+        "p50Ms": 7.300000190734863,
+        "p95Ms": 7.799999713897705
+      },
+      {
+        "variant": "png-gray8",
+        "edge": 1024,
+        "samples": 12,
+        "bytes": 608554,
+        "coldMs": 36,
+        "p50Ms": 22.299999713897705,
+        "p95Ms": 23.200000286102295
+      },
+      {
+        "variant": "png-rgba",
+        "edge": 256,
+        "samples": 30,
+        "bytes": 54874,
+        "coldMs": 3.0999999046325684,
+        "p50Ms": 2.3000001907348633,
+        "p95Ms": 2.5999999046325684
+      },
+      {
+        "variant": "png-rgba",
+        "edge": 512,
+        "samples": 20,
+        "bytes": 224988,
+        "coldMs": 9.600000381469727,
+        "p50Ms": 6.5,
+        "p95Ms": 7.900000095367432
+      },
+      {
+        "variant": "png-rgba",
+        "edge": 1024,
+        "samples": 12,
+        "bytes": 916073,
+        "coldMs": 24.800000190734863,
+        "p50Ms": 23.59999990463257,
+        "p95Ms": 24.199999809265137
+      },
+      {
+        "variant": "jpeg-gray",
+        "edge": 256,
+        "samples": 30,
+        "bytes": 32173,
+        "coldMs": 3.6999998092651367,
+        "p50Ms": 1.6999998092651367,
+        "p95Ms": 2.5
+      },
+      {
+        "variant": "jpeg-gray",
+        "edge": 512,
+        "samples": 20,
+        "bytes": 98981,
+        "coldMs": 4.900000095367432,
+        "p50Ms": 4.300000190734863,
+        "p95Ms": 4.700000286102295
+      },
+      {
+        "variant": "jpeg-gray",
+        "edge": 1024,
+        "samples": 12,
+        "bytes": 296104,
+        "coldMs": 9.200000286102295,
+        "p50Ms": 10.700000286102295,
+        "p95Ms": 14.300000190734863
+      },
+      {
+        "variant": "jpeg-rgb",
+        "edge": 256,
+        "samples": 30,
+        "bytes": 32750,
+        "coldMs": 2.4000000953674316,
+        "p50Ms": 1.5999999046325684,
+        "p95Ms": 2
+      },
+      {
+        "variant": "jpeg-rgb",
+        "edge": 512,
+        "samples": 20,
+        "bytes": 100641,
+        "coldMs": 5.200000286102295,
+        "p50Ms": 4.399999618530273,
+        "p95Ms": 4.599999904632568
+      },
+      {
+        "variant": "jpeg-rgb",
+        "edge": 1024,
+        "samples": 12,
+        "bytes": 301482,
+        "coldMs": 12.799999713897705,
+        "p50Ms": 11.799999713897705,
+        "p95Ms": 14.400000095367432
+      },
+      {
+        "variant": "webp-vp8l",
+        "edge": 256,
+        "samples": 30,
+        "bytes": 28198,
+        "coldMs": 2.5,
+        "p50Ms": 1.5999999046325684,
+        "p95Ms": 1.9000000953674316
+      },
+      {
+        "variant": "webp-vp8l",
+        "edge": 512,
+        "samples": 20,
+        "bytes": 121022,
+        "coldMs": 6.300000190734863,
+        "p50Ms": 5.200000286102295,
+        "p95Ms": 5.5
+      },
+      {
+        "variant": "webp-vp8l",
+        "edge": 1024,
+        "samples": 12,
+        "bytes": 506492,
+        "coldMs": 13.400000095367432,
+        "p50Ms": 11.900000095367432,
+        "p95Ms": 21.59999990463257
+      }
+    ],
+    "upload": [
+      {
+        "edge": 256,
+        "samples": 25,
+        "p50Ms": 0.2999997138977051,
+        "p95Ms": 0.6000003814697266,
+        "subP50Ms": 0.2999997138977051,
+        "subP95Ms": 0.3000001907348633
+      },
+      {
+        "edge": 512,
+        "samples": 25,
+        "p50Ms": 0.9000000953674316,
+        "p95Ms": 1.6999998092651367,
+        "subP50Ms": 0.7999997138977051,
+        "subP95Ms": 0.9000000953674316
+      },
+      {
+        "edge": 1024,
+        "samples": 25,
+        "p50Ms": 3.4000000953674316,
+        "p95Ms": 3.8999996185302734,
+        "subP50Ms": 2.6999998092651367,
+        "subP95Ms": 4
+      }
+    ],
+    "scenes": [
+      {
+        "name": "strokes+0",
+        "rasters": 0,
+        "durationMs": 61034,
+        "segments": 1000000,
+        "frames": {
+          "count": 466,
+          "p50Ms": 138.5,
+          "p95Ms": 143.69999980926514,
+          "p99Ms": 153.19999980926514,
+          "maxMs": 279.19999980926514,
+          "over20Ms": 466
+        },
+        "render": {
+          "p50Ms": 0.3000001907348633,
+          "p95Ms": 0.40000009536743164,
+          "maxMs": 0.7000002861022949,
+          "steady": {
+            "frames": 466,
+            "meanMs": 0.3130901248669931,
+            "p50Ms": 0.3000001907348633,
+            "p95Ms": 0.40000009536743164,
+            "p99Ms": 0.5999999046325684,
+            "maxMs": 0.7000002861022949,
+            "over16_7Ms": []
+          },
+          "uploadFrames": {
+            "frames": 0,
+            "share": 0,
+            "p50Ms": 0,
+            "p95Ms": 0,
+            "maxMs": 0,
+            "over16_7Ms": []
+          }
+        },
+        "uploads": {
+          "framesWithUploads": 0,
+          "maxTilesPerFrame": 0,
+          "maxBytesPerFrame": 0,
+          "overBudgetFrames": 0
+        },
+        "texture": {
+          "peakTextures": 0,
+          "peakGpuTierBytes": 0,
+          "gpuBytes": 134217728
+        },
+        "stateDiffs": 0,
+        "errors": 0,
+        "mainThreadDecodes": 0,
+        "phases": {
+          "views": 9.700000762939453,
+          "fit": 17.600000858306885,
+          "plan": 2.399998188018799,
+          "request": 12.80000114440918,
+          "upload": 109.3999981880188,
+          "collect": 6.700000762939453,
+          "frames": 72,
+          "draw": 36.100000858306885
+        },
+        "uploadTrace": []
+      },
+      {
+        "name": "strokes+1",
+        "rasters": 1,
+        "durationMs": 61013,
+        "segments": 1000000,
+        "frames": {
+          "count": 452,
+          "p50Ms": 140.7999997138977,
+          "p95Ms": 144.80000019073486,
+          "p99Ms": 151.7000002861023,
+          "maxMs": 271.69999980926514,
+          "over20Ms": 452
+        },
+        "render": {
+          "p50Ms": 0.5999999046325684,
+          "p95Ms": 0.9000000953674316,
+          "maxMs": 4,
+          "steady": {
+            "frames": 441,
+            "meanMs": 0.6065759669626111,
+            "p50Ms": 0.5999999046325684,
+            "p95Ms": 0.9000000953674316,
+            "p99Ms": 1.0999999046325684,
+            "maxMs": 1.3000001907348633,
+            "over16_7Ms": []
+          },
+          "uploadFrames": {
+            "frames": 11,
+            "share": 0.024336283185840708,
+            "p50Ms": 2.9000000953674316,
+            "p95Ms": 4,
+            "maxMs": 4,
+            "over16_7Ms": []
+          }
+        },
+        "uploads": {
+          "framesWithUploads": 40,
+          "maxTilesPerFrame": 3,
+          "maxBytesPerFrame": 3145728,
+          "overBudgetFrames": 0
+        },
+        "texture": {
+          "peakTextures": 69,
+          "peakGpuTierBytes": 72351744,
+          "gpuBytes": 134217728
+        },
+        "stateDiffs": 0,
+        "errors": 0,
+        "mainThreadDecodes": 0,
+        "phases": {
+          "views": 30.500001430511475,
+          "fit": 53.90000104904175,
+          "plan": 15.799997329711914,
+          "request": 29.499998569488525,
+          "upload": 362.0999960899353,
+          "collect": 50.80000162124634,
+          "frames": 962,
+          "draw": 198.39999151229858
+        },
+        "uploadTrace": [
+          {
+            "frame": 127,
+            "ms": 4,
+            "tiles": 3,
+            "mib": 3,
+            "prepareMs": 3.1999998092651367
+          },
+          {
+            "frame": 128,
+            "ms": 3.8000001907348633,
+            "tiles": 3,
+            "mib": 3,
+            "prepareMs": 3
+          },
+          {
+            "frame": 129,
+            "ms": 3,
+            "tiles": 3,
+            "mib": 3,
+            "prepareMs": 2.3999996185302734
+          },
+          {
+            "frame": 130,
+            "ms": 2.1000003814697266,
+            "tiles": 2,
+            "mib": 2,
+            "prepareMs": 1.700000286102295
+          },
+          {
+            "frame": 205,
+            "ms": 2.700000286102295,
+            "tiles": 2,
+            "mib": 2,
+            "prepareMs": 2.299999713897705
+          },
+          {
+            "frame": 242,
+            "ms": 3.1000003814697266,
+            "tiles": 2,
+            "mib": 2,
+            "prepareMs": 2.299999713897705
+          },
+          {
+            "frame": 243,
+            "ms": 3.0999999046325684,
+            "tiles": 3,
+            "mib": 3,
+            "prepareMs": 2.700000286102295
+          },
+          {
+            "frame": 244,
+            "ms": 2.5999999046325684,
+            "tiles": 3,
+            "mib": 3,
+            "prepareMs": 2.299999713897705
+          },
+          {
+            "frame": 245,
+            "ms": 2.9000000953674316,
+            "tiles": 2,
+            "mib": 2,
+            "prepareMs": 2.3000001907348633
+          },
+          {
+            "frame": 273,
+            "ms": 2.799999713897705,
+            "tiles": 3,
+            "mib": 3,
+            "prepareMs": 2.4000000953674316
+          },
+          {
+            "frame": 274,
+            "ms": 1.8000001907348633,
+            "tiles": 1,
+            "mib": 1,
+            "prepareMs": 1.4000000953674316
+          }
+        ]
+      },
+      {
+        "name": "strokes+10",
+        "rasters": 10,
+        "durationMs": 61017,
+        "segments": 1000000,
+        "frames": {
+          "count": 420,
+          "p50Ms": 150.09999990463257,
+          "p95Ms": 154.60000038146973,
+          "p99Ms": 161.09999990463257,
+          "maxMs": 250.80000019073486,
+          "over20Ms": 420
+        },
+        "render": {
+          "p50Ms": 0.8000001907348633,
+          "p95Ms": 1,
+          "maxMs": 4.100000381469727,
+          "steady": {
+            "frames": 416,
+            "meanMs": 0.8045673037950809,
+            "p50Ms": 0.8000001907348633,
+            "p95Ms": 1,
+            "p99Ms": 1.0999999046325684,
+            "maxMs": 1.1999998092651367,
+            "over16_7Ms": []
+          },
+          "uploadFrames": {
+            "frames": 4,
+            "share": 0.009523809523809525,
+            "p50Ms": 3.5999999046325684,
+            "p95Ms": 4.100000381469727,
+            "maxMs": 4.100000381469727,
+            "over16_7Ms": []
+          }
+        },
+        "uploads": {
+          "framesWithUploads": 36,
+          "maxTilesPerFrame": 3,
+          "maxBytesPerFrame": 3145728,
+          "overBudgetFrames": 0
+        },
+        "texture": {
+          "peakTextures": 66,
+          "peakGpuTierBytes": 69206016,
+          "gpuBytes": 134217728
+        },
+        "stateDiffs": 0,
+        "errors": 0,
+        "mainThreadDecodes": 0,
+        "phases": {
+          "views": 72.10000133514404,
+          "fit": 194.50000047683716,
+          "plan": 34.89999485015869,
+          "request": 43.299994468688965,
+          "upload": 535.1999959945679,
+          "collect": 86.1000018119812,
+          "frames": 1840,
+          "draw": 412.8999981880188
+        },
+        "uploadTrace": [
+          {
+            "frame": 403,
+            "ms": 4.100000381469727,
+            "tiles": 2,
+            "mib": 2,
+            "prepareMs": 3.299999713897705
+          },
+          {
+            "frame": 404,
+            "ms": 3.0999999046325684,
+            "tiles": 2,
+            "mib": 2,
+            "prepareMs": 2.299999713897705
+          },
+          {
+            "frame": 405,
+            "ms": 3.799999713897705,
+            "tiles": 2,
+            "mib": 2,
+            "prepareMs": 3
+          },
+          {
+            "frame": 412,
+            "ms": 3.5999999046325684,
+            "tiles": 3,
+            "mib": 3,
+            "prepareMs": 3.299999713897705
+          }
+        ]
+      }
+    ],
+    "fit": [
+      {
+        "view": "1080p",
+        "deviceSize": [
+          1920,
+          1080
+        ],
+        "rasters": 2,
+        "gpuBytes": 134217728,
+        "peakGpuTierBytes": 36700160,
+        "textures": 35,
+        "levels": [
+          6
+        ]
+      },
+      {
+        "view": "4k",
+        "deviceSize": [
+          3840,
+          2160
+        ],
+        "rasters": 2,
+        "gpuBytes": 134217728,
+        "peakGpuTierBytes": 31457280,
+        "textures": 30,
+        "levels": [
+          5
+        ]
+      }
+    ],
+    "firstDrawing": [
+      {
+        "mbit": 25,
+        "ms": 541.5,
+        "bytes": 593886
+      },
+      {
+        "mbit": 5,
+        "ms": 697.5,
+        "bytes": 593886
+      }
+    ],
+    "replay": []
+  }
+}
