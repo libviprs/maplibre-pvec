@@ -23,6 +23,10 @@ Nothing is tagged or published. `1.0.0` waits for every condition in `release/v1
 
 A minor change: nothing is removed or retyped. `PVecLayerOptions.raster` and `update({ raster })`, the `rasterskipped` event and `RasterSkippedEvent`, `RasterInfo` and `PVecLayer.rasters()`, and the optional capability `raster` in the compatibility matrix. `DiagnosticsSnapshot.rasters` is added. This is a freeze amendment under the R-M epic (#103). `tools/release-gate.mjs` hashes whole declarations, so it reads each of these additions to an existing declaration as a change to that symbol.
 
+### Raster measurements and the texture constant (#108, display fidelity)
+
+`RASTER_DEFAULTS` in `src/config/defaults.ts` (bytes per texel, the retained-level factor and the texture share of `cache.gpuBytes`) and the same object in `release/v1-freeze.json` are new frozen budgets, equal by test, with the values the raster texture bound already used (4, 2 and 1). Nothing exported changed, so this is a patch-level change to the budgets and not a change to the public surface. The render budget with rasters is 1.5 ms at the 95th percentile on frames that upload no tile, with uploads under the existing 2 ms budget; the issue's 1 ms was not reachable on the Intel row by construction (`docs/adr/0009-raster-quads.md`). The decode, upload and frame numbers for rasters in `docs/benchmark-report.md` are display-fidelity and frame-behaviour measurements, each named with its renderer, engine and arch; the software GL rows are relative costs and feed no budget.
+
 ### Measurements
 
 The benchmark numbers are display-fidelity and frame-behaviour measurements on software GL (SwiftShader, native x86_64), recorded as relative costs. They say nothing about geometric accuracy. The mathematical tolerances and the three conformance classes belong to EPIC P and the shared numeric policy in `libviprs/pvec#1`, and I cite them rather than restate them. The numbers are in `docs/benchmark-report.md`.

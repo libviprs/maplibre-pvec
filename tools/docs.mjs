@@ -158,9 +158,124 @@ function benchmarkReport(root) {
     }
     out.push("");
   }
+  out.push(...rasterSection(root, hw));
   out.push(...realEvaluatorSection(root));
   out.push("Software GL means these are relative costs. The add-on's own runs and the thresholds for them are listed in [deferred work](deferred.md).\n");
   return out.join("\n");
+}
+
+
+const f2 = (n) => (n < 10 ? n.toFixed(2) : n.toFixed(1));
+const mib = (n) => (n / (1 << 20)).toFixed(1);
+const rendererOf = (key) => key.split(" | ")[0];
+
+/** Rasters through the wired layer (#108): the decode and upload tables, the scenes, the two-scan views. */
+function rasterSection(root, hw) {
+  const hard = Object.entries(hw.rasterEntries ?? {});
+  const soft = Object.entries(hw.softwareRasterEntries ?? {});
+  if (!hard.length && !soft.length) return [];
+  const out = ["### Rasters through the wired layer\n"];
+  out.push("Scans of A0 at 400 dpi (18724 by 13244 px, 512 px tiles, seven levels) over the 1e6-segment stroke scene, drawn by `createPVecLayer` on a real MapLibre map with the stand-in cursor and a fixture provider in place of the pvec-wasm raster exports. The tiles are the pinned ones of `bench/hw/raster-tiles.json` (one per codec variant and tile size, built by `tools/raster-bench-tiles.sh`), decoded by the shipped decode worker with `createImageBitmap` and uploaded under the 4 MiB and 2 ms budget. The map pans and breathes its zoom by 0.8 of a level every frame, 60 s after a 3 s warm-up, so levels change and decodes run while the frames are timed. Upload counts run from the first frame after `addLayer`, so the fill of the scene is in them. Render CPU is the JavaScript time inside `layer.render`, split in two populations: steady frames (no tile uploaded) carry the budget of ADR 0009, 1.5 ms at the 95th percentile on every real renderer (the mean where the timer resolves 1 ms or coarser, which is WebKit's), and frames that upload a tile are held to one rule: none takes longer than one 60 fps frame (16.7 ms) and none uploads more than the byte budget plus one tile (the p95, the count and the maximum are recorded). ADR 0005's 1 ms stays the pipeline's number. Every row is from the result file in its last column and says which renderer and arch produced it.\n");
+  const cols = [...hard.map(([k, e]) => ({ k, e, label: `${rendererOf(k)}, ${e.engine} ${e.browserVersion}, ${e.arch}` })), ...soft.map(([k, e]) => ({ k, e, label: `${rendererOf(k)}, ${e.engine} ${e.browserVersion}, ${e.arch}, software GL, no GPU` }))];
+  out.push("#### Decode per tile (worker, `createImageBitmap`, ms)\n");
+  out.push("Each cell is median / 95th percentile over warm decodes, then the first decode in a fresh worker (cold). Time is the one the worker measures around `createImageBitmap`, so none of it is on the main thread.\n");
+  out.push(`| codec variant | tile edge | bytes | ${cols.map((c) => c.label).join(" | ")} |`, `|---|---|---|${cols.map(() => "---").join("|")}|`);
+  const first = cols[0].e.raster.decode;
+  for (const d of first) {
+    const cells = cols.map((c) => { const r = c.e.raster.decode.find((x) => x.variant === d.variant && x.edge === d.edge); return `${f2(r.p50Ms)} / ${f2(r.p95Ms)} (cold ${f2(r.coldMs)})`; });
+    out.push(`| ${d.variant} | ${d.edge} | ${d.bytes} | ${cells.join(" | ")} |`);
+  }
+  out.push("");
+  out.push("#### `texImage2D` of one RGBA8 tile, then `finish` (ms, median / 95th percentile)\n");
+  out.push(`| tile edge | bytes of texture | ${cols.map((c) => c.label).join(" | ")} |`, `|---|---|${cols.map(() => "---").join("|")}|`);
+  for (const u of first.length ? cols[0].e.raster.upload : []) {
+    out.push(`| ${u.edge} | ${u.edge * u.edge * 4} | ${cols.map((c) => { const r = c.e.raster.upload.find((x) => x.edge === u.edge); return `${f2(r.p50Ms)} / ${f2(r.p95Ms)}`; }).join(" | ")} |`);
+  }
+  out.push("");
+  out.push("#### The layer with one and ten scans\n");
+  out.push("`strokes+0` is the stroke scene alone in the same session, the baseline the raster increment is read against. The increment and the all-frames p95 (comparable with the layer rows of #82) are recorded, not budgeted.\n");
+  out.push("| renderer | timer step (ms) | scene | steady frames: mean / p95 / p99 / max (ms) | upload frames: count / share / p50 / p95 / max (ms) | all frames p95 (ms) | increment over strokes-only: steady mean / p95 (ms) | frame p50 / p95 / max (ms) | frames with uploads / most tiles / most MiB / over budget | peak textures / peak gpu tier (MiB of 128) | state diffs / errors / main-thread decodes | source |", "|---|---|---|---|---|---|---|---|---|---|---|---|");
+  for (const { e, label } of cols) {
+    const base = e.raster.scenes.find((x) => x.name === "strokes+0");
+    for (const sc of e.raster.scenes) {
+      const st = sc.render.steady, up = sc.render.uploadFrames;
+      const inc = base && sc.name !== "strokes+0" ? `${f2(st.meanMs - base.render.steady.meanMs)} / ${f2(st.p95Ms - base.render.steady.p95Ms)}` : "n/a";
+      out.push(`| ${label} | ${e.timerResolutionMs ?? "n/a"} | ${sc.name} | ${f2(st.meanMs)} / ${f2(st.p95Ms)} / ${f2(st.p99Ms)} / ${f2(st.maxMs)} | ${up.frames} / ${(up.share * 100).toFixed(1)}% / ${f2(up.p50Ms)} / ${f2(up.p95Ms)} / ${f2(up.maxMs)} | ${f2(sc.render.p95Ms)} | ${inc} | ${f2(sc.frames.p50Ms)} / ${f2(sc.frames.p95Ms)} / ${f2(sc.frames.maxMs)} | ${sc.uploads.framesWithUploads} / ${sc.uploads.maxTilesPerFrame} / ${mib(sc.uploads.maxBytesPerFrame)} / ${sc.uploads.overBudgetFrames} | ${sc.texture.peakTextures} / ${mib(sc.texture.peakGpuTierBytes)} | ${sc.stateDiffs} / ${sc.errors} / ${sc.mainThreadDecodes} | \`${e.source}\` |`);
+    }
+  }
+  out.push("");
+  out.push("Frames longer than one 60 fps frame (16.7 ms), listed and not averaged away:\n");
+  out.push("| renderer | scene | steady frames over 16.7 ms (ms) | upload frames over 16.7 ms (ms) |", "|---|---|---|---|");
+  for (const { label, e } of cols) for (const sc of e.raster.scenes) out.push(`| ${label} | ${sc.name} | ${sc.render.steady.over16_7Ms.map((v) => f2(v)).join(", ") || "none"} | ${sc.render.uploadFrames.over16_7Ms.map((v) => f2(v)).join(", ") || "none"} |`);
+  out.push("");
+  if (hard.length) {
+    out.push("#### The render budget on the real renderers\n");
+    out.push("ADR 0009, Budget. Steady frames: at most 1.5 ms, read as the p95 or, where the timer step is 1 ms or coarser, as the mean. Upload frames: none longer than 16.7 ms, and no frame over the byte budget plus one tile.\n");
+    out.push("| renderer | scene | statistic | steady (ms) | budget (ms) | upload frames (count) | upload frames p95 / max (ms) | upload frames over 16.7 ms | over-budget frames |", "|---|---|---|---|---|---|---|---|---|");
+    for (const [k, e] of hard) {
+      const clamped = (e.timerResolutionMs ?? 0) >= 1;
+      for (const sc of e.raster.scenes.filter((x) => x.rasters > 0)) {
+        const v = clamped ? sc.render.steady.meanMs : sc.render.steady.p95Ms;
+        out.push(`| ${rendererOf(k)}, ${e.engine}, ${e.arch} | ${sc.name} | ${clamped ? "mean" : "p95"} | ${f2(v)} | 1.5 | ${sc.render.uploadFrames.frames} | ${f2(sc.render.uploadFrames.p95Ms)} / ${f2(sc.render.uploadFrames.maxMs)} | ${sc.render.uploadFrames.over16_7Ms.length} | ${sc.uploads.overBudgetFrames} |`);
+      }
+    }
+    out.push("");
+  }
+  // The repeat runs of the Intel row: the noise floor and every steady frame over one 60 fps frame, run by run.
+  const repDir = path.join(root, "bench/results/hw/repeats");
+  const reps = existsSync(repDir) ? readdirSync(repDir).filter((f) => f.endsWith(".json")).sort() : [];
+  if (reps.length) {
+    const runs = reps.map((f) => ({ f, r: JSON.parse(readFileSync(path.join(repDir, f), "utf8")) }));
+    const base = hard.find(([k]) => /Intel/.test(k));
+    out.push("#### Intel ADL GT2: repeat runs, the noise floor and the observed hitch\n");
+    out.push("The full run behind the table above and the scenes-only repeats (`bench/results/hw/repeats`, the same bundle, taken one at a time when the shared host's load average was under 3). The steady p95 varies by a tenth of a millisecond between runs. A steady frame of about 25 to 26 ms shows up in most runs, once or twice, in any scene including the stroke-only one, so it does not come from the raster pass; the cause is not confirmed (a driver stall or garbage collection are the guesses) and it is outside the raster budget. Steady frames over 16.7 ms are listed with the scene they fell in.\n");
+    out.push("| run | host load start / end (6 cpus) | scene | steady p95 / mean (ms) | steady frames over 16.7 ms (ms) | upload frames: count / max (ms) |", "|---|---|---|---|---|---|");
+    const rows = [];
+    if (base) rows.push({ name: "full run", env: { hostLoad: base[1].hostLoad }, scenes: base[1].raster.scenes });
+    for (const { f, r } of runs) rows.push({ name: f.replace(/^.*-raster-?/, "").replace(/\.json$/, "") || f, env: r.environment, scenes: r.raster.scenes });
+    let hitchRuns = 0;
+    for (const x of rows) {
+      let any = false;
+      for (const sc of x.scenes) {
+        const h = sc.render.steady.over16_7Ms;
+        if (h.length) any = true;
+        const l = x.env.hostLoad;
+        out.push(`| ${x.name} | ${l ? `${l.start} / ${l.end}` : "n/a"} | ${sc.name} | ${f2(sc.render.steady.p95Ms)} / ${f2(sc.render.steady.meanMs)} | ${h.map((v) => f2(v)).join(", ") || "none"} | ${sc.render.uploadFrames.frames} / ${f2(sc.render.uploadFrames.maxMs)} |`);
+      }
+      if (any) hitchRuns++;
+    }
+    out.push("");
+    out.push(`Runs with at least one steady frame over 16.7 ms: ${hitchRuns} of ${rows.length}.\n`);
+  }
+  out.push("#### Two scans at one scan pixel per device pixel, against the gpu ceiling\n");
+  out.push("The view that holds the most tiles. Two full-resolution views at 4K do not fit 128 MiB, so the fit rule steps a level down; the table shows what stayed resident and which levels drew.\n");
+  out.push("| renderer | view (device px) | peak textures | peak gpu tier (MiB of 128) | levels drawn at the end |", "|---|---|---|---|---|");
+  for (const { e, label } of cols) for (const f of e.raster.fit) out.push(`| ${label} | ${f.view} (${f.deviceSize.join(" by ")}) | ${f.textures} | ${mib(f.peakGpuTierBytes)} | ${f.levels.join(", ") || "none"} |`);
+  out.push("");
+  out.push("#### Corpus raster cases replayed through the layer, rasters on and off\n");
+  out.push("The two raster cases of `bench/corpus/corpus.json` (the 1e5-segment stand-in strokes plus one scan and plus ten), replayed through `createPVecLayer` with `raster.enabled` true and false: five zoom steps and a ring of 24 pan steps, 60 frames each, median of three runs. First drawing is `addLayer` to the first frame that drew the strokes and, with rasters on, a raster. Frame times are render-event intervals. The add-on's own numbers for the viewport scripts are these; the 30 registry cases still replay without the add-on in `bench/results` (no real Tier 0 cursor is wired in yet).\n");
+  out.push("| renderer | case | rasters | first drawing (ms) | frame p95 / max (ms) | frames |", "|---|---|---|---|---|---|");
+  for (const { e, label } of cols) for (const r of e.raster.replay) out.push(`| ${label} | ${r.case} | ${r.rasters} | ${fmt(Math.round(r.firstDrawingMs))} | ${f2(r.p95FrameMs)} / ${f2(r.maxFrameMs)} | ${r.frames} |`);
+  out.push("");
+  if (soft.length) {
+    out.push("The software GL rows (SwiftShader on the CPU, a linux container, no GPU) are relative costs. They say the page, the decode worker and the layer work there and what a frame costs in software; they are not GPU numbers, they are not tuning input, and no budget or frozen value reads from them. The frame counts are low because software drawing of the 1e6-segment scene takes seconds a frame.\n");
+  }
+  return out;
+}
+
+/** First drawing with a raster over a paced link, from the same result files (#108). */
+function rasterFirstDrawing(hw) {
+  const rows = [...Object.entries(hw.rasterEntries ?? {}), ...Object.entries(hw.softwareRasterEntries ?? {})];
+  if (!rows.length) return [];
+  const out = ["## First drawing with a raster\n"];
+  out.push("The time from `addLayer` to the first frame that draws a raster tile, for one A0 scan whose tiles come from the harness's own loopback origin paced to the link rate, with 20 ms of added latency and no slow start. It is recorded for the 25 Mbit/s and 5 Mbit/s links of the strokes' marks, against pvec's `tier0-4s-5mbit` and `directory-300ms` verdicts on the browser side. It is not the Tier 0 inline overview of a real `.pvec` (the raster stream is served by a fixture provider, and the Tier 0 stream is not wired into the layer yet, see [deferred work](deferred.md)), and the add-on's mark is not claimed.\n");
+  out.push("| renderer | link | first raster drawn (ms) | tile bytes fetched | source |", "|---|---|---|---|---|");
+  for (const [k, e] of rows) {
+    const soft = e.softwareRenderer ? ", software GL, no GPU" : "";
+    for (const d of e.raster.firstDrawing) out.push(`| ${rendererOf(k)}, ${e.engine} ${e.browserVersion}, ${e.arch}${soft} | ${d.mbit} Mbit/s | ${fmt(Math.round(d.ms))} | ${d.bytes} | \`${e.source}\` |`);
+  }
+  out.push("");
+  return out;
 }
 
 const fr = (n) => (n === null || n === undefined ? "n/a" : n.toFixed(2));
@@ -263,6 +378,7 @@ function sloPage(root) {
     }
   }
   out.push("");
+  out.push(...rasterFirstDrawing(JSON.parse(readFileSync(path.join(root, "bench/baselines/renderer-baselines.json"), "utf8"))));
   return out.join("\n");
 }
 

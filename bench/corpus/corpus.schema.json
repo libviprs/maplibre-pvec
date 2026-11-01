@@ -64,6 +64,33 @@
           }
         }
       }
+    },
+    "rasterCases": {
+      "description": "Rasters over the 1e5 architectural strokes (#108): one A0 scan at 400 dpi and ten of them. The digest is the one pinned by bench/hw/raster-tiles.json.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "scans", "strokes", "scan"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "scans": { "enum": [1, 10] },
+          "strokes": { "type": "string" },
+          "scan": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["width", "height", "dpi", "edge", "tilesSha256"],
+            "properties": {
+              "width": { "type": "integer", "minimum": 1 },
+              "height": { "type": "integer", "minimum": 1 },
+              "dpi": { "const": 400 },
+              "edge": { "enum": [256, 512, 1024] },
+              "tilesSha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+            }
+          }
+        }
+      }
     }
   }
 }

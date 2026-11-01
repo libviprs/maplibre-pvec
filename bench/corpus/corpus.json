@@ -4454,5 +4454,31 @@
         ]
       }
     }
+  ],
+  "rasterCases": [
+    {
+      "id": "architectural-1e5+1-scan",
+      "scans": 1,
+      "strokes": "1e5 segments from the stand-in cursor (the real Tier 0 cursor is not wired into the layer yet, docs/deferred.md)",
+      "scan": {
+        "width": 18724,
+        "height": 13244,
+        "dpi": 400,
+        "edge": 512,
+        "tilesSha256": "302afc1bbecd5bd92d0b7bf453d2b4d01c0eccddae08adaa740aa7c57f555b3b"
+      }
+    },
+    {
+      "id": "architectural-1e5+10-scans",
+      "scans": 10,
+      "strokes": "1e5 segments from the stand-in cursor (the real Tier 0 cursor is not wired into the layer yet, docs/deferred.md)",
+      "scan": {
+        "width": 18724,
+        "height": 13244,
+        "dpi": 400,
+        "edge": 512,
+        "tilesSha256": "302afc1bbecd5bd92d0b7bf453d2b4d01c0eccddae08adaa740aa7c57f555b3b"
+      }
+    }
   ]
 }

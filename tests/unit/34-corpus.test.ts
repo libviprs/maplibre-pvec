@@ -24,7 +24,8 @@ describe("#34 corpus.json", () => {
   });
 
   it("is exactly what the builder derives from the pinned manifest", () => {
-    expect(corpus).toEqual(buildCorpus(reg));
+    const tiles = JSON.parse(readFileSync(join(root, "bench/hw/raster-tiles.json"), "utf8")) as { tilesSha256: string };
+    expect(corpus).toEqual(buildCorpus(reg, tiles.tilesSha256));
   });
 
   it("states entity and curve counts from the fixture records, not an estimate", () => {

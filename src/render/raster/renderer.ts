@@ -86,7 +86,24 @@ const MAX_ATTEMPTS = 3;
 const RETRY_FRAMES = 30;
 const MAX_READY = 8;
 
-const key = (id: number, level: number, col: number, row: number) => `r${id}/${level}/${col}/${row}`;
+/** TEMPORARY profile hook (#108): accumulated ms per phase of prepare and draw, set by the harness page. */
+const P = (): Record<string, number> | undefined => (globalThis as { __RPROF?: Record<string, number> }).__RPROF;
+const T = () => performance.now();
+/**
+ * Tile keys are built many times a frame (plan, request, collect, upload), so each is built once and looked up by number after that.
+ * Ids, levels, columns and rows fit the packed number far inside 2^53; the table is emptied when it grows past 65536 entries.
+ */
+const keys = new Map<number, string>();
+const key = (id: number, level: number, col: number, row: number): string => {
+  const n = ((id * 32 + level) * 8192 + col) * 8192 + row;
+  let k = keys.get(n);
+  if (k === undefined) {
+    if (keys.size > 65_536) keys.clear();
+    keys.set(n, (k = `r${id}/${level}/${col}/${row}`));
+  }
+  return k;
+};
+const sigOf = (q: { p: { id: number }; level: number; col: number; row: number; rect: number[] }) => `${q.p.id}|${q.level}|${q.col}|${q.row}|${q.rect.join(",")}`;
 
 interface Used {
   p: RasterPlacement;
@@ -138,6 +155,8 @@ export class RasterRenderer {
   private sent: (string | undefined)[] = [undefined, undefined];
   private u: Record<string, WebGLUniformLocation | null> = {};
   private used: Used[] = [];
+  /** Per band, the drawn quads in RasterId order and their signature, rebuilt only when `used` is replaced (a steady frame reuses them). */
+  private bands: { src: Used[]; quads: [Used[], Used[]]; sig: [string, string] } | undefined;
   private fitted = new Map<number, FittedRaster>();
   private lastMats: number[] = [];
   private version = 0;
@@ -183,6 +202,8 @@ export class RasterRenderer {
       views.set(p.id, { sourceToDevice: m, width: f.viewport[0], height: f.viewport[1] });
       mats.push(...m);
     }
+    const pm = P();
+    if (pm) pm.views = (pm.views ?? 0) + T() - t0;
     // A steady frame (same camera, nothing in flight, nothing to upload) reuses last frame's choice outright.
     const same = mats.length === this.lastMats.length && mats.every((x, i) => x === this.lastMats[i]);
     const retryDue = [...this.retryAt.values()].some((t) => t <= this.frameNo);
@@ -193,6 +214,7 @@ export class RasterRenderer {
       return;
     }
     if (!same) {
+      let q0 = T();
       this.lastMats = mats;
       this.fitted.clear();
       for (const p of all) {
@@ -202,11 +224,19 @@ export class RasterRenderer {
       }
       // LIMIT-16 on the host side bounds the plan too: a level whose tiles could not all be held decoded is not asked for.
       limitDecoded(this.fitted, all, views, this.maxDecoded);
+      const pa = P();
+      if (pa) (pa.fit = (pa.fit ?? 0) + T() - q0, q0 = T());
       this.plan(all);
+      if (pa) pa.plan = (pa.plan ?? 0) + T() - q0;
     }
+    let q1 = T();
     this.request(all);
+    const pb = P();
+    if (pb) (pb.request = (pb.request ?? 0) + T() - q1, q1 = T());
     this.upload();
+    if (pb) (pb.upload = (pb.upload ?? 0) + T() - q1, q1 = T());
     this.collect(f, views);
+    if (pb) (pb.collect = (pb.collect ?? 0) + T() - q1, pb.frames = (pb.frames ?? 0) + 1);
     this.account();
     this.stats.renderMs = (this.o.now ?? performance.now.bind(performance))() - t0;
   }
@@ -371,30 +401,32 @@ export class RasterRenderer {
       this.bitmaps.delete(r.key);
       this.o.cache.drop("decoded", r.key);
     }
-    const taken = takeUploads(this.ready, { budgetBytes: DEFAULTS.uploadBudgetBytes, budgetMs: DEFAULTS.uploadBudgetMs, now });
     let bytes = 0;
-    for (const u of taken) {
+    const taken = takeUploads(this.ready, { budgetBytes: DEFAULTS.uploadBudgetBytes, budgetMs: DEFAULTS.uploadBudgetMs, now }, (u) => {
       const bitmap = this.bitmaps.get(u.key);
       this.bitmaps.delete(u.key);
-      if (!bitmap) continue;
+      if (!bitmap) return;
       const tex = gl.createTexture();
-      if (!tex) { bitmap.close(); this.o.cache.drop("decoded", u.key); continue; }
+      if (!tex) { bitmap.close(); this.o.cache.drop("decoded", u.key); return; }
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, tex);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, gl.RGBA, gl.UNSIGNED_BYTE, bitmap);
+      // Immutable storage and a sub-image upload: the driver allocates once, and on the Intel part (ADL GT2) this costs a quarter less than
+      // re-specifying the texture from the bitmap (`docs/benchmark-report.md`, the texImage2D table). The texture is never re-specified.
+      gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA8, bitmap.width, bitmap.height);
+      gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, gl.UNSIGNED_BYTE, bitmap);
       // The bitmap is closed and leaves the decoded tier before the texture enters the gpu tier: a tile is never both.
       bitmap.close();
       this.o.cache.drop("decoded", u.key);
       const level = Number(u.key.split("/")[1]);
       const stored = this.o.cache.put("gpu", u.key, u.bytes, { visible: true, payload: tex, raster: u.id, level });
-      if (!stored) { gl.deleteTexture(tex); this.failed.add(u.key); continue; }
+      if (!stored) { gl.deleteTexture(tex); this.failed.add(u.key); return; }
       this.textures.set(u.key, tex);
       bytes += u.bytes;
-    }
+    });
     // Evictions happen inside `put`; a texture whose entry is gone is deleted here, so the cache's bytes are the GL bytes.
     for (const [kk, tex] of this.textures) if (!this.o.cache.has("gpu", kk)) (gl.deleteTexture(tex), this.textures.delete(kk));
     this.reconcileBitmaps();
@@ -434,11 +466,10 @@ export class RasterRenderer {
     // The retained coarser level goes once the finer tiles that replace it are resident: only textures drawn this frame
     // (or in the plan) stay above the eviction line.
     for (const [kk, tex] of this.textures) {
-      const id = Number(kk.slice(1, kk.indexOf("/")));
-      const fit = this.fitted.get(id);
-      const level = Number(kk.split("/")[1]);
-      if (!fit || level >= fit.level || visible.has(kk)) continue;
-      if (!this.wantedKeys.has(kk)) continue;
+      // The cheap tests first: most textures are drawn this frame, and the key is only parsed for one that is not.
+      if (visible.has(kk) || !this.wantedKeys.has(kk)) continue;
+      const fit = this.fitted.get(Number(kk.slice(1, kk.indexOf("/"))));
+      if (!fit || Number(kk.split("/")[1]) >= fit.level) continue;
       this.o.gl.deleteTexture(tex);
       this.textures.delete(kk);
       this.o.cache.drop("gpu", kk);
@@ -476,9 +507,20 @@ export class RasterRenderer {
 
   /** Draw the rasters of one band. Inside the caller's guard, after `prepare`. */
   draw(band: 0 | 1, f: RasterFrame): void {
+    const pd = P();
+    const d0 = pd ? T() : 0;
+    this.drawBand(band, f);
+    if (pd) pd.draw = (pd.draw ?? 0) + T() - d0;
+  }
+
+  private drawBand(band: 0 | 1, f: RasterFrame): void {
     if (this.disposed) return;
     const gl = this.o.gl;
-    const quads = this.used.filter((u) => u.p.band === band).sort((a, b) => a.p.id - b.p.id);
+    if (this.bands?.src !== this.used) {
+      const per = [0, 1].map((b) => this.used.filter((u) => u.p.band === b).sort((x, y) => x.p.id - y.p.id)) as [Used[], Used[]];
+      this.bands = { src: this.used, quads: per, sig: [per[0].map(sigOf).join(";"), per[1].map(sigOf).join(";")] };
+    }
+    const quads = this.bands.quads[band];
     if (!quads.length) return;
     if (!this.program) this.build();
     gl.useProgram(this.program);
@@ -486,7 +528,7 @@ export class RasterRenderer {
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo[band]!);
     this.pointers();
     // The vertices are world positions, independent of the camera, so they are re-sent only when the set of quads changes.
-    const sig = quads.map((q) => `${q.p.id}|${q.level}|${q.col}|${q.row}|${q.rect.join(",")}`).join(";");
+    const sig = this.bands.sig[band];
     if (sig !== this.sent[band]) {
       const data = new Float32Array(quads.length * 24);
       quads.forEach((q, i) => data.set(this.quad(q, f), i * 24));
@@ -499,9 +541,12 @@ export class RasterRenderer {
     gl.uniform2fv(this.u.u_viewport!, f.viewport);
     gl.uniform1i(this.u.u_tex!, 0);
     gl.activeTexture(gl.TEXTURE0);
+    // Opacity belongs to the raster and the texture to the tile: both are set only when they change from the previous quad.
+    let opacity = -1;
+    let bound: WebGLTexture | undefined;
     quads.forEach((q, i) => {
-      gl.uniform1f(this.u.u_opacity!, q.p.opacity / 255);
-      gl.bindTexture(gl.TEXTURE_2D, q.tex);
+      if (q.p.opacity !== opacity) (opacity = q.p.opacity, gl.uniform1f(this.u.u_opacity!, opacity / 255));
+      if (q.tex !== bound) (bound = q.tex, gl.bindTexture(gl.TEXTURE_2D, q.tex));
       gl.drawArrays(gl.TRIANGLE_STRIP, i * 4, 4);
     });
   }

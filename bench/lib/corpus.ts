@@ -20,10 +20,32 @@ export interface Case {
     | { status: "NOT_EMITTED"; bytes: null; sha256: null; note: string };
   viewport: ViewportScript;
 }
+export interface RasterCase {
+  id: string;
+  /** How many scans sit over the strokes: 1 or 10. */
+  scans: number;
+  /** What draws the strokes. The real cursor is not wired into the layer yet, so this says so. */
+  strokes: string;
+  /** One A0 at 400 dpi, in 512 px tiles. `tilesSha256` is the digest of bench/hw/raster-tiles.json. */
+  scan: { width: number; height: number; dpi: number; edge: number; tilesSha256: string };
+}
 export interface Corpus {
   revision: string;
   manifestSha256: string;
   cases: Case[];
+  rasterCases?: RasterCase[];
+}
+
+/** A0 landscape, 1189 by 841 mm, at 400 dpi. */
+export const A0_400DPI = { width: 18724, height: 13244, dpi: 400 } as const;
+
+export function buildRasterCases(tilesSha256: string): RasterCase[] {
+  return [1, 10].map((scans) => ({
+    id: `architectural-1e5+${scans}-${scans === 1 ? "scan" : "scans"}`,
+    scans,
+    strokes: "1e5 segments from the stand-in cursor (the real Tier 0 cursor is not wired into the layer yet, docs/deferred.md)",
+    scan: { ...A0_400DPI, edge: 512, tilesSha256 },
+  }));
 }
 
 function pvecOf(c: Registry["fixtures"][number]["canonicalPvec"]): Case["pvec"] {
@@ -32,7 +54,7 @@ function pvecOf(c: Registry["fixtures"][number]["canonicalPvec"]): Case["pvec"] 
   return { status: "PENDING", bytes: null, sha256: null, note: c.waitsOn };
 }
 
-export function buildCorpus(reg: Registry): Corpus {
+export function buildCorpus(reg: Registry, rasterTilesSha256?: string): Corpus {
   const cases = reg.fixtures
     .filter((f) => f.gating !== "excluded")
     .map((f): Case => {
@@ -51,7 +73,7 @@ export function buildCorpus(reg: Registry): Corpus {
         viewport: viewportScript(f.id),
       };
     });
-  return { revision: reg.revision, manifestSha256: reg.manifestSha256, cases };
+  return { revision: reg.revision, manifestSha256: reg.manifestSha256, cases, ...(rasterTilesSha256 ? { rasterCases: buildRasterCases(rasterTilesSha256) } : {}) };
 }
 
 export function validateCorpus(corpus: Corpus, reg: Registry): { errors: string[]; missingClasses: CaseClass[] } {

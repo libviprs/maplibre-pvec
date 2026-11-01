@@ -3,6 +3,7 @@ import { RangeOrigin } from "../../unit/helpers/origin";
 import { expect, test } from "@playwright/test";
 import { launch, SNAPSHOT_MATCH } from "../harness/layer-run";
 import { R, rasterRig } from "../harness/raster-run";
+import { steadyCpuWithinBudget } from "../harness/render-budget";
 import { composeRig, C } from "../harness/compose-run";
 import { buildRaster, type WireRaster } from "../../unit/helpers/raster_fixture";
 
@@ -94,7 +95,7 @@ test.describe("issue 107 hostile tiles on the host side", () => {
     }
   });
 
-  test("a decode time bomb (a 1024 px progressive JPEG, the largest tile) decodes off the main thread and the layer's frame stays under 1 ms", async ({ page }) => {
+  test("a decode time bomb (a 1024 px progressive JPEG, the largest tile) decodes off the main thread and the layer's own CPU per frame stays inside the render budget", async ({ page }) => {
     const r = await rasterRig(page);
     try {
       const jpeg = readFileSync("tests/fixtures/raster/jpeg-1024-progressive.jpg");
@@ -112,7 +113,7 @@ test.describe("issue 107 hostile tiles on the host side", () => {
       expect(s.raster.textures).toBe(1);
       const sorted = [...f.layerMs].sort((a, b) => a - b);
       const p95 = sorted[Math.floor(sorted.length * 0.95)] ?? 0;
-      expect(p95, "the layer's own time per frame while the tile decodes (software GL, relative)").toBeLessThan(1);
+      steadyCpuWithinBudget(p95, "the layer's own time per frame while the tile decodes");
       evidence.bomb = { bytes: jpeg.length, decodeMs: Object.values(s.decodeMs).flat(), layerP95Ms: p95, frames: f.layerMs.length };
     } finally {
       await r.stop();

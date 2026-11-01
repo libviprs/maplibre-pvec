@@ -22,6 +22,7 @@ describe("#40 v1 freeze", () => {
       QUEUE_DEFAULTS: defaults.QUEUE_DEFAULTS,
       CACHE_DEFAULTS: defaults.CACHE_DEFAULTS,
       POOL_DEFAULTS: defaults.POOL_DEFAULTS,
+      RASTER_DEFAULTS: defaults.RASTER_DEFAULTS,
     };
     expect(freeze.budgets).toEqual(JSON.parse(JSON.stringify(live)));
   });
