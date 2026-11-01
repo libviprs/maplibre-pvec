@@ -345,7 +345,7 @@ export function validateRasterResult(r: unknown, software: boolean): string[] {
  * render p95 over upload frames at most the steady figure plus the 2 ms upload budget plus the file's own `texImage2D` p95 at the scene's
  * tile size), and the gpu ceiling. Software GL is never asserted.
  */
-export function rasterBudgetProblems(r: { raster: RasterRun; environment?: { timerResolutionMs?: number } }): string[] {
+export function rasterBudgetProblems(r: { raster: RasterRun; environment?: { timerResolutionMs?: number | undefined } }): string[] {
   const out: string[] = [];
   const clamped = (r.environment?.timerResolutionMs ?? 0) >= 1;
   const upload = r.raster.upload.find((u) => u.edge === RASTER_SCENE_EDGE)?.p95Ms ?? Infinity;
