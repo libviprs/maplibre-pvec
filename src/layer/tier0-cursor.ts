@@ -52,7 +52,7 @@ type Box = readonly [number, number, number, number];
  * directory, it walks the window in boxes instead: a box holding more than a few hundred entities is split in four first (an
  * entity on a split line is answered once), and the whole walk is one block, as before.
  *
- * The cursor owns the file handle until it is drained; call `close` to give it back early.
+ * The cursor owns the file handle until it is drained, and gives it back on a later turn (not inside the `next` that returns the end of the walk, because freeing a file costs more than a slice may); call `close` to give it back early or at once.
  */
 export function tier0CursorOver(evaluator: Evaluator, bytes: Uint8Array, window: readonly [number, number, number, number]): BlockCursor & { close(): void } {
   const rt = bindPacked(evaluator);
@@ -174,13 +174,22 @@ export function tier0CursorOver(evaluator: Evaluator, bytes: Uint8Array, window:
   const ends: number[] = [];
   let at = 0;
   let endedNow = false;
-  const close = (): void => {
-    if (!open) return;
+  // Freeing a file costs 6 to 40 ms and grows with it, so the walk's last `next` never pays for it: it schedules the release for a later turn.
+  let freed = false;
+  const free = (): void => {
+    if (freed) return;
+    freed = true;
+    rt.release(file);
+  };
+  const stop = (): void => {
     open = false;
     current?.return(undefined);
     current = null;
     blocks.length = 0;
-    rt.release(file);
+  };
+  const close = (): void => {
+    if (open) stop();
+    free();
   };
   const step = (): void => {
     if (!current) {
@@ -209,7 +218,7 @@ export function tier0CursorOver(evaluator: Evaluator, bytes: Uint8Array, window:
       endedNow = false;
       while (ends.length && ends[0]! <= consumed) (ends.shift(), (endedNow = true));
       if (at > 4096) (pending.splice(0, at), (at = 0));
-      if (!slice.length && !current && !blocks.length && at >= pending.length) return (close(), null);
+      if (!slice.length && !current && !blocks.length && at >= pending.length) return (stop(), setTimeout(free, 0), null);
       return slice;
     },
   };
