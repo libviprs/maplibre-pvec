@@ -60,25 +60,23 @@ async function open(key) {
   const reference = { kind: "affine", unit: "m", crs, calibration: f.calibration(f.origin) };
   map.jumpTo({ center: [8.54, 47.37], zoom: f.zoom });
   const skipped = [];
-  let linework = false;
   layer = createPVecLayer({ id: `drawing-${key}`, source: { url: new URL(f.url, location.href).href }, georeference: { reference } });
   layer.on("error", (e) => result.errors.push({ code: e.code, message: String(e.message) }));
-  layer.on("tier0complete", () => (linework = true));
   layer.on("rasterskipped", (e) => skipped.push({ rasterId: e.rasterId, rule: e.rule, message: e.message }));
   map.addLayer(layer);
   await layer.whenReady();
   let painted = { painted: 0, pixel: [0, 0, 0] };
   const centre = map.project([8.54, 47.37]);
+  // Draw until the scan has been decoded and uploaded, then for 90 more frames: the file's linework (its Tier 0 stream) arrives in steps.
+  let ready = -1;
   for (let i = 0; i < 600; i++) {
     map.triggerRepaint();
     await frame();
     const d = layer.getDiagnostics().rasters;
-    // the scan decoded, and the file's linework (its Tier 0 stream) has arrived, which the mixed file has too
-    if (i > 5 && d.drawn > 0 && d.decodesInFlight === 0 && linework) {
-      painted = canvasPixels(centre);
-      if (painted.painted > 0) break;
-    }
+    if (ready < 0 && i > 5 && d.drawn > 0 && d.decodesInFlight === 0) ready = i;
+    if (ready >= 0 && i >= ready + 90) break;
   }
+  painted = canvasPixels(centre);
   const rasters = layer.rasters();
   const tbody = document.querySelector("#rasters tbody");
   const ul = document.getElementById("skipped");
