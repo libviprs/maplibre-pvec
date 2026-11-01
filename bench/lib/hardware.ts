@@ -292,8 +292,10 @@ export function validateRasterResult(r: unknown, software: boolean): string[] {
     errors.push(`environment says software rendering (${env.gpuRenderer}), numbers are not hardware numbers`);
   }
   if (!(typeof env.timerResolutionMs === "number" && env.timerResolutionMs > 0)) errors.push("environment.timerResolutionMs is missing (the statistic of the render budget is chosen from it)");
-  // Other jobs on a shared machine move the numbers: a hardware result taken while the host had more runnable threads than cpus is refused.
-  if (!software && env.hostLoad && Math.max(env.hostLoad.start, env.hostLoad.end) > env.hostLoad.cpus) {
+  // Other jobs on a shared machine move the numbers. A hardware result is refused when the host was not quiet at the start (the one-minute
+  // load average over half the cpus) or ended oversubscribed (over one and a half runnable threads per cpu; the run itself, a headed browser
+  // and its X server, adds a few threads of its own).
+  if (!software && env.hostLoad && (env.hostLoad.start > env.hostLoad.cpus / 2 || env.hostLoad.end > env.hostLoad.cpus * 1.5)) {
     errors.push(`the host was loaded during the run (load ${env.hostLoad.start} to ${env.hostLoad.end} on ${env.hostLoad.cpus} cpus), rerun on a quiet host`);
   }
   const x = res.raster;
