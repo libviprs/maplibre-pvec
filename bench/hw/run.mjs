@@ -12,7 +12,7 @@
 // `run` refuses a software renderer unless --software-ok names the container (then it is a software result). On the Mac it is launched through
 // /Users/rom/workspace/xdg-pw-lock.sh. In a container it gets the host's /dev/dri passed through.
 import { mkdir, readFile, readdir, copyFile, writeFile } from "node:fs/promises";
-import { cpus, platform, arch, release } from "node:os";
+import { cpus, platform, arch, release, loadavg } from "node:os";
 import { createRequire } from "node:module";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -90,6 +90,7 @@ if (cmd === "bundle") {
   await new Promise((r) => server.listen(0, "127.0.0.1", r));
   const browser = await pw[engine].launch({ headless: !process.argv.includes("--headed"), args: flags });
   const profile = process.argv.includes("--profile");
+  const loadStart = loadavg()[0];
   let raw, layerRaw, rasterRaw;
   try {
     const ctx = await browser.newContext({ viewport: { width: 1600, height: 1000 }, deviceScaleFactor: Number(arg("dpr", "2")) });
@@ -129,6 +130,8 @@ if (cmd === "bundle") {
         host: arg("host", "unknown"), os: `${platform()} ${release()}`, arch: arch() === "arm64" ? "arm64" : "x64", cpu: cpus()[0]?.model ?? "unknown",
         ...(softwareOk ? { container: softwareOk } : {}), engine, browserVersion: version, gpuRenderer, gpuVendor, softwareRenderer: isSoftwareRenderer(`${gpuRenderer} ${gpuVendor}`),
         dpr, viewport, timerQuery, timerResolutionMs,
+        // The host's one-minute load average at the start and the end of the run (cpus: logical): other jobs on a shared machine move the numbers.
+        hostLoad: { start: Math.round(loadStart * 100) / 100, end: Math.round(loadavg()[0] * 100) / 100, cpus: cpus().length },
       },
       raster,
     };

@@ -18,6 +18,8 @@ export interface HardwareEnvironment {
   timerQuery: boolean;
   /** Raster results: the smallest step of `performance.now` the page saw, in ms. 0.1 in Chromium, 1 where the engine clamps it (WebKit). */
   timerResolutionMs?: number;
+  /** Raster results: the host's one-minute load average at the start and end of the run, and its logical cpus. */
+  hostLoad?: { start: number; end: number; cpus: number };
 }
 export interface UploadPoint { bytes: number; p50Ms: number; p95Ms: number }
 /** The same 1e6-segment scene driven through the wired MapLibre custom layer on a real map (#82 addendum). */
