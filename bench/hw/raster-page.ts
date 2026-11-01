@@ -377,7 +377,7 @@ function timerResolution(): number {
   return Number.isFinite(best) ? Math.round(best * 1000) / 1000 : 0;
 }
 
-export async function run(o: { durationMs: number; warmupMs: number; diffFrames: number; profile?: boolean }) {
+export async function run(o: { durationMs: number; warmupMs: number; diffFrames: number; profile?: boolean; replay?: boolean }) {
   const canvas = document.createElement("canvas");
   const gl = canvas.getContext("webgl2")!;
   const info = gl.getExtension("WEBGL_debug_renderer_info");
@@ -398,6 +398,6 @@ export async function run(o: { durationMs: number; warmupMs: number; diffFrames:
   scenes.push(await scene("strokes+10", 10, o));
   say("scene 10 done");
   const replays: RasterReplayRow[] = [];
-  for (const [id, n] of [["architectural-1e5+1-scan", 1], ["architectural-1e5+10-scans", 10]] as const) for (const on of [true, false]) replays.push(await replay(id, n, on, 3));
+  if (o.replay !== false) for (const [id, n] of [["architectural-1e5+1-scan", 1], ["architectural-1e5+10-scans", 10]] as const) for (const on of [true, false]) replays.push(await replay(id, n, on, 3));
   return { gpuRenderer, gpuVendor, timerResolutionMs: timerResolution(), dpr: devicePixelRatio, viewport: [CSS_W, CSS_H] as [number, number], timerQuery, raster: { decode, upload, scenes, fit: fits, firstDrawing: firstDrawings, replay: replays } };
 }
