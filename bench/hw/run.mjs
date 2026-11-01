@@ -119,7 +119,7 @@ if (cmd === "bundle") {
   }
   if (rasterRaw) {
     const softwareOk = arg("software-ok", "");
-    const { raster, gpuRenderer, gpuVendor, dpr, viewport, timerQuery } = rasterRaw;
+    const { raster, gpuRenderer, gpuVendor, dpr, viewport, timerQuery, timerResolutionMs } = rasterRaw;
     const result = {
       schema: 1,
       commit: process.env.BENCH_COMMIT ?? "unknown",
@@ -127,7 +127,7 @@ if (cmd === "bundle") {
       environment: {
         host: arg("host", "unknown"), os: `${platform()} ${release()}`, arch: arch() === "arm64" ? "arm64" : "x64", cpu: cpus()[0]?.model ?? "unknown",
         ...(softwareOk ? { container: softwareOk } : {}), engine, browserVersion: version, gpuRenderer, gpuVendor, softwareRenderer: isSoftwareRenderer(`${gpuRenderer} ${gpuVendor}`),
-        dpr, viewport, timerQuery,
+        dpr, viewport, timerQuery, timerResolutionMs,
       },
       raster,
     };
@@ -137,7 +137,7 @@ if (cmd === "bundle") {
     const file = join(dir, `${result.date.slice(0, 10)}-${arg("host", "host")}-${engine}${softwareOk ? "-software" : ""}-raster${errors.length ? ".rejected" : ""}.json`);
     await writeFile(file, JSON.stringify(result, null, 2) + "\n");
     console.log(`wrote ${file}`);
-    for (const p of rasterBudgetProblems(result)) console.log(`NOTE ${p}${softwareOk ? " (software GL, a relative cost)" : ""}`);
+    for (const p of rasterBudgetProblems(result)) console.log(`NOTE budget (steady frames, upload frames, ceiling): ${p}${softwareOk ? " (software GL, a relative cost, not asserted)" : ""}`);
     if (errors.length) { for (const e of errors) console.error(`FAIL ${e}`); process.exit(1); }
     process.exit(0);
   }
