@@ -155,7 +155,6 @@ test.describe("issue 107 pvec's hostile corpus through the real module in the br
       await origin.stop();
     }
   };
-  const NO_RULE = new Set(["oversized-tile", "tile-at-limit-15-plus-one"]);
   for (const t of tiles.filter((x) => x.kind === "hostile")) {
     test(`${t.name} (${t.rule}): refused by the module, nothing reaches createImageBitmap, the page throws nothing`, async ({ page }) => {
       const errs: string[] = [];
@@ -167,9 +166,6 @@ test.describe("issue 107 pvec's hostile corpus through the real module in the br
       if (t.name === "jpeg-under-an-rgba-placement") {
         expect(s.skips).toEqual([]);
         expect(s.events, "the stream is refused whole: the raster capability is reported once as ignored").toEqual([{ capability: "raster", required: false, action: "ignored" }]);
-      } else if (NO_RULE.has(t.name)) {
-        expect(s.skips, "the ABI gives LIMIT-15 no rule (a read failure), so it is a missing tile").toEqual([]);
-        expect(s.raster!.failedTiles).toBeGreaterThan(0);
       } else {
         expect(s.skips.map((x) => [x.rasterId, x.rule])).toEqual([[0, t.rule]]);
         expect(s.errors).toEqual([]);

@@ -53,10 +53,9 @@ describe("#102 the adapter over a file with rasters", () => {
 describe("#107 pvec's hostile corpus through pvec's own sniffers", () => {
   const refused = index.tiles.filter((t) => t.kind === "hostile");
   it("lists thirteen refused tiles", () => expect(refused).toHaveLength(13));
-  // What the module's ABI names today. A refusal by a RASTER-NN rule is -10 and the adapter turns it into RasterRefusedError with the
-  // rule. LIMIT-15 is a read failure (-4) with no rule in the ABI, and a placement stream the writer's rules refuse leaves a file with
-  // no raster at all (the Unrastered effect, no rule): both are refused, never handed over, and recorded as such here.
-  const NO_RULE_IN_THE_ABI = new Set(["oversized-tile", "tile-at-limit-15-plus-one"]);
+  // What the module's ABI names (pvec#232, docs/WASM_ABI.md): a refusal by a RASTER-NN or LIMIT-NN rule is -10, and `raster_skipped`
+  // selector 2 says which family, so a tile over LIMIT-15 is refused as LIMIT-15. A placement stream the writer's rules refuse leaves
+  // a file with no raster at all (the Unrastered effect, no rule): refused, never handed over, and recorded as such here.
   const STREAM_REFUSED = new Set(["jpeg-under-an-rgba-placement"]);
   for (const t of refused) {
     it(`${t.name} is refused (${t.rule}) and never handed over`, async () => {
@@ -76,11 +75,6 @@ describe("#107 pvec's hostile corpus through pvec's own sniffers", () => {
         );
         expect("bytes" in got, `${t.name} must not be returned as an image`).toBe(false);
         const err = (got as { error: Error }).error;
-        if (NO_RULE_IN_THE_ABI.has(t.name)) {
-          expect(err).not.toBeInstanceOf(RasterRefusedError);
-          expect(err.message).toMatch(/-4/);
-          return;
-        }
         expect(err).toBeInstanceOf(RasterRefusedError);
         rule = (err as RasterRefusedError).rule;
       }

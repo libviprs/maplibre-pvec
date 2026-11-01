@@ -67,8 +67,8 @@ The same raw run and layer run in a linux/arm64 container on an Apple Silicon Ma
 
 ## Real pvec evaluator and real .pvec bytes
 
-- `spikes/pvec-real/results.json`: chromium 130.0.6723.31, linux/x64 container, `libviprs/pvec` `c7aed3d`, ABI version 1
-- module 442797 bytes, compile 23.7 ms, instantiate 0.2 ms
+- `spikes/pvec-real/results.json`: chromium 130.0.6723.31, linux/x64 container, `libviprs/pvec` `ab3c2cf`, ABI version 2
+- module 716752 bytes, compile 46.3 ms, instantiate 0.4 ms
 - the docker host was shared and loaded while this ran, so every time here is an upper bound and only the shape is a result
 - the subject is the shipped evaluator through the packed binding; the arrays are views over linear memory, nothing is copied
 
@@ -78,40 +78,46 @@ One evaluation is a batch of the fixture's entities tessellated to a drawing-siz
 
 | fixture | entities | one evaluation (ns) | vertices | ns/vertex at 1e2 | 1e3 | 1e4 | 1e5 |
 |---|---|---|---|---|---|---|---|
-| arc-seam-001 | 1 | 50000 | 33 | 1543.6 | 1535 | 1558 | 1559.6 |
-| bezier-d3-001 | 1 | 101010 | 65 | 1586.5 | 1587.9 | 1600 | 1605.4 |
-| bspline-d3-001 | 1 | 185000 | 113 | 1618.3 | 1688.9 | 1686 | 1678.4 |
-| bspline-d5-001 | 1 | 175500 | 99 | 1770.6 | 1841.2 | 1836 | 1827.2 |
-| bulge-arc-001 | 2 | 97087 | 66 | 1522.8 | 1551.6 | 1576 | 1575.2 |
-| bulge-arc-neg-001 | 2 | 98689 | 66 | 1522.8 | 1578.9 | 1558 | 1587.8 |
-| circle-001 | 1 | 193500 | 129 | 1512.6 | 1535 | 1506 | 1515.8 |
-| closed-by-endpoint-001 | 1 | 235000 | 142 | 1621.6 | 1688.9 | 1680 | 1673.8 |
-| closed-periodic-001 | 1 | 286500 | 177 | 1587.3 | 1657.9 | 1662 | 1678 |
-| ellipse-001 | 1 | 195000 | 129 | 1505 | 1525 | 1508 | 1519.2 |
-| elliptical-arc-001 | 1 | 99338 | 65 | 1535.7 | 1545 | 1534 | 1541.6 |
-| large-coords-001 | 1 | 2072 | 4 | n/a | n/a | n/a | 650.0 |
-| layer-state-001 | 3 | 2034 | 6 | n/a | n/a | n/a | n/a |
-| line-001 | 1 | 1315 | 2 | n/a | n/a | n/a | n/a |
-| lwpolyline-closed-001 | 1 | 2009 | 5 | n/a | n/a | n/a | n/a |
-| nonunit-weight-001 | 1 | 52174 | 35 | 1584.2 | 1657.9 | 1644 | 1642.6 |
-| nurbs-d2-offconic-001 | 1 | 101351 | 65 | 1589.5 | 1636.8 | 1640 | 1643 |
-| nurbs-d3-001 | 1 | 152500 | 93 | 1648.4 | 1727.8 | 1710 | 1708.4 |
-| polyline-001 | 1 | 2002 | 5 | n/a | n/a | n/a | n/a |
-| polyline2d-001 | 1 | 1970 | 5 | n/a | n/a | n/a | n/a |
-| repeated-knot-c0-001 | 1 | 179500 | 111 | 1611.9 | 1657.9 | 1662 | 1663.0 |
-| tiny-radius-001 | 1 | 1753 | 2 | 1505 | 1540 | 1517.8 | 1516.4 |
+| arc-seam-001 | 1 | 87719 | 33 | 1648.4 | 1594.7 | 1626 | 1580.2 |
+| bezier-d3-001 | 1 | 102389 | 65 | 1586.5 | 1614.2 | 1620 | 1839.6 |
+| bspline-d3-001 | 1 | 208000 | 113 | 1802.4 | 2836.4 | 1908 | 1787.2 |
+| bspline-d5-001 | 1 | 184500 | 99 | 1881.3 | 1937.5 | 2102 | 1941.2 |
+| bulge-arc-001 | 2 | 104167 | 66 | 1578.9 | 1638.5 | 1700 | 1732.8 |
+| bulge-arc-neg-001 | 2 | 104530 | 66 | 1665.0 | 1688.9 | 1694 | 1698.8 |
+| circle-001 | 1 | 200000 | 129 | 1512.6 | 1530 | 1554 | 1740.2 |
+| closed-by-endpoint-001 | 1 | 265000 | 142 | 1766.1 | 1722.2 | 1756 | 1759.2 |
+| closed-periodic-001 | 1 | 298500 | 177 | 1676.0 | 1823.5 | 1760 | 1963.6 |
+| ellipse-001 | 1 | 345000 | 129 | 2663.7 | 2583.3 | 1732 | 2522.8 |
+| elliptical-arc-001 | 1 | 106762 | 65 | 1618.3 | 2157.1 | 2722 | 1678 |
+| large-coords-001 | 1 | 4358 | 4 | n/a | n/a | n/a | 739.3 |
+| layer-state-001 | 3 | 2291 | 6 | n/a | n/a | n/a | n/a |
+| line-001 | 1 | 1503 | 2 | n/a | n/a | n/a | n/a |
+| lwpolyline-closed-001 | 1 | 2199 | 5 | n/a | n/a | n/a | n/a |
+| nested-blocks-001 | 1 | 1514 | 2 | n/a | n/a | n/a | n/a |
+| nonuniform-scale-circle-001 | 1 | 446500 | 177 | 2529.4 | 1700 | 1646 | 1577.2 |
+| nonuniform-scale-rotated-001 | 1 | 296000 | 177 | 1734.1 | 1683.3 | 1570 | 1576.6 |
+| nonunit-weight-001 | 1 | 55351 | 35 | 1681.6 | 1688.9 | 1698 | 1709 |
+| nurbs-d2-offconic-001 | 1 | 105634 | 65 | 1653.8 | 1694.4 | 1708 | 1725 |
+| nurbs-d3-001 | 1 | 169000 | 93 | 1829.3 | 1881.3 | 1912 | 1846.8 |
+| polyline-001 | 1 | 2195 | 5 | n/a | n/a | n/a | n/a |
+| polyline2d-001 | 1 | 2227 | 5 | n/a | n/a | n/a | n/a |
+| reflection-001 | 1 | 53286 | 33 | 1714.3 | 1700 | 1750 | 2025.4 |
+| repeated-knot-c0-001 | 1 | 194500 | 111 | 1761.8 | 1841.2 | 1792 | 1752.2 |
+| rotation-irrational-001 | 1 | 1660 | 2 | n/a | n/a | n/a | n/a |
+| tiny-radius-001 | 1 | 1860 | 2 | 1527.9 | 1589.5 | 1649.8 | 1608.4 |
+| uniform-scale-001 | 1 | 414000 | 257 | 1563.3 | 1610.5 | 1530 | 1679.2 |
 
 ### Packed output on the generated corpus entries
 
 | entry | file | entities | open (ms) | whole drawing (ms) | ns/entity | ns/vertex | 25 percent window (ms) | 5 percent window (ms) | JS heap bytes/entity |
 |---|---|---|---|---|---|---|---|---|---|
-| architectural-1e5 | 1.81 MB | 100000 | 65.3 | 149.1 | 1491 | 517 | 29.9 | 2.4 | -0.35 |
-| architectural-1e6 | 17.82 MB | 1000000 | 659.6 | 959.2 | 959 | 368 | 164.2 | 14.6 | -0.36 |
-| mep-1e5 | 2.37 MB | 100000 | 69.4 | 272.3 | 2723 | 685 | 63 | 6.7 | 0.01 |
-| pathological-1e3 | 757.5 kB | 917 | 8.4 | 52.8 | 57579 | 1241 | 0.1 | 0 | 0.98 |
-| spline-heavy-1e5 | 12.34 MB | 100000 | 328.3 | 1197.6 | 11976 | 1188 | 200 | 26.7 | -0.14 |
+| architectural-1e5 | 1.81 MB | 100000 | 49.4 | 166.5 | 1665 | 577 | 34.4 | 2.6 | -0.35 |
+| architectural-1e6 | 17.82 MB | 1000000 | 655.6 | 1057.6 | 1058 | 405 | 166.9 | 15 | 0.00 |
+| mep-1e5 | 2.37 MB | 100000 | 47.5 | 277.9 | 2779 | 699 | 59.5 | 5.8 | 0.01 |
+| pathological-1e3 | 757.5 kB | 917 | 5 | 52.8 | 57579 | 1241 | 0.1 | 0 | -50.72 |
+| spline-heavy-1e5 | 12.34 MB | 100000 | 196.2 | 1285.3 | 12853 | 1275 | 225.5 | 38.1 | -0.14 |
 
-Leak check: 6000 open, query, tessellate and release cycles left linear memory at 8521 pages (8521 before, 8521 after the first half).
+Leak check: 6000 open, query, tessellate and release cycles left linear memory at 37962 pages (37962 before, 37962 after the first half).
 
 ### Preview error accounting and viewport coverage
 
@@ -134,18 +140,66 @@ Measured is the largest distance between the preview and a reference tessellatio
 | layer-state-001 | 0.00 | 0.00 | 0.00 | yes | 8 | 6 | 0 |
 | line-001 | 0.00 | 0.00 | 0.00 | yes | 8 | 4 | 0 |
 | lwpolyline-closed-001 | 0.00 | 0.00 | 0.00 | yes | 8 | 6 | 0 |
+| nested-blocks-001 | 0.00 | 0.00 | 0.00 | yes | 8 | 3 | 0 |
+| nonuniform-scale-circle-001 | 0.65 | 0.84 | 0.90 | yes | 8 | 3 | 0 |
+| nonuniform-scale-rotated-001 | 0.80 | 0.63 | 0.72 | yes | 8 | 2 | 0 |
 | nonunit-weight-001 | 0.13 | 0.88 | 0.88 | yes | 8 | 4 | 0 |
-| nurbs-d2-offconic-001 | 0.72 | 0.81 | 0.72 | yes | 8 | 2 | 0 |
-| nurbs-d3-001 | 0.64 | 0.78 | 0.95 | yes | 8 | 2 | 0 |
-| polyline-001 | 0.00 | 0.00 | 0.00 | yes | 8 | 4 | 0 |
+| nurbs-d2-offconic-001 | 0.72 | 0.81 | 0.72 | yes | 8 | 3 | 0 |
+| nurbs-d3-001 | 0.64 | 0.78 | 0.95 | yes | 8 | 4 | 0 |
+| polyline-001 | 0.00 | 0.00 | 0.00 | yes | 8 | 3 | 0 |
 | polyline2d-001 | 0.00 | 0.00 | 0.00 | yes | 8 | 3 | 0 |
-| repeated-knot-c0-001 | 0.95 | 0.84 | 0.92 | yes | 8 | 3 | 0 |
+| reflection-001 | 0.78 | 0.50 | 0.31 | yes | 8 | 2 | 0 |
+| repeated-knot-c0-001 | 0.95 | 0.84 | 0.92 | yes | 8 | 4 | 0 |
+| rotation-irrational-001 | 0.00 | 0.00 | 0.00 | yes | 8 | 3 | 0 |
 | tiny-radius-001 | 0.47 | 0.29 | 0.74 | yes | 8 | 8 | 0 |
-| architectural-1e5 |  |  | 0.67 | yes | 4 | 111571 | 0 |
-| architectural-1e6 |  |  | 0.95 | yes | 4 | 1106884 | 0 |
-| mep-1e5 |  |  | 0.92 | yes | 4 | 111723 | 0 |
-| pathological-1e3 |  |  | 0.50 | yes | 4 | 958 | 0 |
-| spline-heavy-1e5 |  |  | 0.96 | yes | 4 | 107732 | 0 |
+| uniform-scale-001 | 0.38 | 0.24 | 0.60 | yes | 8 | 3 | 0 |
+| architectural-1e5 |  |  | 0.67 | yes | 4 | 100541 | 0 |
+| architectural-1e6 |  |  | 0.95 | yes | 4 | 1056435 | 0 |
+| mep-1e5 |  |  | 0.92 | yes | 4 | 108913 | 0 |
+| pathological-1e3 |  |  | 0.50 | yes | 4 | 994 | 0 |
+| spline-heavy-1e5 |  |  | 0.96 | yes | 4 | 107383 | 0 |
+
+### Tier 0 stream and spatial directory (ABI 2)
+
+The files are the corpus entries written with a spatial directory and one Tier 0 block per leaf. Entries are what the stream returns for a window; uncovered is what `query_viewport` returns for it less the entries (the advanced curves, which are in no leaf, and every entity of a leaf with no Tier 0 block). Missing is entries plus uncovered less the entity count of the window, so 0 means the audit loses nothing. Previews are checked one way: every point of a tight reference tessellation of the curve is within the declared error of the preview polyline.
+
+| entry | window (share of extent) | entities | entries | exact | previews | infeasible | uncovered | leaves read | missing |
+|---|---|---|---|---|---|---|---|---|---|
+| architectural-1e5 | 1 | 100000 | 99075 | 98160 | 915 | 0 | 925 | 4 | 0 |
+| architectural-1e5 | 0.25 | 11553 | 11447 | 11343 | 104 | 0 | 106 | 3 | 0 |
+| architectural-1e5 | 0.05 | 607 | 605 | 603 | 2 | 0 | 2 | 3 | 0 |
+| architectural-1e6 | 1 | 1000000 | 990560 | 981337 | 9223 | 0 | 9440 | 31 | 0 |
+| architectural-1e6 | 0.25 | 102465 | 101520 | 100576 | 944 | 0 | 945 | 12 | 0 |
+| architectural-1e6 | 0.05 | 4588 | 4534 | 4496 | 38 | 0 | 54 | 6 | 0 |
+| mep-1e5 | 1 | 100000 | 96745 | 94398 | 2347 | 0 | 3255 | 3 | 0 |
+| mep-1e5 | 0.25 | 11212 | 10851 | 10616 | 235 | 0 | 361 | 3 | 0 |
+| mep-1e5 | 0.05 | 582 | 564 | 557 | 7 | 0 | 18 | 3 | 0 |
+| pathological-1e3 | 1 | 914 | 747 | 747 | 0 | 0 | 167 | 1 | 0 |
+| pathological-1e3 | 0.25 | 57 | 43 | 43 | 0 | 0 | 14 | 1 | 0 |
+| pathological-1e3 | 0.05 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 |
+| spline-heavy-1e5 | 1 | 100000 | 40089 | 35012 | 5077 | 0 | 59911 | 2 | 0 |
+| spline-heavy-1e5 | 0.25 | 7426 | 3004 | 2629 | 375 | 0 | 4422 | 2 | 0 |
+| spline-heavy-1e5 | 0.05 | 385 | 163 | 147 | 16 | 0 | 222 | 2 | 0 |
+
+| entry | previews checked | worst measured over declared | all within declared |
+|---|---|---|---|
+| architectural-1e5 | 3 | 0.91 | yes |
+| architectural-1e6 | 13 | 0.91 | yes |
+| mep-1e5 | 27 | 0.91 | yes |
+| pathological-1e3 | 0 | 0.00 | yes |
+| spline-heavy-1e5 | 89 | 0.91 | yes |
+
+### Tier 0 decoder slices on the real stream
+
+The default cursor of the layer drained by `Tier0Decoder` with its default slice size. A slice is one `decodeSlice` call; the ceiling is `DEFAULTS.maxSliceMs`. Opening the file in the evaluator is the cursor's first step and is reported on its own.
+
+| entry | entities | slices | slices over 8 ms | open (ms) | max slice (ms) | p99 slice (ms) | median slice (ms) | total (ms) |
+|---|---|---|---|---|---|---|---|---|
+| architectural-1e5 | 100000 | 109 | 99 | 62.9 | 15.4 | 12 | 8.7 | 964.7 |
+| architectural-1e6 | refused: block exceeds maxEntitiesPerBlock (200000) | 940 | 934 | 15949.8 | 49.1 | 16.2 | 12.5 | 11974.9 |
+| mep-1e5 | 100000 | 230 | 217 | 44.1 | 24.2 | 16.2 | 8.7 | 2054.6 |
+| pathological-1e3 | 917 | 2 | 2 | 5 | 48 | 48 | 12 | 60.7 |
+| spline-heavy-1e5 | 100000 | 308 | 293 | 181.1 | 14.3 | 11.6 | 9.1 | 2863.7 |
 
 ### Range bootstrap on real files, x86_64
 
@@ -153,20 +207,35 @@ Measured is the largest distance between the preview and a reference tessellatio
 
 | file | bytes | blocks | RTT (ms) | bootstrap requests | bootstrap bytes | bootstrap (ms) | full: requests / bytes / ms | 25 percent: requests / bytes / ms | 5 percent: requests / bytes / ms |
 |---|---|---|---|---|---|---|---|---|---|
-| line-001 | 400 B | 1 | 0 | 2 | 464 B | 25.2 | 1 / 40 B / 3.3 | 1 / 40 B / 3.2 | 1 / 40 B / 3.1 |
-| nurbs-d3-001 | 1.0 kB | 6 | 0 | 2 | 1.4 kB | 31.4 | 1 / 34 B / 1.9 | 1 / 34 B / 2.1 | 1 / 34 B / 2.4 |
-| architectural-1e5 | 1.81 MB | 23 | 0 | 2 | 5.6 kB | 27.9 | 14 / 1.75 MB / 38.6 | 11 / 1.73 MB / 6.2 | 11 / 1.73 MB / 6.2 |
-| architectural-1e6 | 17.82 MB | 167 | 0 | 2 | 14.8 kB | 53.7 | 115 / 17.20 MB / 203.7 | 48 / 6.79 MB / 18.9 | 26 / 3.37 MB / 8.4 |
-| mep-1e5 | 2.37 MB | 31 | 0 | 2 | 6.1 kB | 9.7 | 12 / 2.08 MB / 25.3 | 12 / 2.07 MB / 5.5 | 11 / 2.06 MB / 5.6 |
-| pathological-1e3 | 757.5 kB | 37 | 0 | 2 | 6.5 kB | 56.5 | 10 / 17.9 kB / 49.7 | 10 / 17.9 kB / 8.2 | 10 / 17.9 kB / 10.1 |
-| spline-heavy-1e5 | 12.34 MB | 603 | 0 | 2 | 42.7 kB | 39.3 | 106 / 1.64 MB / 969.6 | 34 / 1.09 MB / 9.4 | 14 / 939.4 kB / 5.1 |
-| line-001 | 400 B | 1 | 100 | 2 | 464 B | 201.8 | 1 / 40 B / 100.8 | 1 / 40 B / 101 | 1 / 40 B / 101.2 |
-| nurbs-d3-001 | 1.0 kB | 6 | 100 | 2 | 1.4 kB | 202.8 | 1 / 34 B / 100.9 | 1 / 34 B / 100.9 | 1 / 34 B / 101.1 |
-| architectural-1e5 | 1.81 MB | 23 | 100 | 2 | 5.6 kB | 202.4 | 14 / 1.75 MB / 105.9 | 11 / 1.73 MB / 105.7 | 11 / 1.73 MB / 108.2 |
-| architectural-1e6 | 17.82 MB | 167 | 100 | 2 | 14.8 kB | 203.8 | 115 / 17.20 MB / 142.3 | 48 / 6.79 MB / 129.6 | 26 / 3.37 MB / 107 |
-| mep-1e5 | 2.37 MB | 31 | 100 | 2 | 6.1 kB | 205.1 | 12 / 2.08 MB / 104.3 | 12 / 2.07 MB / 106.2 | 11 / 2.06 MB / 104.1 |
-| pathological-1e3 | 757.5 kB | 37 | 100 | 2 | 6.5 kB | 202 | 10 / 17.9 kB / 102.4 | 10 / 17.9 kB / 105.4 | 10 / 17.9 kB / 103.3 |
-| spline-heavy-1e5 | 12.34 MB | 603 | 100 | 2 | 42.7 kB | 203.2 | 106 / 1.64 MB / 116.3 | 34 / 1.09 MB / 105.6 | 14 / 939.4 kB / 103 |
+| line-001 | 400 B | 1 | 0 | 2 | 464 B | 55.6 | 1 / 40 B / 1.6 | 1 / 40 B / 1.5 | 1 / 40 B / 1.5 |
+| nurbs-d3-001 | 1.0 kB | 6 | 0 | 2 | 1.4 kB | 46.2 | 1 / 34 B / 1.5 | 1 / 34 B / 1.5 | 1 / 34 B / 1.5 |
+| architectural-1e5 | 2.04 MB | 27 | 0 | 2 | 5.8 kB | 145.3 | 14 / 1.75 MB / 11 | 11 / 1.73 MB / 6 | 11 / 1.73 MB / 6.6 |
+| architectural-1e6 | 19.29 MB | 198 | 0 | 2 | 16.8 kB | 246.7 | 115 / 17.20 MB / 135.8 | 48 / 6.79 MB / 36.3 | 26 / 3.37 MB / 14.3 |
+| mep-1e5 | 2.70 MB | 34 | 0 | 2 | 6.3 kB | 72.2 | 12 / 2.08 MB / 7.4 | 12 / 2.07 MB / 4.4 | 11 / 2.06 MB / 4.1 |
+| pathological-1e3 | 757.9 kB | 38 | 0 | 2 | 6.5 kB | 225.8 | 10 / 17.9 kB / 6.4 | 10 / 17.9 kB / 2.6 | 10 / 17.9 kB / 2.8 |
+| spline-heavy-1e5 | 13.50 MB | 605 | 0 | 2 | 42.8 kB | 58.6 | 106 / 1.64 MB / 25.1 | 34 / 1.09 MB / 5 | 14 / 939.4 kB / 5.7 |
+| line-001 | 400 B | 1 | 100 | 2 | 464 B | 202.9 | 1 / 40 B / 101.3 | 1 / 40 B / 100.7 | 1 / 40 B / 101.3 |
+| nurbs-d3-001 | 1.0 kB | 6 | 100 | 2 | 1.4 kB | 202.9 | 1 / 34 B / 101.3 | 1 / 34 B / 101.2 | 1 / 34 B / 101.1 |
+| architectural-1e5 | 2.04 MB | 27 | 100 | 2 | 5.8 kB | 202.7 | 14 / 1.75 MB / 105.4 | 11 / 1.73 MB / 107.3 | 11 / 1.73 MB / 104.6 |
+| architectural-1e6 | 19.29 MB | 198 | 100 | 2 | 16.8 kB | 203.7 | 115 / 17.20 MB / 159.9 | 48 / 6.79 MB / 118.6 | 26 / 3.37 MB / 107.6 |
+| mep-1e5 | 2.70 MB | 34 | 100 | 2 | 6.3 kB | 205.7 | 12 / 2.08 MB / 103.7 | 12 / 2.07 MB / 103.6 | 11 / 2.06 MB / 104 |
+| pathological-1e3 | 757.9 kB | 38 | 100 | 2 | 6.5 kB | 202.6 | 10 / 17.9 kB / 102.5 | 10 / 17.9 kB / 102.3 | 10 / 17.9 kB / 103.1 |
+| spline-heavy-1e5 | 13.50 MB | 605 | 100 | 2 | 42.8 kB | 203.9 | 106 / 1.64 MB / 117.7 | 34 / 1.09 MB / 135.1 | 14 / 939.4 kB / 103.1 |
+
+With the spatial directory, a window reads the prefix, the directory and the hot blocks of the leaves it touches (bytes and share of the file):
+
+| file | bytes | 25 percent window | 5 percent window |
+|---|---|---|---|
+| architectural-1e5 | 2.04 MB | 3 cells, 1.73 MB (84.7%) | 3 cells, 1.73 MB (84.7%) |
+| architectural-1e5-plain | 1.81 MB | 3 cells, 1.73 MB (95.3%) | 3 cells, 1.73 MB (95.3%) |
+| architectural-1e6 | 19.29 MB | 12 cells, 6.74 MB (34.9%) | 6 cells, 3.34 MB (17.3%) |
+| architectural-1e6-plain | 17.82 MB | 12 cells, 6.74 MB (37.8%) | 6 cells, 3.34 MB (18.8%) |
+| mep-1e5 | 2.70 MB | 3 cells, 2.05 MB (75.9%) | 3 cells, 2.05 MB (75.9%) |
+| mep-1e5-plain | 2.37 MB | 3 cells, 2.05 MB (86.5%) | 3 cells, 2.05 MB (86.5%) |
+| pathological-1e3 | 757.9 kB | 1 cells, 17.3 kB (2.3%) | 1 cells, 17.3 kB (2.3%) |
+| pathological-1e3-plain | 757.5 kB | 1 cells, 17.3 kB (2.3%) | 1 cells, 17.3 kB (2.3%) |
+| spline-heavy-1e5 | 13.50 MB | 2 cells, 890.0 kB (6.6%) | 2 cells, 890.0 kB (6.6%) |
+| spline-heavy-1e5-plain | 12.34 MB | 2 cells, 890.0 kB (7.2%) | 2 cells, 890.0 kB (7.2%) |
 
 ### Range bootstrap on real files, arm64
 
@@ -174,19 +243,34 @@ Measured is the largest distance between the preview and a reference tessellatio
 
 | file | bytes | blocks | RTT (ms) | bootstrap requests | bootstrap bytes | bootstrap (ms) | full: requests / bytes / ms | 25 percent: requests / bytes / ms | 5 percent: requests / bytes / ms |
 |---|---|---|---|---|---|---|---|---|---|
-| line-001 | 400 B | 1 | 0 | 2 | 464 B | 3.7 | 1 / 40 B / 2 | 1 / 40 B / 2 | 1 / 40 B / 2 |
-| nurbs-d3-001 | 1.0 kB | 6 | 0 | 2 | 1.4 kB | 4.7 | 1 / 34 B / 2 | 1 / 34 B / 2 | 1 / 34 B / 1.9 |
-| architectural-1e5 | 1.81 MB | 23 | 0 | 2 | 5.6 kB | 4.1 | 14 / 1.75 MB / 16.9 | 11 / 1.73 MB / 9.9 | 11 / 1.73 MB / 9.9 |
-| architectural-1e6 | 17.82 MB | 167 | 0 | 2 | 14.8 kB | 5.2 | 115 / 17.20 MB / 95.5 | 48 / 6.79 MB / 26.6 | 26 / 3.37 MB / 11 |
-| mep-1e5 | 2.37 MB | 31 | 0 | 2 | 6.1 kB | 10 | 12 / 2.08 MB / 12.6 | 12 / 2.07 MB / 8.9 | 11 / 2.06 MB / 6 |
-| pathological-1e3 | 757.5 kB | 37 | 0 | 2 | 6.5 kB | 5.1 | 10 / 17.9 kB / 5 | 10 / 17.9 kB / 4.6 | 10 / 17.9 kB / 4 |
-| spline-heavy-1e5 | 12.34 MB | 603 | 0 | 2 | 42.7 kB | 5.4 | 106 / 1.64 MB / 42.3 | 34 / 1.09 MB / 11.3 | 14 / 939.4 kB / 5.9 |
-| line-001 | 400 B | 1 | 100 | 2 | 464 B | 221.2 | 1 / 40 B / 107.8 | 1 / 40 B / 104.1 | 1 / 40 B / 105 |
-| nurbs-d3-001 | 1.0 kB | 6 | 100 | 2 | 1.4 kB | 221.5 | 1 / 34 B / 106.1 | 1 / 34 B / 111.2 | 1 / 34 B / 107 |
-| architectural-1e5 | 1.81 MB | 23 | 100 | 2 | 5.6 kB | 228.1 | 14 / 1.75 MB / 144.9 | 11 / 1.73 MB / 134.9 | 11 / 1.73 MB / 143.2 |
-| architectural-1e6 | 17.82 MB | 167 | 100 | 2 | 14.8 kB | 225.1 | 115 / 17.20 MB / 236 | 48 / 6.79 MB / 132.7 | 26 / 3.37 MB / 130.3 |
-| mep-1e5 | 2.37 MB | 31 | 100 | 2 | 6.1 kB | 229.8 | 12 / 2.08 MB / 129.8 | 12 / 2.07 MB / 139.3 | 11 / 2.06 MB / 138.9 |
-| pathological-1e3 | 757.5 kB | 37 | 100 | 2 | 6.5 kB | 216.7 | 10 / 17.9 kB / 121.2 | 10 / 17.9 kB / 121.8 | 10 / 17.9 kB / 119.3 |
-| spline-heavy-1e5 | 12.34 MB | 603 | 100 | 2 | 42.7 kB | 224.1 | 106 / 1.64 MB / 179 | 34 / 1.09 MB / 133.2 | 14 / 939.4 kB / 126.9 |
+| line-001 | 400 B | 1 | 0 | 2 | 464 B | 3.9 | 1 / 40 B / 2 | 1 / 40 B / 2 | 1 / 40 B / 2 |
+| nurbs-d3-001 | 1.0 kB | 6 | 0 | 2 | 1.4 kB | 3.8 | 1 / 34 B / 2.1 | 1 / 34 B / 2.1 | 1 / 34 B / 2 |
+| architectural-1e5 | 2.04 MB | 27 | 0 | 2 | 5.8 kB | 4.3 | 14 / 1.75 MB / 14.6 | 11 / 1.73 MB / 7.7 | 11 / 1.73 MB / 7.5 |
+| architectural-1e6 | 19.29 MB | 198 | 0 | 2 | 16.8 kB | 4.7 | 115 / 17.20 MB / 92.6 | 48 / 6.79 MB / 33 | 26 / 3.37 MB / 11.7 |
+| mep-1e5 | 2.70 MB | 34 | 0 | 2 | 6.3 kB | 12.4 | 12 / 2.08 MB / 9.9 | 12 / 2.07 MB / 7.1 | 11 / 2.06 MB / 7.7 |
+| pathological-1e3 | 757.9 kB | 38 | 0 | 2 | 6.5 kB | 6.6 | 10 / 17.9 kB / 2.9 | 10 / 17.9 kB / 4.5 | 10 / 17.9 kB / 3.6 |
+| spline-heavy-1e5 | 13.50 MB | 605 | 0 | 2 | 42.8 kB | 5.7 | 106 / 1.64 MB / 37.2 | 34 / 1.09 MB / 7.8 | 14 / 939.4 kB / 5.9 |
+| line-001 | 400 B | 1 | 100 | 2 | 464 B | 215.5 | 1 / 40 B / 103.5 | 1 / 40 B / 102 | 1 / 40 B / 104.6 |
+| nurbs-d3-001 | 1.0 kB | 6 | 100 | 2 | 1.4 kB | 223 | 1 / 34 B / 103.2 | 1 / 34 B / 103.8 | 1 / 34 B / 106.2 |
+| architectural-1e5 | 2.04 MB | 27 | 100 | 2 | 5.8 kB | 228.4 | 14 / 1.75 MB / 114 | 11 / 1.73 MB / 118.5 | 11 / 1.73 MB / 142.3 |
+| architectural-1e6 | 19.29 MB | 198 | 100 | 2 | 16.8 kB | 223.8 | 115 / 17.20 MB / 180.1 | 48 / 6.79 MB / 138.2 | 26 / 3.37 MB / 129.1 |
+| mep-1e5 | 2.70 MB | 34 | 100 | 2 | 6.3 kB | 222.6 | 12 / 2.08 MB / 113.7 | 12 / 2.07 MB / 120.5 | 11 / 2.06 MB / 122.5 |
+| pathological-1e3 | 757.9 kB | 38 | 100 | 2 | 6.5 kB | 217.6 | 10 / 17.9 kB / 132.5 | 10 / 17.9 kB / 126.8 | 10 / 17.9 kB / 116.8 |
+| spline-heavy-1e5 | 13.50 MB | 605 | 100 | 2 | 42.8 kB | 231.4 | 106 / 1.64 MB / 145.1 | 34 / 1.09 MB / 126.8 | 14 / 939.4 kB / 120.4 |
+
+With the spatial directory, a window reads the prefix, the directory and the hot blocks of the leaves it touches (bytes and share of the file):
+
+| file | bytes | 25 percent window | 5 percent window |
+|---|---|---|---|
+| architectural-1e5 | 2.04 MB | 3 cells, 1.73 MB (84.7%) | 3 cells, 1.73 MB (84.7%) |
+| architectural-1e5-plain | 1.81 MB | 3 cells, 1.73 MB (95.3%) | 3 cells, 1.73 MB (95.3%) |
+| architectural-1e6 | 19.29 MB | 12 cells, 6.74 MB (34.9%) | 6 cells, 3.34 MB (17.3%) |
+| architectural-1e6-plain | 17.82 MB | 12 cells, 6.74 MB (37.8%) | 6 cells, 3.34 MB (18.8%) |
+| mep-1e5 | 2.70 MB | 3 cells, 2.05 MB (75.9%) | 3 cells, 2.05 MB (75.9%) |
+| mep-1e5-plain | 2.37 MB | 3 cells, 2.05 MB (86.5%) | 3 cells, 2.05 MB (86.5%) |
+| pathological-1e3 | 757.9 kB | 1 cells, 17.3 kB (2.3%) | 1 cells, 17.3 kB (2.3%) |
+| pathological-1e3-plain | 757.5 kB | 1 cells, 17.3 kB (2.3%) | 1 cells, 17.3 kB (2.3%) |
+| spline-heavy-1e5 | 13.50 MB | 2 cells, 890.0 kB (6.6%) | 2 cells, 890.0 kB (6.6%) |
+| spline-heavy-1e5-plain | 12.34 MB | 2 cells, 890.0 kB (7.2%) | 2 cells, 890.0 kB (7.2%) |
 
 Software GL means these are relative costs. The add-on's own runs and the thresholds for them are listed in [deferred work](deferred.md).

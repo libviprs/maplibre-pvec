@@ -37,7 +37,7 @@ export default defineConfig({
       // The Tier 0 stroke pipeline spec from #50 sits at the top of tests/e2e and is a rendering spec.
       // It sets Chromium-only SwiftShader launch flags, so it runs on Chromium alone. The 83-* specs (wired layer
       // on a real MapLibre map) are the same kind.
-      testMatch: job === "rendering" && browserName === "chromium" ? [`${job}/**/*.spec.ts`, "50-*.spec.ts", "83-*.spec.ts", "96-*.spec.ts", "102-*.spec.ts", "105-*.spec.ts"] : [`${job}/**/*.spec.ts`],
+      testMatch: job === "rendering" && browserName === "chromium" ? [`${job}/**/*.spec.ts`, "50-*.spec.ts", "83-*.spec.ts", "96-*.spec.ts", "102-*.spec.ts", "105-*.spec.ts", "1332-*.spec.ts"] : [`${job}/**/*.spec.ts`],
       // The compose spec drives a real MapLibre map and sets Chromium's software GL flags; the other engines see it through the grid (#107).
       // The 107 hostile spec is Chromium's too: it drives the WebGL layer, and Firefox needs the xvfb display only the grid supplies.
       ...(browserName !== "chromium" ? { testIgnore: ["**/106-*.spec.ts", "**/107-*.spec.ts"] } : {}),
