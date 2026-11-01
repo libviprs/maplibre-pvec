@@ -252,38 +252,52 @@ async function main(p) {
   // of opening the file in the evaluator is the cursor's own first step and is reported on its own.
   out.tier0Slices = [];
   out.tier0Stream = [];
-  for (const [id, b64] of want('tier0') ? Object.entries(p.tier0) : []) {
-    const bytes = u8(b64);
-    // The window is the extent of the drawing, as the layer gives it (the manifest's source bounds), so a pixel of the 1920 pixel view is a real size.
+  // One row: the cursor drained by the production decoder, each slice timed with the real clock.
+  const sliceRow = (id, bytes, extent, leaves, cursorName, make) => {
+    const s0 = performance.now();
+    const cursor = make(ev, bytes, extent);
+    const openMs = performance.now() - s0;
+    const dec = new PvecMlp.Tier0Decoder();
+    const times = [];
+    let entities = 0;
+    // A cursor that does not say where its blocks end is one block, so a file over DEFAULTS.maxEntitiesPerBlock is refused by the decoder. That is recorded, not hidden.
+    let refused;
+    try {
+      for (let guard = 0; guard < 1e6; guard++) {
+        const a = performance.now();
+        const slice = dec.decodeSlice(cursor);
+        times.push(performance.now() - a);
+        if (!slice) break;
+        entities += slice.draws.length;
+      }
+    } catch (e) {
+      refused = String(e && e.message || e);
+    }
+    cursor.close();
+    const sorted = [...times].sort((x, y) => x - y);
+    out.tier0Slices.push({ id, cursor: cursorName, leaves, entities, slices: Math.max(0, times.length - 1), maxSliceMs: r3(Math.max(...times)), p99SliceMs: r3(sorted[Math.floor(times.length * 0.99)]), overBudget: times.filter((t) => t > 8).length, medianSliceMs: r3(median(times)), totalMs: r3(times.reduce((x, y) => x + y, 0)), openMs: r3(openMs), ...(refused ? { refused } : {}), platform: 'chromium, ' + navigator.userAgent.slice(0, 60) });
+  };
+  const tier0Extent = (bytes) => {
     const f0 = rt.open(bytes);
     const extent = [0, 1, 2, 3].map((n) => rt.directoryBound(f0, n));
     const leaves = rt.directoryStat(f0, 1);
     rt.release(f0);
-    for (const [cursorName, make] of [['leaves (#125)', PvecMlp.tier0CursorOver], ['boxes (before #125)', PvecMlp.tier0CursorBefore]]) {
-      const s0 = performance.now();
-      const cursor = make(ev, bytes, extent);
-      const openMs = performance.now() - s0;
-      const dec = new PvecMlp.Tier0Decoder();
-      const times = [];
-      let entities = 0;
-      // A cursor that does not say where its blocks end is one block, so a file over DEFAULTS.maxEntitiesPerBlock is refused by the decoder. That is recorded, not hidden.
-      let refused;
-      try {
-        for (;;) {
-          const a = performance.now();
-          const slice = dec.decodeSlice(cursor);
-          times.push(performance.now() - a);
-          if (!slice) break;
-          entities += slice.draws.length;
-        }
-      } catch (e) {
-        refused = String(e && e.message || e);
-      }
-      cursor.close();
-      const sorted = [...times].sort((x, y) => x - y);
-      out.tier0Slices.push({ id, cursor: cursorName, leaves, entities, slices: Math.max(0, times.length - 1), maxSliceMs: r3(Math.max(...times)), p99SliceMs: r3(sorted[Math.floor(times.length * 0.99)]), overBudget: times.filter((t) => t > 8).length, medianSliceMs: r3(median(times)), totalMs: r3(times.reduce((x, y) => x + y, 0)), openMs: r3(openMs), ...(refused ? { refused } : {}), platform: 'chromium, ' + navigator.userAgent.slice(0, 60) });
-    }
-
+    return { extent, leaves };
+  };
+  // The layer's cursor is timed for every file first, then the cursor of before #125: the older cursor leaves a large heap of garbage
+  // behind (it decodes a file in tens of thousands of slices), and a collection of it must not land in a slice of the cursor under test.
+  for (const [id, b64] of want('tier0') ? Object.entries(p.tier0) : []) {
+    const bytes = u8(b64);
+    const { extent, leaves } = tier0Extent(bytes);
+    sliceRow(id, bytes, extent, leaves, 'leaves (#125)', PvecMlp.tier0CursorOver);
+  }
+  for (const [id, b64] of want('tier0') ? Object.entries(p.tier0) : []) {
+    const bytes = u8(b64);
+    const { extent, leaves } = tier0Extent(bytes);
+    sliceRow(id, bytes, extent, leaves, 'boxes (before #125)', PvecMlp.tier0CursorBefore);
+  }
+  for (const [id, b64] of want('tier0') ? Object.entries(p.tier0) : []) {
+    const bytes = u8(b64);
     // Stream audit: entries + uncovered is the window's entity count, and every preview stays within its declared error of a tight reference.
     const file = rt.open(bytes);
     const row = { id, directory: rt.directoryStat(file, 0) === 1, windows: [], coverageMissing: 0, previews: [] };
