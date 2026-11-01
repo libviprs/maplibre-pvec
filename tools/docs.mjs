@@ -214,7 +214,6 @@ function rasterSection(root, hw) {
     out.push("| renderer | scene | statistic | steady (ms) | budget (ms) | upload frames (count) | upload frames p95 / max (ms) | upload frames over 16.7 ms | over-budget frames |", "|---|---|---|---|---|---|---|---|---|");
     for (const [k, e] of hard) {
       const clamped = (e.timerResolutionMs ?? 0) >= 1;
-      const up512 = e.raster.upload.find((u) => u.edge === 512)?.p95Ms ?? 0;
       for (const sc of e.raster.scenes.filter((x) => x.rasters > 0)) {
         const v = clamped ? sc.render.steady.meanMs : sc.render.steady.p95Ms;
         out.push(`| ${rendererOf(k)}, ${e.engine}, ${e.arch} | ${sc.name} | ${clamped ? "mean" : "p95"} | ${f2(v)} | 1.5 | ${sc.render.uploadFrames.frames} | ${f2(sc.render.uploadFrames.p95Ms)} / ${f2(sc.render.uploadFrames.maxMs)} | ${sc.render.uploadFrames.over16_7Ms.length} | ${sc.uploads.overBudgetFrames} |`);
