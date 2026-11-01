@@ -36,7 +36,7 @@ const good = (): RasterResult => ({
   environment: {
     host: "test host", os: "macOS", arch: "arm64", cpu: "Apple M5", engine: "chromium", browserVersion: "149.0.0.0",
     gpuRenderer: "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)", gpuVendor: "Google Inc. (Apple)",
-    softwareRenderer: false, dpr: 2, viewport: [1600, 1000], timerQuery: true, timerResolutionMs: 0.1,
+    softwareRenderer: false, dpr: 2, viewport: [1600, 1000], timerQuery: true, timerResolutionMs: 0.1, hostLoad: { start: 1.2, end: 2.1, cpus: 10 },
   },
   raster: {
     decode: RASTER_VARIANTS.flatMap((variant) => RASTER_EDGES.map((edge) => ({ variant, edge, samples: 30, bytes: 1000, coldMs: 12, p50Ms: 1.2, p95Ms: 2.5 }))),
@@ -152,6 +152,14 @@ describe("#108 raster result files", () => {
     expect(rasterBudgetProblems(w), "p95 reads 2 ms but the mean is 1.2 ms").toEqual([]);
     w.raster.scenes[1]!.render.steady.meanMs = 1.6;
     expect(rasterBudgetProblems(w).join()).toMatch(/steady render mean 1\.6/);
+  });
+  it("refuse a hardware result taken while the host had more runnable threads than cpus, but only record the load of a software one", () => {
+    const r = good();
+    r.environment.hostLoad = { start: 8, end: 21.6, cpus: 6 };
+    expect(validateRasterResult(r, false).join()).toMatch(/host was loaded/);
+    const s = soft();
+    s.environment.hostLoad = { start: 8, end: 21.6, cpus: 6 };
+    expect(validateRasterResult(s, true).join()).not.toMatch(/host was loaded/);
   });
   it("refuse a result with no timer resolution or no steady block", () => {
     const a = good();
