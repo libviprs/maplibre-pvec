@@ -42,6 +42,6 @@ I have not tagged or published anything. The package is `private` at `0.0.0`, an
 
 ## What would turn the deferred rows green
 
-Examples 02 to 06. The evaluator is the published `libviprs/pvec` release `wasm-v1-c4f71b3`, the corpus bytes are in (28 of 30, the other two refused by design) and the default cursor reads the evaluator's Tier 0 stream. Each is written up in [deferred work](deferred.md).
+Examples 02 to 06. The evaluator is the published `libviprs/pvec` release `wasm-v1-fc5ca4a`, the corpus bytes are in (28 of 30, the other two refused by design) and the default cursor reads the evaluator's Tier 0 stream. Each is written up in [deferred work](deferred.md).
 
 Descoped from #82, not claimed: an NVIDIA run (no driver or container runtime on MARS) and an arm64 Linux run with a real GPU (Docker Desktop passes none through). What was measured is the Apple M5 (Chromium Metal), Apple GPU (WebKit), Intel ADL GT2 (Chromium) and, as software GL only and not GPU numbers, arm64 Linux in a container. A driver and container toolkit on MARS, or an arm64 Linux host with a GPU, would unblock them.
