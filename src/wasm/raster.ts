@@ -1,12 +1,8 @@
 import type { RasterPlacement } from "../render/raster/geometry";
 import { RasterRefusedError, type RasterProvider } from "../render/raster/provider";
-import type { Evaluator } from "./loader";
+import { RASTER_EXPORTS, type Evaluator } from "./loader";
 
-/** The exports of the raster part of the ABI (libviprs/pvec `docs/WASM_ABI.md`, "Rasters (version 2...)"): found by probing, once. */
-export const RASTER_EXPORTS: readonly string[] = [
-  "raster_stat", "raster_skipped", "raster_placement", "raster_tile", "raster_buffer_len", "raster_buffer_ptr", "raster_buffer_elem",
-  "open_ranged", "provide_range", "open_poll", "needed_count", "needed_offset", "needed_len", "release",
-];
+export { RASTER_EXPORTS } from "./loader";
 
 /** Where the module reads its ranges from: the layer's source. */
 export interface RangeReader {
@@ -69,9 +65,17 @@ export async function openRasterProvider(ev: Evaluator, src: RangeReader): Promi
     return r >>> 0;
   });
   const stat = (n: number): Promise<number> => until(() => file, () => call("raster_stat", file, n));
-  if ((await serial(() => stat(3))) !== 1) return null;
+  // A raster stream the rules refuse as a whole holds no raster ids and answers 0 to "has a raster stream" (WASM_ABI.md, issue 232): selectors
+  // 4 and 5 of raster_stat name the rule and its family. The provider has no placements and says why; the layer treats it as a file without rasters.
+  const refusedStream = async (): Promise<RasterProvider | null> => {
+    const rule = await serial(() => stat(4));
+    if (rule <= 0) return null;
+    const name = `${(await serial(() => stat(5))) === 1 ? "LIMIT" : "RASTER"}-${String(rule).padStart(2, "0")}`;
+    return { placements: () => [], tile: () => Promise.resolve(null), refusedStream: { rule: name, message: `${name}: the module refused the raster stream as a whole` }, release: () => void call("release", file) };
+  };
+  if ((await serial(() => stat(3))) !== 1) return refusedStream();
   const count = await serial(() => stat(0));
-  if (count <= 0) return null;
+  if (count <= 0) return refusedStream();
 
   /** The rule a skipped raster names, as `RASTER-0N` or `LIMIT-0N`: selector 2 is the family (an older build answers -3, which is RASTER). */
   const skippedList = async (): Promise<{ id: number; rule: string; message: string }[]> => {

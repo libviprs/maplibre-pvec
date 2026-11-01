@@ -61,7 +61,8 @@ describe("#107 pvec's hostile corpus through pvec's own sniffers", () => {
     it(`${t.name} is refused (${t.rule}) and never handed over`, async () => {
       const p = await openRasterProvider(await evaluator(), reader(file(`hostile/${t.name}.pvec`)));
       if (STREAM_REFUSED.has(t.name)) {
-        expect(p, "the stream is refused whole: no raster, the Unrastered effect").toBeNull();
+        expect(p?.placements(), "the stream is refused whole: no raster").toEqual([]);
+        expect(p?.refusedStream?.rule, "and the provider names the rule (WASM_ABI.md, issue 232)").toBe(t.rule);
         return;
       }
       expect(p).not.toBeNull();

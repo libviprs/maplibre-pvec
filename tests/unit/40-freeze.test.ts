@@ -82,7 +82,7 @@ describe("#40 v1 gate", () => {
 
   it("refuses the tag while a condition is deferred, and when an entry is removed", () => {
     expect(evaluateRelease(gate).ok).toBe(false);
-    const green = { conditions: REQUIRED_CONDITIONS.map((id: string) => ({ id, status: "met", measured: 1, evidence: "synthetic evidence" })) };
+    const green = { conditions: [...REQUIRED_CONDITIONS, "raster_render_budget"].map((id: string) => ({ id, status: "met", measured: { rasterGridSpecs: 1, rasterCases: 2, rasterExamples: 1, rasterNames: 5 }, evidence: "synthetic evidence" })) };
     expect(evaluateRelease(green).ok).toBe(true);
     const missing = { conditions: green.conditions.slice(1) };
     const r = evaluateRelease(missing);
