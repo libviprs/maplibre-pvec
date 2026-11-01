@@ -1,6 +1,6 @@
 import maplibregl from "maplibre-gl";
 import { createPVecLayer, type PVecLayer } from "../../src/index";
-import { configureEngine } from "../../src/layer/internal";
+import { configureEngine, type EngineDeps } from "../../src/layer/internal";
 import { Epsg4326Adapter } from "../../src/transform/crs";
 import type { RawEntity } from "../../src/decode/tier0";
 import { percentile } from "../lib/stats";
@@ -11,18 +11,19 @@ import { percentile } from "../lib/stats";
 // layer, the pool, the stroke renderer and the state guard, is the shipped code.
 const POLYLINES = 10;
 const SEG_PER_LINE = 100_000;
-const CSS_W = 1600;
-const CSS_H = 1000;
-const CENTER: [number, number] = [8.54, 47.37];
+export const CSS_W = 1600;
+export const CSS_H = 1000;
+export const CENTER: [number, number] = [8.54, 47.37];
 const COLORS = ["#cc0000", "#00aa00", "#0000cc", "#aa00aa", "#00aaaa", "#aaaa00", "#ff6600", "#6600ff", "#008866", "#884400"];
 // One source unit is about one CSS pixel at zoom 17 around the centre, so the walks fill the viewport.
-const LON_PER_PX = 5.36e-6, LAT_PER_PX = 3.63e-6;
-const reference = {
+export const LON_PER_PX = 5.36e-6, LAT_PER_PX = 3.63e-6;
+/** Source unit (0,0) sits at the lower-left corner of a `w` by `h` css px map centred on CENTER. */
+export const referenceFor = (w: number, h: number) => ({
   kind: "affine" as const,
   unit: "m" as const,
   crs: Epsg4326Adapter,
-  calibration: [LON_PER_PX, 0, 0, LAT_PER_PX, CENTER[0] - (CSS_W / 2) * LON_PER_PX, CENTER[1] - (CSS_H / 2) * LAT_PER_PX] as const,
-};
+  calibration: [LON_PER_PX, 0, 0, LAT_PER_PX, CENTER[0] - (w / 2) * LON_PER_PX, CENTER[1] - (h / 2) * LAT_PER_PX] as const,
+});
 
 function walk(seed: number, n: number, w: number, h: number): number[] {
   let s = seed >>> 0;
@@ -40,22 +41,23 @@ function walk(seed: number, n: number, w: number, h: number): number[] {
   return pts;
 }
 
-const entities = (): RawEntity[] =>
+const entities = (segPerLine = SEG_PER_LINE): RawEntity[] =>
   Array.from({ length: POLYLINES }, (_, i) => ({
     entityId: `e${i}`,
     kind: "exact" as const,
-    geometry: { type: "polyline" as const, points: walk(1 + i, SEG_PER_LINE, CSS_W, CSS_H) },
+    geometry: { type: "polyline" as const, points: walk(1 + i, segPerLine, CSS_W, CSS_H) },
     bounds: { minX: 0, minY: 0, maxX: CSS_W, maxY: CSS_H },
   }));
 
-const stats = (v: number[]) => ({ p50: percentile(v, 50), p95: percentile(v, 95), p99: percentile(v, 99), max: v.length ? Math.max(...v) : 0 });
+export const stats = (v: number[]) => ({ p50: percentile(v, 50), p95: percentile(v, 95), p99: percentile(v, 99), max: v.length ? Math.max(...v) : 0 });
 
-interface Rig { map: maplibregl.Map; layer: PVecLayer; gl: WebGL2RenderingContext; errors: () => number; diffs: () => number }
+export interface Rig { map: maplibregl.Map; layer: PVecLayer; gl: WebGL2RenderingContext; errors: () => number; diffs: () => number }
 
-async function build(debug: boolean): Promise<Rig> {
+/** `extra` adds engine deps (the raster scenes of #108 add a provider), `size` is the map's css size and `strokes` false leaves the stroke scene out. */
+export async function build(debug: boolean, extra: Partial<EngineDeps> = {}, size: { w: number; h: number; strokes?: boolean; segPerLine?: number } = { w: CSS_W, h: CSS_H }): Promise<Rig> {
   document.body.replaceChildren();
   const host = document.createElement("div");
-  host.style.cssText = `width:${CSS_W}px;height:${CSS_H}px;position:absolute;left:0;top:0`;
+  host.style.cssText = `width:${size.w}px;height:${size.h}px;position:absolute;left:0;top:0`;
   document.body.appendChild(host);
   const map = new maplibregl.Map({
     container: host, center: CENTER, zoom: 17, interactive: false, fadeDuration: 0, attributionControl: false,
@@ -65,21 +67,22 @@ async function build(debug: boolean): Promise<Rig> {
   const gl = map.getCanvas().getContext("webgl2") as WebGL2RenderingContext;
   let errors = 0, diffs = 0;
   map.on("error", () => errors++);
-  const layer = createPVecLayer({ id: "pvec", source: { url: new URL("/p.pvec", location.href).href }, georeference: { reference } });
+  const layer = createPVecLayer({ id: "pvec", source: { url: new URL("/p.pvec", location.href).href }, georeference: { reference: referenceFor(size.w, size.h) } });
   layer.on("error", () => errors++);
-  const queue = entities();
+  const queue = size.strokes === false ? [] : entities(size.segPerLine);
   configureEngine(layer, {
     loadEvaluator: () => Promise.resolve({ instance: {} as WebAssembly.Instance, abiVersion: 1, source: "injected" as const }),
     maplibreVersion: () => maplibregl.getVersion(),
-    openCursor: async () => ({ next: () => { const e = queue.shift(); return e ? [e] : null; } }),
+    openCursor: async () => (size.strokes === false ? null : { next: () => { const e = queue.shift(); return e ? [e] : null; } }),
     ...(debug ? { onStateDiff: (d: string[]) => void (diffs += d.length) } : {}),
+    ...extra,
   });
   layer.registerComponent("style", { resolve: (e) => ({ widthPx: 1.5, dash: [], color: COLORS[Number(e.entityId.slice(1)) % COLORS.length]! }) });
   return { map, layer, gl, errors: () => errors, diffs: () => diffs };
 }
 
 /** Drives the map one frame per render event, panning the whole scene like bench/hw/page.ts does. */
-function frames(rig: Rig, frameCount: number | undefined, durationMs: number, onFrame: (i: number, ts: number) => boolean | void): Promise<void> {
+export function frames(rig: Rig, frameCount: number | undefined, durationMs: number, onFrame: (i: number, ts: number) => boolean | void): Promise<void> {
   return new Promise((resolve) => {
     let i = 0, t0 = 0;
     const step = () => {

@@ -30,3 +30,9 @@ export function resolveStagedWasm(target, { abiVersion, sha256 } = {}) {
   }
   return { file, sha256: have, bytes: manifest.wasm.bytes, abiVersion: manifest.abiVersion, commit: manifest.commit, verified: true };
 }
+
+/** The names from `names` that the module's bytes do not contain: the self-test of a staged or pinned module for the raster group (wasm-bindgen keeps export names as plain strings). */
+export function missingRasterExports(file, names) {
+  const bytes = readFileSync(file);
+  return names.filter((n) => !bytes.includes(Buffer.from(n)));
+}

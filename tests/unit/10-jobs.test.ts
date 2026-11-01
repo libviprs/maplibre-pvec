@@ -19,7 +19,7 @@ describe("#10 the four conformance jobs", () => {
       expect(g.waitsOn).toMatch(/#\d+/);
       expect(JOBS.map((j) => j.id)).toContain(g.job);
     }
-    expect(PENDING_GATES.map((g) => g.name)).toEqual(expect.arrayContaining(["pipeline", "tier0"]));
+    expect(PENDING_GATES.map((g) => g.name)).toEqual(expect.arrayContaining(["tier0"]));
   });
 
   it("fail a job that ran zero tests unless every gate it owns is declared pending", () => {

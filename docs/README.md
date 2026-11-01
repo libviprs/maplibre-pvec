@@ -24,6 +24,7 @@ One page per subject. Pages marked generated are rebuilt by `node tools/docs.mjs
 ## Using it
 
 - [Query API](query-api.md)
+- [Rasters](raster.md)
 - [Security and resource limits](security-resource-limits.md)
 - [WASM, worker and CSP deployment](wasm-worker-deployment.md)
 - [Examples](../examples/README.md)

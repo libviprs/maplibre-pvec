@@ -14,6 +14,8 @@ export interface RasterProvider {
   hint?(id: number, level: number, tiles: readonly TileId[]): void;
   /** The encoded bytes of one tile after the index checksum, or null when the tile is not stored. Rejects on a failed read. */
   tile(id: number, level: number, col: number, row: number): Promise<Uint8Array | null>;
+  /** Set when the module refused the raster stream as a whole (a rule on the stream, such as RASTER-04 for JPEG under an RGBA placement): there are no placements. */
+  refusedStream?: { rule: string; message: string };
   /** Called once when the layer goes away. */
   release?(): void;
 }

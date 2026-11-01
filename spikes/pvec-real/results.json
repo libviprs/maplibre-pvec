@@ -1,20 +1,20 @@
 {
   "browser": "chromium 130.0.6723.31",
   "platform": "linux/x64",
-  "pvecCommit": "c7aed3d64a79ddd4a809e51a072d027c3946d92d",
-  "wasmBytes": 442797,
-  "compileMs": 23.7,
+  "pvecCommit": "dcef7f6ad8c20be9d6b5053e93fda18b3566182f",
+  "wasmBytes": 764921,
+  "compileMs": 41.2,
   "instantiateMs": 0.2,
-  "abiVersion": 1,
+  "abiVersion": 2,
   "fixtures": [
     {
       "id": "arc-seam-001",
       "entities": 1,
       "vertsAtEps1e3": 33,
       "singleEvaluation": {
-        "medianNsPerCall": 50000,
-        "minNsPerCall": 48859.93485342019,
-        "maxNsPerCall": 53956.8345323741,
+        "medianNsPerCall": 49261.08374384236,
+        "minNsPerCall": 48465.266558966076,
+        "maxNsPerCall": 53667.26296958855,
         "vertices": 33
       },
       "amortised": [
@@ -24,26 +24,26 @@
           "vertices": 100,
           "failed": 0,
           "eps": 0.0002162908596914493,
-          "nsPerVertex": 1543.59,
-          "nsPerCall": 154359
+          "nsPerVertex": 1546.392,
+          "nsPerCall": 154639
         },
         {
           "targetVertices": 1000,
           "reachable": true,
           "vertices": 1000,
           "failed": 0,
-          "eps": 3.3795827541047023e-06,
-          "nsPerVertex": 1535,
-          "nsPerCall": 1535000
+          "eps": 0.0000033795827541047023,
+          "nsPerVertex": 1555,
+          "nsPerCall": 1555000
         },
         {
           "targetVertices": 10000,
           "reachable": true,
           "vertices": 10000,
           "failed": 0,
-          "eps": 1.3201497647320245e-08,
-          "nsPerVertex": 1558,
-          "nsPerCall": 15580000
+          "eps": 1.3201497647320245e-8,
+          "nsPerVertex": 1568,
+          "nsPerCall": 15680000
         },
         {
           "targetVertices": 100000,
@@ -51,8 +51,8 @@
           "vertices": 100000,
           "failed": 0,
           "eps": 2.0627338629818368e-10,
-          "nsPerVertex": 1559.6,
-          "nsPerCall": 155960000
+          "nsPerVertex": 1647.4,
+          "nsPerCall": 164740000
         }
       ]
     },
@@ -61,9 +61,9 @@
       "entities": 1,
       "vertsAtEps1e3": 65,
       "singleEvaluation": {
-        "medianNsPerCall": 101010.101010101,
-        "minNsPerCall": 100671.14093959732,
-        "maxNsPerCall": 102389.07849829351,
+        "medianNsPerCall": 102730.37591485033,
+        "minNsPerCall": 101694.91525423729,
+        "maxNsPerCall": 104529.61672473868,
         "vertices": 65
       },
       "amortised": [
@@ -81,18 +81,18 @@
           "reachable": true,
           "vertices": 1001,
           "failed": 0,
-          "eps": 5.642412640209018e-06,
-          "nsPerVertex": 1587.886,
-          "nsPerCall": 1589474
+          "eps": 0.000005642412640209018,
+          "nsPerVertex": 1619.433,
+          "nsPerCall": 1621053
         },
         {
           "targetVertices": 10000,
           "reachable": true,
           "vertices": 10000,
           "failed": 0,
-          "eps": 2.8386626474163046e-08,
-          "nsPerVertex": 1600,
-          "nsPerCall": 16000000
+          "eps": 2.8386626474163046e-8,
+          "nsPerVertex": 1604,
+          "nsPerCall": 16040000
         },
         {
           "targetVertices": 100000,
@@ -100,8 +100,8 @@
           "vertices": 100000,
           "failed": 0,
           "eps": 3.967465661278825e-10,
-          "nsPerVertex": 1605.4,
-          "nsPerCall": 160540000
+          "nsPerVertex": 1626.2,
+          "nsPerCall": 162620000
         }
       ]
     },
@@ -110,9 +110,9 @@
       "entities": 1,
       "vertsAtEps1e3": 113,
       "singleEvaluation": {
-        "medianNsPerCall": 185000,
-        "minNsPerCall": 184500.00047683716,
-        "maxNsPerCall": 185999.99904632568,
+        "medianNsPerCall": 184500.00047683716,
+        "minNsPerCall": 184499.99928474426,
+        "maxNsPerCall": 185000,
         "vertices": 113
       },
       "amortised": [
@@ -122,35 +122,35 @@
           "vertices": 100,
           "failed": 0,
           "eps": 0.0011717842497548881,
-          "nsPerVertex": 1618.28,
-          "nsPerCall": 161828
+          "nsPerVertex": 1639.344,
+          "nsPerCall": 163934
         },
         {
           "targetVertices": 1000,
           "reachable": true,
           "vertices": 1000,
           "failed": 0,
-          "eps": 1.1206474161940442e-05,
-          "nsPerVertex": 1688.889,
-          "nsPerCall": 1688889
+          "eps": 0.000011206474161940442,
+          "nsPerVertex": 1672.222,
+          "nsPerCall": 1672222
         },
         {
           "targetVertices": 10000,
           "reachable": true,
           "vertices": 10000,
           "failed": 0,
-          "eps": 1.3624220883135368e-07,
-          "nsPerVertex": 1686,
-          "nsPerCall": 16860000
+          "eps": 1.3624220883135368e-7,
+          "nsPerVertex": 1696,
+          "nsPerCall": 16960000
         },
         {
           "targetVertices": 100000,
           "reachable": true,
           "vertices": 100000,
           "failed": 0,
-          "eps": 1.1242324416137546e-09,
-          "nsPerVertex": 1678.4,
-          "nsPerCall": 167840000
+          "eps": 1.1242324416137546e-9,
+          "nsPerVertex": 1664.8,
+          "nsPerCall": 166480000
         }
       ]
     },
@@ -159,9 +159,9 @@
       "entities": 1,
       "vertsAtEps1e3": 99,
       "singleEvaluation": {
-        "medianNsPerCall": 175500.00071525574,
-        "minNsPerCall": 174499.99928474426,
-        "maxNsPerCall": 176999.99928474426,
+        "medianNsPerCall": 175000,
+        "minNsPerCall": 173999.99976158142,
+        "maxNsPerCall": 177999.99952316284,
         "vertices": 99
       },
       "amortised": [
@@ -171,35 +171,35 @@
           "vertices": 100,
           "failed": 0,
           "eps": 0.0009474635256553758,
-          "nsPerVertex": 1770.588,
-          "nsPerCall": 177059
+          "nsPerVertex": 1781.065,
+          "nsPerCall": 178107
         },
         {
           "targetVertices": 1000,
           "reachable": true,
           "vertices": 1000,
           "failed": 0,
-          "eps": 1.1661984528866302e-05,
-          "nsPerVertex": 1841.176,
-          "nsPerCall": 1841176
+          "eps": 0.000011661984528866302,
+          "nsPerVertex": 1805.882,
+          "nsPerCall": 1805882
         },
         {
           "targetVertices": 10000,
           "reachable": true,
           "vertices": 10000,
           "failed": 0,
-          "eps": 1.2418441525834184e-07,
-          "nsPerVertex": 1836,
-          "nsPerCall": 18360000
+          "eps": 1.2418441525834184e-7,
+          "nsPerVertex": 1818,
+          "nsPerCall": 18180000
         },
         {
           "targetVertices": 100000,
           "reachable": true,
           "vertices": 100000,
           "failed": 0,
-          "eps": 1.0127087933945117e-09,
-          "nsPerVertex": 1827.2,
-          "nsPerCall": 182720000
+          "eps": 1.0127087933945117e-9,
+          "nsPerVertex": 1816.2,
+          "nsPerCall": 181620000
         }
       ]
     },
@@ -208,9 +208,9 @@
       "entities": 2,
       "vertsAtEps1e3": 66,
       "singleEvaluation": {
-        "medianNsPerCall": 97087.3786407767,
-        "minNsPerCall": 97087.3786407767,
-        "maxNsPerCall": 97402.5974025974,
+        "medianNsPerCall": 97096.7738859115,
+        "minNsPerCall": 96463.02250803859,
+        "maxNsPerCall": 97719.86970684039,
         "vertices": 66
       },
       "amortised": [
@@ -220,26 +220,26 @@
           "vertices": 100,
           "failed": 0,
           "eps": 0.0008423329825962116,
-          "nsPerVertex": 1522.843,
-          "nsPerCall": 152284
+          "nsPerVertex": 1492.537,
+          "nsPerCall": 149254
         },
         {
           "targetVertices": 1000,
           "reachable": true,
           "vertices": 999,
           "failed": 0,
-          "eps": 1.3162063484211237e-05,
-          "nsPerVertex": 1551.552,
-          "nsPerCall": 1550000
+          "eps": 0.000013162063484211237,
+          "nsPerVertex": 1566.567,
+          "nsPerCall": 1565000
         },
         {
           "targetVertices": 10000,
           "reachable": true,
           "vertices": 10000,
           "failed": 0,
-          "eps": 5.141434837724274e-08,
-          "nsPerVertex": 1576,
-          "nsPerCall": 15760000
+          "eps": 5.141434837724274e-8,
+          "nsPerVertex": 1550,
+          "nsPerCall": 15500000
         },
         {
           "targetVertices": 100000,
@@ -247,8 +247,8 @@
           "vertices": 100000,
           "failed": 0,
           "eps": 8.033491789574428e-10,
-          "nsPerVertex": 1575.2,
-          "nsPerCall": 157520000
+          "nsPerVertex": 1569.4,
+          "nsPerCall": 156940000
         }
       ]
     },
@@ -257,9 +257,9 @@
       "entities": 2,
       "vertsAtEps1e3": 66,
       "singleEvaluation": {
-        "medianNsPerCall": 98688.52505918409,
+        "medianNsPerCall": 98360.65573770492,
         "minNsPerCall": 98039.2156862745,
-        "maxNsPerCall": 99668.87385639924,
+        "maxNsPerCall": 98360.65573770492,
         "vertices": 66
       },
       "amortised": [
@@ -277,18 +277,18 @@
           "reachable": true,
           "vertices": 1000,
           "failed": 0,
-          "eps": 1.063453881566857e-05,
-          "nsPerVertex": 1578.947,
-          "nsPerCall": 1578947
+          "eps": 0.00001063453881566857,
+          "nsPerVertex": 1575,
+          "nsPerCall": 1575000
         },
         {
           "targetVertices": 10000,
           "reachable": true,
           "vertices": 10000,
           "failed": 0,
-          "eps": 4.154118529752364e-08,
-          "nsPerVertex": 1558,
-          "nsPerCall": 15580000
+          "eps": 4.154118529752364e-8,
+          "nsPerVertex": 1580,
+          "nsPerCall": 15800000
         },
         {
           "targetVertices": 100000,
@@ -296,8 +296,8 @@
           "vertices": 100000,
           "failed": 0,
           "eps": 6.490810044625308e-10,
-          "nsPerVertex": 1587.8,
-          "nsPerCall": 158780000
+          "nsPerVertex": 1558.6,
+          "nsPerCall": 155860000
         }
       ]
     },
@@ -307,8 +307,8 @@
       "vertsAtEps1e3": 129,
       "singleEvaluation": {
         "medianNsPerCall": 193500.00023841858,
-        "minNsPerCall": 192500,
-        "maxNsPerCall": 194500.00047683716,
+        "minNsPerCall": 191999.99928474426,
+        "maxNsPerCall": 193500.00023841858,
         "vertices": 129
       },
       "amortised": [
@@ -318,24 +318,24 @@
           "vertices": 100,
           "failed": 0,
           "eps": 0.003478120207564749,
-          "nsPerVertex": 1512.563,
-          "nsPerCall": 151256
+          "nsPerVertex": 1477.833,
+          "nsPerCall": 147783
         },
         {
           "targetVertices": 1000,
           "reachable": true,
           "vertices": 1000,
           "failed": 0,
-          "eps": 5.435637148873086e-05,
-          "nsPerVertex": 1535,
-          "nsPerCall": 1535000
+          "eps": 0.00005435637148873086,
+          "nsPerVertex": 1500,
+          "nsPerCall": 1500000
         },
         {
           "targetVertices": 10000,
           "reachable": true,
           "vertices": 10000,
           "failed": 0,
-          "eps": 2.1233023989946642e-07,
+          "eps": 2.1233023989946642e-7,
           "nsPerVertex": 1506,
           "nsPerCall": 15060000
         },
@@ -344,9 +344,9 @@
           "reachable": true,
           "vertices": 100000,
           "failed": 0,
-          "eps": 3.3176600187640466e-09,
-          "nsPerVertex": 1515.8,
-          "nsPerCall": 151580000
+          "eps": 3.3176600187640466e-9,
+          "nsPerVertex": 1530.4,
+          "nsPerCall": 153040000
         }
       ]
     },
@@ -356,8 +356,8 @@
       "vertsAtEps1e3": 142,
       "singleEvaluation": {
         "medianNsPerCall": 235000,
-        "minNsPerCall": 231999.99928474426,
-        "maxNsPerCall": 235000,
+        "minNsPerCall": 234499.99928474426,
+        "maxNsPerCall": 237000.00047683716,
         "vertices": 142
       },
       "amortised": [
@@ -367,35 +367,35 @@
           "vertices": 100,
           "failed": 0,
           "eps": 0.002114439739604002,
-          "nsPerVertex": 1621.622,
-          "nsPerCall": 162162
+          "nsPerVertex": 1639.344,
+          "nsPerCall": 163934
         },
         {
           "targetVertices": 1000,
           "reachable": true,
           "vertices": 1000,
           "failed": 0,
-          "eps": 2.237258601765718e-05,
-          "nsPerVertex": 1688.889,
-          "nsPerCall": 1688889
+          "eps": 0.00002237258601765718,
+          "nsPerVertex": 1694.444,
+          "nsPerCall": 1694444
         },
         {
           "targetVertices": 10000,
           "reachable": true,
           "vertices": 10000,
           "failed": 0,
-          "eps": 2.1946864884644414e-07,
-          "nsPerVertex": 1680,
-          "nsPerCall": 16800000
+          "eps": 2.1946864884644414e-7,
+          "nsPerVertex": 1692,
+          "nsPerCall": 16920000
         },
         {
           "targetVertices": 100000,
           "reachable": true,
           "vertices": 100000,
           "failed": 0,
-          "eps": 2.039391639937231e-09,
-          "nsPerVertex": 1673.8,
-          "nsPerCall": 167380000
+          "eps": 2.039391639937231e-9,
+          "nsPerVertex": 1684.2,
+          "nsPerCall": 168420000
         }
       ]
     },
@@ -404,9 +404,9 @@
       "entities": 1,
       "vertsAtEps1e3": 177,
       "singleEvaluation": {
-        "medianNsPerCall": 286500.0009536743,
-        "minNsPerCall": 285499.99952316284,
-        "maxNsPerCall": 291999.99928474426,
+        "medianNsPerCall": 289499.99928474426,
+        "minNsPerCall": 287500,
+        "maxNsPerCall": 291499.9997615814,
         "vertices": 177
       },
       "amortised": [
@@ -416,35 +416,35 @@
           "vertices": 100,
           "failed": 0,
           "eps": 0.0022166806233466867,
-          "nsPerVertex": 1587.302,
-          "nsPerCall": 158730
+          "nsPerVertex": 1592.593,
+          "nsPerCall": 159259
         },
         {
           "targetVertices": 1000,
           "reachable": true,
           "vertices": 1000,
           "failed": 0,
-          "eps": 2.528764145710553e-05,
-          "nsPerVertex": 1657.895,
-          "nsPerCall": 1657895
+          "eps": 0.00002528764145710553,
+          "nsPerVertex": 1688.889,
+          "nsPerCall": 1688889
         },
         {
           "targetVertices": 10000,
           "reachable": true,
           "vertices": 10000,
           "failed": 0,
-          "eps": 3.4677032343585185e-07,
-          "nsPerVertex": 1662,
-          "nsPerCall": 16620000
+          "eps": 3.4677032343585185e-7,
+          "nsPerVertex": 1694,
+          "nsPerCall": 16940000
         },
         {
           "targetVertices": 100000,
           "reachable": true,
           "vertices": 100000,
           "failed": 0,
-          "eps": 2.2523993699492315e-09,
-          "nsPerVertex": 1678,
-          "nsPerCall": 167800000
+          "eps": 2.2523993699492315e-9,
+          "nsPerVertex": 1670.4,
+          "nsPerCall": 167040000
         }
       ]
     },
@@ -453,9 +453,9 @@
       "entities": 1,
       "vertsAtEps1e3": 129,
       "singleEvaluation": {
-        "medianNsPerCall": 195000,
-        "minNsPerCall": 194499.99928474426,
-        "maxNsPerCall": 197500,
+        "medianNsPerCall": 197999.99952316284,
+        "minNsPerCall": 197999.99952316284,
+        "maxNsPerCall": 198500.00023841858,
         "vertices": 129
       },
       "amortised": [
@@ -473,7 +473,7 @@
           "reachable": true,
           "vertices": 1000,
           "failed": 0,
-          "eps": 5.8119209581594704e-05,
+          "eps": 0.000058119209581594704,
           "nsPerVertex": 1525,
           "nsPerCall": 1525000
         },
@@ -482,18 +482,18 @@
           "reachable": true,
           "vertices": 10000,
           "failed": 0,
-          "eps": 2.3108479399253926e-07,
-          "nsPerVertex": 1508,
-          "nsPerCall": 15080000
+          "eps": 2.3108479399253926e-7,
+          "nsPerVertex": 1520,
+          "nsPerCall": 15200000
         },
         {
           "targetVertices": 100000,
           "reachable": true,
           "vertices": 100000,
           "failed": 0,
-          "eps": 3.5795928949248736e-09,
-          "nsPerVertex": 1519.2,
-          "nsPerCall": 151920000
+          "eps": 3.5795928949248736e-9,
+          "nsPerVertex": 1530.6,
+          "nsPerCall": 153060000
         }
       ]
     },
@@ -502,9 +502,9 @@
       "entities": 1,
       "vertsAtEps1e3": 65,
       "singleEvaluation": {
-        "medianNsPerCall": 99337.74834437086,
-        "minNsPerCall": 99013.15758102818,
-        "maxNsPerCall": 103092.78350515464,
+        "medianNsPerCall": 98684.21052631579,
+        "minNsPerCall": 98360.65573770492,
+        "maxNsPerCall": 99009.900990099,
         "vertices": 65
       },
       "amortised": [
@@ -514,26 +514,26 @@
           "vertices": 100,
           "failed": 0,
           "eps": 0.00045803049527784885,
-          "nsPerVertex": 1535.714,
-          "nsPerCall": 153571
+          "nsPerVertex": 1530.612,
+          "nsPerCall": 153061
         },
         {
           "targetVertices": 1000,
           "reachable": true,
           "vertices": 1000,
           "failed": 0,
-          "eps": 7.1248748892332306e-06,
-          "nsPerVertex": 1545,
-          "nsPerCall": 1545000
+          "eps": 0.0000071248748892332306,
+          "nsPerVertex": 1570,
+          "nsPerCall": 1570000
         },
         {
           "targetVertices": 10000,
           "reachable": true,
           "vertices": 10000,
           "failed": 0,
-          "eps": 2.81504145868843e-08,
-          "nsPerVertex": 1534,
-          "nsPerCall": 15340000
+          "eps": 2.81504145868843e-8,
+          "nsPerVertex": 1562,
+          "nsPerCall": 15620000
         },
         {
           "targetVertices": 100000,
@@ -541,8 +541,8 @@
           "vertices": 100000,
           "failed": 0,
           "eps": 4.3699559706420054e-10,
-          "nsPerVertex": 1541.6,
-          "nsPerCall": 154160000
+          "nsPerVertex": 1598.2,
+          "nsPerCall": 159820000
         }
       ]
     },
@@ -551,9 +551,9 @@
       "entities": 1,
       "vertsAtEps1e3": 4,
       "singleEvaluation": {
-        "medianNsPerCall": 2071.966296014918,
-        "minNsPerCall": 2064.409578860446,
-        "maxNsPerCall": 2152.234737068656,
+        "medianNsPerCall": 2515.9342502515933,
+        "minNsPerCall": 2401.5369836695486,
+        "maxNsPerCall": 2825.923134890731,
         "vertices": 4
       },
       "amortised": [
@@ -562,21 +562,21 @@
           "reachable": false,
           "vertices": 4,
           "failed": 0,
-          "eps": 3.16227766016838e-05
+          "eps": 0.0000316227766016838
         },
         {
           "targetVertices": 1000,
           "reachable": false,
           "vertices": 4,
           "failed": 0,
-          "eps": 3.16227766016838e-05
+          "eps": 0.0000316227766016838
         },
         {
           "targetVertices": 10000,
           "reachable": false,
           "vertices": 4,
           "failed": 0,
-          "eps": 3.16227766016838e-05
+          "eps": 0.0000316227766016838
         },
         {
           "targetVertices": 100000,
@@ -584,8 +584,8 @@
           "vertices": 126708,
           "failed": 0,
           "eps": 8.726838392745023e-10,
-          "nsPerVertex": 649.998,
-          "nsPerCall": 82360000
+          "nsPerVertex": 672.57,
+          "nsPerCall": 85220000
         }
       ]
     },
@@ -594,9 +594,9 @@
       "entities": 3,
       "vertsAtEps1e3": 6,
       "singleEvaluation": {
-        "medianNsPerCall": 2033.760423022168,
-        "minNsPerCall": 2021.8358269308533,
-        "maxNsPerCall": 2052.1239482864767,
+        "medianNsPerCall": 2178.1746896101067,
+        "minNsPerCall": 2163.565556036348,
+        "maxNsPerCall": 2196.9974368363237,
         "vertices": 6
       },
       "amortised": [
@@ -605,28 +605,28 @@
           "reachable": false,
           "vertices": 6,
           "failed": 0,
-          "eps": 3.16227766016838e-05
+          "eps": 0.0000316227766016838
         },
         {
           "targetVertices": 1000,
           "reachable": false,
           "vertices": 6,
           "failed": 0,
-          "eps": 3.16227766016838e-05
+          "eps": 0.0000316227766016838
         },
         {
           "targetVertices": 10000,
           "reachable": false,
           "vertices": 6,
           "failed": 0,
-          "eps": 3.16227766016838e-05
+          "eps": 0.0000316227766016838
         },
         {
           "targetVertices": 100000,
           "reachable": false,
           "vertices": 6,
           "failed": 0,
-          "eps": 3.16227766016838e-05
+          "eps": 0.0000316227766016838
         }
       ]
     },
@@ -635,9 +635,9 @@
       "entities": 1,
       "vertsAtEps1e3": 2,
       "singleEvaluation": {
-        "medianNsPerCall": 1315.1549690938582,
-        "minNsPerCall": 1310.6732491589846,
-        "maxNsPerCall": 1342.8827215756492,
+        "medianNsPerCall": 1460.9915262491477,
+        "minNsPerCall": 1430.8198597796538,
+        "maxNsPerCall": 1614.0313122074567,
         "vertices": 2
       },
       "amortised": [
@@ -646,28 +646,28 @@
           "reachable": false,
           "vertices": 2,
           "failed": 0,
-          "eps": 3.16227766016838e-05
+          "eps": 0.0000316227766016838
         },
         {
           "targetVertices": 1000,
           "reachable": false,
           "vertices": 2,
           "failed": 0,
-          "eps": 3.16227766016838e-05
+          "eps": 0.0000316227766016838
         },
         {
           "targetVertices": 10000,
           "reachable": false,
           "vertices": 2,
           "failed": 0,
-          "eps": 3.16227766016838e-05
+          "eps": 0.0000316227766016838
         },
         {
           "targetVertices": 100000,
           "reachable": false,
           "vertices": 2,
           "failed": 0,
-          "eps": 3.16227766016838e-05
+          "eps": 0.0000316227766016838
         }
       ]
     },
@@ -676,9 +676,9 @@
       "entities": 1,
       "vertsAtEps1e3": 5,
       "singleEvaluation": {
-        "medianNsPerCall": 2009.107956067506,
-        "minNsPerCall": 1996.1407944640362,
-        "maxNsPerCall": 2024.0183510997167,
+        "medianNsPerCall": 2080.5881129065815,
+        "minNsPerCall": 2069.9648105982196,
+        "maxNsPerCall": 2094.3870427254956,
         "vertices": 5
       },
       "amortised": [
@@ -687,28 +687,167 @@
           "reachable": false,
           "vertices": 5,
           "failed": 0,
-          "eps": 3.16227766016838e-05
+          "eps": 0.0000316227766016838
         },
         {
           "targetVertices": 1000,
           "reachable": false,
           "vertices": 5,
           "failed": 0,
-          "eps": 3.16227766016838e-05
+          "eps": 0.0000316227766016838
         },
         {
           "targetVertices": 10000,
           "reachable": false,
           "vertices": 5,
           "failed": 0,
-          "eps": 3.16227766016838e-05
+          "eps": 0.0000316227766016838
         },
         {
           "targetVertices": 100000,
           "reachable": false,
           "vertices": 5,
           "failed": 0,
-          "eps": 3.16227766016838e-05
+          "eps": 0.0000316227766016838
+        }
+      ]
+    },
+    {
+      "id": "nested-blocks-001",
+      "entities": 1,
+      "vertsAtEps1e3": 2,
+      "singleEvaluation": {
+        "medianNsPerCall": 1420.992800303145,
+        "minNsPerCall": 1395.6084852995907,
+        "maxNsPerCall": 1454.474934548628,
+        "vertices": 2
+      },
+      "amortised": [
+        {
+          "targetVertices": 100,
+          "reachable": false,
+          "vertices": 2,
+          "failed": 0,
+          "eps": 0.0000316227766016838
+        },
+        {
+          "targetVertices": 1000,
+          "reachable": false,
+          "vertices": 2,
+          "failed": 0,
+          "eps": 0.0000316227766016838
+        },
+        {
+          "targetVertices": 10000,
+          "reachable": false,
+          "vertices": 2,
+          "failed": 0,
+          "eps": 0.0000316227766016838
+        },
+        {
+          "targetVertices": 100000,
+          "reachable": false,
+          "vertices": 2,
+          "failed": 0,
+          "eps": 0.0000316227766016838
+        }
+      ]
+    },
+    {
+      "id": "nonuniform-scale-circle-001",
+      "entities": 1,
+      "vertsAtEps1e3": 177,
+      "singleEvaluation": {
+        "medianNsPerCall": 271000.0002384186,
+        "minNsPerCall": 269500.00047683716,
+        "maxNsPerCall": 272500,
+        "vertices": 177
+      },
+      "amortised": [
+        {
+          "targetVertices": 100,
+          "reachable": true,
+          "vertices": 100,
+          "failed": 0,
+          "eps": 0.0032680255352715653,
+          "nsPerVertex": 1520.202,
+          "nsPerCall": 152020
+        },
+        {
+          "targetVertices": 1000,
+          "reachable": true,
+          "vertices": 1000,
+          "failed": 0,
+          "eps": 0.0000396439363345989,
+          "nsPerVertex": 1535,
+          "nsPerCall": 1535000
+        },
+        {
+          "targetVertices": 10000,
+          "reachable": true,
+          "vertices": 10000,
+          "failed": 0,
+          "eps": 3.3419187655390696e-7,
+          "nsPerVertex": 1530,
+          "nsPerCall": 15300000
+        },
+        {
+          "targetVertices": 100000,
+          "reachable": true,
+          "vertices": 100000,
+          "failed": 0,
+          "eps": 3.1369853520342995e-9,
+          "nsPerVertex": 1793,
+          "nsPerCall": 179300000
+        }
+      ]
+    },
+    {
+      "id": "nonuniform-scale-rotated-001",
+      "entities": 1,
+      "vertsAtEps1e3": 177,
+      "singleEvaluation": {
+        "medianNsPerCall": 271999.99928474426,
+        "minNsPerCall": 271499.9997615814,
+        "maxNsPerCall": 273999.9997615814,
+        "vertices": 177
+      },
+      "amortised": [
+        {
+          "targetVertices": 100,
+          "reachable": true,
+          "vertices": 100,
+          "failed": 0,
+          "eps": 0.0032680255352715653,
+          "nsPerVertex": 1520.202,
+          "nsPerCall": 152020
+        },
+        {
+          "targetVertices": 1000,
+          "reachable": true,
+          "vertices": 1000,
+          "failed": 0,
+          "eps": 0.000039643936334203904,
+          "nsPerVertex": 1535,
+          "nsPerCall": 1535000
+        },
+        {
+          "targetVertices": 10000,
+          "reachable": true,
+          "vertices": 10000,
+          "failed": 0,
+          "eps": 3.341918764363304e-7,
+          "nsPerVertex": 1528,
+          "nsPerCall": 15280000
+        },
+        {
+          "targetVertices": 100000,
+          "reachable": true,
+          "vertices": 100000,
+          "failed": 0,
+          "eps": 3.136985387351614e-9,
+          "nsPerVertex": 1522.8,
+          "nsPerCall": 152280000
         }
       ]
     },
@@ -717,9 +856,9 @@
       "entities": 1,
       "vertsAtEps1e3": 35,
       "singleEvaluation": {
-        "medianNsPerCall": 52173.913043478264,
-        "minNsPerCall": 52083.333333333336,
-        "maxNsPerCall": 53191.48936170213,
+        "medianNsPerCall": 53380.78291814947,
+        "minNsPerCall": 53097.345132743365,
+        "maxNsPerCall": 53571.42857142857,
         "vertices": 35
       },
       "amortised": [
@@ -729,26 +868,26 @@
           "vertices": 100,
           "failed": 0,
           "eps": 0.00010954985735614054,
-          "nsPerVertex": 1584.211,
-          "nsPerCall": 158421
+          "nsPerVertex": 1614.973,
+          "nsPerCall": 161497
         },
         {
           "targetVertices": 1000,
           "reachable": true,
           "vertices": 1000,
           "failed": 0,
-          "eps": 1.0711398859640825e-06,
-          "nsPerVertex": 1657.895,
-          "nsPerCall": 1657895
+          "eps": 0.0000010711398859640825,
+          "nsPerVertex": 1663.158,
+          "nsPerCall": 1663158
         },
         {
           "targetVertices": 10000,
           "reachable": true,
           "vertices": 10000,
           "failed": 0,
-          "eps": 1.0866815534494037e-08,
-          "nsPerVertex": 1644,
-          "nsPerCall": 16440000
+          "eps": 1.0866815534494037e-8,
+          "nsPerVertex": 2166,
+          "nsPerCall": 21660000
         },
         {
           "targetVertices": 100000,
@@ -756,8 +895,8 @@
           "vertices": 100000,
           "failed": 0,
           "eps": 1.0964660610278462e-10,
-          "nsPerVertex": 1642.6,
-          "nsPerCall": 164260000
+          "nsPerVertex": 1668.8,
+          "nsPerCall": 166880000
         }
       ]
     },
@@ -766,9 +905,9 @@
       "entities": 1,
       "vertsAtEps1e3": 65,
       "singleEvaluation": {
-        "medianNsPerCall": 101351.35135135135,
-        "minNsPerCall": 101351.35135135135,
-        "maxNsPerCall": 101694.91525423729,
+        "medianNsPerCall": 103092.78350515464,
+        "minNsPerCall": 102040.8163265306,
+        "maxNsPerCall": 104529.61672473868,
         "vertices": 65
       },
       "amortised": [
@@ -778,15 +917,15 @@
           "vertices": 100,
           "failed": 0,
           "eps": 0.0004128128179862305,
-          "nsPerVertex": 1589.474,
-          "nsPerCall": 158947
+          "nsPerVertex": 1587.302,
+          "nsPerCall": 158730
         },
         {
           "targetVertices": 1000,
           "reachable": true,
           "vertices": 1000,
           "failed": 0,
-          "eps": 5.036373381642158e-06,
+          "eps": 0.000005036373381642158,
           "nsPerVertex": 1636.842,
           "nsPerCall": 1636842
         },
@@ -795,7 +934,7 @@
           "reachable": true,
           "vertices": 10000,
           "failed": 0,
-          "eps": 5.3414008642010515e-08,
+          "eps": 5.3414008642010515e-8,
           "nsPerVertex": 1640,
           "nsPerCall": 16400000
         },
@@ -805,8 +944,8 @@
           "vertices": 100000,
           "failed": 0,
           "eps": 3.94811478429744e-10,
-          "nsPerVertex": 1643,
-          "nsPerCall": 164300000
+          "nsPerVertex": 1668.6,
+          "nsPerCall": 166860000
         }
       ]
     },
@@ -815,9 +954,9 @@
       "entities": 1,
       "vertsAtEps1e3": 93,
       "singleEvaluation": {
-        "medianNsPerCall": 152500,
-        "minNsPerCall": 152000.00047683716,
-        "maxNsPerCall": 155000,
+        "medianNsPerCall": 155500.00071525574,
+        "minNsPerCall": 155000,
+        "maxNsPerCall": 156499.99976158142,
         "vertices": 93
       },
       "amortised": [
@@ -827,26 +966,26 @@
           "vertices": 100,
           "failed": 0,
           "eps": 0.0008078833037597063,
-          "nsPerVertex": 1648.352,
-          "nsPerCall": 164835
+          "nsPerVertex": 1675.978,
+          "nsPerCall": 167598
         },
         {
           "targetVertices": 1000,
           "reachable": true,
           "vertices": 1000,
           "failed": 0,
-          "eps": 9.002850438344173e-06,
-          "nsPerVertex": 1727.778,
-          "nsPerCall": 1727778
+          "eps": 0.000009002850438344173,
+          "nsPerVertex": 1733.333,
+          "nsPerCall": 1733333
         },
         {
           "targetVertices": 10000,
           "reachable": true,
           "vertices": 10000,
           "failed": 0,
-          "eps": 1.0962096658844882e-07,
-          "nsPerVertex": 1710,
-          "nsPerCall": 17100000
+          "eps": 1.0962096658844882e-7,
+          "nsPerVertex": 1736,
+          "nsPerCall": 17360000
         },
         {
           "targetVertices": 100000,
@@ -854,8 +993,8 @@
           "vertices": 100000,
           "failed": 0,
           "eps": 7.946057978835607e-10,
-          "nsPerVertex": 1708.4,
-          "nsPerCall": 170840000
+          "nsPerVertex": 1737.8,
+          "nsPerCall": 173780000
         }
       ]
     },
@@ -864,9 +1003,9 @@
       "entities": 1,
       "vertsAtEps1e3": 5,
       "singleEvaluation": {
-        "medianNsPerCall": 2002.4028834601522,
-        "minNsPerCall": 1963.0938358853552,
-        "maxNsPerCall": 2013.5579569098597,
+        "medianNsPerCall": 2068.8228398041515,
+        "minNsPerCall": 2067.397146991937,
+        "maxNsPerCall": 2092.3420281768726,
         "vertices": 5
       },
       "amortised": [
@@ -875,28 +1014,28 @@
           "reachable": false,
           "vertices": 5,
           "failed": 0,
-          "eps": 3.16227766016838e-05
+          "eps": 0.0000316227766016838
         },
         {
           "targetVertices": 1000,
           "reachable": false,
           "vertices": 5,
           "failed": 0,
-          "eps": 3.16227766016838e-05
+          "eps": 0.0000316227766016838
         },
         {
           "targetVertices": 10000,
           "reachable": false,
           "vertices": 5,
           "failed": 0,
-          "eps": 3.16227766016838e-05
+          "eps": 0.0000316227766016838
         },
         {
           "targetVertices": 100000,
           "reachable": false,
           "vertices": 5,
           "failed": 0,
-          "eps": 3.16227766016838e-05
+          "eps": 0.0000316227766016838
         }
       ]
     },
@@ -905,9 +1044,9 @@
       "entities": 1,
       "vertsAtEps1e3": 5,
       "singleEvaluation": {
-        "medianNsPerCall": 1970.0551615445233,
-        "minNsPerCall": 1964.7652105573384,
-        "maxNsPerCall": 2001.0672358591248,
+        "medianNsPerCall": 2057.189878625797,
+        "minNsPerCall": 2046.5243195306637,
+        "maxNsPerCall": 2089.7185845639456,
         "vertices": 5
       },
       "amortised": [
@@ -916,28 +1055,77 @@
           "reachable": false,
           "vertices": 5,
           "failed": 0,
-          "eps": 3.16227766016838e-05
+          "eps": 0.0000316227766016838
         },
         {
           "targetVertices": 1000,
           "reachable": false,
           "vertices": 5,
           "failed": 0,
-          "eps": 3.16227766016838e-05
+          "eps": 0.0000316227766016838
         },
         {
           "targetVertices": 10000,
           "reachable": false,
           "vertices": 5,
           "failed": 0,
-          "eps": 3.16227766016838e-05
+          "eps": 0.0000316227766016838
         },
         {
           "targetVertices": 100000,
           "reachable": false,
           "vertices": 5,
           "failed": 0,
-          "eps": 3.16227766016838e-05
+          "eps": 0.0000316227766016838
+        }
+      ]
+    },
+    {
+      "id": "reflection-001",
+      "entities": 1,
+      "vertsAtEps1e3": 33,
+      "singleEvaluation": {
+        "medianNsPerCall": 49423.39373970346,
+        "minNsPerCall": 49099.836333878884,
+        "maxNsPerCall": 49586.776859504134,
+        "vertices": 33
+      },
+      "amortised": [
+        {
+          "targetVertices": 100,
+          "reachable": true,
+          "vertices": 100,
+          "failed": 0,
+          "eps": 0.00021196271378501333,
+          "nsPerVertex": 1530.612,
+          "nsPerCall": 153061
+        },
+        {
+          "targetVertices": 1000,
+          "reachable": true,
+          "vertices": 1000,
+          "failed": 0,
+          "eps": 0.0000033119905305064914,
+          "nsPerVertex": 1560,
+          "nsPerCall": 1560000
+        },
+        {
+          "targetVertices": 10000,
+          "reachable": true,
+          "vertices": 10000,
+          "failed": 0,
+          "eps": 1.2937467678091866e-8,
+          "nsPerVertex": 1578,
+          "nsPerCall": 15780000
+        },
+        {
+          "targetVertices": 100000,
+          "reachable": true,
+          "vertices": 100000,
+          "failed": 0,
+          "eps": 2.0214791822141295e-10,
+          "nsPerVertex": 1577.4,
+          "nsPerCall": 157740000
         }
       ]
     },
@@ -946,9 +1134,9 @@
       "entities": 1,
       "vertsAtEps1e3": 111,
       "singleEvaluation": {
-        "medianNsPerCall": 179500.00047683716,
-        "minNsPerCall": 179000.00095367432,
-        "maxNsPerCall": 180000,
+        "medianNsPerCall": 182999.99952316284,
+        "minNsPerCall": 182500,
+        "maxNsPerCall": 183500.00023841858,
         "vertices": 111
       },
       "amortised": [
@@ -958,35 +1146,76 @@
           "vertices": 99,
           "failed": 0,
           "eps": 0.0016697684466455626,
-          "nsPerVertex": 1611.863,
-          "nsPerCall": 159574
+          "nsPerVertex": 1643.462,
+          "nsPerCall": 162703
         },
         {
           "targetVertices": 1000,
           "reachable": true,
           "vertices": 1000,
           "failed": 0,
-          "eps": 8.26738726643307e-06,
-          "nsPerVertex": 1657.895,
-          "nsPerCall": 1657895
+          "eps": 0.00000826738726643307,
+          "nsPerVertex": 1688.889,
+          "nsPerCall": 1688889
         },
         {
           "targetVertices": 10000,
           "reachable": true,
           "vertices": 10000,
           "failed": 0,
-          "eps": 1.2006503397868958e-07,
-          "nsPerVertex": 1662,
-          "nsPerCall": 16620000
+          "eps": 1.2006503397868958e-7,
+          "nsPerVertex": 1704,
+          "nsPerCall": 17040000
         },
         {
           "targetVertices": 100000,
           "reachable": true,
           "vertices": 100001,
           "failed": 0,
-          "eps": 1.537979984728295e-09,
-          "nsPerVertex": 1662.983,
-          "nsPerCall": 166300000
+          "eps": 1.537979984728295e-9,
+          "nsPerVertex": 2140.579,
+          "nsPerCall": 214060000
+        }
+      ]
+    },
+    {
+      "id": "rotation-irrational-001",
+      "entities": 1,
+      "vertsAtEps1e3": 2,
+      "singleEvaluation": {
+        "medianNsPerCall": 3106.5548306927617,
+        "minNsPerCall": 3081.980686254366,
+        "maxNsPerCall": 3124.349093938763,
+        "vertices": 2
+      },
+      "amortised": [
+        {
+          "targetVertices": 100,
+          "reachable": false,
+          "vertices": 2,
+          "failed": 0,
+          "eps": 0.0000316227766016838
+        },
+        {
+          "targetVertices": 1000,
+          "reachable": false,
+          "vertices": 2,
+          "failed": 0,
+          "eps": 0.0000316227766016838
+        },
+        {
+          "targetVertices": 10000,
+          "reachable": false,
+          "vertices": 2,
+          "failed": 0,
+          "eps": 0.0000316227766016838
+        },
+        {
+          "targetVertices": 100000,
+          "reachable": false,
+          "vertices": 2,
+          "failed": 0,
+          "eps": 0.0000316227766016838
         }
       ]
     },
@@ -995,9 +1224,9 @@
       "entities": 1,
       "vertsAtEps1e3": 2,
       "singleEvaluation": {
-        "medianNsPerCall": 1753.0532343832174,
-        "minNsPerCall": 1727.01629152035,
-        "maxNsPerCall": 1812.031891761295,
+        "medianNsPerCall": 3464.6033029218156,
+        "minNsPerCall": 3434.065934065934,
+        "maxNsPerCall": 3509.592887225082,
         "vertices": 2
       },
       "amortised": [
@@ -1006,9 +1235,9 @@
           "reachable": true,
           "vertices": 100,
           "failed": 0,
-          "eps": 1.2647709840184201e-08,
-          "nsPerVertex": 1505,
-          "nsPerCall": 150500
+          "eps": 1.2647709840184201e-8,
+          "nsPerVertex": 2272.727,
+          "nsPerCall": 227273
         },
         {
           "targetVertices": 1000,
@@ -1025,8 +1254,8 @@
           "vertices": 10001,
           "failed": 0,
           "eps": 7.721355835566244e-13,
-          "nsPerVertex": 1517.848,
-          "nsPerCall": 15180000
+          "nsPerVertex": 1525.847,
+          "nsPerCall": 15260000
         },
         {
           "targetVertices": 100000,
@@ -1034,8 +1263,57 @@
           "vertices": 100001,
           "failed": 0,
           "eps": 1.206200166565108e-14,
-          "nsPerVertex": 1516.385,
-          "nsPerCall": 151640000
+          "nsPerVertex": 1734.783,
+          "nsPerCall": 173480000
+        }
+      ]
+    },
+    {
+      "id": "uniform-scale-001",
+      "entities": 1,
+      "vertsAtEps1e3": 257,
+      "singleEvaluation": {
+        "medianNsPerCall": 392500,
+        "minNsPerCall": 392000.00047683716,
+        "maxNsPerCall": 393499.9990463257,
+        "vertices": 257
+      },
+      "amortised": [
+        {
+          "targetVertices": 100,
+          "reachable": true,
+          "vertices": 101,
+          "failed": 0,
+          "eps": 0.004742891192133649,
+          "nsPerVertex": 1500.15,
+          "nsPerCall": 151515
+        },
+        {
+          "targetVertices": 1000,
+          "reachable": true,
+          "vertices": 1000,
+          "failed": 0,
+          "eps": 0.00007412232475735304,
+          "nsPerVertex": 1530,
+          "nsPerCall": 1530000
+        },
+        {
+          "targetVertices": 10000,
+          "reachable": true,
+          "vertices": 10000,
+          "failed": 0,
+          "eps": 2.895412362302586e-7,
+          "nsPerVertex": 1568,
+          "nsPerCall": 15680000
+        },
+        {
+          "targetVertices": 100000,
+          "reachable": true,
+          "vertices": 100000,
+          "failed": 0,
+          "eps": 4.524081843978672e-9,
+          "nsPerVertex": 1539.6,
+          "nsPerCall": 153960000
         }
       ]
     }
@@ -1044,8 +1322,8 @@
     {
       "id": "architectural-1e5",
       "fileBytes": 1810416,
-      "openMs": 65.3,
-      "queryAllMs": 0.8,
+      "openMs": 46.9,
+      "queryAllMs": 0.7,
       "entities": 100000,
       "extent": [
         -6548.238,
@@ -1056,17 +1334,9 @@
       "viewports": [
         {
           "fraction": 1,
-          "queryMs": 0.5,
+          "queryMs": 0.7,
           "entities": 100000,
           "f64": {
-            "tessellateMs": 149.1,
-            "vertices": 288587,
-            "failed": 0,
-            "nsPerEntity": 1491,
-            "nsPerVertex": 517,
-            "wasmPagesGrown": 0
-          },
-          "f32": {
             "tessellateMs": 150,
             "vertices": 288587,
             "failed": 0,
@@ -1074,38 +1344,46 @@
             "nsPerVertex": 520,
             "wasmPagesGrown": 0
           },
+          "f32": {
+            "tessellateMs": 150.8,
+            "vertices": 288587,
+            "failed": 0,
+            "nsPerEntity": 1508,
+            "nsPerVertex": 523,
+            "wasmPagesGrown": 0
+          },
           "heap": {
             "calls": 50,
             "entitiesPerCall": 100000,
-            "growthBytes": -1765456,
+            "growthBytes": -1767856,
             "afterGcBytes": -1812632,
-            "bytesPerEntity": -0.35309
+            "bytesPerEntity": -0.35357
           }
         },
         {
           "fraction": 0.25,
-          "queryMs": 0.5,
+          "queryMs": 0.6,
           "entities": 11553,
           "f64": {
-            "tessellateMs": 29.9,
+            "tessellateMs": 37.1,
             "vertices": 40605,
             "failed": 0,
-            "nsPerEntity": 2588,
-            "nsPerVertex": 736,
+            "nsPerEntity": 3211,
+            "nsPerVertex": 914,
             "wasmPagesGrown": 0
           },
           "f32": {
-            "tessellateMs": 30.2,
+            "tessellateMs": 30.3,
             "vertices": 40605,
             "failed": 0,
-            "nsPerEntity": 2614,
-            "nsPerVertex": 744,
+            "nsPerEntity": 2623,
+            "nsPerVertex": 746,
             "wasmPagesGrown": 0
           }
         },
         {
           "fraction": 0.05,
-          "queryMs": 0.3,
+          "queryMs": 0.7,
           "entities": 607,
           "f64": {
             "tessellateMs": 2.4,
@@ -1129,8 +1407,8 @@
     {
       "id": "architectural-1e6",
       "fileBytes": 17824896,
-      "openMs": 659.6,
-      "queryAllMs": 8.2,
+      "openMs": 679.7,
+      "queryAllMs": 7.8,
       "entities": 1000000,
       "extent": [
         -5942.31,
@@ -1141,71 +1419,71 @@
       "viewports": [
         {
           "fraction": 1,
-          "queryMs": 8.3,
+          "queryMs": 8.2,
           "entities": 1000000,
           "f64": {
-            "tessellateMs": 959.2,
+            "tessellateMs": 975.6,
             "vertices": 2608762,
             "failed": 0,
-            "nsPerEntity": 959,
-            "nsPerVertex": 368,
-            "wasmPagesGrown": 0
+            "nsPerEntity": 976,
+            "nsPerVertex": 374,
+            "wasmPagesGrown": 1025
           },
           "f32": {
-            "tessellateMs": 967.3,
+            "tessellateMs": 969.5,
             "vertices": 2608762,
             "failed": 0,
-            "nsPerEntity": 967,
-            "nsPerVertex": 371,
+            "nsPerEntity": 970,
+            "nsPerVertex": 372,
             "wasmPagesGrown": 0
           },
           "heap": {
             "calls": 50,
             "entitiesPerCall": 1000000,
-            "growthBytes": -17780240,
-            "afterGcBytes": -17819400,
-            "bytesPerEntity": -0.3556
+            "growthBytes": 41096,
+            "afterGcBytes": 5736,
+            "bytesPerEntity": 0.00082
           }
         },
         {
           "fraction": 0.25,
-          "queryMs": 6.6,
+          "queryMs": 10.1,
           "entities": 102465,
           "f64": {
-            "tessellateMs": 164.2,
+            "tessellateMs": 215.1,
             "vertices": 302419,
             "failed": 0,
-            "nsPerEntity": 1602,
-            "nsPerVertex": 543,
+            "nsPerEntity": 2099,
+            "nsPerVertex": 711,
             "wasmPagesGrown": 0
           },
           "f32": {
-            "tessellateMs": 164.6,
+            "tessellateMs": 230.6,
             "vertices": 302419,
             "failed": 0,
-            "nsPerEntity": 1606,
-            "nsPerVertex": 544,
+            "nsPerEntity": 2251,
+            "nsPerVertex": 763,
             "wasmPagesGrown": 0
           }
         },
         {
           "fraction": 0.05,
-          "queryMs": 5.6,
+          "queryMs": 11.8,
           "entities": 4588,
           "f64": {
-            "tessellateMs": 14.6,
+            "tessellateMs": 17.5,
             "vertices": 17494,
             "failed": 0,
-            "nsPerEntity": 3182,
-            "nsPerVertex": 835,
+            "nsPerEntity": 3814,
+            "nsPerVertex": 1000,
             "wasmPagesGrown": 0
           },
           "f32": {
-            "tessellateMs": 14.6,
+            "tessellateMs": 19.3,
             "vertices": 17494,
             "failed": 0,
-            "nsPerEntity": 3182,
-            "nsPerVertex": 835,
+            "nsPerEntity": 4207,
+            "nsPerVertex": 1103,
             "wasmPagesGrown": 0
           }
         }
@@ -1214,8 +1492,8 @@
     {
       "id": "mep-1e5",
       "fileBytes": 2370104,
-      "openMs": 69.4,
-      "queryAllMs": 0.8,
+      "openMs": 46.4,
+      "queryAllMs": 0.5,
       "entities": 100000,
       "extent": [
         -12906.153,
@@ -1226,63 +1504,63 @@
       "viewports": [
         {
           "fraction": 1,
-          "queryMs": 0.9,
+          "queryMs": 0.8,
           "entities": 100000,
           "f64": {
-            "tessellateMs": 272.3,
+            "tessellateMs": 287.7,
             "vertices": 397384,
             "failed": 0,
-            "nsPerEntity": 2723,
-            "nsPerVertex": 685,
+            "nsPerEntity": 2877,
+            "nsPerVertex": 724,
             "wasmPagesGrown": 0
           },
           "f32": {
-            "tessellateMs": 270.9,
+            "tessellateMs": 337.2,
             "vertices": 397384,
             "failed": 0,
-            "nsPerEntity": 2709,
-            "nsPerVertex": 682,
+            "nsPerEntity": 3372,
+            "nsPerVertex": 849,
             "wasmPagesGrown": 0
           },
           "heap": {
             "calls": 50,
             "entitiesPerCall": 100000,
-            "growthBytes": 44776,
+            "growthBytes": 42376,
             "afterGcBytes": 5572,
-            "bytesPerEntity": 0.00896
+            "bytesPerEntity": 0.00848
           }
         },
         {
           "fraction": 0.25,
-          "queryMs": 0.9,
+          "queryMs": 0.8,
           "entities": 11212,
           "f64": {
-            "tessellateMs": 63,
+            "tessellateMs": 58.4,
             "vertices": 60714,
             "failed": 0,
-            "nsPerEntity": 5619,
-            "nsPerVertex": 1038,
+            "nsPerEntity": 5209,
+            "nsPerVertex": 962,
             "wasmPagesGrown": 0
           },
           "f32": {
-            "tessellateMs": 62,
+            "tessellateMs": 58.3,
             "vertices": 60714,
             "failed": 0,
-            "nsPerEntity": 5530,
-            "nsPerVertex": 1021,
+            "nsPerEntity": 5200,
+            "nsPerVertex": 960,
             "wasmPagesGrown": 0
           }
         },
         {
           "fraction": 0.05,
-          "queryMs": 0.7,
+          "queryMs": 0.8,
           "entities": 582,
           "f64": {
-            "tessellateMs": 6.7,
+            "tessellateMs": 5.5,
             "vertices": 4861,
             "failed": 0,
-            "nsPerEntity": 11512,
-            "nsPerVertex": 1378,
+            "nsPerEntity": 9450,
+            "nsPerVertex": 1131,
             "wasmPagesGrown": 0
           },
           "f32": {
@@ -1299,7 +1577,7 @@
     {
       "id": "pathological-1e3",
       "fileBytes": 757488,
-      "openMs": 8.4,
+      "openMs": 4.9,
       "queryAllMs": 0,
       "entities": 917,
       "extent": [
@@ -1314,27 +1592,27 @@
           "queryMs": 0,
           "entities": 917,
           "f64": {
-            "tessellateMs": 52.8,
+            "tessellateMs": 51.7,
             "vertices": 42561,
             "failed": 0,
-            "nsPerEntity": 57579,
-            "nsPerVertex": 1241,
+            "nsPerEntity": 56379,
+            "nsPerVertex": 1215,
             "wasmPagesGrown": 0
           },
           "f32": {
-            "tessellateMs": 52.3,
+            "tessellateMs": 51.8,
             "vertices": 42561,
             "failed": 0,
-            "nsPerEntity": 57034,
-            "nsPerVertex": 1229,
+            "nsPerEntity": 56489,
+            "nsPerVertex": 1217,
             "wasmPagesGrown": 0
           },
           "heap": {
             "calls": 50,
             "entitiesPerCall": 917,
-            "growthBytes": 44776,
-            "afterGcBytes": 5720,
-            "bytesPerEntity": 0.97658
+            "growthBytes": -2327728,
+            "afterGcBytes": -2364384,
+            "bytesPerEntity": -50.76833
           }
         },
         {
@@ -1342,11 +1620,11 @@
           "queryMs": 0,
           "entities": 57,
           "f64": {
-            "tessellateMs": 0.1,
+            "tessellateMs": 0.2,
             "vertices": 198,
             "failed": 0,
-            "nsPerEntity": 1754,
-            "nsPerVertex": 505,
+            "nsPerEntity": 3509,
+            "nsPerVertex": 1010,
             "wasmPagesGrown": 0
           },
           "f32": {
@@ -1360,7 +1638,7 @@
         },
         {
           "fraction": 0.05,
-          "queryMs": 0.1,
+          "queryMs": 0,
           "entities": 0,
           "f64": {
             "tessellateMs": 0,
@@ -1384,8 +1662,8 @@
     {
       "id": "spline-heavy-1e5",
       "fileBytes": 12341936,
-      "openMs": 328.3,
-      "queryAllMs": 0.6,
+      "openMs": 183.2,
+      "queryAllMs": 0.5,
       "entities": 100000,
       "extent": [
         -4522.676,
@@ -1396,63 +1674,63 @@
       "viewports": [
         {
           "fraction": 1,
-          "queryMs": 0.8,
+          "queryMs": 0.9,
           "entities": 100000,
           "f64": {
-            "tessellateMs": 1197.6,
+            "tessellateMs": 1204.1,
             "vertices": 1007892,
             "failed": 0,
-            "nsPerEntity": 11976,
-            "nsPerVertex": 1188,
+            "nsPerEntity": 12041,
+            "nsPerVertex": 1195,
             "wasmPagesGrown": 0
           },
           "f32": {
-            "tessellateMs": 1206.8,
+            "tessellateMs": 1207.1,
             "vertices": 1007892,
             "failed": 0,
-            "nsPerEntity": 12068,
-            "nsPerVertex": 1197,
+            "nsPerEntity": 12071,
+            "nsPerVertex": 1198,
             "wasmPagesGrown": 0
           },
           "heap": {
             "calls": 50,
             "entitiesPerCall": 100000,
-            "growthBytes": -712712,
+            "growthBytes": -715112,
             "afterGcBytes": -751916,
-            "bytesPerEntity": -0.14254
+            "bytesPerEntity": -0.14302
           }
         },
         {
           "fraction": 0.25,
-          "queryMs": 0.6,
+          "queryMs": 1,
           "entities": 7427,
           "f64": {
-            "tessellateMs": 200,
+            "tessellateMs": 197.7,
             "vertices": 127454,
             "failed": 0,
-            "nsPerEntity": 26929,
-            "nsPerVertex": 1569,
+            "nsPerEntity": 26619,
+            "nsPerVertex": 1551,
             "wasmPagesGrown": 0
           },
           "f32": {
-            "tessellateMs": 198.4,
+            "tessellateMs": 196.8,
             "vertices": 127454,
             "failed": 0,
-            "nsPerEntity": 26713,
-            "nsPerVertex": 1557,
+            "nsPerEntity": 26498,
+            "nsPerVertex": 1544,
             "wasmPagesGrown": 0
           }
         },
         {
           "fraction": 0.05,
-          "queryMs": 0.7,
+          "queryMs": 0.6,
           "entities": 385,
           "f64": {
-            "tessellateMs": 26.7,
+            "tessellateMs": 27,
             "vertices": 14854,
             "failed": 0,
-            "nsPerEntity": 69351,
-            "nsPerVertex": 1797,
+            "nsPerEntity": 70130,
+            "nsPerVertex": 1818,
             "wasmPagesGrown": 0
           },
           "f32": {
@@ -1477,7 +1755,7 @@
         2.9983482546734983,
         1.9709597961563672
       ],
-      "referenceBudget": 4.087580772867543e-07,
+      "referenceBudget": 4.087580772867543e-7,
       "previews": [
         {
           "declaredErrorWorld": 0.40875807728675434,
@@ -1523,7 +1801,7 @@
         4,
         1.875
       ],
-      "referenceBudget": 4e-07,
+      "referenceBudget": 4e-7,
       "previews": [
         {
           "declaredErrorWorld": 0.4,
@@ -1569,7 +1847,7 @@
         7,
         1.3235344050480768
       ],
-      "referenceBudget": 7e-07,
+      "referenceBudget": 7e-7,
       "previews": [
         {
           "declaredErrorWorld": 0.7000000000000001,
@@ -1615,7 +1893,7 @@
         8,
         1.4958043163023953
       ],
-      "referenceBudget": 8e-07,
+      "referenceBudget": 8e-7,
       "previews": [
         {
           "declaredErrorWorld": 0.8,
@@ -1661,7 +1939,7 @@
         4.5,
         2.25
       ],
-      "referenceBudget": 3.500000000000001e-07,
+      "referenceBudget": 3.500000000000001e-7,
       "previews": [
         {
           "declaredErrorWorld": 0.3500000000000001,
@@ -1707,7 +1985,7 @@
         3,
         2.5000000000000036
       ],
-      "referenceBudget": 3.500000000000003e-07,
+      "referenceBudget": 3.500000000000003e-7,
       "previews": [
         {
           "declaredErrorWorld": 0.3500000000000003,
@@ -1753,7 +2031,7 @@
         4.25,
         0.5
       ],
-      "referenceBudget": 5.5e-07,
+      "referenceBudget": 5.5e-7,
       "previews": [
         {
           "declaredErrorWorld": 0.55,
@@ -1799,7 +2077,7 @@
         5.538899739583334,
         3.0507100423177085
       ],
-      "referenceBudget": 5.538899739583333e-07,
+      "referenceBudget": 5.538899739583333e-7,
       "previews": [
         {
           "declaredErrorWorld": 0.5538899739583334,
@@ -1845,7 +2123,7 @@
         2.45,
         2.5458333333333334
       ],
-      "referenceBudget": 5.017380952380952e-07,
+      "referenceBudget": 5.017380952380952e-7,
       "previews": [
         {
           "declaredErrorWorld": 0.5017380952380952,
@@ -1891,7 +2169,7 @@
         4.9949505132246355,
         3.944707532464335
       ],
-      "referenceBudget": 5.98990102644927e-07,
+      "referenceBudget": 5.98990102644927e-7,
       "previews": [
         {
           "declaredErrorWorld": 0.598990102644927,
@@ -1937,7 +2215,7 @@
         4.50809685455813,
         3.944215237164549
       ],
-      "referenceBudget": 5.308052736359676e-07,
+      "referenceBudget": 5.308052736359676e-7,
       "previews": [
         {
           "declaredErrorWorld": 0.5308052736359676,
@@ -1986,7 +2264,7 @@
       "referenceBudget": 2.9999949038028714e-11,
       "previews": [
         {
-          "declaredErrorWorld": 2.9999949038028718e-05,
+          "declaredErrorWorld": 0.000029999949038028718,
           "measuredMaxWorld": 0,
           "ratio": 0,
           "entitiesChecked": 1,
@@ -1995,7 +2273,7 @@
           "referenceVertices": 161063
         },
         {
-          "declaredErrorWorld": 2.999994903802872e-06,
+          "declaredErrorWorld": 0.000002999994903802872,
           "measuredMaxWorld": 0,
           "ratio": 0,
           "entitiesChecked": 1,
@@ -2004,7 +2282,7 @@
           "referenceVertices": 161063
         },
         {
-          "declaredErrorWorld": 2.999994903802872e-07,
+          "declaredErrorWorld": 2.999994903802872e-7,
           "measuredMaxWorld": 0,
           "ratio": 0,
           "entitiesChecked": 1,
@@ -2029,7 +2307,7 @@
         5.5,
         5
       ],
-      "referenceBudget": 5.5e-07,
+      "referenceBudget": 5.5e-7,
       "previews": [
         {
           "declaredErrorWorld": 0.55,
@@ -2075,7 +2353,7 @@
         3.75,
         2.5
       ],
-      "referenceBudget": 3.2499999999999996e-07,
+      "referenceBudget": 3.2499999999999996e-7,
       "previews": [
         {
           "declaredErrorWorld": 0.325,
@@ -2121,7 +2399,7 @@
         5,
         3.75
       ],
-      "referenceBudget": 6e-07,
+      "referenceBudget": 6e-7,
       "previews": [
         {
           "declaredErrorWorld": 0.6000000000000001,
@@ -2159,6 +2437,144 @@
       }
     },
     {
+      "id": "nested-blocks-001",
+      "entities": 1,
+      "extent": [
+        1.5,
+        2,
+        3.75,
+        8.5
+      ],
+      "referenceBudget": 6.499999999999999e-7,
+      "previews": [
+        {
+          "declaredErrorWorld": 0.65,
+          "measuredMaxWorld": 0,
+          "ratio": 0,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 2,
+          "referenceVertices": 2
+        },
+        {
+          "declaredErrorWorld": 0.065,
+          "measuredMaxWorld": 0,
+          "ratio": 0,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 2,
+          "referenceVertices": 2
+        },
+        {
+          "declaredErrorWorld": 0.006500000000000001,
+          "measuredMaxWorld": 0,
+          "ratio": 0,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 2,
+          "referenceVertices": 2
+        }
+      ],
+      "coverage": {
+        "boxes": 8,
+        "entitiesMeetingBox": 3,
+        "missing": 0,
+        "extraKept": 5
+      }
+    },
+    {
+      "id": "nonuniform-scale-circle-001",
+      "entities": 1,
+      "extent": [
+        -3,
+        -1,
+        9,
+        3
+      ],
+      "referenceBudget": 0.0000012,
+      "previews": [
+        {
+          "declaredErrorWorld": 1.2000000000000002,
+          "measuredMaxWorld": 0.7859149768987203,
+          "ratio": 0.6549,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 5,
+          "referenceVertices": 5217
+        },
+        {
+          "declaredErrorWorld": 0.12,
+          "measuredMaxWorld": 0.10094069200491701,
+          "ratio": 0.8412,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 17,
+          "referenceVertices": 5217
+        },
+        {
+          "declaredErrorWorld": 0.012,
+          "measuredMaxWorld": 0.01075065698913108,
+          "ratio": 0.8959,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 53,
+          "referenceVertices": 5217
+        }
+      ],
+      "coverage": {
+        "boxes": 8,
+        "entitiesMeetingBox": 3,
+        "missing": 0,
+        "extraKept": 5
+      }
+    },
+    {
+      "id": "nonuniform-scale-rotated-001",
+      "entities": 1,
+      "extent": [
+        -2.9382598088247756,
+        -1.94187773235486,
+        4.938259808824776,
+        7.94187773235486
+      ],
+      "referenceBudget": 9.88375546470972e-7,
+      "previews": [
+        {
+          "declaredErrorWorld": 0.988375546470972,
+          "measuredMaxWorld": 0.7859149768987203,
+          "ratio": 0.7952,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 5,
+          "referenceVertices": 5649
+        },
+        {
+          "declaredErrorWorld": 0.0988375546470972,
+          "measuredMaxWorld": 0.061896555943892526,
+          "ratio": 0.6262,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 21,
+          "referenceVertices": 5649
+        },
+        {
+          "declaredErrorWorld": 0.009883755464709721,
+          "measuredMaxWorld": 0.007158649871464499,
+          "ratio": 0.7243,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 65,
+          "referenceVertices": 5649
+        }
+      ],
+      "coverage": {
+        "boxes": 8,
+        "entitiesMeetingBox": 2,
+        "missing": 0,
+        "extraKept": 6
+      }
+    },
+    {
       "id": "nonunit-weight-001",
       "entities": 1,
       "extent": [
@@ -2167,7 +2583,7 @@
         4,
         2.9854273487798295
       ],
-      "referenceBudget": 4e-07,
+      "referenceBudget": 4e-7,
       "previews": [
         {
           "declaredErrorWorld": 0.4,
@@ -2213,7 +2629,7 @@
         5,
         1.9187777074097532
       ],
-      "referenceBudget": 5e-07,
+      "referenceBudget": 5e-7,
       "previews": [
         {
           "declaredErrorWorld": 0.5,
@@ -2245,9 +2661,9 @@
       ],
       "coverage": {
         "boxes": 8,
-        "entitiesMeetingBox": 2,
+        "entitiesMeetingBox": 3,
         "missing": 0,
-        "extraKept": 6
+        "extraKept": 5
       }
     },
     {
@@ -2259,7 +2675,7 @@
         7,
         2
       ],
-      "referenceBudget": 7e-07,
+      "referenceBudget": 7e-7,
       "previews": [
         {
           "declaredErrorWorld": 0.7000000000000001,
@@ -2291,9 +2707,9 @@
       ],
       "coverage": {
         "boxes": 8,
-        "entitiesMeetingBox": 2,
+        "entitiesMeetingBox": 4,
         "missing": 0,
-        "extraKept": 6
+        "extraKept": 4
       }
     },
     {
@@ -2305,53 +2721,7 @@
         4,
         3.25
       ],
-      "referenceBudget": 5.5e-07,
-      "previews": [
-        {
-          "declaredErrorWorld": 0.55,
-          "measuredMaxWorld": 0,
-          "ratio": 0,
-          "entitiesChecked": 1,
-          "withinDeclared": true,
-          "vertices": 5,
-          "referenceVertices": 5
-        },
-        {
-          "declaredErrorWorld": 0.055,
-          "measuredMaxWorld": 0,
-          "ratio": 0,
-          "entitiesChecked": 1,
-          "withinDeclared": true,
-          "vertices": 5,
-          "referenceVertices": 5
-        },
-        {
-          "declaredErrorWorld": 0.0055,
-          "measuredMaxWorld": 0,
-          "ratio": 0,
-          "entitiesChecked": 1,
-          "withinDeclared": true,
-          "vertices": 5,
-          "referenceVertices": 5
-        }
-      ],
-      "coverage": {
-        "boxes": 8,
-        "entitiesMeetingBox": 4,
-        "missing": 0,
-        "extraKept": 4
-      }
-    },
-    {
-      "id": "polyline2d-001",
-      "entities": 1,
-      "extent": [
-        -2,
-        -1.75,
-        3.5,
-        3
-      ],
-      "referenceBudget": 5.5e-07,
+      "referenceBudget": 5.5e-7,
       "previews": [
         {
           "declaredErrorWorld": 0.55,
@@ -2389,6 +2759,98 @@
       }
     },
     {
+      "id": "polyline2d-001",
+      "entities": 1,
+      "extent": [
+        -2,
+        -1.75,
+        3.5,
+        3
+      ],
+      "referenceBudget": 5.5e-7,
+      "previews": [
+        {
+          "declaredErrorWorld": 0.55,
+          "measuredMaxWorld": 0,
+          "ratio": 0,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 5,
+          "referenceVertices": 5
+        },
+        {
+          "declaredErrorWorld": 0.055,
+          "measuredMaxWorld": 0,
+          "ratio": 0,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 5,
+          "referenceVertices": 5
+        },
+        {
+          "declaredErrorWorld": 0.0055,
+          "measuredMaxWorld": 0,
+          "ratio": 0,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 5,
+          "referenceVertices": 5
+        }
+      ],
+      "coverage": {
+        "boxes": 8,
+        "entitiesMeetingBox": 3,
+        "missing": 0,
+        "extraKept": 5
+      }
+    },
+    {
+      "id": "reflection-001",
+      "entities": 1,
+      "extent": [
+        -3.3815914910043277,
+        1.5841275134629758,
+        -0.7982845766795994,
+        2.4999180412837605
+      ],
+      "referenceBudget": 2.583306914324728e-7,
+      "previews": [
+        {
+          "declaredErrorWorld": 0.25833069143247284,
+          "measuredMaxWorld": 0.2020140875655885,
+          "ratio": 0.782,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 3,
+          "referenceVertices": 2049
+        },
+        {
+          "declaredErrorWorld": 0.025833069143247282,
+          "measuredMaxWorld": 0.01290138536837519,
+          "ratio": 0.4994,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 9,
+          "referenceVertices": 2049
+        },
+        {
+          "declaredErrorWorld": 0.0025833069143247284,
+          "measuredMaxWorld": 0.0008074226699697241,
+          "ratio": 0.3126,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 33,
+          "referenceVertices": 2049
+        }
+      ],
+      "coverage": {
+        "boxes": 8,
+        "entitiesMeetingBox": 2,
+        "missing": 0,
+        "extraKept": 6
+      }
+    },
+    {
       "id": "repeated-knot-c0-001",
       "entities": 1,
       "extent": [
@@ -2397,7 +2859,7 @@
         6,
         1.5
       ],
-      "referenceBudget": 6e-07,
+      "referenceBudget": 6e-7,
       "previews": [
         {
           "declaredErrorWorld": 0.6000000000000001,
@@ -2425,6 +2887,52 @@
           "withinDeclared": true,
           "vertices": 51,
           "referenceVertices": 3725
+        }
+      ],
+      "coverage": {
+        "boxes": 8,
+        "entitiesMeetingBox": 4,
+        "missing": 0,
+        "extraKept": 4
+      }
+    },
+    {
+      "id": "rotation-irrational-001",
+      "entities": 1,
+      "extent": [
+        -0.07754381501421734,
+        0.5558110688709832,
+        0.059783406732095735,
+        4.506271957699961
+      ],
+      "referenceBudget": 3.950460888828978e-7,
+      "previews": [
+        {
+          "declaredErrorWorld": 0.39504608888289783,
+          "measuredMaxWorld": 0,
+          "ratio": 0,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 2,
+          "referenceVertices": 2
+        },
+        {
+          "declaredErrorWorld": 0.03950460888828978,
+          "measuredMaxWorld": 0,
+          "ratio": 0,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 2,
+          "referenceVertices": 2
+        },
+        {
+          "declaredErrorWorld": 0.0039504608888289786,
+          "measuredMaxWorld": 0,
+          "ratio": 0,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 2,
+          "referenceVertices": 2
         }
       ],
       "coverage": {
@@ -2479,6 +2987,52 @@
         "missing": 0,
         "extraKept": 0
       }
+    },
+    {
+      "id": "uniform-scale-001",
+      "entities": 1,
+      "extent": [
+        -1.25,
+        -8.75,
+        6.25,
+        -1.25
+      ],
+      "referenceBudget": 7.5e-7,
+      "previews": [
+        {
+          "declaredErrorWorld": 0.75,
+          "measuredMaxWorld": 0.285451753082675,
+          "ratio": 0.3806,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 9,
+          "referenceVertices": 8193
+        },
+        {
+          "declaredErrorWorld": 0.075,
+          "measuredMaxWorld": 0.01805727497926335,
+          "ratio": 0.2408,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 33,
+          "referenceVertices": 8193
+        },
+        {
+          "declaredErrorWorld": 0.0075,
+          "measuredMaxWorld": 0.00451703923060495,
+          "ratio": 0.6023,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 65,
+          "referenceVertices": 8193
+        }
+      ],
+      "coverage": {
+        "boxes": 8,
+        "entitiesMeetingBox": 3,
+        "missing": 0,
+        "extraKept": 5
+      }
     }
   ],
   "previewAccountingLarge": [
@@ -2505,9 +3059,9 @@
       ],
       "coverage": {
         "boxes": 4,
-        "entitiesMeetingBox": 111571,
+        "entitiesMeetingBox": 100541,
         "missing": 0,
-        "extraKept": 15
+        "extraKept": 4
       }
     },
     {
@@ -2533,9 +3087,9 @@
       ],
       "coverage": {
         "boxes": 4,
-        "entitiesMeetingBox": 1106884,
+        "entitiesMeetingBox": 1056435,
         "missing": 0,
-        "extraKept": 16
+        "extraKept": 12
       }
     },
     {
@@ -2561,9 +3115,9 @@
       ],
       "coverage": {
         "boxes": 4,
-        "entitiesMeetingBox": 111723,
+        "entitiesMeetingBox": 108913,
         "missing": 0,
-        "extraKept": 79
+        "extraKept": 26
       }
     },
     {
@@ -2589,7 +3143,7 @@
       ],
       "coverage": {
         "boxes": 4,
-        "entitiesMeetingBox": 958,
+        "entitiesMeetingBox": 994,
         "missing": 0,
         "extraKept": 0
       }
@@ -2617,17 +3171,412 @@
       ],
       "coverage": {
         "boxes": 4,
-        "entitiesMeetingBox": 107732,
+        "entitiesMeetingBox": 107383,
         "missing": 0,
-        "extraKept": 37
+        "extraKept": 32
       }
+    }
+  ],
+  "tier0Slices": [
+    {
+      "id": "architectural-1e5",
+      "cursor": "leaves (#125)",
+      "leaves": 97,
+      "entities": 99968,
+      "slices": 15,
+      "maxSliceMs": 6.6,
+      "p99SliceMs": 6.6,
+      "overBudget": 0,
+      "medianSliceMs": 6.4,
+      "totalMs": 89.5,
+      "openMs": 47.2,
+      "platform": "chromium, Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, l"
+    },
+    {
+      "id": "architectural-1e6",
+      "cursor": "leaves (#125)",
+      "leaves": 31,
+      "entities": 1000000,
+      "slices": 137,
+      "maxSliceMs": 6.4,
+      "p99SliceMs": 6.3,
+      "overBudget": 0,
+      "medianSliceMs": 5,
+      "totalMs": 675.7,
+      "openMs": 418,
+      "platform": "chromium, Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, l"
+    },
+    {
+      "id": "mep-1e5",
+      "cursor": "leaves (#125)",
+      "leaves": 95,
+      "entities": 99904,
+      "slices": 16,
+      "maxSliceMs": 7.5,
+      "p99SliceMs": 7.5,
+      "overBudget": 0,
+      "medianSliceMs": 6.2,
+      "totalMs": 104.5,
+      "openMs": 53.8,
+      "platform": "chromium, Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, l"
+    },
+    {
+      "id": "pathological-1e3",
+      "cursor": "leaves (#125)",
+      "leaves": 1,
+      "entities": 914,
+      "slices": 2,
+      "maxSliceMs": 6.5,
+      "p99SliceMs": 6.5,
+      "overBudget": 0,
+      "medianSliceMs": 1.6,
+      "totalMs": 8.1,
+      "openMs": 4.7,
+      "platform": "chromium, Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, l"
+    },
+    {
+      "id": "spline-heavy-1e5",
+      "cursor": "leaves (#125)",
+      "leaves": 40,
+      "entities": 100000,
+      "slices": 92,
+      "maxSliceMs": 7,
+      "p99SliceMs": 7,
+      "overBudget": 0,
+      "medianSliceMs": 5.2,
+      "totalMs": 472.2,
+      "openMs": 192.7,
+      "platform": "chromium, Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, l"
+    },
+    {
+      "id": "architectural-1e5",
+      "cursor": "boxes (before #125)",
+      "leaves": 97,
+      "entities": 99968,
+      "slices": 314,
+      "maxSliceMs": 13.1,
+      "p99SliceMs": 5.7,
+      "overBudget": 1,
+      "medianSliceMs": 3.9,
+      "totalMs": 1220.5,
+      "openMs": 49.6,
+      "platform": "chromium, Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, l"
+    },
+    {
+      "id": "architectural-1e6",
+      "cursor": "boxes (before #125)",
+      "leaves": 31,
+      "entities": 199989,
+      "slices": 17898,
+      "maxSliceMs": 45.6,
+      "p99SliceMs": 7.6,
+      "overBudget": 108,
+      "medianSliceMs": 0,
+      "totalMs": 12099.2,
+      "openMs": 405.7,
+      "refused": "block exceeds maxEntitiesPerBlock (200000)",
+      "platform": "chromium, Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, l"
+    },
+    {
+      "id": "mep-1e5",
+      "cursor": "boxes (before #125)",
+      "leaves": 95,
+      "entities": 99904,
+      "slices": 487,
+      "maxSliceMs": 11.6,
+      "p99SliceMs": 5.8,
+      "overBudget": 1,
+      "medianSliceMs": 4.1,
+      "totalMs": 1861.3,
+      "openMs": 54.2,
+      "platform": "chromium, Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, l"
+    },
+    {
+      "id": "pathological-1e3",
+      "cursor": "boxes (before #125)",
+      "leaves": 1,
+      "entities": 917,
+      "slices": 1,
+      "maxSliceMs": 11.3,
+      "p99SliceMs": 11.3,
+      "overBudget": 1,
+      "medianSliceMs": 11.3,
+      "totalMs": 11.7,
+      "openMs": 4.7,
+      "platform": "chromium, Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, l"
+    },
+    {
+      "id": "spline-heavy-1e5",
+      "cursor": "boxes (before #125)",
+      "leaves": 40,
+      "entities": 100000,
+      "slices": 700,
+      "maxSliceMs": 8.1,
+      "p99SliceMs": 5.9,
+      "overBudget": 1,
+      "medianSliceMs": 2.6,
+      "totalMs": 2133.2,
+      "openMs": 186.7,
+      "platform": "chromium, Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, l"
+    }
+  ],
+  "tier0Stream": [
+    {
+      "id": "architectural-1e5",
+      "directory": true,
+      "windows": [
+        {
+          "fraction": 1,
+          "entries": 99043,
+          "exact": 98128,
+          "previews": 915,
+          "infeasible": 0,
+          "uncovered": 925,
+          "leavesRead": 97,
+          "leavesWithoutBlock": 0,
+          "entities": 99968,
+          "missing": 0
+        },
+        {
+          "fraction": 0.25,
+          "entries": 8256,
+          "exact": 8195,
+          "previews": 61,
+          "infeasible": 0,
+          "uncovered": 76,
+          "leavesRead": 20,
+          "leavesWithoutBlock": 0,
+          "entities": 8332,
+          "missing": 0
+        },
+        {
+          "fraction": 0.05,
+          "entries": 384,
+          "exact": 383,
+          "previews": 1,
+          "infeasible": 0,
+          "uncovered": 4,
+          "leavesRead": 6,
+          "leavesWithoutBlock": 0,
+          "entities": 388,
+          "missing": 0
+        }
+      ],
+      "coverageMissing": 0,
+      "previews": [
+        {
+          "entitiesChecked": 7,
+          "worstMeasuredOverDeclared": 0.909,
+          "withinDeclared": true
+        }
+      ]
+    },
+    {
+      "id": "architectural-1e6",
+      "directory": true,
+      "windows": [
+        {
+          "fraction": 1,
+          "entries": 990560,
+          "exact": 981337,
+          "previews": 9223,
+          "infeasible": 0,
+          "uncovered": 9440,
+          "leavesRead": 31,
+          "leavesWithoutBlock": 0,
+          "entities": 1000000,
+          "missing": 0
+        },
+        {
+          "fraction": 0.25,
+          "entries": 101520,
+          "exact": 100576,
+          "previews": 944,
+          "infeasible": 0,
+          "uncovered": 945,
+          "leavesRead": 12,
+          "leavesWithoutBlock": 0,
+          "entities": 102465,
+          "missing": 0
+        },
+        {
+          "fraction": 0.05,
+          "entries": 4534,
+          "exact": 4496,
+          "previews": 38,
+          "infeasible": 0,
+          "uncovered": 54,
+          "leavesRead": 6,
+          "leavesWithoutBlock": 0,
+          "entities": 4588,
+          "missing": 0
+        }
+      ],
+      "coverageMissing": 0,
+      "previews": [
+        {
+          "entitiesChecked": 13,
+          "worstMeasuredOverDeclared": 0.909,
+          "withinDeclared": true
+        }
+      ]
+    },
+    {
+      "id": "mep-1e5",
+      "directory": true,
+      "windows": [
+        {
+          "fraction": 1,
+          "entries": 96649,
+          "exact": 94302,
+          "previews": 2347,
+          "infeasible": 0,
+          "uncovered": 3255,
+          "leavesRead": 95,
+          "leavesWithoutBlock": 0,
+          "entities": 99904,
+          "missing": 0
+        },
+        {
+          "fraction": 0.25,
+          "entries": 9544,
+          "exact": 9340,
+          "previews": 204,
+          "infeasible": 0,
+          "uncovered": 311,
+          "leavesRead": 25,
+          "leavesWithoutBlock": 0,
+          "entities": 9855,
+          "missing": 0
+        },
+        {
+          "fraction": 0.05,
+          "entries": 557,
+          "exact": 550,
+          "previews": 7,
+          "infeasible": 0,
+          "uncovered": 12,
+          "leavesRead": 6,
+          "leavesWithoutBlock": 0,
+          "entities": 569,
+          "missing": 0
+        }
+      ],
+      "coverageMissing": 0,
+      "previews": [
+        {
+          "entitiesChecked": 17,
+          "worstMeasuredOverDeclared": 0.909,
+          "withinDeclared": true
+        }
+      ]
+    },
+    {
+      "id": "pathological-1e3",
+      "directory": true,
+      "windows": [
+        {
+          "fraction": 1,
+          "entries": 747,
+          "exact": 747,
+          "previews": 0,
+          "infeasible": 0,
+          "uncovered": 167,
+          "leavesRead": 1,
+          "leavesWithoutBlock": 0,
+          "entities": 914,
+          "missing": 0
+        },
+        {
+          "fraction": 0.25,
+          "entries": 43,
+          "exact": 43,
+          "previews": 0,
+          "infeasible": 0,
+          "uncovered": 14,
+          "leavesRead": 1,
+          "leavesWithoutBlock": 0,
+          "entities": 57,
+          "missing": 0
+        },
+        {
+          "fraction": 0.05,
+          "entries": 0,
+          "exact": 0,
+          "previews": 0,
+          "infeasible": 0,
+          "uncovered": 0,
+          "leavesRead": 1,
+          "leavesWithoutBlock": 0,
+          "entities": 0,
+          "missing": 0
+        }
+      ],
+      "coverageMissing": 0,
+      "previews": [
+        {
+          "entitiesChecked": 0,
+          "worstMeasuredOverDeclared": 0,
+          "withinDeclared": true
+        }
+      ]
+    },
+    {
+      "id": "spline-heavy-1e5",
+      "directory": true,
+      "windows": [
+        {
+          "fraction": 1,
+          "entries": 40089,
+          "exact": 35012,
+          "previews": 5077,
+          "infeasible": 0,
+          "uncovered": 59911,
+          "leavesRead": 40,
+          "leavesWithoutBlock": 0,
+          "entities": 100000,
+          "missing": 0
+        },
+        {
+          "fraction": 0.25,
+          "entries": 3004,
+          "exact": 2629,
+          "previews": 375,
+          "infeasible": 0,
+          "uncovered": 4422,
+          "leavesRead": 13,
+          "leavesWithoutBlock": 0,
+          "entities": 7426,
+          "missing": 0
+        },
+        {
+          "fraction": 0.05,
+          "entries": 163,
+          "exact": 147,
+          "previews": 16,
+          "infeasible": 0,
+          "uncovered": 222,
+          "leavesRead": 4,
+          "leavesWithoutBlock": 0,
+          "entities": 385,
+          "missing": 0
+        }
+      ],
+      "coverageMissing": 0,
+      "previews": [
+        {
+          "entitiesChecked": 89,
+          "worstMeasuredOverDeclared": 0.909,
+          "withinDeclared": true
+        }
+      ]
     }
   ],
   "leak": {
     "cycles": 6000,
-    "pagesBefore": 8521,
-    "pagesAfterFirst3000": 8521,
-    "pagesAfter6000": 8521,
+    "pagesBefore": 13384,
+    "pagesAfterFirst3000": 13384,
+    "pagesAfter6000": 13384,
     "note": "pages are 64 KiB; no growth between the two halves means no per-call leak"
   }
 }

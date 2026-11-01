@@ -56,6 +56,11 @@ async function checkCorpus(l) {
   const corpus = JSON.parse(await readFile(join(root, "bench/corpus/corpus.json"), "utf8"));
   const { errors, missingClasses } = l.validateCorpus(corpus, reg);
   if (errors.length) throw new Error(`corpus.json is invalid:\n${errors.join("\n")}`);
+  if (corpus.rasterCases) {
+    const tiles = JSON.parse(await readFile(join(root, "bench/hw/raster-tiles.json"), "utf8"));
+    const re = l.validateRasterCorpus(corpus, tiles);
+    if (re.length) throw new Error(`corpus.json raster cases are invalid:\n${re.join("\n")}`);
+  }
   console.log(`corpus ok: ${corpus.cases.length} cases, classes without a case yet: ${missingClasses.join(", ")}`);
   return corpus;
 }
@@ -163,7 +168,8 @@ async function run(l) {
 const cmd = process.argv[2];
 const l = await lib();
 if (cmd === "build-corpus") {
-  const corpus = l.buildCorpus(await registry(l));
+  const tiles = JSON.parse(await readFile(join(root, "bench/hw/raster-tiles.json"), "utf8"));
+  const corpus = l.buildCorpus(await registry(l), tiles.tilesSha256);
   await writeFile(join(root, "bench/corpus/corpus.json"), JSON.stringify(corpus, null, 2) + "\n");
   console.log(`wrote ${corpus.cases.length} cases`);
 } else if (cmd === "check") await checkCorpus(l);

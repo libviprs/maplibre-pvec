@@ -383,7 +383,9 @@ export class PVecLayer implements CustomLayerInterface {
       if (signal.aborted) return;
       this.handle = h;
       const m = h.manifest;
-      const rasters = await deps.openRasters(h, evaluator, source);
+      const opened = await deps.openRasters(h, evaluator, source);
+      // A raster stream the module refused as a whole holds no rasters: the layer treats it as a file without any, as it always has.
+      const rasters = opened?.refusedStream ? null : opened;
       if (signal.aborted) return;
       this.emitter.emit("capabilities", {
         minReader: m.minReader.join("."),
@@ -404,7 +406,7 @@ export class PVecLayer implements CustomLayerInterface {
         bytesDecoded: 0,
         cacheTier: "network",
       });
-      const cursor = await deps.openCursor(h, evaluator);
+      const cursor = await deps.openCursor(h, evaluator, source);
       const map = wired(this).map;
       if (signal.aborted || (!cursor && !rasters) || !map) return;
       const engine = (wired(this).strokes = new StrokeEngine({

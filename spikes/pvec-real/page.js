@@ -139,7 +139,6 @@ async function main(p) {
     rt.release(all); rt.release(file);
     out.large.push(row);
   }
-
   // ---- M1.5: preview error accounting and viewport coverage, against a tight reference tessellation ----
   const polys = (v) => {
     const o = [];
@@ -182,14 +181,32 @@ async function main(p) {
   const account = (id, bytes, boxes, refRel, previewRels, hausMax) => {
     const { file, batch, n } = prep(bytes);
     const row = { id, entities: n };
-    const grab = (b, eps) => { const r = rt.tessellate(b, worldChain(eps), 5e6, "f64"); const v = rt.views(r); const o = polys(v); rt.release(r); return o; };
+    // A tight budget over a whole file can need more vertices than a result may hold (code -11, libviprs/pvec#236). The file is then
+    // asked for in a 16 by 16 grid of boxes over the extent found so far, and an entity that several boxes meet is kept once.
+    let extentSoFar = null;
+    const grab = (b, eps) => {
+      const r = rt.tessellate(b, worldChain(eps), 5e6, "f64");
+      if (r >= 0) { const v = rt.views(r); const o = polys(v); rt.release(r); return o; }
+      if (r !== -11 || !extentSoFar) throw new Error(`tessellate returned ${r}`);
+      const [gx0, gy0, gx1, gy1] = extentSoFar, N = 16, byId = new Map();
+      for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
+        const vb = rt.queryViewport(file, gx0 + (gx1 - gx0) * i / N, gy0 + (gy1 - gy0) * j / N, gx0 + (gx1 - gx0) * (i + 1) / N, gy0 + (gy1 - gy0) * (j + 1) / N, 1e7);
+        const rr = rt.tessellate(vb, worldChain(eps), 5e6, "f64");
+        if (rr < 0) throw new Error(`a piece of the grid was refused (${rr})`);
+        for (const e of polys(rt.views(rr))) if (!byId.has(e.id)) byId.set(e.id, e);
+        rt.release(rr); rt.release(vb);
+      }
+      return [...byId.values()].sort((a, c) => a.id - c.id);
+    };
     // The extent comes from the union of a few coarse-to-moderate tessellations: at a huge budget a full circle is
     // a single point, which would make the extent zero.
     let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
     for (const eps of [1e30, 1e3, 1, 1e-2]) {
       for (const e of grab(batch, eps)) for (const [x, y] of e.pts) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+      extentSoFar = [x0, y0, x1, y1];
     }
     const ext = Math.max(x1 - x0, y1 - y0, 1e-9);
+    extentSoFar = [x0, y0, x1, y1];
     row.extent = [x0, y0, x1, y1];
     const ref = grab(batch, ext * refRel);
     row.referenceBudget = ext * refRel;
@@ -228,6 +245,102 @@ async function main(p) {
   for (const [id, b64] of want('previews') ? Object.entries(p.small) : []) out.previewAccounting.push(account(id, u8(b64), [1, 0.5, 0.25, 0.1, 0.1, 0.05, 0.05, 0.02], 1e-7, [1e-1, 1e-2, 1e-3], 1000));
   out.previewAccountingLarge = [];
   for (const [id, b64] of want('previews') ? Object.entries(p.large) : []) out.previewAccountingLarge.push(account(id, u8(b64), [1, 0.25, 0.05, 0.01], 1e-6, [1e-3], 300));
+
+  // ---- M1.5 with the real Tier 0 stream and the spatial directory (ABI 2) ----
+  // Slices: the layer's own cursor under the production decoder with its real clock. A slice is what decodeSlice
+  // returns after its 8 ms budget, so the longest slice is the number the freeze condition asks about. The cost
+  // of opening the file in the evaluator is the cursor's own first step and is reported on its own.
+  out.tier0Slices = [];
+  out.tier0Stream = [];
+  // One row: the cursor drained by the production decoder, each slice timed with the real clock.
+  const sliceRow = (id, bytes, extent, leaves, cursorName, make) => {
+    const s0 = performance.now();
+    const cursor = make(ev, bytes, extent);
+    const openMs = performance.now() - s0;
+    const dec = new PvecMlp.Tier0Decoder();
+    const times = [];
+    let entities = 0;
+    // A cursor that does not say where its blocks end is one block, so a file over DEFAULTS.maxEntitiesPerBlock is refused by the decoder. That is recorded, not hidden.
+    let refused;
+    try {
+      for (let guard = 0; guard < 1e6; guard++) {
+        const a = performance.now();
+        const slice = dec.decodeSlice(cursor);
+        times.push(performance.now() - a);
+        if (!slice) break;
+        entities += slice.draws.length;
+      }
+    } catch (e) {
+      refused = String(e && e.message || e);
+    }
+    cursor.close();
+    const sorted = [...times].sort((x, y) => x - y);
+    out.tier0Slices.push({ id, cursor: cursorName, leaves, entities, slices: Math.max(0, times.length - 1), maxSliceMs: r3(Math.max(...times)), p99SliceMs: r3(sorted[Math.floor(times.length * 0.99)]), overBudget: times.filter((t) => t > 8).length, medianSliceMs: r3(median(times)), totalMs: r3(times.reduce((x, y) => x + y, 0)), openMs: r3(openMs), ...(refused ? { refused } : {}), platform: 'chromium, ' + navigator.userAgent.slice(0, 60) });
+  };
+  const tier0Extent = (bytes) => {
+    const f0 = rt.open(bytes);
+    const extent = [0, 1, 2, 3].map((n) => rt.directoryBound(f0, n));
+    const leaves = rt.directoryStat(f0, 1);
+    rt.release(f0);
+    return { extent, leaves };
+  };
+  // The layer's cursor is timed for every file first, then the cursor of before #125: the older cursor leaves a large heap of garbage
+  // behind (it decodes a file in tens of thousands of slices), and a collection of it must not land in a slice of the cursor under test.
+  for (const [id, b64] of want('tier0') ? Object.entries(p.tier0) : []) {
+    const bytes = u8(b64);
+    const { extent, leaves } = tier0Extent(bytes);
+    sliceRow(id, bytes, extent, leaves, 'leaves (#125)', PvecMlp.tier0CursorOver);
+  }
+  for (const [id, b64] of want('tier0') ? Object.entries(p.tier0) : []) {
+    const bytes = u8(b64);
+    const { extent, leaves } = tier0Extent(bytes);
+    sliceRow(id, bytes, extent, leaves, 'boxes (before #125)', PvecMlp.tier0CursorBefore);
+  }
+  for (const [id, b64] of want('tier0') ? Object.entries(p.tier0) : []) {
+    const bytes = u8(b64);
+    // Stream audit: entries + uncovered is the window's entity count, and every preview stays within its declared error of a tight reference.
+    const file = rt.open(bytes);
+    const row = { id, directory: rt.directoryStat(file, 0) === 1, windows: [], coverageMissing: 0, previews: [] };
+    const b = [0, 1, 2, 3].map((n) => rt.directoryBound(file, n));
+    const w = b[2] - b[0], h = b[3] - b[1];
+    // The reference is a tight tessellation, one millionth of the extent like the preview accounting above (an absolute 1e-6 on this file made the module panic with a capacity overflow instead of refusing).
+    const all = rt.queryViewport(file, ...WORLD, 1e7);
+    const refT = rt.tessellate(all, worldChain(Math.max(w, h) * 1e-6), 5e6, 'f64');
+    if (refT < 0) throw new Error('reference tessellation returned ' + refT);
+    const rv = rt.views(refT);
+    const refById = new Map(polys(rv).map((e) => [e.id, e.pts]));
+    rt.release(refT); rt.release(all);
+    let worst = 0, checked = 0, within = true;
+    for (const f of [1, 0.25, 0.05]) {
+      const box = f >= 1 ? [b[0] - 1, b[1] - 1, b[2] + 1, b[3] + 1] : [b[0] + w * (0.5 - f / 2), b[1] + h * (0.5 - f / 2), b[0] + w * (0.5 + f / 2), b[1] + h * (0.5 + f / 2)];
+      const t = rt.tier0Viewport(file, ...box);
+      const q = rt.queryViewport(file, ...box, 1e7);
+      const entries = rt.tier0Stat(t, 0), uncovered = rt.tier0Stat(t, 4);
+      const n = rt.batchLength(q);
+      const missing = Math.abs(entries + uncovered - n);
+      row.coverageMissing += missing;
+      row.windows.push({ fraction: f, entries, exact: rt.tier0Stat(t, 1), previews: rt.tier0Stat(t, 2), infeasible: rt.tier0Stat(t, 3), uncovered, leavesRead: rt.tier0Stat(t, 5), leavesWithoutBlock: rt.tier0Stat(t, 6), entities: n, missing });
+      const v = rt.tier0Views(t);
+      const step = Math.max(1, Math.ceil(v.ids.length / 300));
+      for (let i = 0; i < v.ids.length; i += step) {
+        if (v.codes[i] !== 1 && v.codes[i] !== 2) continue;
+        const pv = [];
+        for (let k = v.offsets[i]; k < v.offsets[i + 1]; k++) pv.push([v.vertices[2 * k], v.vertices[2 * k + 1]]);
+        const ref = refById.get(v.ids[i]);
+        if (!ref) continue;
+        // one way: every point of the curve is within the declared error of the preview polyline
+        let d = 0;
+        for (const q of ref) d = Math.max(d, distToPoly(q, pv));
+        checked++;
+        worst = Math.max(worst, d / Math.max(v.errors[i], 1e-300));
+        if (d > v.errors[i] * 1.0000001 + 1e-5) within = false;
+      }
+      rt.release(t); rt.release(q);
+    }
+    row.previews.push({ entitiesChecked: checked, worstMeasuredOverDeclared: r3(worst), withinDeclared: within });
+    rt.release(file);
+    out.tier0Stream.push(row);
+  }
 
   // ---- leaks: the module's own memory across open/tessellate/release cycles ----
   if (want('leak')) {

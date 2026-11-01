@@ -149,7 +149,7 @@ describe("#82 retuned budgets", () => {
   });
 });
 
-describe("#82 software GL results (arm64 Linux container, no GPU)", () => {
+describe("#82 software GL results (Linux container, no GPU)", () => {
   const soft = (): HardwareResult => {
     const r = good();
     r.environment = {
@@ -172,10 +172,16 @@ describe("#82 software GL results (arm64 Linux container, no GPU)", () => {
     delete (r.environment as { container?: string }).container;
     expect(validateSoftwareResult(r).join()).toMatch(/container/);
   });
-  it("refuse a software result that is not linux arm64 native", () => {
+  it("accept a native x64 Linux container too (#108), and refuse any other arch label or a non-Linux host", () => {
+    const x = soft();
+    x.environment.arch = "x64";
+    expect(validateSoftwareResult(x)).toEqual([]);
     const r = soft();
-    r.environment.arch = "x64";
-    expect(validateSoftwareResult(r).join()).toMatch(/arm64/);
+    (r.environment as { arch: string }).arch = "x86_64 under rosetta";
+    expect(validateSoftwareResult(r).join()).toMatch(/arm64 or x64/);
+    const m = soft();
+    m.environment.os = "darwin 27";
+    expect(validateSoftwareResult(m).join()).toMatch(/linux/);
   });
   it("refuse a run shorter than 60 s", () => {
     const r = soft();

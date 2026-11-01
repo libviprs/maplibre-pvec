@@ -23,10 +23,10 @@ export function bindPacked(ev: Evaluator) {
   const x = ev.instance.exports as unknown as Record<string, Fn> & { memory: WebAssembly.Memory };
   const call = (name: string, ...a: number[]): number => (x[name] as Fn)(...a);
   const mem = (): WebAssembly.Memory => x.memory;
-  // A handle is an i32 on the wire. The ABI's error codes are -1 to -5; pvec-wasm lets a handle's
+  // A handle is an i32 on the wire. The ABI's error codes are -1 to -11 (-11 is a batch past the vertex bound, libviprs/pvec#236); pvec-wasm lets a handle's
   // generation grow into the sign bit after 32768 reuses of a slot (libviprs/pvec#203), which reads as a
-  // large negative number. Anything below -5 is such a handle, so give it back as the unsigned number it is.
-  const handle = (r: number): number => (r < -5 ? r >>> 0 : r);
+  // large negative number. Anything below -11 is such a handle, so give it back as the unsigned number it is.
+  const handle = (r: number): number => (r < -11 ? r >>> 0 : r);
   const put = (src: Uint8Array | Float64Array, align: number): [number, number] => {
     const bytes = new Uint8Array(src.buffer, src.byteOffset, src.byteLength);
     const ptr = call("__wbindgen_malloc", bytes.length, align) >>> 0;
@@ -68,6 +68,44 @@ export function bindPacked(ev: Evaluator) {
         styleRefs: view(Uint32Array, result, 3),
         current: () => call("memory_epoch") === epoch,
       };
+    },
+    /** The spatial directory of a file: stat 0 is 1 when it has one (P5.1). A negative number is an ABI code. */
+    directoryStat: (file: number, which: number): number => call("directory_stat", file, which),
+    /** Leaves of the directory that touch the window: cell ids, hot entities, Tier 0 flags, stored bytes, boxes. */
+    directoryQuery(file: number, minX: number, minY: number, maxX: number, maxY: number): { handle: number; cells: Uint32Array; entities: Uint32Array; hasTier0: Uint32Array; bytes: Float64Array; boxes: Float64Array } | number {
+      const r = handle(call("directory_query", file, minX, minY, maxX, maxY));
+      if (r < 0) return r;
+      const v = <T extends Float64Array | Uint32Array>(ctor: { new (b: ArrayBufferLike, o: number, n: number): T }, which: number): T => {
+        const len = call("cells_len", r, which);
+        return new ctor(mem().buffer, len === 0 ? 0 : call("cells_ptr", r, which) >>> 0, len);
+      };
+      return { handle: r, cells: v(Uint32Array, 0), entities: v(Uint32Array, 1), hasTier0: v(Uint32Array, 2), bytes: v(Float64Array, 3), boxes: v(Float64Array, 4) };
+    },
+    /** One corner of a box of the directory: 0 to 3 the whole tree, 4 to 7 the advanced curves. NaN when there is none. */
+    directoryBound: (file: number, which: number): number => call("directory_bound", file, which),
+    /** The Tier 0 stream of a window (P5.4): entity ids, codes, declared world error, vertex offsets, vertices. */
+    tier0Viewport(file: number, minX: number, minY: number, maxX: number, maxY: number): number {
+      return handle(call("tier0_viewport", file, minX, minY, maxX, maxY));
+    },
+    /** The Tier 0 stream of one leaf (libviprs/pvec#238), without a window. Only a module that exports `tier0_leaf` has it: test `hasLeafCalls`. */
+    tier0Leaf(file: number, cell: number): number {
+      return handle(call("tier0_leaf", file, cell));
+    },
+    /** A page of one leaf's entities, ascending by id, as a batch (libviprs/pvec#238). Cell 0 is the advanced curves. */
+    queryLeaf(file: number, cell: number, first: number, count: number): number {
+      return handle(call("query_leaf", file, cell, first, count));
+    },
+    /** Whether the module exports the per-leaf calls `tier0_leaf` and `query_leaf` (additions to ABI 2). */
+    hasLeafCalls: typeof x["tier0_leaf"] === "function" && typeof x["query_leaf"] === "function",
+    /** 0 entries, 1 exact, 2 previews, 3 infeasible, 4 uncovered, 5 leaves read, 6 leaves with no block, 7 advanced bounds meet the window. */
+    tier0Stat: (result: number, which: number): number => call("tier0_stat", result, which),
+    tier0Views(result: number): { ids: Uint32Array; codes: Uint32Array; errors: Float64Array; offsets: Uint32Array; vertices: Float64Array } {
+      const v = <T extends Float64Array | Uint32Array>(ctor: { new (b: ArrayBufferLike, o: number, n: number): T }, which: number): T => {
+        const len = call("tier0_buffer_len", result, which);
+        if (len < 0) throw new Error(`pvec tier0_buffer_len returned ${len}`);
+        return new ctor(mem().buffer, len === 0 ? 0 : call("tier0_buffer_ptr", result, which) >>> 0, len);
+      };
+      return { ids: v(Uint32Array, 0), codes: v(Uint32Array, 1), errors: v(Float64Array, 2), offsets: v(Uint32Array, 3), vertices: v(Float64Array, 4) };
     },
     failed: (result: number): number => call("tessellation_failed", result),
     conformance: (result: number): number => call("tessellation_conformance", result),

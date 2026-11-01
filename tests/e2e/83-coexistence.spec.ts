@@ -21,7 +21,7 @@ test.describe("issue 83 coexistence with MapLibre's own layers", () => {
 
       const probe = await H<Probe>(page, "strokeProbe", "with");
       expect(probe.red, "the stroke pipeline drew into the map").toBeGreaterThan(300);
-      expect(probe.atMidpoint[0], "red under the source point (50, 10)").toBeGreaterThan(170);
+      expect(probe.atMidpoint[0], "red under the midpoint of the first stroke").toBeGreaterThan(170);
       expect(probe.atMidpoint[2]).toBeLessThan(60);
 
       const d = await H<Diff>(page, "diff", ["without", "with"]);
@@ -45,7 +45,7 @@ test.describe("issue 83 coexistence with MapLibre's own layers", () => {
     try {
       await H(page, "open", { fixture: r.url, layer: false, cursor: false, wasm: "ok" });
       await H(page, "snap", "without");
-      // Same strokes are not drawn here (no cursor), so the whole frame, icons included, must be identical.
+      // Same strokes are not drawn here (the cursor is switched off), so the whole frame, icons included, must be identical.
       await H(page, "open", { fixture: r.url, layer: true, cursor: false, wasm: "ok", debugState: true });
       await H(page, "snap", "with");
       const d = await H<Diff>(page, "diff", ["without", "with"]);

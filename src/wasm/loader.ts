@@ -9,10 +9,18 @@ export interface WasmOptions {
   instantiate?: (imports: WebAssembly.Imports) => Promise<WebAssembly.Instance>;
 }
 
+/** The exports of the raster part of the ABI (libviprs/pvec `docs/WASM_ABI.md`, "Rasters (version 2...)"): found by probing, once. */
+export const RASTER_EXPORTS: readonly string[] = [
+  "raster_stat", "raster_skipped", "raster_placement", "raster_plan", "raster_tile", "raster_buffer_len", "raster_buffer_ptr", "raster_buffer_elem",
+  "open_ranged", "provide_range", "open_poll", "needed_count", "needed_offset", "needed_len", "release",
+];
+
 export interface Evaluator {
   readonly instance: WebAssembly.Instance;
   readonly abiVersion: number;
   readonly source: "default" | "explicit" | "injected";
+  /** The module carries the whole raster group, probed once at load. The ABI version is untouched: a module without it is a version 2 module that predates rasters. */
+  readonly hasRaster?: boolean;
 }
 
 export interface WasmEnv {
@@ -30,6 +38,9 @@ export const REQUIRED_EXPORTS: readonly string[] = [
   "memory", "__wbindgen_malloc", "wasm_abi_version", "open", "query_viewport", "batch_len", "batch_truncated",
   "tessellate_batch", "buffer_len", "buffer_ptr", "buffer_elem", "tessellation_failed", "tessellation_conformance",
   "tessellation_origin_x", "tessellation_origin_y", "memory_epoch", "view_current", "force_grow", "release",
+  // ABI 2: the spatial directory and the Tier 0 stream (libviprs/pvec#201).
+  "directory_stat", "directory_bound", "directory_query", "cells_len", "cells_ptr", "cells_elem", "tier0_viewport", "tier0_stat",
+  "tier0_buffer_len", "tier0_buffer_ptr", "tier0_buffer_elem",
 ];
 
 const fail = (why: string, cause?: unknown): PVecError =>
@@ -97,7 +108,8 @@ export async function loadEvaluator(options: WasmOptions = {}, env: WasmEnv = {}
   if (!SUPPORTED_ABI_VERSIONS.includes(abiVersion)) {
     throw fail(`it speaks ABI version ${abiVersion}, this package drives ${SUPPORTED_ABI_VERSIONS.join(", ")}`);
   }
-  return { instance, abiVersion, source };
+  const hasRaster = RASTER_EXPORTS.every((n) => typeof (instance.exports as Record<string, unknown>)[n] === "function");
+  return { instance, abiVersion, source, hasRaster };
 }
 
 /** Shared memory only where the deployment is cross-origin isolated; transferable buffers otherwise. */

@@ -248,15 +248,19 @@ export class StrokeEngine {
       if (raster && rf) (raster.prepare(rf), raster.draw(0, rf));
       if (pool) {
         this.renderer ??= new StrokeRenderer(this.tgl);
+        // One object per frame for the camera fields: the stroke renderer sets those uniforms once for all the ranges of a frame.
+        const cam = {
+          centerHi: [view.cx.hi, view.cy.hi] as [number, number],
+          centerLo: [view.cx.lo, view.cy.lo] as [number, number],
+          linear: view.linear,
+          viewport: [gl.drawingBufferWidth, gl.drawingBufferHeight] as [number, number],
+          dpr: view.dpr,
+        };
         for (const g of this.groups) {
           const range = pool.range(g.key);
           if (!range) continue;
           this.renderer.draw(range, {
-            centerHi: [view.cx.hi, view.cy.hi],
-            centerLo: [view.cx.lo, view.cy.lo],
-            linear: view.linear,
-            viewport: [gl.drawingBufferWidth, gl.drawingBufferHeight],
-            dpr: view.dpr,
+            ...cam,
             widthsPx: [g.widthCss * view.dpr],
             dashes: g.dash ? [[g.dash[0] * view.dpr, g.dash[1] * view.dpr, 0, 0]] : [],
             arcToPx: view.arcToPx,

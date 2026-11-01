@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>07 raster underlay</title>
+<link rel="stylesheet" href="/maplibre/maplibre-gl.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+<h1>07 raster underlay</h1>
+<p id="status">loading</p>
+<div id="map"></div>
+<fieldset>
+<legend>Band</legend>
+<label><input type="radio" name="file" value="under" checked> band 0, the scan under the linework</label>
+<label><input type="radio" name="file" value="over"> band 1, the scan over the linework</label>
+<label><input type="radio" name="file" value="mixed"> a file whose third raster has a codec the reader does not know</label>
+</fieldset>
+<fieldset>
+<legend>Rasters</legend>
+<label><input type="checkbox" id="show" checked> draw the rasters</label>
+</fieldset>
+<h2>What the file carries</h2>
+<table id="rasters"><thead><tr><th>id</th><th>band</th><th>opacity</th><th>size</th><th>attribution</th></tr></thead><tbody></tbody></table>
+<h2>rasterskipped</h2>
+<ul id="skipped"></ul>
+<pre id="out"></pre>
+</main>
+<script src="/maplibre/maplibre-gl.js"></script>
+<script type="module" src="main.js"></script>
+</body>
+</html>

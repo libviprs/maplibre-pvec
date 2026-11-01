@@ -81,3 +81,19 @@ export const POOL_DEFAULTS = Object.freeze({ minWorkers: 1, maxWorkers: 4 });
 
 /** LIMIT-16 on the host side: the default cap on decoded bytes. The source's decompression limit and the raster renderer's bitmaps in flight share it. */
 export const DEFAULT_MAX_DECODED_BYTES = 256 * 1024 * 1024;
+
+/**
+ * The texture bound of the raster pass (ADR 0009) as three numbers. The bound is
+ * `tiles in view * retainedLevelFactor * edge * edge * bytesPerTexel`, summed over the rasters drawn, and it must fit
+ * `textureShare` of the `gpu` tier (`cache.gpuBytes`, 128 MiB by default). Measured in #108 (`docs/raster-render.md`):
+ * a tile is uploaded as RGBA8 without mipmaps, so a texel is 4 bytes on every renderer; the coarser level kept under a
+ * finer one doubles the tiles in view and no more; textures are the only users of the `gpu` tier, so the share is the whole
+ * of it. A two-scan view at 1080p and at 4K stayed under the ceiling on the renderers named in `release/v1-freeze.json`
+ * (`rasterProvenance`), with the fit rule stepping a level down where two full-resolution views do not fit. Software GL
+ * runs are relative costs and do not feed these values.
+ */
+export const RASTER_DEFAULTS = Object.freeze({
+  bytesPerTexel: 4,
+  retainedLevelFactor: 2,
+  textureShare: 1,
+});

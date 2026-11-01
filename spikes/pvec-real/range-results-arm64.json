@@ -10,7 +10,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 480,
-        "ms": 16.7,
+        "ms": 17.7,
         "blocks": 1,
         "spatialDirectory": false,
         "producer": "pvec-gen:arc-seam-001"
@@ -23,8 +23,8 @@
           "requests": 1,
           "bytes": 38,
           "serialRoundTrips": 1,
-          "ms": 2.9,
-          "msTotalFromColdStart": 19.6
+          "ms": 3.1,
+          "msTotalFromColdStart": 20.8
         },
         {
           "preset": "quarter",
@@ -33,8 +33,8 @@
           "requests": 1,
           "bytes": 38,
           "serialRoundTrips": 1,
-          "ms": 2.2,
-          "msTotalFromColdStart": 18.9
+          "ms": 2.6,
+          "msTotalFromColdStart": 20.3
         },
         {
           "preset": "small",
@@ -44,9 +44,10 @@
           "bytes": 38,
           "serialRoundTrips": 1,
           "ms": 3.3,
-          "msTotalFromColdStart": 20
+          "msTotalFromColdStart": 21
         }
-      ]
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "bezier-d3-001",
@@ -55,7 +56,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 1328,
-        "ms": 7.9,
+        "ms": 8.8,
         "blocks": 6,
         "spatialDirectory": false,
         "producer": "pvec-gen:bezier-d3-001"
@@ -68,8 +69,8 @@
           "requests": 1,
           "bytes": 38,
           "serialRoundTrips": 1,
-          "ms": 2,
-          "msTotalFromColdStart": 9.9
+          "ms": 2.1,
+          "msTotalFromColdStart": 10.9
         },
         {
           "preset": "quarter",
@@ -78,8 +79,8 @@
           "requests": 1,
           "bytes": 38,
           "serialRoundTrips": 1,
-          "ms": 4.7,
-          "msTotalFromColdStart": 12.6
+          "ms": 4.2,
+          "msTotalFromColdStart": 13
         },
         {
           "preset": "small",
@@ -88,10 +89,11 @@
           "requests": 1,
           "bytes": 38,
           "serialRoundTrips": 1,
-          "ms": 2.6,
-          "msTotalFromColdStart": 10.5
+          "ms": 2.5,
+          "msTotalFromColdStart": 11.3
         }
-      ]
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "bspline-d3-001",
@@ -100,7 +102,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 1368,
-        "ms": 5.5,
+        "ms": 5.6,
         "blocks": 6,
         "spatialDirectory": false,
         "producer": "pvec-gen:bspline-d3-001"
@@ -113,8 +115,8 @@
           "requests": 1,
           "bytes": 38,
           "serialRoundTrips": 1,
-          "ms": 2.1,
-          "msTotalFromColdStart": 7.6
+          "ms": 2.3,
+          "msTotalFromColdStart": 7.9
         },
         {
           "preset": "quarter",
@@ -123,8 +125,8 @@
           "requests": 1,
           "bytes": 38,
           "serialRoundTrips": 1,
-          "ms": 2.1,
-          "msTotalFromColdStart": 7.6
+          "ms": 1.9,
+          "msTotalFromColdStart": 7.4
         },
         {
           "preset": "small",
@@ -133,10 +135,11 @@
           "requests": 1,
           "bytes": 38,
           "serialRoundTrips": 1,
-          "ms": 2.2,
-          "msTotalFromColdStart": 7.7
+          "ms": 2,
+          "msTotalFromColdStart": 7.6
         }
-      ]
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "bspline-d5-001",
@@ -158,8 +161,8 @@
           "requests": 1,
           "bytes": 38,
           "serialRoundTrips": 1,
-          "ms": 1.8,
-          "msTotalFromColdStart": 7.5
+          "ms": 2.8,
+          "msTotalFromColdStart": 8.5
         },
         {
           "preset": "quarter",
@@ -168,8 +171,8 @@
           "requests": 1,
           "bytes": 38,
           "serialRoundTrips": 1,
-          "ms": 1.9,
-          "msTotalFromColdStart": 7.6
+          "ms": 2,
+          "msTotalFromColdStart": 7.7
         },
         {
           "preset": "small",
@@ -178,10 +181,11 @@
           "requests": 1,
           "bytes": 38,
           "serialRoundTrips": 1,
-          "ms": 2.2,
-          "msTotalFromColdStart": 7.9
+          "ms": 2,
+          "msTotalFromColdStart": 7.8
         }
-      ]
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "bulge-arc-001",
@@ -190,7 +194,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 536,
-        "ms": 4.9,
+        "ms": 4.7,
         "blocks": 1,
         "spatialDirectory": false,
         "producer": "pvec-gen:bulge-arc-001"
@@ -204,7 +208,7 @@
           "bytes": 90,
           "serialRoundTrips": 1,
           "ms": 1.8,
-          "msTotalFromColdStart": 6.7
+          "msTotalFromColdStart": 6.5
         },
         {
           "preset": "quarter",
@@ -213,8 +217,8 @@
           "requests": 1,
           "bytes": 90,
           "serialRoundTrips": 1,
-          "ms": 2,
-          "msTotalFromColdStart": 6.9
+          "ms": 1.7,
+          "msTotalFromColdStart": 6.5
         },
         {
           "preset": "small",
@@ -224,9 +228,10 @@
           "bytes": 90,
           "serialRoundTrips": 1,
           "ms": 2,
-          "msTotalFromColdStart": 6.9
+          "msTotalFromColdStart": 6.8
         }
-      ]
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "bulge-arc-neg-001",
@@ -248,8 +253,8 @@
           "requests": 1,
           "bytes": 98,
           "serialRoundTrips": 1,
-          "ms": 2,
-          "msTotalFromColdStart": 6.8
+          "ms": 1.9,
+          "msTotalFromColdStart": 6.7
         },
         {
           "preset": "quarter",
@@ -258,8 +263,8 @@
           "requests": 1,
           "bytes": 98,
           "serialRoundTrips": 1,
-          "ms": 2.4,
-          "msTotalFromColdStart": 7.2
+          "ms": 2.3,
+          "msTotalFromColdStart": 7.1
         },
         {
           "preset": "small",
@@ -268,10 +273,11 @@
           "requests": 1,
           "bytes": 98,
           "serialRoundTrips": 1,
-          "ms": 1.6,
-          "msTotalFromColdStart": 6.4
+          "ms": 1.5,
+          "msTotalFromColdStart": 6.3
         }
-      ]
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "circle-001",
@@ -280,7 +286,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 480,
-        "ms": 4,
+        "ms": 3.8,
         "blocks": 1,
         "spatialDirectory": false,
         "producer": "pvec-gen:circle-001"
@@ -293,8 +299,8 @@
           "requests": 1,
           "bytes": 53,
           "serialRoundTrips": 1,
-          "ms": 1.5,
-          "msTotalFromColdStart": 5.5
+          "ms": 2.1,
+          "msTotalFromColdStart": 5.9
         },
         {
           "preset": "quarter",
@@ -303,8 +309,8 @@
           "requests": 1,
           "bytes": 53,
           "serialRoundTrips": 1,
-          "ms": 1.8,
-          "msTotalFromColdStart": 5.8
+          "ms": 1.9,
+          "msTotalFromColdStart": 5.7
         },
         {
           "preset": "small",
@@ -313,10 +319,11 @@
           "requests": 1,
           "bytes": 53,
           "serialRoundTrips": 1,
-          "ms": 1.7,
-          "msTotalFromColdStart": 5.7
+          "ms": 2,
+          "msTotalFromColdStart": 5.8
         }
-      ]
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "closed-by-endpoint-001",
@@ -325,7 +332,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 1360,
-        "ms": 4.5,
+        "ms": 3.8,
         "blocks": 6,
         "spatialDirectory": false,
         "producer": "pvec-gen:closed-by-endpoint-001"
@@ -338,8 +345,8 @@
           "requests": 1,
           "bytes": 39,
           "serialRoundTrips": 1,
-          "ms": 2,
-          "msTotalFromColdStart": 6.5
+          "ms": 1.7,
+          "msTotalFromColdStart": 5.5
         },
         {
           "preset": "quarter",
@@ -348,8 +355,8 @@
           "requests": 1,
           "bytes": 39,
           "serialRoundTrips": 1,
-          "ms": 2,
-          "msTotalFromColdStart": 6.5
+          "ms": 1.9,
+          "msTotalFromColdStart": 5.8
         },
         {
           "preset": "small",
@@ -358,10 +365,11 @@
           "requests": 1,
           "bytes": 39,
           "serialRoundTrips": 1,
-          "ms": 2,
-          "msTotalFromColdStart": 6.5
+          "ms": 1.9,
+          "msTotalFromColdStart": 5.7
         }
-      ]
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "closed-periodic-001",
@@ -370,7 +378,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 1424,
-        "ms": 4.7,
+        "ms": 4.5,
         "blocks": 6,
         "spatialDirectory": false,
         "producer": "pvec-gen:closed-periodic-001"
@@ -383,8 +391,8 @@
           "requests": 1,
           "bytes": 39,
           "serialRoundTrips": 1,
-          "ms": 1.9,
-          "msTotalFromColdStart": 6.5
+          "ms": 2,
+          "msTotalFromColdStart": 6.6
         },
         {
           "preset": "quarter",
@@ -393,8 +401,8 @@
           "requests": 1,
           "bytes": 39,
           "serialRoundTrips": 1,
-          "ms": 2,
-          "msTotalFromColdStart": 6.7
+          "ms": 2.1,
+          "msTotalFromColdStart": 6.6
         },
         {
           "preset": "small",
@@ -403,10 +411,11 @@
           "requests": 1,
           "bytes": 39,
           "serialRoundTrips": 1,
-          "ms": 0.5,
-          "msTotalFromColdStart": 5.1
+          "ms": 2,
+          "msTotalFromColdStart": 6.6
         }
-      ]
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "ellipse-001",
@@ -415,7 +424,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 504,
-        "ms": 4.3,
+        "ms": 4.5,
         "blocks": 1,
         "spatialDirectory": false,
         "producer": "pvec-gen:ellipse-001"
@@ -428,8 +437,8 @@
           "requests": 1,
           "bytes": 79,
           "serialRoundTrips": 1,
-          "ms": 2,
-          "msTotalFromColdStart": 6.3
+          "ms": 1.7,
+          "msTotalFromColdStart": 6.2
         },
         {
           "preset": "quarter",
@@ -438,8 +447,8 @@
           "requests": 1,
           "bytes": 79,
           "serialRoundTrips": 1,
-          "ms": 2,
-          "msTotalFromColdStart": 6.3
+          "ms": 1.9,
+          "msTotalFromColdStart": 6.4
         },
         {
           "preset": "small",
@@ -448,10 +457,11 @@
           "requests": 1,
           "bytes": 79,
           "serialRoundTrips": 1,
-          "ms": 0.4,
-          "msTotalFromColdStart": 4.7
+          "ms": 2,
+          "msTotalFromColdStart": 6.5
         }
-      ]
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "elliptical-arc-001",
@@ -473,8 +483,8 @@
           "requests": 1,
           "bytes": 74,
           "serialRoundTrips": 1,
-          "ms": 2,
-          "msTotalFromColdStart": 6.2
+          "ms": 1.5,
+          "msTotalFromColdStart": 5.6
         },
         {
           "preset": "quarter",
@@ -483,8 +493,8 @@
           "requests": 1,
           "bytes": 74,
           "serialRoundTrips": 1,
-          "ms": 2.1,
-          "msTotalFromColdStart": 6.2
+          "ms": 2,
+          "msTotalFromColdStart": 6.1
         },
         {
           "preset": "small",
@@ -493,10 +503,11 @@
           "requests": 1,
           "bytes": 74,
           "serialRoundTrips": 1,
-          "ms": 2.1,
-          "msTotalFromColdStart": 6.2
+          "ms": 1.9,
+          "msTotalFromColdStart": 6
         }
-      ]
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "large-coords-001",
@@ -505,7 +516,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 496,
-        "ms": 4.5,
+        "ms": 4.1,
         "blocks": 1,
         "spatialDirectory": false,
         "producer": "pvec-gen:large-coords-001"
@@ -518,8 +529,8 @@
           "requests": 1,
           "bytes": 61,
           "serialRoundTrips": 1,
-          "ms": 2.2,
-          "msTotalFromColdStart": 6.8
+          "ms": 2.6,
+          "msTotalFromColdStart": 6.7
         },
         {
           "preset": "quarter",
@@ -528,8 +539,8 @@
           "requests": 1,
           "bytes": 61,
           "serialRoundTrips": 1,
-          "ms": 1.9,
-          "msTotalFromColdStart": 6.4
+          "ms": 1.8,
+          "msTotalFromColdStart": 5.9
         },
         {
           "preset": "small",
@@ -538,10 +549,11 @@
           "requests": 1,
           "bytes": 61,
           "serialRoundTrips": 1,
-          "ms": 2,
-          "msTotalFromColdStart": 6.6
+          "ms": 1.7,
+          "msTotalFromColdStart": 5.8
         }
-      ]
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "layer-state-001",
@@ -550,7 +562,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 744,
-        "ms": 3.7,
+        "ms": 4,
         "blocks": 2,
         "spatialDirectory": false,
         "producer": "pvec-gen:layer-state-001"
@@ -563,8 +575,8 @@
           "requests": 1,
           "bytes": 56,
           "serialRoundTrips": 1,
-          "ms": 2,
-          "msTotalFromColdStart": 5.7
+          "ms": 1.6,
+          "msTotalFromColdStart": 5.5
         },
         {
           "preset": "quarter",
@@ -574,7 +586,7 @@
           "bytes": 56,
           "serialRoundTrips": 1,
           "ms": 2.1,
-          "msTotalFromColdStart": 5.8
+          "msTotalFromColdStart": 6
         },
         {
           "preset": "small",
@@ -584,9 +596,10 @@
           "bytes": 56,
           "serialRoundTrips": 1,
           "ms": 2,
-          "msTotalFromColdStart": 5.7
+          "msTotalFromColdStart": 6
         }
-      ]
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "line-001",
@@ -595,7 +608,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 464,
-        "ms": 3.7,
+        "ms": 3.9,
         "blocks": 1,
         "spatialDirectory": false,
         "producer": "pvec-gen:line-001"
@@ -609,7 +622,7 @@
           "bytes": 40,
           "serialRoundTrips": 1,
           "ms": 2,
-          "msTotalFromColdStart": 5.7
+          "msTotalFromColdStart": 5.9
         },
         {
           "preset": "quarter",
@@ -619,7 +632,7 @@
           "bytes": 40,
           "serialRoundTrips": 1,
           "ms": 2,
-          "msTotalFromColdStart": 5.8
+          "msTotalFromColdStart": 5.9
         },
         {
           "preset": "small",
@@ -629,9 +642,10 @@
           "bytes": 40,
           "serialRoundTrips": 1,
           "ms": 2,
-          "msTotalFromColdStart": 5.8
+          "msTotalFromColdStart": 6
         }
-      ]
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "lwpolyline-closed-001",
@@ -640,7 +654,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 496,
-        "ms": 3.7,
+        "ms": 3.8,
         "blocks": 1,
         "spatialDirectory": false,
         "producer": "pvec-gen:lwpolyline-closed-001"
@@ -653,8 +667,8 @@
           "requests": 1,
           "bytes": 60,
           "serialRoundTrips": 1,
-          "ms": 1.9,
-          "msTotalFromColdStart": 5.5
+          "ms": 0.4,
+          "msTotalFromColdStart": 4.2
         },
         {
           "preset": "quarter",
@@ -663,7 +677,7 @@
           "requests": 1,
           "bytes": 60,
           "serialRoundTrips": 1,
-          "ms": 1.7,
+          "ms": 1.6,
           "msTotalFromColdStart": 5.4
         },
         {
@@ -673,10 +687,149 @@
           "requests": 1,
           "bytes": 60,
           "serialRoundTrips": 1,
-          "ms": 1.5,
-          "msTotalFromColdStart": 5.1
+          "ms": 1.9,
+          "msTotalFromColdStart": 5.7
         }
-      ]
+      ],
+      "spatialDirectory": false
+    },
+    {
+      "name": "nested-blocks-001",
+      "fileBytes": 408,
+      "rttMs": 0,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 472,
+        "ms": 3.8,
+        "blocks": 1,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:nested-blocks-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 38,
+          "serialRoundTrips": 1,
+          "ms": 2,
+          "msTotalFromColdStart": 5.8
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 38,
+          "serialRoundTrips": 1,
+          "ms": 2,
+          "msTotalFromColdStart": 5.8
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 38,
+          "serialRoundTrips": 1,
+          "ms": 1.9,
+          "msTotalFromColdStart": 5.8
+        }
+      ],
+      "spatialDirectory": false
+    },
+    {
+      "name": "nonuniform-scale-circle-001",
+      "fileBytes": 432,
+      "rttMs": 0,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 496,
+        "ms": 3.7,
+        "blocks": 1,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:nonuniform-scale-circle-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 56,
+          "serialRoundTrips": 1,
+          "ms": 2.2,
+          "msTotalFromColdStart": 5.9
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 56,
+          "serialRoundTrips": 1,
+          "ms": 2.1,
+          "msTotalFromColdStart": 5.9
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 56,
+          "serialRoundTrips": 1,
+          "ms": 2.6,
+          "msTotalFromColdStart": 6.4
+        }
+      ],
+      "spatialDirectory": false
+    },
+    {
+      "name": "nonuniform-scale-rotated-001",
+      "fileBytes": 448,
+      "rttMs": 0,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 512,
+        "ms": 4.6,
+        "blocks": 1,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:nonuniform-scale-rotated-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 67,
+          "serialRoundTrips": 1,
+          "ms": 1.9,
+          "msTotalFromColdStart": 6.4
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 67,
+          "serialRoundTrips": 1,
+          "ms": 1.7,
+          "msTotalFromColdStart": 6.3
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 67,
+          "serialRoundTrips": 1,
+          "ms": 1.5,
+          "msTotalFromColdStart": 6.1
+        }
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "nonunit-weight-001",
@@ -685,7 +838,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 1376,
-        "ms": 4.1,
+        "ms": 3.7,
         "blocks": 6,
         "spatialDirectory": false,
         "producer": "pvec-gen:nonunit-weight-001"
@@ -698,8 +851,8 @@
           "requests": 1,
           "bytes": 34,
           "serialRoundTrips": 1,
-          "ms": 1.6,
-          "msTotalFromColdStart": 5.7
+          "ms": 1.9,
+          "msTotalFromColdStart": 5.6
         },
         {
           "preset": "quarter",
@@ -708,8 +861,8 @@
           "requests": 1,
           "bytes": 34,
           "serialRoundTrips": 1,
-          "ms": 2,
-          "msTotalFromColdStart": 6.1
+          "ms": 1.8,
+          "msTotalFromColdStart": 5.5
         },
         {
           "preset": "small",
@@ -718,10 +871,11 @@
           "requests": 1,
           "bytes": 34,
           "serialRoundTrips": 1,
-          "ms": 1.8,
-          "msTotalFromColdStart": 5.9
+          "ms": 1.6,
+          "msTotalFromColdStart": 5.3
         }
-      ]
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "nurbs-d2-offconic-001",
@@ -730,7 +884,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 1384,
-        "ms": 4.1,
+        "ms": 4.6,
         "blocks": 6,
         "spatialDirectory": false,
         "producer": "pvec-gen:nurbs-d2-offconic-001"
@@ -743,8 +897,8 @@
           "requests": 1,
           "bytes": 34,
           "serialRoundTrips": 1,
-          "ms": 1.9,
-          "msTotalFromColdStart": 6
+          "ms": 1.5,
+          "msTotalFromColdStart": 6.1
         },
         {
           "preset": "quarter",
@@ -753,8 +907,8 @@
           "requests": 1,
           "bytes": 34,
           "serialRoundTrips": 1,
-          "ms": 1.8,
-          "msTotalFromColdStart": 5.9
+          "ms": 1.7,
+          "msTotalFromColdStart": 6.3
         },
         {
           "preset": "small",
@@ -764,9 +918,10 @@
           "bytes": 34,
           "serialRoundTrips": 1,
           "ms": 1.6,
-          "msTotalFromColdStart": 5.7
+          "msTotalFromColdStart": 6.2
         }
-      ]
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "nurbs-d3-001",
@@ -775,7 +930,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 1392,
-        "ms": 4.7,
+        "ms": 3.8,
         "blocks": 6,
         "spatialDirectory": false,
         "producer": "pvec-gen:nurbs-d3-001"
@@ -788,8 +943,8 @@
           "requests": 1,
           "bytes": 34,
           "serialRoundTrips": 1,
-          "ms": 2,
-          "msTotalFromColdStart": 6.7
+          "ms": 2.1,
+          "msTotalFromColdStart": 5.9
         },
         {
           "preset": "quarter",
@@ -798,8 +953,8 @@
           "requests": 1,
           "bytes": 34,
           "serialRoundTrips": 1,
-          "ms": 2,
-          "msTotalFromColdStart": 6.7
+          "ms": 2.1,
+          "msTotalFromColdStart": 5.9
         },
         {
           "preset": "small",
@@ -808,10 +963,11 @@
           "requests": 1,
           "bytes": 34,
           "serialRoundTrips": 1,
-          "ms": 1.9,
-          "msTotalFromColdStart": 6.7
+          "ms": 2,
+          "msTotalFromColdStart": 5.8
         }
-      ]
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "polyline-001",
@@ -820,7 +976,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 488,
-        "ms": 4,
+        "ms": 3.6,
         "blocks": 1,
         "spatialDirectory": false,
         "producer": "pvec-gen:polyline-001"
@@ -833,8 +989,8 @@
           "requests": 1,
           "bytes": 62,
           "serialRoundTrips": 1,
-          "ms": 2,
-          "msTotalFromColdStart": 6
+          "ms": 1.8,
+          "msTotalFromColdStart": 5.4
         },
         {
           "preset": "quarter",
@@ -844,7 +1000,7 @@
           "bytes": 62,
           "serialRoundTrips": 1,
           "ms": 1.9,
-          "msTotalFromColdStart": 5.9
+          "msTotalFromColdStart": 5.5
         },
         {
           "preset": "small",
@@ -854,9 +1010,10 @@
           "bytes": 62,
           "serialRoundTrips": 1,
           "ms": 1.9,
-          "msTotalFromColdStart": 5.9
+          "msTotalFromColdStart": 5.5
         }
-      ]
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "polyline2d-001",
@@ -865,7 +1022,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 496,
-        "ms": 4,
+        "ms": 3.9,
         "blocks": 1,
         "spatialDirectory": false,
         "producer": "pvec-gen:polyline2d-001"
@@ -878,8 +1035,8 @@
           "requests": 1,
           "bytes": 66,
           "serialRoundTrips": 1,
-          "ms": 2,
-          "msTotalFromColdStart": 6.1
+          "ms": 1.9,
+          "msTotalFromColdStart": 5.8
         },
         {
           "preset": "quarter",
@@ -888,8 +1045,8 @@
           "requests": 1,
           "bytes": 66,
           "serialRoundTrips": 1,
-          "ms": 1.9,
-          "msTotalFromColdStart": 6
+          "ms": 2,
+          "msTotalFromColdStart": 5.8
         },
         {
           "preset": "small",
@@ -898,10 +1055,57 @@
           "requests": 1,
           "bytes": 66,
           "serialRoundTrips": 1,
-          "ms": 1.9,
-          "msTotalFromColdStart": 6
+          "ms": 2.5,
+          "msTotalFromColdStart": 6.4
         }
-      ]
+      ],
+      "spatialDirectory": false
+    },
+    {
+      "name": "reflection-001",
+      "fileBytes": 432,
+      "rttMs": 0,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 496,
+        "ms": 3.8,
+        "blocks": 1,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:reflection-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 53,
+          "serialRoundTrips": 1,
+          "ms": 1.7,
+          "msTotalFromColdStart": 5.5
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 53,
+          "serialRoundTrips": 1,
+          "ms": 2,
+          "msTotalFromColdStart": 5.8
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 53,
+          "serialRoundTrips": 1,
+          "ms": 1.9,
+          "msTotalFromColdStart": 5.7
+        }
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "repeated-knot-c0-001",
@@ -910,7 +1114,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 1368,
-        "ms": 2.4,
+        "ms": 3.6,
         "blocks": 6,
         "spatialDirectory": false,
         "producer": "pvec-gen:repeated-knot-c0-001"
@@ -923,8 +1127,8 @@
           "requests": 1,
           "bytes": 38,
           "serialRoundTrips": 1,
-          "ms": 1.7,
-          "msTotalFromColdStart": 4.1
+          "ms": 1.8,
+          "msTotalFromColdStart": 5.4
         },
         {
           "preset": "quarter",
@@ -933,8 +1137,8 @@
           "requests": 1,
           "bytes": 38,
           "serialRoundTrips": 1,
-          "ms": 1.9,
-          "msTotalFromColdStart": 4.4
+          "ms": 1.6,
+          "msTotalFromColdStart": 5.3
         },
         {
           "preset": "small",
@@ -944,9 +1148,56 @@
           "bytes": 38,
           "serialRoundTrips": 1,
           "ms": 1.9,
-          "msTotalFromColdStart": 4.3
+          "msTotalFromColdStart": 5.6
         }
-      ]
+      ],
+      "spatialDirectory": false
+    },
+    {
+      "name": "rotation-irrational-001",
+      "fileBytes": 448,
+      "rttMs": 0,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 512,
+        "ms": 3.6,
+        "blocks": 1,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:rotation-irrational-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 72,
+          "serialRoundTrips": 1,
+          "ms": 1.5,
+          "msTotalFromColdStart": 5.1
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 72,
+          "serialRoundTrips": 1,
+          "ms": 2.1,
+          "msTotalFromColdStart": 5.7
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 72,
+          "serialRoundTrips": 1,
+          "ms": 2.6,
+          "msTotalFromColdStart": 6.2
+        }
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "tiny-radius-001",
@@ -955,7 +1206,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 496,
-        "ms": 3.8,
+        "ms": 4.7,
         "blocks": 1,
         "spatialDirectory": false,
         "producer": "pvec-gen:tiny-radius-001"
@@ -968,8 +1219,8 @@
           "requests": 1,
           "bytes": 60,
           "serialRoundTrips": 1,
-          "ms": 2,
-          "msTotalFromColdStart": 5.8
+          "ms": 1.6,
+          "msTotalFromColdStart": 6.3
         },
         {
           "preset": "quarter",
@@ -978,8 +1229,8 @@
           "requests": 1,
           "bytes": 60,
           "serialRoundTrips": 1,
-          "ms": 2,
-          "msTotalFromColdStart": 5.8
+          "ms": 1.8,
+          "msTotalFromColdStart": 6.5
         },
         {
           "preset": "small",
@@ -988,19 +1239,124 @@
           "requests": 1,
           "bytes": 60,
           "serialRoundTrips": 1,
+          "ms": 1.8,
+          "msTotalFromColdStart": 6.6
+        }
+      ],
+      "spatialDirectory": false
+    },
+    {
+      "name": "uniform-scale-001",
+      "fileBytes": 424,
+      "rttMs": 0,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 488,
+        "ms": 3.6,
+        "blocks": 1,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:uniform-scale-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 52,
+          "serialRoundTrips": 1,
           "ms": 1.9,
+          "msTotalFromColdStart": 5.5
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 52,
+          "serialRoundTrips": 1,
+          "ms": 2,
+          "msTotalFromColdStart": 5.7
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 52,
+          "serialRoundTrips": 1,
+          "ms": 2,
           "msTotalFromColdStart": 5.7
         }
-      ]
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "architectural-1e5",
+      "fileBytes": 2038536,
+      "rttMs": 0,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 5824,
+        "ms": 4.3,
+        "blocks": 27,
+        "spatialDirectory": false,
+        "producer": "pvec-bench"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "spatial": {
+            "cells": 4,
+            "bytes": 1740426
+          },
+          "chunks": 17,
+          "ranges": 14,
+          "requests": 14,
+          "bytes": 1747678,
+          "serialRoundTrips": 1,
+          "ms": 14.6,
+          "msTotalFromColdStart": 18.9
+        },
+        {
+          "preset": "quarter",
+          "spatial": {
+            "cells": 3,
+            "bytes": 1726183
+          },
+          "chunks": 13,
+          "ranges": 11,
+          "requests": 11,
+          "bytes": 1733435,
+          "serialRoundTrips": 1,
+          "ms": 7.7,
+          "msTotalFromColdStart": 12
+        },
+        {
+          "preset": "small",
+          "spatial": {
+            "cells": 3,
+            "bytes": 1726183
+          },
+          "chunks": 13,
+          "ranges": 11,
+          "requests": 11,
+          "bytes": 1733435,
+          "serialRoundTrips": 1,
+          "ms": 7.5,
+          "msTotalFromColdStart": 11.7
+        }
+      ],
+      "spatialDirectory": true
+    },
+    {
+      "name": "architectural-1e5-plain",
       "fileBytes": 1810416,
       "rttMs": 0,
       "bootstrap": {
         "requests": 2,
         "bytes": 5568,
-        "ms": 4.1,
+        "ms": 4.8,
         "blocks": 23,
         "spatialDirectory": false,
         "producer": "pvec-bench"
@@ -1008,44 +1364,115 @@
       "viewports": [
         {
           "preset": "fullExtent",
+          "spatial": {
+            "cells": 4,
+            "bytes": 1740426
+          },
           "chunks": 17,
           "ranges": 14,
           "requests": 14,
           "bytes": 1747678,
           "serialRoundTrips": 1,
-          "ms": 16.9,
-          "msTotalFromColdStart": 21
+          "ms": 10.3,
+          "msTotalFromColdStart": 15.1
         },
         {
           "preset": "quarter",
+          "spatial": {
+            "cells": 3,
+            "bytes": 1726183
+          },
           "chunks": 13,
           "ranges": 11,
           "requests": 11,
           "bytes": 1733435,
           "serialRoundTrips": 1,
-          "ms": 9.9,
-          "msTotalFromColdStart": 14
+          "ms": 6.6,
+          "msTotalFromColdStart": 11.4
         },
         {
           "preset": "small",
+          "spatial": {
+            "cells": 3,
+            "bytes": 1726183
+          },
           "chunks": 13,
           "ranges": 11,
           "requests": 11,
           "bytes": 1733435,
           "serialRoundTrips": 1,
-          "ms": 9.9,
-          "msTotalFromColdStart": 14.1
+          "ms": 6.4,
+          "msTotalFromColdStart": 11.2
         }
-      ]
+      ],
+      "spatialDirectory": true
     },
     {
       "name": "architectural-1e6",
+      "fileBytes": 19291848,
+      "rttMs": 0,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 16768,
+        "ms": 4.7,
+        "blocks": 198,
+        "spatialDirectory": false,
+        "producer": "pvec-bench"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "spatial": {
+            "cells": 31,
+            "bytes": 17090431
+          },
+          "chunks": 131,
+          "ranges": 115,
+          "requests": 115,
+          "bytes": 17197844,
+          "serialRoundTrips": 1,
+          "ms": 92.6,
+          "msTotalFromColdStart": 97.3
+        },
+        {
+          "preset": "quarter",
+          "spatial": {
+            "cells": 12,
+            "bytes": 6738838
+          },
+          "chunks": 51,
+          "ranges": 48,
+          "requests": 48,
+          "bytes": 6786219,
+          "serialRoundTrips": 1,
+          "ms": 33,
+          "msTotalFromColdStart": 37.8
+        },
+        {
+          "preset": "small",
+          "spatial": {
+            "cells": 6,
+            "bytes": 3343151
+          },
+          "chunks": 26,
+          "ranges": 26,
+          "requests": 26,
+          "bytes": 3371198,
+          "serialRoundTrips": 1,
+          "ms": 11.7,
+          "msTotalFromColdStart": 16.4
+        }
+      ],
+      "spatialDirectory": true
+    },
+    {
+      "name": "architectural-1e6-plain",
       "fileBytes": 17824896,
       "rttMs": 0,
       "bootstrap": {
         "requests": 2,
         "bytes": 14784,
-        "ms": 5.2,
+        "ms": 10.1,
         "blocks": 167,
         "spatialDirectory": false,
         "producer": "pvec-bench"
@@ -1053,44 +1480,115 @@
       "viewports": [
         {
           "preset": "fullExtent",
+          "spatial": {
+            "cells": 31,
+            "bytes": 17090431
+          },
           "chunks": 131,
           "ranges": 115,
           "requests": 115,
           "bytes": 17197844,
           "serialRoundTrips": 1,
-          "ms": 95.5,
-          "msTotalFromColdStart": 100.6
+          "ms": 68.8,
+          "msTotalFromColdStart": 78.9
         },
         {
           "preset": "quarter",
+          "spatial": {
+            "cells": 12,
+            "bytes": 6738838
+          },
           "chunks": 51,
           "ranges": 48,
           "requests": 48,
           "bytes": 6786219,
           "serialRoundTrips": 1,
-          "ms": 26.6,
-          "msTotalFromColdStart": 31.8
+          "ms": 21.1,
+          "msTotalFromColdStart": 31.2
         },
         {
           "preset": "small",
+          "spatial": {
+            "cells": 6,
+            "bytes": 3343151
+          },
           "chunks": 26,
           "ranges": 26,
           "requests": 26,
           "bytes": 3371198,
           "serialRoundTrips": 1,
-          "ms": 11,
-          "msTotalFromColdStart": 16.1
+          "ms": 10.8,
+          "msTotalFromColdStart": 20.9
         }
-      ]
+      ],
+      "spatialDirectory": true
     },
     {
       "name": "mep-1e5",
+      "fileBytes": 2700368,
+      "rttMs": 0,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 6272,
+        "ms": 12.4,
+        "blocks": 34,
+        "spatialDirectory": false,
+        "producer": "pvec-bench"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "spatial": {
+            "cells": 3,
+            "bytes": 2050842
+          },
+          "chunks": 15,
+          "ranges": 12,
+          "requests": 12,
+          "bytes": 2084765,
+          "serialRoundTrips": 1,
+          "ms": 9.9,
+          "msTotalFromColdStart": 22.3
+        },
+        {
+          "preset": "quarter",
+          "spatial": {
+            "cells": 3,
+            "bytes": 2050842
+          },
+          "chunks": 14,
+          "ranges": 12,
+          "requests": 12,
+          "bytes": 2071645,
+          "serialRoundTrips": 1,
+          "ms": 7.1,
+          "msTotalFromColdStart": 19.5
+        },
+        {
+          "preset": "small",
+          "spatial": {
+            "cells": 3,
+            "bytes": 2050842
+          },
+          "chunks": 13,
+          "ranges": 11,
+          "requests": 11,
+          "bytes": 2059805,
+          "serialRoundTrips": 1,
+          "ms": 7.7,
+          "msTotalFromColdStart": 20.1
+        }
+      ],
+      "spatialDirectory": true
+    },
+    {
+      "name": "mep-1e5-plain",
       "fileBytes": 2370104,
       "rttMs": 0,
       "bootstrap": {
         "requests": 2,
         "bytes": 6080,
-        "ms": 10,
+        "ms": 5,
         "blocks": 31,
         "spatialDirectory": false,
         "producer": "pvec-bench"
@@ -1098,44 +1596,115 @@
       "viewports": [
         {
           "preset": "fullExtent",
+          "spatial": {
+            "cells": 3,
+            "bytes": 2050842
+          },
           "chunks": 15,
           "ranges": 12,
           "requests": 12,
           "bytes": 2084765,
           "serialRoundTrips": 1,
-          "ms": 12.6,
-          "msTotalFromColdStart": 22.6
+          "ms": 7.4,
+          "msTotalFromColdStart": 12.4
         },
         {
           "preset": "quarter",
+          "spatial": {
+            "cells": 3,
+            "bytes": 2050842
+          },
           "chunks": 14,
           "ranges": 12,
           "requests": 12,
           "bytes": 2071645,
           "serialRoundTrips": 1,
-          "ms": 8.9,
-          "msTotalFromColdStart": 18.9
+          "ms": 8.2,
+          "msTotalFromColdStart": 13.2
         },
         {
           "preset": "small",
+          "spatial": {
+            "cells": 3,
+            "bytes": 2050842
+          },
           "chunks": 13,
           "ranges": 11,
           "requests": 11,
           "bytes": 2059805,
           "serialRoundTrips": 1,
-          "ms": 6,
-          "msTotalFromColdStart": 16
+          "ms": 5.3,
+          "msTotalFromColdStart": 10.3
         }
-      ]
+      ],
+      "spatialDirectory": true
     },
     {
       "name": "pathological-1e3",
+      "fileBytes": 757912,
+      "rttMs": 0,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 6528,
+        "ms": 6.6,
+        "blocks": 38,
+        "spatialDirectory": false,
+        "producer": "pvec-bench"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "spatial": {
+            "cells": 1,
+            "bytes": 17309
+          },
+          "chunks": 10,
+          "ranges": 10,
+          "requests": 10,
+          "bytes": 17857,
+          "serialRoundTrips": 1,
+          "ms": 2.9,
+          "msTotalFromColdStart": 9.5
+        },
+        {
+          "preset": "quarter",
+          "spatial": {
+            "cells": 1,
+            "bytes": 17309
+          },
+          "chunks": 10,
+          "ranges": 10,
+          "requests": 10,
+          "bytes": 17857,
+          "serialRoundTrips": 1,
+          "ms": 4.5,
+          "msTotalFromColdStart": 11.1
+        },
+        {
+          "preset": "small",
+          "spatial": {
+            "cells": 1,
+            "bytes": 17309
+          },
+          "chunks": 10,
+          "ranges": 10,
+          "requests": 10,
+          "bytes": 17857,
+          "serialRoundTrips": 1,
+          "ms": 3.6,
+          "msTotalFromColdStart": 10.2
+        }
+      ],
+      "spatialDirectory": true
+    },
+    {
+      "name": "pathological-1e3-plain",
       "fileBytes": 757488,
       "rttMs": 0,
       "bootstrap": {
         "requests": 2,
         "bytes": 6464,
-        "ms": 5.1,
+        "ms": 4.8,
         "blocks": 37,
         "spatialDirectory": false,
         "producer": "pvec-bench"
@@ -1143,44 +1712,115 @@
       "viewports": [
         {
           "preset": "fullExtent",
+          "spatial": {
+            "cells": 1,
+            "bytes": 17309
+          },
           "chunks": 10,
           "ranges": 10,
           "requests": 10,
           "bytes": 17857,
           "serialRoundTrips": 1,
-          "ms": 5,
-          "msTotalFromColdStart": 10.1
+          "ms": 4.5,
+          "msTotalFromColdStart": 9.3
         },
         {
           "preset": "quarter",
+          "spatial": {
+            "cells": 1,
+            "bytes": 17309
+          },
           "chunks": 10,
           "ranges": 10,
           "requests": 10,
           "bytes": 17857,
           "serialRoundTrips": 1,
-          "ms": 4.6,
-          "msTotalFromColdStart": 9.7
+          "ms": 4.7,
+          "msTotalFromColdStart": 9.5
         },
         {
           "preset": "small",
+          "spatial": {
+            "cells": 1,
+            "bytes": 17309
+          },
           "chunks": 10,
           "ranges": 10,
           "requests": 10,
           "bytes": 17857,
           "serialRoundTrips": 1,
-          "ms": 4,
-          "msTotalFromColdStart": 9.1
+          "ms": 3.8,
+          "msTotalFromColdStart": 8.6
         }
-      ]
+      ],
+      "spatialDirectory": true
     },
     {
       "name": "spline-heavy-1e5",
+      "fileBytes": 13496280,
+      "rttMs": 0,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 42816,
+        "ms": 5.7,
+        "blocks": 605,
+        "spatialDirectory": false,
+        "producer": "pvec-bench"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "spatial": {
+            "cells": 2,
+            "bytes": 890016
+          },
+          "chunks": 107,
+          "ranges": 106,
+          "requests": 106,
+          "bytes": 1641677,
+          "serialRoundTrips": 1,
+          "ms": 37.2,
+          "msTotalFromColdStart": 42.8
+        },
+        {
+          "preset": "quarter",
+          "spatial": {
+            "cells": 2,
+            "bytes": 890016
+          },
+          "chunks": 35,
+          "ranges": 34,
+          "requests": 34,
+          "bytes": 1091556,
+          "serialRoundTrips": 1,
+          "ms": 7.8,
+          "msTotalFromColdStart": 13.5
+        },
+        {
+          "preset": "small",
+          "spatial": {
+            "cells": 2,
+            "bytes": 890016
+          },
+          "chunks": 15,
+          "ranges": 14,
+          "requests": 14,
+          "bytes": 939400,
+          "serialRoundTrips": 1,
+          "ms": 5.9,
+          "msTotalFromColdStart": 11.5
+        }
+      ],
+      "spatialDirectory": true
+    },
+    {
+      "name": "spline-heavy-1e5-plain",
       "fileBytes": 12341936,
       "rttMs": 0,
       "bootstrap": {
         "requests": 2,
         "bytes": 42688,
-        "ms": 5.4,
+        "ms": 9,
         "blocks": 603,
         "spatialDirectory": false,
         "producer": "pvec-bench"
@@ -1188,35 +1828,48 @@
       "viewports": [
         {
           "preset": "fullExtent",
+          "spatial": {
+            "cells": 2,
+            "bytes": 890016
+          },
           "chunks": 107,
           "ranges": 106,
           "requests": 106,
           "bytes": 1641677,
           "serialRoundTrips": 1,
-          "ms": 42.3,
-          "msTotalFromColdStart": 47.7
+          "ms": 35.8,
+          "msTotalFromColdStart": 44.8
         },
         {
           "preset": "quarter",
+          "spatial": {
+            "cells": 2,
+            "bytes": 890016
+          },
           "chunks": 35,
           "ranges": 34,
           "requests": 34,
           "bytes": 1091556,
           "serialRoundTrips": 1,
-          "ms": 11.3,
-          "msTotalFromColdStart": 16.7
+          "ms": 10.2,
+          "msTotalFromColdStart": 19.3
         },
         {
           "preset": "small",
+          "spatial": {
+            "cells": 2,
+            "bytes": 890016
+          },
           "chunks": 15,
           "ranges": 14,
           "requests": 14,
           "bytes": 939400,
           "serialRoundTrips": 1,
-          "ms": 5.9,
-          "msTotalFromColdStart": 11.3
+          "ms": 6.9,
+          "msTotalFromColdStart": 15.9
         }
-      ]
+      ],
+      "spatialDirectory": true
     },
     {
       "name": "arc-seam-001",
@@ -1225,7 +1878,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 480,
-        "ms": 220.6,
+        "ms": 209.4,
         "blocks": 1,
         "spatialDirectory": false,
         "producer": "pvec-gen:arc-seam-001"
@@ -1238,8 +1891,8 @@
           "requests": 1,
           "bytes": 38,
           "serialRoundTrips": 1,
-          "ms": 113.1,
-          "msTotalFromColdStart": 333.6
+          "ms": 105.4,
+          "msTotalFromColdStart": 314.8
         },
         {
           "preset": "quarter",
@@ -1248,8 +1901,8 @@
           "requests": 1,
           "bytes": 38,
           "serialRoundTrips": 1,
-          "ms": 107.1,
-          "msTotalFromColdStart": 327.6
+          "ms": 103.7,
+          "msTotalFromColdStart": 313.1
         },
         {
           "preset": "small",
@@ -1258,10 +1911,11 @@
           "requests": 1,
           "bytes": 38,
           "serialRoundTrips": 1,
-          "ms": 110.8,
-          "msTotalFromColdStart": 331.4
+          "ms": 104.3,
+          "msTotalFromColdStart": 313.8
         }
-      ]
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "bezier-d3-001",
@@ -1270,7 +1924,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 1328,
-        "ms": 223,
+        "ms": 215,
         "blocks": 6,
         "spatialDirectory": false,
         "producer": "pvec-gen:bezier-d3-001"
@@ -1283,8 +1937,8 @@
           "requests": 1,
           "bytes": 38,
           "serialRoundTrips": 1,
-          "ms": 103.2,
-          "msTotalFromColdStart": 326.2
+          "ms": 104.2,
+          "msTotalFromColdStart": 319.2
         },
         {
           "preset": "quarter",
@@ -1293,8 +1947,8 @@
           "requests": 1,
           "bytes": 38,
           "serialRoundTrips": 1,
-          "ms": 108.6,
-          "msTotalFromColdStart": 331.6
+          "ms": 106,
+          "msTotalFromColdStart": 321
         },
         {
           "preset": "small",
@@ -1303,10 +1957,11 @@
           "requests": 1,
           "bytes": 38,
           "serialRoundTrips": 1,
-          "ms": 106.9,
-          "msTotalFromColdStart": 329.9
+          "ms": 110.1,
+          "msTotalFromColdStart": 325.1
         }
-      ]
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "bspline-d3-001",
@@ -1315,7 +1970,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 1368,
-        "ms": 214.4,
+        "ms": 221.1,
         "blocks": 6,
         "spatialDirectory": false,
         "producer": "pvec-gen:bspline-d3-001"
@@ -1328,8 +1983,8 @@
           "requests": 1,
           "bytes": 38,
           "serialRoundTrips": 1,
-          "ms": 104.8,
-          "msTotalFromColdStart": 319.2
+          "ms": 108.9,
+          "msTotalFromColdStart": 330
         },
         {
           "preset": "quarter",
@@ -1338,8 +1993,8 @@
           "requests": 1,
           "bytes": 38,
           "serialRoundTrips": 1,
-          "ms": 106,
-          "msTotalFromColdStart": 320.4
+          "ms": 105.5,
+          "msTotalFromColdStart": 326.6
         },
         {
           "preset": "small",
@@ -1348,10 +2003,11 @@
           "requests": 1,
           "bytes": 38,
           "serialRoundTrips": 1,
-          "ms": 105.5,
-          "msTotalFromColdStart": 319.8
+          "ms": 108.7,
+          "msTotalFromColdStart": 329.8
         }
-      ]
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "bspline-d5-001",
@@ -1360,7 +2016,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 1384,
-        "ms": 217.1,
+        "ms": 221.3,
         "blocks": 6,
         "spatialDirectory": false,
         "producer": "pvec-gen:bspline-d5-001"
@@ -1373,8 +2029,8 @@
           "requests": 1,
           "bytes": 38,
           "serialRoundTrips": 1,
-          "ms": 104.4,
-          "msTotalFromColdStart": 321.5
+          "ms": 108,
+          "msTotalFromColdStart": 329.4
         },
         {
           "preset": "quarter",
@@ -1383,8 +2039,8 @@
           "requests": 1,
           "bytes": 38,
           "serialRoundTrips": 1,
-          "ms": 110.8,
-          "msTotalFromColdStart": 327.9
+          "ms": 104.9,
+          "msTotalFromColdStart": 326.3
         },
         {
           "preset": "small",
@@ -1393,10 +2049,11 @@
           "requests": 1,
           "bytes": 38,
           "serialRoundTrips": 1,
-          "ms": 103.9,
-          "msTotalFromColdStart": 321
+          "ms": 106.5,
+          "msTotalFromColdStart": 327.8
         }
-      ]
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "bulge-arc-001",
@@ -1405,7 +2062,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 536,
-        "ms": 223,
+        "ms": 221.6,
         "blocks": 1,
         "spatialDirectory": false,
         "producer": "pvec-gen:bulge-arc-001"
@@ -1418,8 +2075,8 @@
           "requests": 1,
           "bytes": 90,
           "serialRoundTrips": 1,
-          "ms": 103.3,
-          "msTotalFromColdStart": 326.3
+          "ms": 105,
+          "msTotalFromColdStart": 326.6
         },
         {
           "preset": "quarter",
@@ -1428,8 +2085,8 @@
           "requests": 1,
           "bytes": 90,
           "serialRoundTrips": 1,
-          "ms": 112.7,
-          "msTotalFromColdStart": 335.7
+          "ms": 105,
+          "msTotalFromColdStart": 326.6
         },
         {
           "preset": "small",
@@ -1438,10 +2095,11 @@
           "requests": 1,
           "bytes": 90,
           "serialRoundTrips": 1,
-          "ms": 106.2,
-          "msTotalFromColdStart": 329.2
+          "ms": 113.2,
+          "msTotalFromColdStart": 334.8
         }
-      ]
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "bulge-arc-neg-001",
@@ -1450,7 +2108,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 552,
-        "ms": 222.9,
+        "ms": 213.9,
         "blocks": 1,
         "spatialDirectory": false,
         "producer": "pvec-gen:bulge-arc-neg-001"
@@ -1463,8 +2121,8 @@
           "requests": 1,
           "bytes": 98,
           "serialRoundTrips": 1,
-          "ms": 107.3,
-          "msTotalFromColdStart": 330.2
+          "ms": 107.9,
+          "msTotalFromColdStart": 321.7
         },
         {
           "preset": "quarter",
@@ -1473,8 +2131,8 @@
           "requests": 1,
           "bytes": 98,
           "serialRoundTrips": 1,
-          "ms": 104.6,
-          "msTotalFromColdStart": 327.6
+          "ms": 105,
+          "msTotalFromColdStart": 318.9
         },
         {
           "preset": "small",
@@ -1483,10 +2141,11 @@
           "requests": 1,
           "bytes": 98,
           "serialRoundTrips": 1,
-          "ms": 102.1,
-          "msTotalFromColdStart": 325.1
+          "ms": 103.3,
+          "msTotalFromColdStart": 317.1
         }
-      ]
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "circle-001",
@@ -1495,7 +2154,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 480,
-        "ms": 220.5,
+        "ms": 215.5,
         "blocks": 1,
         "spatialDirectory": false,
         "producer": "pvec-gen:circle-001"
@@ -1508,8 +2167,8 @@
           "requests": 1,
           "bytes": 53,
           "serialRoundTrips": 1,
-          "ms": 108.6,
-          "msTotalFromColdStart": 329.1
+          "ms": 102.8,
+          "msTotalFromColdStart": 318.3
         },
         {
           "preset": "quarter",
@@ -1518,8 +2177,8 @@
           "requests": 1,
           "bytes": 53,
           "serialRoundTrips": 1,
-          "ms": 106.1,
-          "msTotalFromColdStart": 326.6
+          "ms": 106.3,
+          "msTotalFromColdStart": 321.8
         },
         {
           "preset": "small",
@@ -1528,10 +2187,11 @@
           "requests": 1,
           "bytes": 53,
           "serialRoundTrips": 1,
-          "ms": 107.9,
-          "msTotalFromColdStart": 328.4
+          "ms": 105.7,
+          "msTotalFromColdStart": 321.2
         }
-      ]
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "closed-by-endpoint-001",
@@ -1540,7 +2200,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 1360,
-        "ms": 221.2,
+        "ms": 222.5,
         "blocks": 6,
         "spatialDirectory": false,
         "producer": "pvec-gen:closed-by-endpoint-001"
@@ -1553,8 +2213,8 @@
           "requests": 1,
           "bytes": 39,
           "serialRoundTrips": 1,
-          "ms": 104,
-          "msTotalFromColdStart": 325.2
+          "ms": 103.9,
+          "msTotalFromColdStart": 326.4
         },
         {
           "preset": "quarter",
@@ -1563,8 +2223,8 @@
           "requests": 1,
           "bytes": 39,
           "serialRoundTrips": 1,
-          "ms": 110.3,
-          "msTotalFromColdStart": 331.5
+          "ms": 111.1,
+          "msTotalFromColdStart": 333.5
         },
         {
           "preset": "small",
@@ -1573,10 +2233,11 @@
           "requests": 1,
           "bytes": 39,
           "serialRoundTrips": 1,
-          "ms": 105.4,
-          "msTotalFromColdStart": 326.7
+          "ms": 106,
+          "msTotalFromColdStart": 328.5
         }
-      ]
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "closed-periodic-001",
@@ -1585,7 +2246,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 1424,
-        "ms": 222.7,
+        "ms": 223.4,
         "blocks": 6,
         "spatialDirectory": false,
         "producer": "pvec-gen:closed-periodic-001"
@@ -1598,8 +2259,8 @@
           "requests": 1,
           "bytes": 39,
           "serialRoundTrips": 1,
-          "ms": 104.6,
-          "msTotalFromColdStart": 327.3
+          "ms": 102.4,
+          "msTotalFromColdStart": 325.8
         },
         {
           "preset": "quarter",
@@ -1608,8 +2269,8 @@
           "requests": 1,
           "bytes": 39,
           "serialRoundTrips": 1,
-          "ms": 112.3,
-          "msTotalFromColdStart": 335
+          "ms": 108.5,
+          "msTotalFromColdStart": 331.9
         },
         {
           "preset": "small",
@@ -1618,10 +2279,11 @@
           "requests": 1,
           "bytes": 39,
           "serialRoundTrips": 1,
-          "ms": 108.4,
-          "msTotalFromColdStart": 331.1
+          "ms": 107.2,
+          "msTotalFromColdStart": 330.6
         }
-      ]
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "ellipse-001",
@@ -1630,7 +2292,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 504,
-        "ms": 220.2,
+        "ms": 210.2,
         "blocks": 1,
         "spatialDirectory": false,
         "producer": "pvec-gen:ellipse-001"
@@ -1643,8 +2305,8 @@
           "requests": 1,
           "bytes": 79,
           "serialRoundTrips": 1,
-          "ms": 114.6,
-          "msTotalFromColdStart": 334.8
+          "ms": 103.5,
+          "msTotalFromColdStart": 313.7
         },
         {
           "preset": "quarter",
@@ -1653,8 +2315,8 @@
           "requests": 1,
           "bytes": 79,
           "serialRoundTrips": 1,
-          "ms": 115.2,
-          "msTotalFromColdStart": 335.4
+          "ms": 103.8,
+          "msTotalFromColdStart": 314
         },
         {
           "preset": "small",
@@ -1663,10 +2325,11 @@
           "requests": 1,
           "bytes": 79,
           "serialRoundTrips": 1,
-          "ms": 110.2,
-          "msTotalFromColdStart": 330.5
+          "ms": 114,
+          "msTotalFromColdStart": 324.2
         }
-      ]
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "elliptical-arc-001",
@@ -1675,7 +2338,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 528,
-        "ms": 223.4,
+        "ms": 222.3,
         "blocks": 1,
         "spatialDirectory": false,
         "producer": "pvec-gen:elliptical-arc-001"
@@ -1688,8 +2351,8 @@
           "requests": 1,
           "bytes": 74,
           "serialRoundTrips": 1,
-          "ms": 103.9,
-          "msTotalFromColdStart": 327.3
+          "ms": 112.7,
+          "msTotalFromColdStart": 335
         },
         {
           "preset": "quarter",
@@ -1698,8 +2361,8 @@
           "requests": 1,
           "bytes": 74,
           "serialRoundTrips": 1,
-          "ms": 106.5,
-          "msTotalFromColdStart": 329.9
+          "ms": 105.4,
+          "msTotalFromColdStart": 327.7
         },
         {
           "preset": "small",
@@ -1708,10 +2371,11 @@
           "requests": 1,
           "bytes": 74,
           "serialRoundTrips": 1,
-          "ms": 105.8,
-          "msTotalFromColdStart": 329.3
+          "ms": 106.6,
+          "msTotalFromColdStart": 328.9
         }
-      ]
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "large-coords-001",
@@ -1720,7 +2384,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 496,
-        "ms": 227.3,
+        "ms": 220.2,
         "blocks": 1,
         "spatialDirectory": false,
         "producer": "pvec-gen:large-coords-001"
@@ -1733,8 +2397,8 @@
           "requests": 1,
           "bytes": 61,
           "serialRoundTrips": 1,
-          "ms": 105.4,
-          "msTotalFromColdStart": 332.7
+          "ms": 105.5,
+          "msTotalFromColdStart": 325.7
         },
         {
           "preset": "quarter",
@@ -1743,8 +2407,8 @@
           "requests": 1,
           "bytes": 61,
           "serialRoundTrips": 1,
-          "ms": 107.1,
-          "msTotalFromColdStart": 334.5
+          "ms": 112.2,
+          "msTotalFromColdStart": 332.4
         },
         {
           "preset": "small",
@@ -1753,10 +2417,11 @@
           "requests": 1,
           "bytes": 61,
           "serialRoundTrips": 1,
-          "ms": 107.1,
-          "msTotalFromColdStart": 334.4
+          "ms": 103.7,
+          "msTotalFromColdStart": 323.8
         }
-      ]
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "layer-state-001",
@@ -1765,7 +2430,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 744,
-        "ms": 223.4,
+        "ms": 215.8,
         "blocks": 2,
         "spatialDirectory": false,
         "producer": "pvec-gen:layer-state-001"
@@ -1778,8 +2443,8 @@
           "requests": 1,
           "bytes": 56,
           "serialRoundTrips": 1,
-          "ms": 106.6,
-          "msTotalFromColdStart": 330
+          "ms": 103,
+          "msTotalFromColdStart": 318.8
         },
         {
           "preset": "quarter",
@@ -1788,8 +2453,8 @@
           "requests": 1,
           "bytes": 56,
           "serialRoundTrips": 1,
-          "ms": 105.9,
-          "msTotalFromColdStart": 329.3
+          "ms": 102.5,
+          "msTotalFromColdStart": 318.2
         },
         {
           "preset": "small",
@@ -1798,10 +2463,11 @@
           "requests": 1,
           "bytes": 56,
           "serialRoundTrips": 1,
-          "ms": 103.8,
-          "msTotalFromColdStart": 327.2
+          "ms": 111.7,
+          "msTotalFromColdStart": 327.5
         }
-      ]
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "line-001",
@@ -1810,7 +2476,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 464,
-        "ms": 221.2,
+        "ms": 215.5,
         "blocks": 1,
         "spatialDirectory": false,
         "producer": "pvec-gen:line-001"
@@ -1823,8 +2489,8 @@
           "requests": 1,
           "bytes": 40,
           "serialRoundTrips": 1,
-          "ms": 107.8,
-          "msTotalFromColdStart": 329
+          "ms": 103.5,
+          "msTotalFromColdStart": 319
         },
         {
           "preset": "quarter",
@@ -1833,8 +2499,8 @@
           "requests": 1,
           "bytes": 40,
           "serialRoundTrips": 1,
-          "ms": 104.1,
-          "msTotalFromColdStart": 325.3
+          "ms": 102,
+          "msTotalFromColdStart": 317.5
         },
         {
           "preset": "small",
@@ -1843,10 +2509,11 @@
           "requests": 1,
           "bytes": 40,
           "serialRoundTrips": 1,
-          "ms": 105,
-          "msTotalFromColdStart": 326.2
+          "ms": 104.6,
+          "msTotalFromColdStart": 320
         }
-      ]
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "lwpolyline-closed-001",
@@ -1855,7 +2522,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 496,
-        "ms": 222.6,
+        "ms": 212,
         "blocks": 1,
         "spatialDirectory": false,
         "producer": "pvec-gen:lwpolyline-closed-001"
@@ -1868,8 +2535,8 @@
           "requests": 1,
           "bytes": 60,
           "serialRoundTrips": 1,
-          "ms": 105,
-          "msTotalFromColdStart": 327.6
+          "ms": 103.8,
+          "msTotalFromColdStart": 315.8
         },
         {
           "preset": "quarter",
@@ -1878,8 +2545,8 @@
           "requests": 1,
           "bytes": 60,
           "serialRoundTrips": 1,
-          "ms": 105.3,
-          "msTotalFromColdStart": 327.8
+          "ms": 107.2,
+          "msTotalFromColdStart": 319.2
         },
         {
           "preset": "small",
@@ -1888,10 +2555,149 @@
           "requests": 1,
           "bytes": 60,
           "serialRoundTrips": 1,
-          "ms": 108,
-          "msTotalFromColdStart": 330.6
+          "ms": 103.6,
+          "msTotalFromColdStart": 315.6
         }
-      ]
+      ],
+      "spatialDirectory": false
+    },
+    {
+      "name": "nested-blocks-001",
+      "fileBytes": 408,
+      "rttMs": 100,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 472,
+        "ms": 210.8,
+        "blocks": 1,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:nested-blocks-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 38,
+          "serialRoundTrips": 1,
+          "ms": 112.2,
+          "msTotalFromColdStart": 323
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 38,
+          "serialRoundTrips": 1,
+          "ms": 102.8,
+          "msTotalFromColdStart": 313.6
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 38,
+          "serialRoundTrips": 1,
+          "ms": 104.7,
+          "msTotalFromColdStart": 315.5
+        }
+      ],
+      "spatialDirectory": false
+    },
+    {
+      "name": "nonuniform-scale-circle-001",
+      "fileBytes": 432,
+      "rttMs": 100,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 496,
+        "ms": 222.9,
+        "blocks": 1,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:nonuniform-scale-circle-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 56,
+          "serialRoundTrips": 1,
+          "ms": 107.5,
+          "msTotalFromColdStart": 330.4
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 56,
+          "serialRoundTrips": 1,
+          "ms": 103.2,
+          "msTotalFromColdStart": 326.1
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 56,
+          "serialRoundTrips": 1,
+          "ms": 112.7,
+          "msTotalFromColdStart": 335.6
+        }
+      ],
+      "spatialDirectory": false
+    },
+    {
+      "name": "nonuniform-scale-rotated-001",
+      "fileBytes": 448,
+      "rttMs": 100,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 512,
+        "ms": 221.3,
+        "blocks": 1,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:nonuniform-scale-rotated-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 67,
+          "serialRoundTrips": 1,
+          "ms": 111.6,
+          "msTotalFromColdStart": 332.9
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 67,
+          "serialRoundTrips": 1,
+          "ms": 105.9,
+          "msTotalFromColdStart": 327.2
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 67,
+          "serialRoundTrips": 1,
+          "ms": 111.1,
+          "msTotalFromColdStart": 332.4
+        }
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "nonunit-weight-001",
@@ -1900,7 +2706,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 1376,
-        "ms": 220.5,
+        "ms": 226.4,
         "blocks": 6,
         "spatialDirectory": false,
         "producer": "pvec-gen:nonunit-weight-001"
@@ -1913,8 +2719,8 @@
           "requests": 1,
           "bytes": 34,
           "serialRoundTrips": 1,
-          "ms": 112.4,
-          "msTotalFromColdStart": 332.9
+          "ms": 104.5,
+          "msTotalFromColdStart": 330.9
         },
         {
           "preset": "quarter",
@@ -1923,8 +2729,8 @@
           "requests": 1,
           "bytes": 34,
           "serialRoundTrips": 1,
-          "ms": 104.3,
-          "msTotalFromColdStart": 324.8
+          "ms": 106.8,
+          "msTotalFromColdStart": 333.3
         },
         {
           "preset": "small",
@@ -1933,10 +2739,11 @@
           "requests": 1,
           "bytes": 34,
           "serialRoundTrips": 1,
-          "ms": 115.5,
-          "msTotalFromColdStart": 336
+          "ms": 112.4,
+          "msTotalFromColdStart": 338.8
         }
-      ]
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "nurbs-d2-offconic-001",
@@ -1945,7 +2752,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 1384,
-        "ms": 221.8,
+        "ms": 224,
         "blocks": 6,
         "spatialDirectory": false,
         "producer": "pvec-gen:nurbs-d2-offconic-001"
@@ -1958,8 +2765,8 @@
           "requests": 1,
           "bytes": 34,
           "serialRoundTrips": 1,
-          "ms": 110.6,
-          "msTotalFromColdStart": 332.4
+          "ms": 104.4,
+          "msTotalFromColdStart": 328.5
         },
         {
           "preset": "quarter",
@@ -1968,8 +2775,8 @@
           "requests": 1,
           "bytes": 34,
           "serialRoundTrips": 1,
-          "ms": 103.4,
-          "msTotalFromColdStart": 325.2
+          "ms": 105.4,
+          "msTotalFromColdStart": 329.4
         },
         {
           "preset": "small",
@@ -1978,10 +2785,11 @@
           "requests": 1,
           "bytes": 34,
           "serialRoundTrips": 1,
-          "ms": 112.4,
-          "msTotalFromColdStart": 334.2
+          "ms": 107.8,
+          "msTotalFromColdStart": 331.8
         }
-      ]
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "nurbs-d3-001",
@@ -1990,7 +2798,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 1392,
-        "ms": 221.5,
+        "ms": 223,
         "blocks": 6,
         "spatialDirectory": false,
         "producer": "pvec-gen:nurbs-d3-001"
@@ -2003,8 +2811,8 @@
           "requests": 1,
           "bytes": 34,
           "serialRoundTrips": 1,
-          "ms": 106.1,
-          "msTotalFromColdStart": 327.7
+          "ms": 103.2,
+          "msTotalFromColdStart": 326.2
         },
         {
           "preset": "quarter",
@@ -2013,8 +2821,8 @@
           "requests": 1,
           "bytes": 34,
           "serialRoundTrips": 1,
-          "ms": 111.2,
-          "msTotalFromColdStart": 332.7
+          "ms": 103.8,
+          "msTotalFromColdStart": 326.8
         },
         {
           "preset": "small",
@@ -2023,10 +2831,11 @@
           "requests": 1,
           "bytes": 34,
           "serialRoundTrips": 1,
-          "ms": 107,
-          "msTotalFromColdStart": 328.5
+          "ms": 106.2,
+          "msTotalFromColdStart": 329.2
         }
-      ]
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "polyline-001",
@@ -2035,7 +2844,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 488,
-        "ms": 219.3,
+        "ms": 220.6,
         "blocks": 1,
         "spatialDirectory": false,
         "producer": "pvec-gen:polyline-001"
@@ -2048,8 +2857,8 @@
           "requests": 1,
           "bytes": 62,
           "serialRoundTrips": 1,
-          "ms": 103.2,
-          "msTotalFromColdStart": 322.6
+          "ms": 112.9,
+          "msTotalFromColdStart": 333.5
         },
         {
           "preset": "quarter",
@@ -2058,8 +2867,8 @@
           "requests": 1,
           "bytes": 62,
           "serialRoundTrips": 1,
-          "ms": 112.6,
-          "msTotalFromColdStart": 332
+          "ms": 103.7,
+          "msTotalFromColdStart": 324.3
         },
         {
           "preset": "small",
@@ -2068,10 +2877,11 @@
           "requests": 1,
           "bytes": 62,
           "serialRoundTrips": 1,
-          "ms": 104.5,
-          "msTotalFromColdStart": 323.9
+          "ms": 106.3,
+          "msTotalFromColdStart": 326.9
         }
-      ]
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "polyline2d-001",
@@ -2080,7 +2890,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 496,
-        "ms": 222.3,
+        "ms": 220.8,
         "blocks": 1,
         "spatialDirectory": false,
         "producer": "pvec-gen:polyline2d-001"
@@ -2093,8 +2903,8 @@
           "requests": 1,
           "bytes": 66,
           "serialRoundTrips": 1,
-          "ms": 105.9,
-          "msTotalFromColdStart": 328.1
+          "ms": 103.4,
+          "msTotalFromColdStart": 324.2
         },
         {
           "preset": "quarter",
@@ -2103,8 +2913,8 @@
           "requests": 1,
           "bytes": 66,
           "serialRoundTrips": 1,
-          "ms": 112.7,
-          "msTotalFromColdStart": 334.9
+          "ms": 102.5,
+          "msTotalFromColdStart": 323.3
         },
         {
           "preset": "small",
@@ -2113,10 +2923,57 @@
           "requests": 1,
           "bytes": 66,
           "serialRoundTrips": 1,
-          "ms": 104.8,
-          "msTotalFromColdStart": 327.1
+          "ms": 110.3,
+          "msTotalFromColdStart": 331.1
         }
-      ]
+      ],
+      "spatialDirectory": false
+    },
+    {
+      "name": "reflection-001",
+      "fileBytes": 432,
+      "rttMs": 100,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 496,
+        "ms": 225,
+        "blocks": 1,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:reflection-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 53,
+          "serialRoundTrips": 1,
+          "ms": 105.9,
+          "msTotalFromColdStart": 331
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 53,
+          "serialRoundTrips": 1,
+          "ms": 105.2,
+          "msTotalFromColdStart": 330.3
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 53,
+          "serialRoundTrips": 1,
+          "ms": 104.8,
+          "msTotalFromColdStart": 329.8
+        }
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "repeated-knot-c0-001",
@@ -2125,7 +2982,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 1368,
-        "ms": 219.5,
+        "ms": 221.4,
         "blocks": 6,
         "spatialDirectory": false,
         "producer": "pvec-gen:repeated-knot-c0-001"
@@ -2138,8 +2995,8 @@
           "requests": 1,
           "bytes": 38,
           "serialRoundTrips": 1,
-          "ms": 107.3,
-          "msTotalFromColdStart": 326.8
+          "ms": 103.2,
+          "msTotalFromColdStart": 324.6
         },
         {
           "preset": "quarter",
@@ -2148,8 +3005,8 @@
           "requests": 1,
           "bytes": 38,
           "serialRoundTrips": 1,
-          "ms": 104.5,
-          "msTotalFromColdStart": 324
+          "ms": 108.7,
+          "msTotalFromColdStart": 330.1
         },
         {
           "preset": "small",
@@ -2158,10 +3015,57 @@
           "requests": 1,
           "bytes": 38,
           "serialRoundTrips": 1,
-          "ms": 104.6,
-          "msTotalFromColdStart": 324.1
+          "ms": 104,
+          "msTotalFromColdStart": 325.5
         }
-      ]
+      ],
+      "spatialDirectory": false
+    },
+    {
+      "name": "rotation-irrational-001",
+      "fileBytes": 448,
+      "rttMs": 100,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 512,
+        "ms": 214.5,
+        "blocks": 1,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:rotation-irrational-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 72,
+          "serialRoundTrips": 1,
+          "ms": 105.7,
+          "msTotalFromColdStart": 320.2
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 72,
+          "serialRoundTrips": 1,
+          "ms": 113,
+          "msTotalFromColdStart": 327.5
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 72,
+          "serialRoundTrips": 1,
+          "ms": 103.5,
+          "msTotalFromColdStart": 318
+        }
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "tiny-radius-001",
@@ -2170,7 +3074,7 @@
       "bootstrap": {
         "requests": 2,
         "bytes": 496,
-        "ms": 218.1,
+        "ms": 221.7,
         "blocks": 1,
         "spatialDirectory": false,
         "producer": "pvec-gen:tiny-radius-001"
@@ -2183,8 +3087,8 @@
           "requests": 1,
           "bytes": 60,
           "serialRoundTrips": 1,
-          "ms": 103.9,
-          "msTotalFromColdStart": 321.9
+          "ms": 102,
+          "msTotalFromColdStart": 323.7
         },
         {
           "preset": "quarter",
@@ -2193,8 +3097,8 @@
           "requests": 1,
           "bytes": 60,
           "serialRoundTrips": 1,
-          "ms": 106.6,
-          "msTotalFromColdStart": 324.6
+          "ms": 104.4,
+          "msTotalFromColdStart": 326.1
         },
         {
           "preset": "small",
@@ -2203,19 +3107,124 @@
           "requests": 1,
           "bytes": 60,
           "serialRoundTrips": 1,
-          "ms": 110.2,
-          "msTotalFromColdStart": 328.3
+          "ms": 113.5,
+          "msTotalFromColdStart": 335.2
         }
-      ]
+      ],
+      "spatialDirectory": false
+    },
+    {
+      "name": "uniform-scale-001",
+      "fileBytes": 424,
+      "rttMs": 100,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 488,
+        "ms": 224.3,
+        "blocks": 1,
+        "spatialDirectory": false,
+        "producer": "pvec-gen:uniform-scale-001"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 52,
+          "serialRoundTrips": 1,
+          "ms": 102.8,
+          "msTotalFromColdStart": 327.1
+        },
+        {
+          "preset": "quarter",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 52,
+          "serialRoundTrips": 1,
+          "ms": 112.2,
+          "msTotalFromColdStart": 336.5
+        },
+        {
+          "preset": "small",
+          "chunks": 1,
+          "ranges": 1,
+          "requests": 1,
+          "bytes": 52,
+          "serialRoundTrips": 1,
+          "ms": 107.2,
+          "msTotalFromColdStart": 331.5
+        }
+      ],
+      "spatialDirectory": false
     },
     {
       "name": "architectural-1e5",
+      "fileBytes": 2038536,
+      "rttMs": 100,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 5824,
+        "ms": 228.4,
+        "blocks": 27,
+        "spatialDirectory": false,
+        "producer": "pvec-bench"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "spatial": {
+            "cells": 4,
+            "bytes": 1740426
+          },
+          "chunks": 17,
+          "ranges": 14,
+          "requests": 14,
+          "bytes": 1747678,
+          "serialRoundTrips": 1,
+          "ms": 114,
+          "msTotalFromColdStart": 342.4
+        },
+        {
+          "preset": "quarter",
+          "spatial": {
+            "cells": 3,
+            "bytes": 1726183
+          },
+          "chunks": 13,
+          "ranges": 11,
+          "requests": 11,
+          "bytes": 1733435,
+          "serialRoundTrips": 1,
+          "ms": 118.5,
+          "msTotalFromColdStart": 346.9
+        },
+        {
+          "preset": "small",
+          "spatial": {
+            "cells": 3,
+            "bytes": 1726183
+          },
+          "chunks": 13,
+          "ranges": 11,
+          "requests": 11,
+          "bytes": 1733435,
+          "serialRoundTrips": 1,
+          "ms": 142.3,
+          "msTotalFromColdStart": 370.7
+        }
+      ],
+      "spatialDirectory": true
+    },
+    {
+      "name": "architectural-1e5-plain",
       "fileBytes": 1810416,
       "rttMs": 100,
       "bootstrap": {
         "requests": 2,
         "bytes": 5568,
-        "ms": 228.1,
+        "ms": 226.5,
         "blocks": 23,
         "spatialDirectory": false,
         "producer": "pvec-bench"
@@ -2223,44 +3232,115 @@
       "viewports": [
         {
           "preset": "fullExtent",
+          "spatial": {
+            "cells": 4,
+            "bytes": 1740426
+          },
           "chunks": 17,
           "ranges": 14,
           "requests": 14,
           "bytes": 1747678,
           "serialRoundTrips": 1,
-          "ms": 144.9,
-          "msTotalFromColdStart": 373
+          "ms": 114.1,
+          "msTotalFromColdStart": 340.6
         },
         {
           "preset": "quarter",
+          "spatial": {
+            "cells": 3,
+            "bytes": 1726183
+          },
           "chunks": 13,
           "ranges": 11,
           "requests": 11,
           "bytes": 1733435,
           "serialRoundTrips": 1,
-          "ms": 134.9,
-          "msTotalFromColdStart": 363
+          "ms": 109.6,
+          "msTotalFromColdStart": 336.1
         },
         {
           "preset": "small",
+          "spatial": {
+            "cells": 3,
+            "bytes": 1726183
+          },
           "chunks": 13,
           "ranges": 11,
           "requests": 11,
           "bytes": 1733435,
           "serialRoundTrips": 1,
-          "ms": 143.2,
-          "msTotalFromColdStart": 371.3
+          "ms": 132.4,
+          "msTotalFromColdStart": 358.9
         }
-      ]
+      ],
+      "spatialDirectory": true
     },
     {
       "name": "architectural-1e6",
+      "fileBytes": 19291848,
+      "rttMs": 100,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 16768,
+        "ms": 223.8,
+        "blocks": 198,
+        "spatialDirectory": false,
+        "producer": "pvec-bench"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "spatial": {
+            "cells": 31,
+            "bytes": 17090431
+          },
+          "chunks": 131,
+          "ranges": 115,
+          "requests": 115,
+          "bytes": 17197844,
+          "serialRoundTrips": 1,
+          "ms": 180.1,
+          "msTotalFromColdStart": 403.9
+        },
+        {
+          "preset": "quarter",
+          "spatial": {
+            "cells": 12,
+            "bytes": 6738838
+          },
+          "chunks": 51,
+          "ranges": 48,
+          "requests": 48,
+          "bytes": 6786219,
+          "serialRoundTrips": 1,
+          "ms": 138.2,
+          "msTotalFromColdStart": 362
+        },
+        {
+          "preset": "small",
+          "spatial": {
+            "cells": 6,
+            "bytes": 3343151
+          },
+          "chunks": 26,
+          "ranges": 26,
+          "requests": 26,
+          "bytes": 3371198,
+          "serialRoundTrips": 1,
+          "ms": 129.1,
+          "msTotalFromColdStart": 352.9
+        }
+      ],
+      "spatialDirectory": true
+    },
+    {
+      "name": "architectural-1e6-plain",
       "fileBytes": 17824896,
       "rttMs": 100,
       "bootstrap": {
         "requests": 2,
         "bytes": 14784,
-        "ms": 225.1,
+        "ms": 223.8,
         "blocks": 167,
         "spatialDirectory": false,
         "producer": "pvec-bench"
@@ -2268,44 +3348,115 @@
       "viewports": [
         {
           "preset": "fullExtent",
+          "spatial": {
+            "cells": 31,
+            "bytes": 17090431
+          },
           "chunks": 131,
           "ranges": 115,
           "requests": 115,
           "bytes": 17197844,
           "serialRoundTrips": 1,
-          "ms": 236,
-          "msTotalFromColdStart": 461.1
+          "ms": 170.9,
+          "msTotalFromColdStart": 394.7
         },
         {
           "preset": "quarter",
+          "spatial": {
+            "cells": 12,
+            "bytes": 6738838
+          },
           "chunks": 51,
           "ranges": 48,
           "requests": 48,
           "bytes": 6786219,
           "serialRoundTrips": 1,
-          "ms": 132.7,
-          "msTotalFromColdStart": 357.8
+          "ms": 136,
+          "msTotalFromColdStart": 359.8
         },
         {
           "preset": "small",
+          "spatial": {
+            "cells": 6,
+            "bytes": 3343151
+          },
           "chunks": 26,
           "ranges": 26,
           "requests": 26,
           "bytes": 3371198,
           "serialRoundTrips": 1,
-          "ms": 130.3,
-          "msTotalFromColdStart": 355.4
+          "ms": 132.5,
+          "msTotalFromColdStart": 356.3
         }
-      ]
+      ],
+      "spatialDirectory": true
     },
     {
       "name": "mep-1e5",
+      "fileBytes": 2700368,
+      "rttMs": 100,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 6272,
+        "ms": 222.6,
+        "blocks": 34,
+        "spatialDirectory": false,
+        "producer": "pvec-bench"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "spatial": {
+            "cells": 3,
+            "bytes": 2050842
+          },
+          "chunks": 15,
+          "ranges": 12,
+          "requests": 12,
+          "bytes": 2084765,
+          "serialRoundTrips": 1,
+          "ms": 113.7,
+          "msTotalFromColdStart": 336.3
+        },
+        {
+          "preset": "quarter",
+          "spatial": {
+            "cells": 3,
+            "bytes": 2050842
+          },
+          "chunks": 14,
+          "ranges": 12,
+          "requests": 12,
+          "bytes": 2071645,
+          "serialRoundTrips": 1,
+          "ms": 120.5,
+          "msTotalFromColdStart": 343.1
+        },
+        {
+          "preset": "small",
+          "spatial": {
+            "cells": 3,
+            "bytes": 2050842
+          },
+          "chunks": 13,
+          "ranges": 11,
+          "requests": 11,
+          "bytes": 2059805,
+          "serialRoundTrips": 1,
+          "ms": 122.5,
+          "msTotalFromColdStart": 345.1
+        }
+      ],
+      "spatialDirectory": true
+    },
+    {
+      "name": "mep-1e5-plain",
       "fileBytes": 2370104,
       "rttMs": 100,
       "bootstrap": {
         "requests": 2,
         "bytes": 6080,
-        "ms": 229.8,
+        "ms": 219,
         "blocks": 31,
         "spatialDirectory": false,
         "producer": "pvec-bench"
@@ -2313,44 +3464,115 @@
       "viewports": [
         {
           "preset": "fullExtent",
+          "spatial": {
+            "cells": 3,
+            "bytes": 2050842
+          },
           "chunks": 15,
           "ranges": 12,
           "requests": 12,
           "bytes": 2084765,
           "serialRoundTrips": 1,
-          "ms": 129.8,
-          "msTotalFromColdStart": 359.7
+          "ms": 111.6,
+          "msTotalFromColdStart": 330.7
         },
         {
           "preset": "quarter",
+          "spatial": {
+            "cells": 3,
+            "bytes": 2050842
+          },
           "chunks": 14,
           "ranges": 12,
           "requests": 12,
           "bytes": 2071645,
           "serialRoundTrips": 1,
-          "ms": 139.3,
-          "msTotalFromColdStart": 369.2
+          "ms": 117.5,
+          "msTotalFromColdStart": 336.5
         },
         {
           "preset": "small",
+          "spatial": {
+            "cells": 3,
+            "bytes": 2050842
+          },
           "chunks": 13,
           "ranges": 11,
           "requests": 11,
           "bytes": 2059805,
           "serialRoundTrips": 1,
-          "ms": 138.9,
-          "msTotalFromColdStart": 368.8
+          "ms": 126.2,
+          "msTotalFromColdStart": 345.2
         }
-      ]
+      ],
+      "spatialDirectory": true
     },
     {
       "name": "pathological-1e3",
+      "fileBytes": 757912,
+      "rttMs": 100,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 6528,
+        "ms": 217.6,
+        "blocks": 38,
+        "spatialDirectory": false,
+        "producer": "pvec-bench"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "spatial": {
+            "cells": 1,
+            "bytes": 17309
+          },
+          "chunks": 10,
+          "ranges": 10,
+          "requests": 10,
+          "bytes": 17857,
+          "serialRoundTrips": 1,
+          "ms": 132.5,
+          "msTotalFromColdStart": 350.1
+        },
+        {
+          "preset": "quarter",
+          "spatial": {
+            "cells": 1,
+            "bytes": 17309
+          },
+          "chunks": 10,
+          "ranges": 10,
+          "requests": 10,
+          "bytes": 17857,
+          "serialRoundTrips": 1,
+          "ms": 126.8,
+          "msTotalFromColdStart": 344.4
+        },
+        {
+          "preset": "small",
+          "spatial": {
+            "cells": 1,
+            "bytes": 17309
+          },
+          "chunks": 10,
+          "ranges": 10,
+          "requests": 10,
+          "bytes": 17857,
+          "serialRoundTrips": 1,
+          "ms": 116.8,
+          "msTotalFromColdStart": 334.4
+        }
+      ],
+      "spatialDirectory": true
+    },
+    {
+      "name": "pathological-1e3-plain",
       "fileBytes": 757488,
       "rttMs": 100,
       "bootstrap": {
         "requests": 2,
         "bytes": 6464,
-        "ms": 216.7,
+        "ms": 222.5,
         "blocks": 37,
         "spatialDirectory": false,
         "producer": "pvec-bench"
@@ -2358,44 +3580,115 @@
       "viewports": [
         {
           "preset": "fullExtent",
+          "spatial": {
+            "cells": 1,
+            "bytes": 17309
+          },
           "chunks": 10,
           "ranges": 10,
           "requests": 10,
           "bytes": 17857,
           "serialRoundTrips": 1,
-          "ms": 121.2,
-          "msTotalFromColdStart": 337.9
+          "ms": 120.1,
+          "msTotalFromColdStart": 342.5
         },
         {
           "preset": "quarter",
+          "spatial": {
+            "cells": 1,
+            "bytes": 17309
+          },
           "chunks": 10,
           "ranges": 10,
           "requests": 10,
           "bytes": 17857,
           "serialRoundTrips": 1,
-          "ms": 121.8,
-          "msTotalFromColdStart": 338.5
+          "ms": 115.7,
+          "msTotalFromColdStart": 338.2
         },
         {
           "preset": "small",
+          "spatial": {
+            "cells": 1,
+            "bytes": 17309
+          },
           "chunks": 10,
           "ranges": 10,
           "requests": 10,
           "bytes": 17857,
           "serialRoundTrips": 1,
-          "ms": 119.3,
-          "msTotalFromColdStart": 336
+          "ms": 112.6,
+          "msTotalFromColdStart": 335.1
         }
-      ]
+      ],
+      "spatialDirectory": true
     },
     {
       "name": "spline-heavy-1e5",
+      "fileBytes": 13496280,
+      "rttMs": 100,
+      "bootstrap": {
+        "requests": 2,
+        "bytes": 42816,
+        "ms": 231.4,
+        "blocks": 605,
+        "spatialDirectory": false,
+        "producer": "pvec-bench"
+      },
+      "viewports": [
+        {
+          "preset": "fullExtent",
+          "spatial": {
+            "cells": 2,
+            "bytes": 890016
+          },
+          "chunks": 107,
+          "ranges": 106,
+          "requests": 106,
+          "bytes": 1641677,
+          "serialRoundTrips": 1,
+          "ms": 145.1,
+          "msTotalFromColdStart": 376.5
+        },
+        {
+          "preset": "quarter",
+          "spatial": {
+            "cells": 2,
+            "bytes": 890016
+          },
+          "chunks": 35,
+          "ranges": 34,
+          "requests": 34,
+          "bytes": 1091556,
+          "serialRoundTrips": 1,
+          "ms": 126.8,
+          "msTotalFromColdStart": 358.2
+        },
+        {
+          "preset": "small",
+          "spatial": {
+            "cells": 2,
+            "bytes": 890016
+          },
+          "chunks": 15,
+          "ranges": 14,
+          "requests": 14,
+          "bytes": 939400,
+          "serialRoundTrips": 1,
+          "ms": 120.4,
+          "msTotalFromColdStart": 351.8
+        }
+      ],
+      "spatialDirectory": true
+    },
+    {
+      "name": "spline-heavy-1e5-plain",
       "fileBytes": 12341936,
       "rttMs": 100,
       "bootstrap": {
         "requests": 2,
         "bytes": 42688,
-        "ms": 224.1,
+        "ms": 233.8,
         "blocks": 603,
         "spatialDirectory": false,
         "producer": "pvec-bench"
@@ -2403,35 +3696,48 @@
       "viewports": [
         {
           "preset": "fullExtent",
+          "spatial": {
+            "cells": 2,
+            "bytes": 890016
+          },
           "chunks": 107,
           "ranges": 106,
           "requests": 106,
           "bytes": 1641677,
           "serialRoundTrips": 1,
-          "ms": 179,
-          "msTotalFromColdStart": 403.1
+          "ms": 133.6,
+          "msTotalFromColdStart": 367.4
         },
         {
           "preset": "quarter",
+          "spatial": {
+            "cells": 2,
+            "bytes": 890016
+          },
           "chunks": 35,
           "ranges": 34,
           "requests": 34,
           "bytes": 1091556,
           "serialRoundTrips": 1,
-          "ms": 133.2,
-          "msTotalFromColdStart": 357.3
+          "ms": 125.2,
+          "msTotalFromColdStart": 359
         },
         {
           "preset": "small",
+          "spatial": {
+            "cells": 2,
+            "bytes": 890016
+          },
           "chunks": 15,
           "ranges": 14,
           "requests": 14,
           "bytes": 939400,
           "serialRoundTrips": 1,
-          "ms": 126.9,
-          "msTotalFromColdStart": 351
+          "ms": 128.8,
+          "msTotalFromColdStart": 362.6
         }
-      ]
+      ],
+      "spatialDirectory": true
     }
   ]
 }

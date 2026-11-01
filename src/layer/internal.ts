@@ -8,6 +8,8 @@ import type { GlResources } from "./glresources";
 import type { Evaluator } from "../wasm/loader";
 import type { BlockCursor } from "../decode/tier0";
 import type { PVecHandle } from "../source/bootstrap";
+import type { PVecSource } from "../source/PVecSource";
+import { openTier0Cursor } from "./tier0-cursor";
 import type { DecodeWorker } from "../render/raster/decode";
 import type { RasterProvider } from "../render/raster/provider";
 import type { RasterFrameStats } from "../render/raster/renderer";
@@ -66,8 +68,11 @@ export type { BytesEvent };
 const engineDefaults: EngineDeps = {
   loadEvaluator: () => loadEvaluator(),
   maplibreVersion: () => (globalThis as { maplibregl?: { getVersion?: () => string } }).maplibregl?.getVersion?.(),
-  // The packed Tier 0 decoder is part of the shared evaluator (libviprs/pvec#1, P7.2). Until it ships there is nothing to drive.
-  openCursor: () => Promise.resolve(null),
+  // A module without the Tier 0 exports (ABI 1, or a stand-in) has no stream to drive, which is a layer without strokes, not an error.
+  openCursor: (handle, evaluator, source) =>
+    typeof (evaluator.instance.exports as Record<string, unknown> | undefined)?.["tier0_viewport"] === "function"
+      ? openTier0Cursor(handle, evaluator, source)
+      : Promise.resolve(null),
   // The raster stream of the file through the module's exports (libviprs/pvec#221). Null when the file declares no raster, or the
   // module predates the exports, and the layer then draws as it did before.
   openRasters: (handle, evaluator, source) =>
@@ -98,7 +103,7 @@ export interface EngineDeps {
   /** The MapLibre version string, or undefined when it cannot be read (the check is then skipped). */
   maplibreVersion(): string | undefined;
   /** A cursor over the Tier 0 blocks, or null when the evaluator offers no decoder to drive. */
-  openCursor(handle: PVecHandle, evaluator: Evaluator): Promise<BlockCursor | null>;
+  openCursor(handle: PVecHandle, evaluator: Evaluator, source: PVecSource): Promise<BlockCursor | null>;
   /** The raster stream of the file behind a seam, or null when the module lacks the raster exports or the file has no raster. */
   openRasters(handle: PVecHandle, evaluator: Evaluator, source: RangeReader): Promise<RasterProvider | null>;
   /** Debug hooks of the raster path: per frame stats, per tile decode time, and the worker the decode runs in. */
