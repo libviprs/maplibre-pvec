@@ -1,8 +1,8 @@
 // node examples/07-raster-underlay/run.mjs --pkg <dir of the installed maplibre-pvec> [--out <dir>]
 // A scan under and over a drawing, in headless Chromium, against the page's own 127.0.0.1 server and with every other origin refused:
 //   csp-ok    libviprs's two conversions of a scanned PDF (band 0 and band 1, with the linework as an entity) and pvec's synthetic
-//             raster file (the third raster has a codec the reader does not know) -> band 0 puts the linework on top (a red pixel
-//             at the stroke), band 1 puts the scan on top (a grey one), the unknown codec is one rasterskipped with RASTER-04, the
+//             raster file (the third raster has a codec the reader does not know) -> band 0 puts the linework on top (a pixel at the
+//             stroke darker than the scan), band 1 puts the scan on top (the scan's own grey), the unknown codec is one rasterskipped with RASTER-04, the
 //             attribution is in MapLibre's control as text, and the toggle off paints less than half
 // Launch through /Users/rom/workspace/xdg-pw-lock.sh. The server is closed on every path.
 import { chromium } from "@playwright/test";
@@ -50,14 +50,15 @@ try {
     await page.screenshot({ path: join(out, "07-raster-underlay.png") });
     await page.close();
     const u = r.cases.under, o = r.cases.over, m = r.cases.mixed;
-    const reddish = (p) => p[0] > 150 && p[1] < 80 && p[2] < 80;
-    const grey = (p) => Math.abs(p[0] - p[1]) < 12 && Math.abs(p[1] - p[2]) < 12 && p[0] > 30 && p[0] < 230;
+    // The scan is a grey ramp, 40 + 3 * x over 64 pixels, so the centre of the stroke reads about 135 where the scan alone is drawn. With
+    // the linework on top of the scan (band 0) the pixel is the stroke's colour blended over it, darker than the scan.
+    const scanAlone = (p) => Math.abs(p[0] - 135) <= 12 && Math.abs(p[0] - p[1]) < 6;
     const checks = {
       noErrors: r.errors.length === 0,
       underIsBand0: u.rasters.length === 1 && u.rasters[0].band === 0 && u.skipped.length === 0,
-      underLineworkOnTop: u.painted > 1000 && reddish(u.centrePixel),
+      underLineworkOnTop: u.painted > 1000 && u.centrePixel[0] < o.centrePixel[0] - 20,
       overIsBand1: o.rasters.length === 1 && o.rasters[0].band === 1 && o.skipped.length === 0,
-      overScanOnTop: o.painted > 1000 && grey(o.centrePixel),
+      overScanOnTop: o.painted > 1000 && scanAlone(o.centrePixel),
       mixedOneSkippedWithRule: m.rasters.length === 2 && m.skipped.length === 1 && m.skipped[0].rasterId === 2 && m.skipped[0].rule === "RASTER-04",
       attributionAsText: m.attribution.length > 0 && attributionText.includes("<1998>"),
       toggleOffDrawsLess: r.offPixels < m.painted / 2,
