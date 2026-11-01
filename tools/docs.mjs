@@ -221,6 +221,32 @@ function rasterSection(root, hw) {
     }
     out.push("");
   }
+  // The repeat runs of the Intel row: the noise floor and every steady frame over one 60 fps frame, run by run.
+  const repDir = path.join(root, "bench/results/hw/repeats");
+  const reps = existsSync(repDir) ? readdirSync(repDir).filter((f) => f.endsWith(".json")).sort() : [];
+  if (reps.length) {
+    const runs = reps.map((f) => ({ f, r: JSON.parse(readFileSync(path.join(repDir, f), "utf8")) }));
+    const base = hard.find(([k]) => /Intel/.test(k));
+    out.push("#### Intel ADL GT2: repeat runs, the noise floor and the observed hitch\n");
+    out.push("The full run behind the table above and the scenes-only repeats (`bench/results/hw/repeats`, the same bundle, taken one at a time when the shared host's load average was under 3). The steady p95 varies by a tenth of a millisecond between runs. A steady frame of about 25 to 26 ms shows up in most runs, once or twice, in any scene including the stroke-only one, so it does not come from the raster pass; the cause is not confirmed (a driver stall or garbage collection are the guesses) and it is outside the raster budget. Steady frames over 16.7 ms are listed with the scene they fell in.\n");
+    out.push("| run | host load start / end (6 cpus) | scene | steady p95 / mean (ms) | steady frames over 16.7 ms (ms) | upload frames: count / max (ms) |", "|---|---|---|---|---|---|");
+    const rows = [];
+    if (base) rows.push({ name: "full run", env: { hostLoad: base[1].hostLoad }, scenes: base[1].raster.scenes });
+    for (const { f, r } of runs) rows.push({ name: f.replace(/^.*-raster-?/, "").replace(/\.json$/, "") || f, env: r.environment, scenes: r.raster.scenes });
+    let hitchRuns = 0;
+    for (const x of rows) {
+      let any = false;
+      for (const sc of x.scenes) {
+        const h = sc.render.steady.over16_7Ms;
+        if (h.length) any = true;
+        const l = x.env.hostLoad;
+        out.push(`| ${x.name} | ${l ? `${l.start} / ${l.end}` : "n/a"} | ${sc.name} | ${f2(sc.render.steady.p95Ms)} / ${f2(sc.render.steady.meanMs)} | ${h.map((v) => f2(v)).join(", ") || "none"} | ${sc.render.uploadFrames.frames} / ${f2(sc.render.uploadFrames.maxMs)} |`);
+      }
+      if (any) hitchRuns++;
+    }
+    out.push("");
+    out.push(`Runs with at least one steady frame over 16.7 ms: ${hitchRuns} of ${rows.length}.\n`);
+  }
   out.push("#### Two scans at one scan pixel per device pixel, against the gpu ceiling\n");
   out.push("The view that holds the most tiles. Two full-resolution views at 4K do not fit 128 MiB, so the fit rule steps a level down; the table shows what stayed resident and which levels drew.\n");
   out.push("| renderer | view (device px) | peak textures | peak gpu tier (MiB of 128) | levels drawn at the end |", "|---|---|---|---|---|");
