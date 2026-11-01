@@ -18,3 +18,6 @@ export const docsFixtures = () => ({ "/plan.pvec": smallFixture() });
 
 /** The libviprs-converted scan: a 64 by 48 ramp painted 100 by 75 at source (25, 10), with a stroke across it. See lib/truth.mjs. */
 export const scanFixture = () => new Uint8Array(readFileSync(join(root, "tests/fixtures/pvec-raster/libviprs/scan_under_linework.pvec")));
+
+/** pvec's known-truth circle (tests/fixtures/pvec/circle-001.pvec): centre (1.5, -2.25), radius 2.75 source units, from pvec-gold-fixtures' expected.math.json. */
+export const circleFixture = () => new Uint8Array(readFileSync(join(root, "tests/fixtures/pvec/circle-001.pvec")));
