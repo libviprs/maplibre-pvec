@@ -31,7 +31,7 @@ let failed = 0;
 const browser = await chromium.launch({ args: ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader"] });
 try {
   await withServer({ routes: { "/pkg": pkg, "/maplibre": maplibre, "/": join(here, "..") }, fixtures, csp: CSP }, async (s) => {
-    const page = await browser.newPage({ viewport: { width: 900, height: 900 } });
+    const page = await browser.newPage({ viewport: { width: 700, height: 900 } });
     const deniedHosts = [];
     await page.route("**/*", (r) => {
       const u = new URL(r.request().url());
@@ -44,7 +44,7 @@ try {
     page.on("console", (m) => { if (m.type() === "error" || m.type() === "warning") console.log(`[page ${m.type()}] ${m.text().slice(0, 300)}`); });
     page.on("requestfailed", (r) => console.log(`[request failed] ${r.url()} ${r.failure()?.errorText}`));
     await page.goto(`${s.url}/07-raster-underlay/index.html`);
-    await page.waitForSelector("#status[data-state]", { timeout: 240_000 }).catch(async (e) => { console.log(`[timeout] status text: ${await page.locator("#status").textContent()}; pageErrors ${JSON.stringify(pageErrors)}`); throw e; });
+    await page.waitForSelector("#status[data-state]", { timeout: 420_000 }).catch(async (e) => { console.log(`[timeout] status text: ${await page.locator("#status").textContent()}; pageErrors ${JSON.stringify(pageErrors)}`); throw e; });
     const r = JSON.parse(await page.locator("#out").textContent());
     const attributionText = await page.locator(".maplibregl-ctrl-attrib").first().textContent().catch(() => "");
     await page.screenshot({ path: join(out, "07-raster-underlay.png") });

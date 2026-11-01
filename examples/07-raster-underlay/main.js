@@ -67,14 +67,14 @@ async function open(key) {
   await layer.whenReady();
   let painted = { painted: 0, pixel: [0, 0, 0] };
   const centre = map.project([8.54, 47.37]);
-  // Draw until the scan has been decoded and uploaded, then for 90 more frames: the file's linework (its Tier 0 stream) arrives in steps.
-  let ready = -1;
+  // Draw until the scan has been decoded and uploaded, then for 6 seconds more: the file's linework (its Tier 0 stream) arrives in steps.
+  let ready = -1, readyAt = 0;
   for (let i = 0; i < 600; i++) {
     map.triggerRepaint();
     await frame();
     const d = layer.getDiagnostics().rasters;
-    if (ready < 0 && i > 5 && d.drawn > 0 && d.decodesInFlight === 0) ready = i;
-    if (ready >= 0 && i >= ready + 90) break;
+    if (ready < 0 && i > 5 && d.drawn > 0 && d.decodesInFlight === 0) (ready = i, (readyAt = performance.now()));
+    if (ready >= 0 && performance.now() - readyAt > 6000) break;
   }
   painted = canvasPixels(centre);
   const rasters = layer.rasters();
