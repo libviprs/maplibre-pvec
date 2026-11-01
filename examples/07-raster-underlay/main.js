@@ -54,6 +54,7 @@ function canvasPixels(at) {
 
 let layer;
 async function open(key) {
+  console.log(`[ex07] open ${key} at ${Math.round(performance.now())} ms`);
   if (layer) map.removeLayer(layer.id);
   if (attribution) (map.removeControl(attribution), (attribution = undefined));
   const f = FILES[key];
@@ -77,6 +78,7 @@ async function open(key) {
     if (ready >= 0 && performance.now() - readyAt > 6000) break;
   }
   painted = canvasPixels(centre);
+  console.log(`[ex07] ${key} read at ${Math.round(performance.now())} ms, ready frame ${ready}`);
   const rasters = layer.rasters();
   const tbody = document.querySelector("#rasters tbody");
   const ul = document.getElementById("skipped");

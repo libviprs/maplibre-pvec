@@ -41,7 +41,7 @@ try {
     });
     const pageErrors = [];
     page.on("pageerror", (e) => pageErrors.push(String(e)));
-    page.on("console", (m) => { if (m.type() === "error" || m.type() === "warning") console.log(`[page ${m.type()}] ${m.text().slice(0, 300)}`); });
+    page.on("console", (m) => { if (m.type() === "error" || m.type() === "warning" || m.text().startsWith("[ex07]")) console.log(`[page ${m.type()}] ${m.text().slice(0, 300)}`); });
     page.on("requestfailed", (r) => console.log(`[request failed] ${r.url()} ${r.failure()?.errorText}`));
     await page.goto(`${s.url}/07-raster-underlay/index.html`);
     await page.waitForSelector("#status[data-state]", { timeout: 420_000 }).catch(async (e) => { console.log(`[timeout] status text: ${await page.locator("#status").textContent()}; pageErrors ${JSON.stringify(pageErrors)}`); throw e; });
