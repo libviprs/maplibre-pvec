@@ -50,7 +50,7 @@ export const COMPAT = {
     readerVersion: "1.0.0",
     semanticProfile: "geometry major 1",
     requiredCapabilities: ["cartesian_point", "direction_vector", "axis_placement_2d", "line", "polyline", "circle", "ellipse", "trimmed_curve", "composite_curve", "bezier_curve", "b_spline_curve", "rational_b_spline_curve", "affine_transform_2d"],
-    optionalCapabilities: ["layer", "line_style", "text", "hatch", "source_provenance", "dwg_semantics", "semantic_class"],
+    optionalCapabilities: ["layer", "line_style", "text", "hatch", "source_provenance", "dwg_semantics", "semantic_class", "raster"],
     acceptedCapabilityMajor: 1,
   },
   projections: [

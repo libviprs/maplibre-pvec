@@ -30,7 +30,7 @@ The `maplibre-gl` peer range is `>=4.7.1 <7.0.0`, derived from the lowest and hi
 - semantic profile: geometry major 1
 - accepted capability major: 1
 - required capabilities: cartesian_point, direction_vector, axis_placement_2d, line, polyline, circle, ellipse, trimmed_curve, composite_curve, bezier_curve, b_spline_curve, rational_b_spline_curve, affine_transform_2d
-- optional capabilities: layer, line_style, text, hatch, source_provenance, dwg_semantics, semantic_class
+- optional capabilities: layer, line_style, text, hatch, source_provenance, dwg_semantics, semantic_class, raster
 
 ## Projections
 

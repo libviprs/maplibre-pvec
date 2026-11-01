@@ -18,3 +18,7 @@ Joins read the neighbour through two extra instance attributes bound on the same
 1e6 segments are 40 MB, and the 4 MiB pages hold 104 857 records each. The pool sub-allocates from a free list, defers frees until the frame that could reference them completes, compacts a page above 35 percent fragmentation, and keeps the source bytes so a lost context can be rebuilt without decoding again.
 
 A pure pan changes only the camera uniforms. It performs no buffer writes.
+
+## Raster textures
+
+A raster tile is an RGBA8 texture of `edge * edge * 4` bytes held as an entry of the source's `gpu` tier, uploaded under the same 4 MiB and 2 ms a frame budget as the stroke buffers. The encoded bytes and the decoded bitmap of the same tile live in the other two tiers; see [range and cache model](range-cache-model.md#a-raster-tile-through-the-three-tiers). A context loss drops the textures from the tier with their GL objects and rebuilds them from the retained encoded bytes.

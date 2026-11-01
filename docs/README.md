@@ -58,6 +58,7 @@ One page per subject. Pages marked generated are rebuilt by `node tools/docs.mjs
 - [0006-stroke-renderer](adr/0006-stroke-renderer.md)
 - [0007-mercator-conformance-baseline](adr/0007-mercator-conformance-baseline.md)
 - [0008-webgpu-deferral-policy](adr/0008-webgpu-deferral-policy.md)
+- [0009-raster-quads](adr/0009-raster-quads.md)
 - [01-maplibre-surface](spikes/01-maplibre-surface.md)
 - [02-range-bootstrap](spikes/02-range-bootstrap.md)
 - [03-wasm-evaluator](spikes/03-wasm-evaluator.md)
@@ -65,3 +66,4 @@ One page per subject. Pages marked generated are rebuilt by `node tools/docs.mjs
 - [05-tier0-coverage](spikes/05-tier0-coverage.md)
 - [06-stroke](spikes/06-stroke.md)
 - [07-workers-webgpu](spikes/07-workers-webgpu.md)
+- [raster-render.md](raster-render.md)

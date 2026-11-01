@@ -16,6 +16,9 @@ export interface EntryMeta {
   entityId?: number;
   /** Higher generations supersede lower ones of the same entityId. */
   generation?: number;
+  /** A raster tile: the raster and the pyramid level it belongs to, for the level-distance term of the eviction order. */
+  raster?: number;
+  level?: number;
   /** What the entry holds, handed to `release` when it goes. For the GPU tier, the WebGLBuffer. */
   payload?: unknown;
 }
@@ -28,12 +31,14 @@ export interface Eviction {
   key: string;
   bytes: number;
   /** The value terms that decided it, lowest value goes first. */
-  terms: { visible: boolean; refined: boolean; lastUsed: number };
+  terms: { visible: boolean; refined: boolean; lastUsed: number; levelDistance?: number };
 }
 
 /**
  * Three separately accounted tiers. Eviction order is visibility, then refinement, then recency,
- * with the key as the last tie-break so runs are reproducible. A GPU entry is released through
+ * with the key as the last tie-break so runs are reproducible. Two raster tiles compare by visibility ("in the current
+ * plan"), then by how far their level is from the level the plan wants (a retained coarser level outranks a finer level
+ * that is no longer wanted), then recency, then the key. A GPU entry is released through
  * `release` (the layer's deleteBuffer path), so evicting it deletes the buffer.
  */
 export class TieredCache {
@@ -43,6 +48,7 @@ export class TieredCache {
   private peaks: Record<Tier, number> = { compressed: 0, decoded: 0, gpu: 0 };
   private ceilings: Record<Tier, number>;
   private tick = 0;
+  private wanted = new Map<number, number>();
 
   constructor(
     ceilings: Partial<Record<Tier, number>> = {},
@@ -95,6 +101,16 @@ export class TieredCache {
     return true;
   }
 
+  /** The level the current plan wants of each raster, for the eviction order of raster tiles. */
+  setWantedLevels(m: ReadonlyMap<number, number>): void {
+    this.wanted = new Map(m);
+  }
+
+  /** Remove one entry without evicting it: it moved to another tier, or its owner released it. Releases the payload. */
+  drop(t: Tier, key: string): void {
+    this.remove(t, key);
+  }
+
   /** Mark exactly these keys (in every tier) as on screen. */
   setVisible(keys: ReadonlySet<string>): void {
     for (const t of TIERS) for (const [k, e] of this.tiers[t]) e.visible = keys.has(k);
@@ -118,7 +134,7 @@ export class TieredCache {
     for (const kv of this.tiers[t]) if (!victim || this.lower(kv, victim)) victim = kv;
     if (!victim) return;
     const [key, e] = victim;
-    this.evictionLog.push({ tier: t, key, bytes: e.bytes, terms: { visible: !!e.visible, refined: !!e.refined, lastUsed: e.lastUsed } });
+    this.evictionLog.push({ tier: t, key, bytes: e.bytes, terms: { visible: !!e.visible, refined: !!e.refined, lastUsed: e.lastUsed, ...(e.raster !== undefined ? { levelDistance: this.distance(e) } : {}) } });
     this.remove(t, key);
   }
 
@@ -126,8 +142,19 @@ export class TieredCache {
     const [ka, ea] = a;
     const [kb, eb] = b;
     if (!!ea.visible !== !!eb.visible) return !ea.visible;
+    if (ea.raster !== undefined && eb.raster !== undefined) {
+      const da = this.distance(ea), db = this.distance(eb);
+      if (da !== db) return da > db;
+    }
     if (!!ea.refined !== !!eb.refined) return !ea.refined;
     if (ea.lastUsed !== eb.lastUsed) return ea.lastUsed < eb.lastUsed;
     return ka < kb;
+  }
+
+  /** Levels below the wanted one count whole, levels above it half a level more, so a retained coarser level outranks a finer one of equal distance. */
+  private distance(e: Entry): number {
+    const w = this.wanted.get(e.raster!);
+    if (w === undefined || e.level === undefined) return 0;
+    return e.level < w ? w - e.level : e.level - w + 0.5;
   }
 }

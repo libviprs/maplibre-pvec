@@ -12,7 +12,7 @@ afterEach(async () => r.stop());
 
 describe("#26 M7.3 events and diagnostics", () => {
   it("a scripted load emits every event in the catalogue, and the test lists the catalogue itself", async () => {
-    const all: PVecEventName[] = ["capabilities", "bytes", "tier0complete", "refinement", "capabilityunsupported", "error"];
+    const all: PVecEventName[] = ["capabilities", "bytes", "tier0complete", "refinement", "capabilityunsupported", "rasterskipped", "error"];
     expect([...EVENT_NAMES].sort()).toEqual([...all].sort());
     const seen = new Set<string>();
     const layer = createPVecLayer({ id: "a", source: { url: r.url } });
@@ -24,6 +24,7 @@ describe("#26 M7.3 events and diagnostics", () => {
     ctl.markTier0Complete({ viewportId: "v0", blocksUsed: 4 });
     ctl.reportRefinement({ entityId: "e1", generation: 1, priorErrorPx: 2, nextErrorPx: 0.4 });
     ctl.reportCapabilityUnsupported({ capability: "hatch", required: false, action: "ignored" });
+    ctl.reportRasterSkipped({ rasterId: 0, rule: "RASTER-04", message: "synthetic" });
     ctl.reportError("listener_failed", "synthetic", {});
     expect([...seen].sort()).toEqual([...all].sort());
     layer.onRemove(fakeMap, gl);

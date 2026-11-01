@@ -1,5 +1,6 @@
 // Hardware GPU result files (#82). Unlike bench/lib/result.ts these never accept a software
-// rasteriser: a run on SwiftShader or llvmpipe is a relative cost, not a hardware number.
+// rasteriser as a hardware number: a run on SwiftShader or llvmpipe is a relative cost. The one
+// exception is validateSoftwareResult, for a labelled arm64 Linux container run kept apart.
 export interface HardwareEnvironment {
   host: string;
   os: string;
@@ -10,11 +11,29 @@ export interface HardwareEnvironment {
   gpuRenderer: string;
   gpuVendor: string;
   softwareRenderer: boolean;
+  /** Software GL results only: where it ran, and that there was no GPU behind it. */
+  container?: string;
   dpr: number;
   viewport: [number, number];
   timerQuery: boolean;
 }
 export interface UploadPoint { bytes: number; p50Ms: number; p95Ms: number }
+/** The same 1e6-segment scene driven through the wired MapLibre custom layer on a real map (#82 addendum). */
+export interface LayerRun {
+  durationMs: number;
+  segments: number;
+  /** GL state names the state guard found changed after a frame, summed over the run. */
+  stateDiffs: number;
+  /** Layer error events plus map errors. */
+  errors: number;
+  frames: { count: number; p50Ms: number; p95Ms: number; p99Ms: number; maxMs: number; over20Ms: number };
+  drawCalls: { perFrame: number };
+  /** JavaScript time inside layer.render per frame. */
+  cpu: { renderP50Ms: number; renderP95Ms: number; renderMaxMs: number };
+  gpu: { frameP50Ms: number; frameP95Ms: number } | null;
+  /** From addLayer until every range is uploaded and drawn: frames, time, the slowest render and the pool's upload bytes. */
+  settle: { frames: number; ms: number; renderMaxMs: number; uploadedBytes: number; maxUploadBytesPerFrame: number };
+}
 export interface HardwareResult {
   schema: 1;
   commit: string;
@@ -27,12 +46,15 @@ export interface HardwareResult {
   draw1e6: { segments: number; uploadMs: number; syncDrawP50Ms: number; syncDrawP95Ms: number };
   upload: UploadPoint[];
   snapshot: { scene: string; sha256: string };
+  layer?: LayerRun;
 }
 export interface BaselineEntry {
   engine: string;
   arch: string;
   os: string;
   softwareRenderer: boolean;
+  /** Software entries only. */
+  container?: string;
   browserVersion: string;
   source: string;
   frames: HardwareResult["frames"];
@@ -42,6 +64,7 @@ export interface BaselineEntry {
   draw1e6: HardwareResult["draw1e6"];
   upload: UploadPoint[];
   snapshot: HardwareResult["snapshot"];
+  layer?: LayerRun;
 }
 export interface Baselines {
   schema: 1;
@@ -49,6 +72,8 @@ export interface Baselines {
   tunedFrom: string[];
   /** Keyed by the unmasked renderer string, then engine, e.g. "<renderer> | chromium". */
   entries: Record<string, BaselineEntry>;
+  /** Software GL runs (arm64 Linux container, no GPU). Relative costs, never tuning input and never GPU numbers. */
+  softwareEntries?: Record<string, BaselineEntry>;
 }
 
 export const MIN_RUN_MS = 60_000;
@@ -70,6 +95,15 @@ export function uploadBytesWithin(curve: UploadPoint[], budgetMs: number): numbe
 const finite = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v) && v >= 0;
 
 export function validateHardwareResult(r: unknown): string[] {
+  return validateResult(r, false);
+}
+
+/** A software GL result: only from a labelled linux/arm64 container, and it says it is not a GPU number. */
+export function validateSoftwareResult(r: unknown): string[] {
+  return validateResult(r, true);
+}
+
+function validateResult(r: unknown, software: boolean): string[] {
   const res = r as Partial<HardwareResult> | null;
   const env = res?.environment;
   if (!env) return ["result has no environment block"];
@@ -78,7 +112,12 @@ export function validateHardwareResult(r: unknown): string[] {
     if (!env[k]) errors.push(`environment.${k} is missing`);
   }
   if (env.arch !== "arm64" && env.arch !== "x64") errors.push(`environment.arch ${JSON.stringify(env.arch)} must be arm64 or x64, native only`);
-  if (isSoftwareRenderer(`${env.gpuRenderer ?? ""} ${env.gpuVendor ?? ""}`) || env.softwareRenderer !== false) {
+  const soft = isSoftwareRenderer(`${env.gpuRenderer ?? ""} ${env.gpuVendor ?? ""}`);
+  if (software) {
+    if (!soft || env.softwareRenderer !== true) errors.push(`software result needs a software renderer and softwareRenderer true (got ${env.gpuRenderer})`);
+    if (!/no GPU/.test(env.container ?? "")) errors.push('environment.container must name the container and say "no GPU"');
+    if (env.arch !== "arm64" || !/linux/i.test(env.os ?? "")) errors.push("software results are labelled linux arm64 only");
+  } else if (soft || env.softwareRenderer !== false) {
     errors.push(`environment says software rendering (${env.gpuRenderer}), numbers are not hardware numbers`);
   }
   const f = res.frames;
@@ -89,6 +128,19 @@ export function validateHardwareResult(r: unknown): string[] {
   if (!res.draw1e6 || res.draw1e6.segments < DRAW_SEGMENTS) errors.push(`draw1e6.segments must be at least 1e6 (${DRAW_SEGMENTS})`);
   if (!res.upload || res.upload.length < 3) errors.push("upload curve needs at least three sizes");
   if (!/^[0-9a-f]{64}$/.test(res.snapshot?.sha256 ?? "")) errors.push("snapshot.sha256 is missing");
+  if (res.layer) errors.push(...validateLayerRun(res.layer));
+  return errors;
+}
+
+function validateLayerRun(l: LayerRun): string[] {
+  const errors: string[] = [];
+  if (!(l.durationMs >= MIN_RUN_MS)) errors.push(`layer.durationMs must be at least ${MIN_RUN_MS} (the 60 s run)`);
+  if (!(l.segments >= DRAW_SEGMENTS)) errors.push(`layer.segments must be at least 1e6 (${DRAW_SEGMENTS})`);
+  if (!finite(l.drawCalls?.perFrame) || !(l.drawCalls.perFrame > 0)) errors.push("layer.drawCalls.perFrame is missing");
+  for (const k of ["count", "p50Ms", "p95Ms", "p99Ms", "maxMs"] as const) if (!finite(l.frames?.[k])) errors.push(`layer.frames.${k} is missing`);
+  for (const k of ["renderP50Ms", "renderP95Ms", "renderMaxMs"] as const) if (!finite(l.cpu?.[k])) errors.push(`layer.cpu.${k} is missing`);
+  if (l.stateDiffs !== 0) errors.push(`layer left GL state behind in ${l.stateDiffs} frame diffs`);
+  if (l.errors !== 0) errors.push(`layer run raised ${l.errors} errors`);
   return errors;
 }
 
@@ -101,6 +153,14 @@ export function validateBaselines(b: unknown): string[] {
     if (!renderer || !engine) errors.push(`${key}: key must be "<renderer> | <engine>"`);
     if (isSoftwareRenderer(key) || e.softwareRenderer !== false) errors.push(`${key}: software renderers do not get hardware entries`);
     if (e.engine !== engine) errors.push(`${key}: engine ${e.engine} does not match the key`);
+    if (!/^[0-9a-f]{64}$/.test(e.snapshot?.sha256 ?? "")) errors.push(`${key}: snapshot hash missing`);
+    if (!e.source) errors.push(`${key}: source result file missing`);
+  }
+  for (const [key, e] of Object.entries(x.softwareEntries ?? {})) {
+    if (!isSoftwareRenderer(key) || e.softwareRenderer !== true) errors.push(`${key}: only software renderers go in softwareEntries`);
+    if (!/no GPU/.test(e.container ?? "")) errors.push(`${key}: software entry needs a container label saying no GPU`);
+    if (x.entries[key]) errors.push(`${key}: software entry also listed as hardware`);
+    if (x.tunedFrom?.includes(key)) errors.push(`${key}: software entry cannot be tuning input`);
     if (!/^[0-9a-f]{64}$/.test(e.snapshot?.sha256 ?? "")) errors.push(`${key}: snapshot hash missing`);
     if (!e.source) errors.push(`${key}: source result file missing`);
   }

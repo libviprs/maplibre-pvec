@@ -62,7 +62,7 @@ function adrIndex(root) {
   });
   return `${GEN("docs/adr/*.md")}# Architecture decision records (browser)
 
-Eight ADRs freeze the phase 1 decisions. Each one quotes numbers from a spike report under \`docs/spikes/\`.
+Eight ADRs freeze the phase 1 decisions. Each one quotes numbers from a spike report under \`docs/spikes/\`. Later records (0009 and up) decide what came after, and say what they measured in their own evidence.
 
 | ADR | Subject | Status | Evidence |
 |---|---|---|---|
@@ -134,6 +134,30 @@ function benchmarkReport(root) {
     out.push(`| ${key.split(" | ")[0]} | ${e.engine} ${e.browserVersion} | ${e.arch} | ${fmt(e.frames.p50Ms)} / ${fmt(e.frames.p95Ms)} / ${fmt(e.frames.maxMs)} | ${e.frames.over20Ms} of ${e.frames.count} | ${e.drawCalls.perFrame} | ${fmt(e.cpu.submitP95Ms)} | ${e.gpu ? fmt(e.gpu.frameP50Ms) : "no timer query"} | ${fmt(e.draw1e6.syncDrawP50Ms)} | ${fmt(e.draw1e6.uploadMs)} | ${up(4 << 20)} | ${up(8 << 20)} | \`${e.source}\` |`);
   }
   out.push("");
+  const withLayer = Object.entries(hw.entries).filter(([, e]) => e.layer);
+  if (withLayer.length) {
+    out.push("### The same scene through the wired layer\n");
+    out.push("The same 1e6 segments in ten style groups (ten draw calls), drawn by `createPVecLayer` on a real MapLibre map with the stand-in cursor (real `.pvec` strokes come with the shared decoder), panned every frame, 60 s after a 3 s warm-up, in the same browser session as the row above. Render CPU is the JavaScript time inside `layer.render`; frame interval is the time between map renders. Settle is from `addLayer` until the pool has uploaded all of it (at most `uploadBudgetBytes` a frame) and every range draws. State diffs come from a separate 400-frame run with the guard's debug diff on.\n");
+    out.push("| renderer | engine | frame p50/p95/max (ms) | frames over 20 ms | draw calls | render CPU p50/p95/max (ms) | GPU frame p50 (ms) | settle (frames / ms) | largest upload in a frame (MiB) | state diffs | errors |", "|---|---|---|---|---|---|---|---|---|---|---|");
+    for (const [key, e] of withLayer) {
+      const l = e.layer;
+      out.push(`| ${key.split(" | ")[0]} | ${e.engine} ${e.browserVersion} | ${fmt(l.frames.p50Ms)} / ${fmt(l.frames.p95Ms)} / ${fmt(l.frames.maxMs)} | ${l.frames.over20Ms} of ${l.frames.count} | ${l.drawCalls.perFrame} | ${fmt(l.cpu.renderP50Ms)} / ${fmt(l.cpu.renderP95Ms)} / ${fmt(l.cpu.renderMaxMs)} | ${l.gpu ? fmt(l.gpu.frameP50Ms) : "no timer query"} | ${l.settle.frames} / ${l.settle.ms} | ${fmt(l.settle.maxUploadBytesPerFrame / (1 << 20))} | ${l.stateDiffs} | ${l.errors} |`);
+    }
+    out.push("");
+    out.push("The state guard used to read the GL state back every frame, and in Chromium the first `getParameter` waits for the GPU (11 ms of render CPU on the M5, about 5 ms on the Intel part). It now reads the state once to seed a shadow kept by the context's setters, so a steady-state frame does no blocking reads (#96); the debug diff still queries. The pool kept to its upload budget on all three.\n");
+  }
+  const soft = Object.entries(hw.softwareEntries ?? {});
+  if (soft.length) {
+    out.push("### arm64 Linux, software GL (not GPU numbers)\n");
+    out.push("The same raw run and layer run in a linux/arm64 container on an Apple Silicon Mac under Docker Desktop. Docker Desktop passes no GPU into a container, so Chromium drew with SwiftShader on the CPU (4 cpus, 4 GB), at dpr 1 (the GPU rows use dpr 2) because software drawing of the 1e6-segment scene already costs seconds a frame. These rows say the harness, the pool and the wired layer work on arm64 Linux, and what they cost in software. They are not GPU numbers, not tuning input, and they do not stand in for an NVIDIA run or a real-GPU arm64 Linux run: neither was run and neither is claimed ([deferred work](deferred.md)). A frame takes seconds here, so the 60 s loops hold only a handful of frames and the frame percentiles are rough; the layer run's GL state diff covers 5 frames instead of 400.\n");
+    out.push("| renderer | engine | arch | dpr | raw frames in the 60 s loop | draw calls | 1e6 sync draw p50 (s) | CPU submit p95 (ms) | 4 MiB upload p95 (ms) | 16 MiB upload p95 (ms) | layer frames / frame p50 (s) | layer render CPU p50 / max (ms) | layer settle (frames) | largest upload in a frame (MiB) | state diffs / errors | source |", "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|");
+    for (const [key, e] of soft) {
+      const l = e.layer;
+      const up = (b) => fmt(e.upload.find((u) => u.bytes === b).p95Ms);
+      out.push(`| ${key.split(" | ")[0]} | ${e.engine} ${e.browserVersion} | ${e.arch} | 1 | ${e.frames.count} | ${e.drawCalls.perFrame} | ${fmt(e.draw1e6.syncDrawP50Ms / 1000)} | ${fmt(e.cpu.submitP95Ms)} | ${up(4 << 20)} | ${up(16 << 20)} | ${l ? `${l.frames.count} / ${fmt(l.frames.p50Ms / 1000)}` : "n/a"} | ${l ? `${fmt(l.cpu.renderP50Ms)} / ${fmt(l.cpu.renderMaxMs)}` : "n/a"} | ${l ? l.settle.frames : "n/a"} | ${l ? fmt(l.settle.maxUploadBytesPerFrame / (1 << 20)) : "n/a"} | ${l ? `${l.stateDiffs} / ${l.errors}` : "n/a"} | \`${e.source}\` |`);
+    }
+    out.push("");
+  }
   out.push(...realEvaluatorSection(root));
   out.push("Software GL means these are relative costs. The add-on's own runs and the thresholds for them are listed in [deferred work](deferred.md).\n");
   return out.join("\n");

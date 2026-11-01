@@ -41,9 +41,29 @@ Stroke pipeline through the buffer pool, 1e6 segments per frame as ten 100k-segm
 
 | renderer | engine | arch | frame p50/p95/max (ms) | frames over 20 ms | draw calls | CPU submit p95 (ms) | GPU frame p50 (ms) | 1e6 sync draw p50 (ms) | 1e6 upload (ms) | 4 MiB upload p95 (ms) | 8 MiB upload p95 (ms) | source |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version) | chromium 149.0.7827.55 | arm64 | 8.4 / 17 / 18.6 | 0 of 5801 | 10 | 0.1 | 19.9 | 12.4 | 8 | 0.2 | 0.6 | `bench/results/hw/2026-10-30-macbook-m5-chromium.json` |
-| Apple GPU | webkit 26.5 | arm64 | 17 / 19 / 31 | 29 of 3601 | 10 | 1 | no timer query | 15 | 3 | 1 | 1 | `bench/results/hw/2026-10-30-macbook-m5-webkit.json` |
-| ANGLE (Intel, Mesa Intel(R) Graphics (ADL GT2), OpenGL ES 3.2) | chromium 130.0.6723.31 | x64 | 133.2 / 133.4 / 250 | 495 of 495 | 10 | 0.4 | 75.0 | 42.3 | 46.6 | 0.8 | 2.7 | `bench/results/hw/2026-10-30-nas-intel-adl-gt2-chromium.json` |
+| ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version) | chromium 149.0.7827.55 | arm64 | 8.3 / 16.5 / 18.7 | 0 of 6638 | 10 | 0.1 | 17.2 | 12.2 | 7.2 | 0.3 | 0.5 | `bench/results/hw/2026-10-30-macbook-m5-chromium.json` |
+| Apple GPU | webkit 26.5 | arm64 | 17 / 18 / 21 | 1 of 3601 | 10 | 1 | no timer query | 15 | 4 | 1 | 1 | `bench/results/hw/2026-10-30-macbook-m5-webkit.json` |
+| ANGLE (Intel, Mesa Intel(R) Graphics (ADL GT2), OpenGL ES 3.2) | chromium 130.0.6723.31 | x64 | 116.6 / 133.4 / 2383.3 | 503 of 503 | 10 | 0.4 | 69.2 | 42.2 | 61.1 | 1 | 3.3 | `bench/results/hw/2026-10-30-nas-intel-adl-gt2-chromium.json` |
+
+### The same scene through the wired layer
+
+The same 1e6 segments in ten style groups (ten draw calls), drawn by `createPVecLayer` on a real MapLibre map with the stand-in cursor (real `.pvec` strokes come with the shared decoder), panned every frame, 60 s after a 3 s warm-up, in the same browser session as the row above. Render CPU is the JavaScript time inside `layer.render`; frame interval is the time between map renders. Settle is from `addLayer` until the pool has uploaded all of it (at most `uploadBudgetBytes` a frame) and every range draws. State diffs come from a separate 400-frame run with the guard's debug diff on.
+
+| renderer | engine | frame p50/p95/max (ms) | frames over 20 ms | draw calls | render CPU p50/p95/max (ms) | GPU frame p50 (ms) | settle (frames / ms) | largest upload in a frame (MiB) | state diffs | errors |
+|---|---|---|---|---|---|---|---|---|---|---|
+| ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version) | chromium 149.0.7827.55 | 10.1 / 11 / 13.3 | 0 of 6090 | 10 | 0.1 / 0.1 / 0.2 | 18.8 | 15 / 193 | 4 | 0 | 0 |
+| Apple GPU | webkit 26.5 | 17 / 18 / 20 | 0 of 3601 | 10 | 0 / 1 / 2 | no timer query | 14 / 290 | 4 | 0 | 0 |
+| ANGLE (Intel, Mesa Intel(R) Graphics (ADL GT2), OpenGL ES 3.2) | chromium 130.0.6723.31 | 118.8 / 138.4 / 3009.2 | 451 of 451 | 10 | 0.6 / 0.7 / 2081.5 | 70.0 | 18 / 2280 | 4 | 0 | 0 |
+
+The state guard used to read the GL state back every frame, and in Chromium the first `getParameter` waits for the GPU (11 ms of render CPU on the M5, about 5 ms on the Intel part). It now reads the state once to seed a shadow kept by the context's setters, so a steady-state frame does no blocking reads (#96); the debug diff still queries. The pool kept to its upload budget on all three.
+
+### arm64 Linux, software GL (not GPU numbers)
+
+The same raw run and layer run in a linux/arm64 container on an Apple Silicon Mac under Docker Desktop. Docker Desktop passes no GPU into a container, so Chromium drew with SwiftShader on the CPU (4 cpus, 4 GB), at dpr 1 (the GPU rows use dpr 2) because software drawing of the 1e6-segment scene already costs seconds a frame. These rows say the harness, the pool and the wired layer work on arm64 Linux, and what they cost in software. They are not GPU numbers, not tuning input, and they do not stand in for an NVIDIA run or a real-GPU arm64 Linux run: neither was run and neither is claimed ([deferred work](deferred.md)). A frame takes seconds here, so the 60 s loops hold only a handful of frames and the frame percentiles are rough; the layer run's GL state diff covers 5 frames instead of 400.
+
+| renderer | engine | arch | dpr | raw frames in the 60 s loop | draw calls | 1e6 sync draw p50 (s) | CPU submit p95 (ms) | 4 MiB upload p95 (ms) | 16 MiB upload p95 (ms) | layer frames / frame p50 (s) | layer render CPU p50 / max (ms) | layer settle (frames) | largest upload in a frame (MiB) | state diffs / errors | source |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver) | chromium 130.0.6723.31 | arm64 | 1 | 1 | 10 | 14.1 | 0.3 | 0.6 | 1.2 | 6 / 9.6 | 0.3 / 2.7 | 16 | 4 | 0 / 0 | `bench/results/hw/2026-10-31-macbook-docker-arm64-linux-chromium-software.json` |
 
 ## Real pvec evaluator and real .pvec bytes
 

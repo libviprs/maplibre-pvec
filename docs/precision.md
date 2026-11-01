@@ -40,6 +40,20 @@ Reading it: naive single-`f32` world coordinates are already 16.9 px off at zoom
 
 Inside the envelope the full 33 600-cell matrix (7 zooms, 4 magnitudes, 4 feature sizes, 5 latitudes, 5 plan rotations, 4 bearing/pitch pairs, 3 pixel ratios) stays at or below 1.3e-3 px against a 0.25 px limit. Zoom 24 is recorded (worst 1.1e-3 px in the emulation) but labelled outside the v1 envelope and never gates. Outside the envelope `checkPrecisionEnvelope` returns a `precision-envelope` diagnostic (a 1e9-magnitude coordinate is the tested case) instead of degrading silently.
 
+## Rasters
+
+A raster quad's corners go through the chain the strokes use: source to world in f64, the hi and lo split, and the view linearised at the centre of the canvas. At pitch 0 the linearisation is exact, so a corner lands on `map.project` to 1e-11 device px (arithmetic, not a pixel measurement), and the scan edge and a stroke along it coincide within 0.1 device px at zooms 0 to 4, bearings 0 and 30, pixel ratios 1 and 2 (worst 0.097 px, MapLibre 4.7.1, software GL; the drawing is kept at 160 px across by scaling the calibration with the zoom, so the stress is the size of the world coordinates, not the size on screen).
+
+Under pitch the layer linearises at the centre of the canvas, as the strokes do, so a corner away from the centre lands where the tilted projection does not put it. Corner landing error against `map.project`, a 160 px square at zoom 2, pixel ratio 1, identical on 4.7.1, 5.24.0 and 6.16.0:
+
+| pitch | corners (top left, top right, bottom left, bottom right), px |
+|---|---|
+| 0 | 0.00, 0.00, 0.00, 0.00 |
+| 30 | 14.07, 14.07, 7.67, 7.67 |
+| 60 | 16.55, 16.55, 14.07, 14.07 |
+
+Nothing is promised under pitch beyond what the strokes promise; a projection-matrix path is a separate decision.
+
 ## What this does not prove
 
 The emulation assumes the GPU does `highp` single-precision arithmetic with correct rounding per operation. Real drivers can fuse multiply-adds or use different `sin`/`cos` approximations, so the browser run on real GL contexts (`docs/deferred.md`) is still needed before the numbers are quoted as GPU measurements. The 0.25 px gate and the 8 px naive-error claim are asserted against the emulation today.
