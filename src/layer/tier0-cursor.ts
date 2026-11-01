@@ -13,9 +13,12 @@ const MAX_ENTITIES = 1e7;
 const MAX_SEGMENTS = 5e6;
 // The width of the whole drawing in screen pixels: a pixel of that view is the asked error, and the unit declared errors are given in.
 const FULL_VIEW_PX = 1920;
-// Entities of a leaf that are tessellated in one step, and of the advanced curves (a spline costs more than a segment).
+// The most entities of a leaf that are tessellated in one step, and of the advanced curves (a spline costs more than a segment).
+// A step starts small and grows while it stays cheap, and shrinks when it costs more than STEP_MS, down to one entity (a single
+// spline of 10^4 control points costs 2 to 8 ms by itself), so one step never holds what a slice cannot.
 const PAGE_ENTITIES = 256;
 const ADVANCED_PAGE_ENTITIES = 32;
+const STEP_MS = 2;
 // A window with more entities than this is split in four before it is tessellated (a module without the per-leaf calls).
 const STEP_ENTITIES = 512;
 const MAX_DEPTH = 12;
@@ -23,6 +26,13 @@ const MAX_DEPTH = 12;
 const CALL_MS = 1;
 // Stored previews are copied out this many to a step.
 const PREVIEW_STEP = 256;
+
+/** `a` to `b` of a vertex array as a plain array. A sized loop is four to five times cheaper than `Array.from` (which grows an array through an iterator), and it makes no garbage to collect inside a slice. */
+const copied = (v: ArrayLike<number>, a: number, b: number): number[] => {
+  const out = new Array<number>(b - a);
+  for (let i = a; i < b; i++) out[i - a] = v[i]!;
+  return out;
+};
 
 const boundsOf = (p: ArrayLike<number>) => {
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
@@ -82,7 +92,7 @@ export function tier0CursorOver(evaluator: Evaluator, bytes: Uint8Array, window:
         for (let i = 0; i < v.entityIds.length; i++) {
           const id = v.entityIds[i]!;
           if (seen.has(id)) continue;
-          const points = Array.from(v.vertices.subarray(2 * v.offsets[i]!, 2 * v.offsets[i + 1]!));
+          const points = copied(v.vertices, 2 * v.offsets[i]!, 2 * v.offsets[i + 1]!);
           if (points.length < 4) continue;
           const e = entity(id, points, 1);
           if (meetsWindow(e.bounds)) (seen.add(id), pending.push(e));
@@ -103,7 +113,7 @@ export function tier0CursorOver(evaluator: Evaluator, bytes: Uint8Array, window:
         for (let i = at; i < Math.min(n, at + PREVIEW_STEP); i++) {
           const id = v.ids[i]!, code = v.codes[i]!;
           if (seen.has(id) || (code !== 1 && code !== 2)) continue;
-          const points = Array.from(v.vertices.subarray(2 * v.offsets[i]!, 2 * v.offsets[i + 1]!));
+          const points = copied(v.vertices, 2 * v.offsets[i]!, 2 * v.offsets[i + 1]!);
           if (points.length < 4) continue;
           const e = entity(id, points, v.errors[i]! / px);
           if (meetsWindow(e.bounds)) (seen.add(id), pending.push(e));
@@ -114,6 +124,7 @@ export function tier0CursorOver(evaluator: Evaluator, bytes: Uint8Array, window:
       rt.release(stream);
     }
   }
+  let page = 16;
   /** One leaf (cell 0: the advanced curves): its stored previews, then its entities a page at a time. */
   function* leaf(cell: number, hasBlock: boolean): Generator<void> {
     if (hasBlock) {
@@ -121,12 +132,18 @@ export function tier0CursorOver(evaluator: Evaluator, bytes: Uint8Array, window:
       yield;
       if (stream >= 0) yield* storedPreviews(stream);
     }
-    const page = cell === 0 ? ADVANCED_PAGE_ENTITIES : PAGE_ENTITIES;
-    for (let first = 0; ; first += page) {
-      const batch = rt.queryLeaf(file, cell, first, page);
+    const cap = cell === 0 ? ADVANCED_PAGE_ENTITIES : PAGE_ENTITIES;
+    // The advanced curves are the unknown (a spline can cost a whole slice), so they start at one; a leaf goes on from the last leaf.
+    if (cell === 0) page = 1;
+    for (let first = 0, asked = 0; ; first += asked) {
+      asked = page;
+      const began = performance.now();
+      const batch = rt.queryLeaf(file, cell, first, asked);
       if (batch < 0) return;
       const more = rt.batchTruncated(batch);
       tessellated(batch);
+      const spent = performance.now() - began;
+      page = spent > STEP_MS ? Math.max(1, page >> 1) : spent < STEP_MS / 2 ? Math.min(cap, page * 2) : page;
       yield;
       if (!more) return;
     }
