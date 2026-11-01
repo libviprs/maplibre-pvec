@@ -229,7 +229,7 @@ async function scene(name: "strokes+0" | "strokes+1" | "strokes+10", scans: numb
         last = ts;
       }
       i++;
-      if (ts - start >= o.warmupMs + o.durationMs + 250) { map.off("render", step); resolve(); return; }
+      if (ts - start >= o.warmupMs + o.durationMs + 1000) { map.off("render", step); resolve(); return; }
       // Pan side to side and breathe the zoom by 0.8 of a level, so the level rule moves and tiles keep arriving.
       map.setCenter([CENTER[0] + Math.sin(i / 90) * 500 * LON_PER_PX, CENTER[1] + Math.cos(i / 130) * 250 * LAT_PER_PX]);
       map.setZoom(17 + 0.8 * Math.sin(i / 300));
