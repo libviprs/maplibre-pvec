@@ -4,7 +4,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import Ajv from "ajv";
 import { loadRegistry, type Registry } from "../fixtures/registry";
-import { fsSource } from "../fixtures/node";
+import { fsSource, loadPvecIndex } from "../fixtures/node";
 import type { CorpusPin } from "../fixtures/source";
 import { CLASSES, buildCorpus, validateCorpus, type Corpus } from "../../bench/lib/corpus";
 import { viewportScript } from "../../bench/lib/viewport";
@@ -13,7 +13,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const pin = JSON.parse(readFileSync(join(root, "tests/fixtures/pin.json"), "utf8")) as CorpusPin;
 const corpus = JSON.parse(readFileSync(join(root, "bench/corpus/corpus.json"), "utf8")) as Corpus;
 const schema = JSON.parse(readFileSync(join(root, "bench/corpus/corpus.schema.json"), "utf8"));
-const reg: Registry = await loadRegistry(fsSource(join(root, "tests/fixtures/corpus")), pin);
+const reg: Registry = await loadRegistry(fsSource(join(root, "tests/fixtures/corpus")), pin, await loadPvecIndex(join(root, "tests/fixtures/pvec")));
 const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v));
 
 describe("#34 corpus.json", () => {
@@ -68,10 +68,21 @@ describe("#34 corpus.json", () => {
     expect(validateCorpus(bad, reg).errors.join("\n")).toMatch(/entities/);
   });
 
-  it("rejects an invented pvec byte size while the canonical pvec does not exist", () => {
+  it("rejects a pvec size or digest that is not the one pvec's index pins", () => {
     const bad = clone(corpus);
     (bad.cases[0]!.pvec as { bytes: number | null }).bytes = 1234;
     expect(validateCorpus(bad, reg).errors.join("\n")).toMatch(/pvec/);
+    const sha = clone(corpus);
+    (sha.cases[0]!.pvec as { sha256: string | null }).sha256 = "0".repeat(64);
+    expect(validateCorpus(sha, reg).errors.join("\n")).toMatch(/pvec/);
+  });
+
+  it("has real pvec bytes for 28 cases and pvec's own reason for the 2 it did not emit (#80)", () => {
+    expect(corpus.cases.filter((c) => c.pvec.status === "PRESENT")).toHaveLength(28);
+    expect(corpus.cases.filter((c) => c.pvec.status === "PENDING")).toHaveLength(0);
+    const none = corpus.cases.filter((c) => c.pvec.status === "NOT_EMITTED");
+    expect(none).toHaveLength(2);
+    for (const c of none) expect(c.pvec.note, c.fixtureId).toContain(c.fixtureId);
   });
 
   it("names the classes that have no case yet instead of passing them silently", () => {

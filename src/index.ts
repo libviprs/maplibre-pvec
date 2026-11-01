@@ -37,6 +37,8 @@ export type {
   PVecEventMap,
   PVecEventName,
   PVecListener,
+  RasterInfo,
+  RasterSkippedEvent,
   RefinementEvent,
   Tier0CompleteEvent,
 } from "./diagnostics/events";

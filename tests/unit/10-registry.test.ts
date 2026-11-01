@@ -17,7 +17,7 @@ import {
   gatingFor,
 } from "../fixtures/evidence";
 import { memorySource, sha256Hex, type CorpusPin } from "../fixtures/source";
-import { fsSource } from "../fixtures/node";
+import { fsSource, loadPvecIndex } from "../fixtures/node";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const corpusDir = join(here, "..", "fixtures", "corpus");
@@ -74,9 +74,20 @@ describe("#10 registry resolves the pinned corpus", () => {
     expect(nested.entities).toEqual([{ id: "nested-blocks-001", type: "line" }]);
   });
 
-  it("records the canonical pvec as pending rather than inventing one", async () => {
+  it("records the canonical pvec as pending when no pvec index is given, rather than inventing one", async () => {
     const reg = await loadRegistry(fsSource(corpusDir), pin);
     for (const f of reg.fixtures) expect(f.canonicalPvec).toEqual({ status: "PENDING", waitsOn: "libviprs/pvec#1 P2.4" });
+  });
+
+  it("takes the canonical pvec from pvec's index: 28 present with their digests, 2 not emitted with pvec's reason (#80)", async () => {
+    const index = await loadPvecIndex(join(dirname(corpusDir), "pvec"));
+    const reg = await loadRegistry(fsSource(corpusDir), pin, index);
+    expect(reg.fixtures.filter((f) => f.canonicalPvec.status === "PRESENT")).toHaveLength(28);
+    const none = reg.fixtures.filter((f) => f.canonicalPvec.status === "NOT_EMITTED");
+    expect(none.map((f) => f.id)).toContain("near-singular-001");
+    for (const f of none) expect((f.canonicalPvec as { reason: string }).reason).toContain(f.id);
+    const line = reg.fixtures.find((f) => f.id === "line-001")!;
+    expect(line.canonicalPvec).toMatchObject({ status: "PRESENT", sha256: index.artifacts["line-001"]!.sha256 });
   });
 
   it("carries the signature of every fixture the converter accepted and none for the refused one", async () => {
@@ -213,6 +224,7 @@ describe("#10 gating and the run summary", () => {
     expect(text).toContain("QUARANTINED shear-001 UNSUPPORTED_ENTITY");
     expect(text).toContain("gating: 30");
     expect(text).toContain("canonical pvec pending: 30");
+    expect(text).toContain("canonical pvec present: 0");
   });
 });
 

@@ -123,6 +123,13 @@ cancelledWork: number;
 pendingFetches: number;
 frames: number;
 contextLosses: number;
+/** Zero for a file without a raster stream. `textureBytes` and `decodesInFlight` are read from the cache accounting. */
+rasters: {
+    drawn: number;
+    skipped: number;
+    textureBytes: number;
+    decodesInFlight: number;
+};
 }
 ```
 
@@ -278,6 +285,7 @@ bytes: BytesEvent;
 tier0complete: Tier0CompleteEvent;
 refinement: RefinementEvent;
 capabilityunsupported: CapabilityUnsupportedEvent;
+rasterskipped: RasterSkippedEvent;
 error: PVecErrorEvent;
 }
 ```
@@ -333,6 +341,11 @@ update(partial: PVecLayerUpdate): void;
 on<K extends PVecEventName>(type: K, fn: PVecListener<K>): this;
 off<K extends PVecEventName>(type: K, fn: PVecListener<K>): this;
 once<K extends PVecEventName>(type: K, fn: PVecListener<K>): this;
+/**
+ * The rasters that draw, in RasterId order, empty before the file is loaded or when it has none. A custom layer has no
+ * source to carry an attribution, so the host passes `attribution` (already escaped) to MapLibre's attribution control.
+ */
+rasters(): RasterInfo[];
 getDiagnostics(): DiagnosticsSnapshot;
 /** Attach a component hook. Returns the function that removes it again. */
 registerComponent<K extends ComponentKind>(kind: K, impl: ComponentMap[K]): () => void;
@@ -388,6 +401,14 @@ cache?: CacheBudget;
 workers?: WorkerOptions;
 errorPolicy?: ErrorPolicy;
 style?: StyleOptions;
+/**
+ * Rasters carried by the file. On by default. There is no texture budget here: textures share `cache.gpuBytes` and the
+ * bitmaps in flight count against `limits.maxDecodedBytes`.
+ */
+raster?: {
+    /** False draws no raster and starts no decode. Switchable at runtime with `update`. */
+    enabled?: boolean;
+};
 /** Not supported. The only accepted value is false (ADR 0008). */
 experimental?: {
     readonly webgpu?: false;
@@ -399,7 +420,7 @@ experimental?: {
 
 ```ts
 /** What `layer.update()` accepts. None of it refetches canonical bytes. */
-export type PVecLayerUpdate = Pick<PVecLayerOptions, "georeference" | "limits" | "cache" | "errorPolicy" | "style">;
+export type PVecLayerUpdate = Pick<PVecLayerOptions, "georeference" | "limits" | "cache" | "errorPolicy" | "style" | "raster">;
 ```
 
 ### PVecListener
@@ -448,6 +469,35 @@ export declare class PVecTransportError extends PVecError {
 ```ts
 /** No usable version identity, or the artifact changed under the session. */
 export declare class PVecVersionError extends PVecError {
+}
+```
+
+### RasterInfo
+
+```ts
+/** What the host needs to know about a raster that draws. `attribution` is already escaped for an HTML sink. */
+export interface RasterInfo {
+id: number;
+width: number;
+height: number;
+/** 0 draws under the strokes, 1 over them. */
+band: 0 | 1;
+/** 0 to 255. */
+opacity: number;
+/** Plain text escaped for MapLibre's attribution control, empty when the raster has none. */
+attribution: string;
+}
+```
+
+### RasterSkippedEvent
+
+```ts
+/** One raster the reader did not draw. Emitted once per skipped raster per bootstrap; the file's other rasters and its strokes draw. */
+export interface RasterSkippedEvent {
+rasterId: number;
+/** The rule that refused it, such as `RASTER-04`. */
+rule: string;
+message: string;
 }
 ```
 

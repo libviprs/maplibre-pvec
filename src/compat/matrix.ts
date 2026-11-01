@@ -36,9 +36,9 @@ export const COMPAT = {
     { version: "6.16.0", renderArgs: "object with defaultProjectionData.mainMatrix (plus getProjectionData)", context: "WebGL2RenderingContext", verified: "onAdd context, matrix convention within 1 device px, state left set" },
   ] as readonly MapLibreRow[],
   browsers: [
-    { engine: "chromium", status: "supported", tested: "130.0.6723.31", note: "WebGL2 through ANGLE on SwiftShader in CI; module workers; no COOP/COEP needed" },
-    { engine: "firefox", status: "pending", tested: "none", note: "the CI container's Firefox returned no WebGL2 context, so no minimum is claimed until the M2.8 grid has a Firefox row" },
-    { engine: "webkit", status: "pending", tested: "none", note: "no minimum is claimed until the M2.8 grid has a WebKit row" },
+    { engine: "chromium", status: "supported", tested: "111.0.5563.19", note: "lowest passing build, from Playwright 1.31; 120.0.6099.28 and the pinned 130.0.6723.31 also pass; WebGL2 through ANGLE on SwiftShader; module workers; no COOP/COEP needed" },
+    { engine: "firefox", status: "supported", tested: "131.0", note: "Playwright's pinned build with WebGL2 on Mesa llvmpipe under an X display (xvfb); without a display it returns no WebGL2 context; older builds not run, so 131.0 is the lowest measured" },
+    { engine: "webkit", status: "supported", tested: "18.0", note: "Playwright's pinned build with its software WebGL2 path; older builds not run, so 18.0 is the lowest measured" },
   ] as readonly BrowserRow[],
   browserRequirements: {
     webgl2: "required, no canvas2D fallback",
@@ -50,7 +50,7 @@ export const COMPAT = {
     readerVersion: "1.0.0",
     semanticProfile: "geometry major 1",
     requiredCapabilities: ["cartesian_point", "direction_vector", "axis_placement_2d", "line", "polyline", "circle", "ellipse", "trimmed_curve", "composite_curve", "bezier_curve", "b_spline_curve", "rational_b_spline_curve", "affine_transform_2d"],
-    optionalCapabilities: ["layer", "line_style", "text", "hatch", "source_provenance", "dwg_semantics", "semantic_class"],
+    optionalCapabilities: ["layer", "line_style", "text", "hatch", "source_provenance", "dwg_semantics", "semantic_class", "raster"],
     acceptedCapabilityMajor: 1,
   },
   projections: [
@@ -63,7 +63,7 @@ export const COMPAT = {
 export const UNSUPPORTED_ROWS: readonly UnsupportedRow[] = [
   { id: "U1", combination: "MapLibre outside the tested range", code: "unsupported_maplibre_version", outcome: "refuse at attach; the message names the tested range" },
   { id: "U2", combination: "no WebGL2 context", code: "webgl2_required", outcome: "refuse at attach; no canvas2D fallback" },
-  { id: "U3", combination: "required PVec capability not implemented", code: "required-unsupported", outcome: "refuse before any payload byte; a wrong major is required-version" },
+  { id: "U3", combination: "required PVec capability not implemented", code: "unsupported_required_capability", outcome: "refuse before any payload byte; a wrong major of a known capability uses the same code with detail.reason set to version" },
   { id: "U4", combination: "optional PVec capability not implemented", code: "degrade", outcome: "skip the blocks and list the capability in the bootstrap report" },
   { id: "U5", combination: "file needs a newer reader than 1.0.0", code: "reader-too-old", outcome: "refuse before any payload byte" },
   { id: "U6", combination: "WASM fetch or compile blocked", code: "wasm_unavailable", outcome: "onAdd rejects, one error event, MapLibre layers keep rendering, no TypeScript geometry fallback" },

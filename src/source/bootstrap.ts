@@ -22,7 +22,7 @@ const NAMES: Record<number, string> = {
   1: "cartesian_point", 2: "direction_vector", 3: "axis_placement_2d", 4: "line", 5: "polyline",
   6: "circle", 7: "ellipse", 8: "trimmed_curve", 9: "composite_curve", 10: "bezier_curve",
   11: "b_spline_curve", 12: "rational_b_spline_curve", 13: "affine_transform_2d", 14: "layer",
-  15: "line_style", 16: "text", 17: "hatch", 18: "source_provenance", 19: "dwg_semantics", 20: "semantic_class",
+  15: "line_style", 16: "text", 17: "hatch", 18: "source_provenance", 19: "dwg_semantics", 20: "semantic_class", 21: "raster",
 };
 const nameOf = (id: number): string => NAMES[id] ?? `capability#${id}`;
 /** The capabilities this add-on can draw: the geometry set at major 1. Components load independently later. */
@@ -208,13 +208,16 @@ function negotiate(m: PVecManifest): { id: number; name: string }[] {
     if (supported) continue;
     if (cap.required) {
       const known = SUPPORTED_MAJOR[cap.id] !== undefined;
-      throw new PVecCapabilityError(
-        known ? "required-version" : "required-unsupported",
+      const err = new PVecCapabilityError(
+        "unsupported_required_capability",
         cap.name,
         known
           ? `required capability ${cap.name} is declared at major ${cap.major}, this reader implements major ${SUPPORTED_MAJOR[cap.id]}`
           : `required capability ${cap.name} is not supported`,
       );
+      // The one name covers both; the reason says which. `detail` is a plain object, so the typed error's shape is unchanged.
+      Object.assign(err.detail, { reason: known ? "version" : "unsupported" });
+      throw err;
     }
     unsupportedOptional.push({ id: cap.id, name: cap.name });
   }

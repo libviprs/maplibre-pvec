@@ -1,0 +1,2633 @@
+{
+  "browser": "chromium 130.0.6723.31",
+  "platform": "linux/x64",
+  "pvecCommit": "c7aed3d64a79ddd4a809e51a072d027c3946d92d",
+  "wasmBytes": 442797,
+  "compileMs": 23.7,
+  "instantiateMs": 0.2,
+  "abiVersion": 1,
+  "fixtures": [
+    {
+      "id": "arc-seam-001",
+      "entities": 1,
+      "vertsAtEps1e3": 33,
+      "singleEvaluation": {
+        "medianNsPerCall": 50000,
+        "minNsPerCall": 48859.93485342019,
+        "maxNsPerCall": 53956.8345323741,
+        "vertices": 33
+      },
+      "amortised": [
+        {
+          "targetVertices": 100,
+          "reachable": true,
+          "vertices": 100,
+          "failed": 0,
+          "eps": 0.0002162908596914493,
+          "nsPerVertex": 1543.59,
+          "nsPerCall": 154359
+        },
+        {
+          "targetVertices": 1000,
+          "reachable": true,
+          "vertices": 1000,
+          "failed": 0,
+          "eps": 3.3795827541047023e-06,
+          "nsPerVertex": 1535,
+          "nsPerCall": 1535000
+        },
+        {
+          "targetVertices": 10000,
+          "reachable": true,
+          "vertices": 10000,
+          "failed": 0,
+          "eps": 1.3201497647320245e-08,
+          "nsPerVertex": 1558,
+          "nsPerCall": 15580000
+        },
+        {
+          "targetVertices": 100000,
+          "reachable": true,
+          "vertices": 100000,
+          "failed": 0,
+          "eps": 2.0627338629818368e-10,
+          "nsPerVertex": 1559.6,
+          "nsPerCall": 155960000
+        }
+      ]
+    },
+    {
+      "id": "bezier-d3-001",
+      "entities": 1,
+      "vertsAtEps1e3": 65,
+      "singleEvaluation": {
+        "medianNsPerCall": 101010.101010101,
+        "minNsPerCall": 100671.14093959732,
+        "maxNsPerCall": 102389.07849829351,
+        "vertices": 65
+      },
+      "amortised": [
+        {
+          "targetVertices": 100,
+          "reachable": true,
+          "vertices": 99,
+          "failed": 0,
+          "eps": 0.00041464437792339953,
+          "nsPerVertex": 1586.546,
+          "nsPerCall": 157068
+        },
+        {
+          "targetVertices": 1000,
+          "reachable": true,
+          "vertices": 1001,
+          "failed": 0,
+          "eps": 5.642412640209018e-06,
+          "nsPerVertex": 1587.886,
+          "nsPerCall": 1589474
+        },
+        {
+          "targetVertices": 10000,
+          "reachable": true,
+          "vertices": 10000,
+          "failed": 0,
+          "eps": 2.8386626474163046e-08,
+          "nsPerVertex": 1600,
+          "nsPerCall": 16000000
+        },
+        {
+          "targetVertices": 100000,
+          "reachable": true,
+          "vertices": 100000,
+          "failed": 0,
+          "eps": 3.967465661278825e-10,
+          "nsPerVertex": 1605.4,
+          "nsPerCall": 160540000
+        }
+      ]
+    },
+    {
+      "id": "bspline-d3-001",
+      "entities": 1,
+      "vertsAtEps1e3": 113,
+      "singleEvaluation": {
+        "medianNsPerCall": 185000,
+        "minNsPerCall": 184500.00047683716,
+        "maxNsPerCall": 185999.99904632568,
+        "vertices": 113
+      },
+      "amortised": [
+        {
+          "targetVertices": 100,
+          "reachable": true,
+          "vertices": 100,
+          "failed": 0,
+          "eps": 0.0011717842497548881,
+          "nsPerVertex": 1618.28,
+          "nsPerCall": 161828
+        },
+        {
+          "targetVertices": 1000,
+          "reachable": true,
+          "vertices": 1000,
+          "failed": 0,
+          "eps": 1.1206474161940442e-05,
+          "nsPerVertex": 1688.889,
+          "nsPerCall": 1688889
+        },
+        {
+          "targetVertices": 10000,
+          "reachable": true,
+          "vertices": 10000,
+          "failed": 0,
+          "eps": 1.3624220883135368e-07,
+          "nsPerVertex": 1686,
+          "nsPerCall": 16860000
+        },
+        {
+          "targetVertices": 100000,
+          "reachable": true,
+          "vertices": 100000,
+          "failed": 0,
+          "eps": 1.1242324416137546e-09,
+          "nsPerVertex": 1678.4,
+          "nsPerCall": 167840000
+        }
+      ]
+    },
+    {
+      "id": "bspline-d5-001",
+      "entities": 1,
+      "vertsAtEps1e3": 99,
+      "singleEvaluation": {
+        "medianNsPerCall": 175500.00071525574,
+        "minNsPerCall": 174499.99928474426,
+        "maxNsPerCall": 176999.99928474426,
+        "vertices": 99
+      },
+      "amortised": [
+        {
+          "targetVertices": 100,
+          "reachable": true,
+          "vertices": 100,
+          "failed": 0,
+          "eps": 0.0009474635256553758,
+          "nsPerVertex": 1770.588,
+          "nsPerCall": 177059
+        },
+        {
+          "targetVertices": 1000,
+          "reachable": true,
+          "vertices": 1000,
+          "failed": 0,
+          "eps": 1.1661984528866302e-05,
+          "nsPerVertex": 1841.176,
+          "nsPerCall": 1841176
+        },
+        {
+          "targetVertices": 10000,
+          "reachable": true,
+          "vertices": 10000,
+          "failed": 0,
+          "eps": 1.2418441525834184e-07,
+          "nsPerVertex": 1836,
+          "nsPerCall": 18360000
+        },
+        {
+          "targetVertices": 100000,
+          "reachable": true,
+          "vertices": 100000,
+          "failed": 0,
+          "eps": 1.0127087933945117e-09,
+          "nsPerVertex": 1827.2,
+          "nsPerCall": 182720000
+        }
+      ]
+    },
+    {
+      "id": "bulge-arc-001",
+      "entities": 2,
+      "vertsAtEps1e3": 66,
+      "singleEvaluation": {
+        "medianNsPerCall": 97087.3786407767,
+        "minNsPerCall": 97087.3786407767,
+        "maxNsPerCall": 97402.5974025974,
+        "vertices": 66
+      },
+      "amortised": [
+        {
+          "targetVertices": 100,
+          "reachable": true,
+          "vertices": 100,
+          "failed": 0,
+          "eps": 0.0008423329825962116,
+          "nsPerVertex": 1522.843,
+          "nsPerCall": 152284
+        },
+        {
+          "targetVertices": 1000,
+          "reachable": true,
+          "vertices": 999,
+          "failed": 0,
+          "eps": 1.3162063484211237e-05,
+          "nsPerVertex": 1551.552,
+          "nsPerCall": 1550000
+        },
+        {
+          "targetVertices": 10000,
+          "reachable": true,
+          "vertices": 10000,
+          "failed": 0,
+          "eps": 5.141434837724274e-08,
+          "nsPerVertex": 1576,
+          "nsPerCall": 15760000
+        },
+        {
+          "targetVertices": 100000,
+          "reachable": true,
+          "vertices": 100000,
+          "failed": 0,
+          "eps": 8.033491789574428e-10,
+          "nsPerVertex": 1575.2,
+          "nsPerCall": 157520000
+        }
+      ]
+    },
+    {
+      "id": "bulge-arc-neg-001",
+      "entities": 2,
+      "vertsAtEps1e3": 66,
+      "singleEvaluation": {
+        "medianNsPerCall": 98688.52505918409,
+        "minNsPerCall": 98039.2156862745,
+        "maxNsPerCall": 99668.87385639924,
+        "vertices": 66
+      },
+      "amortised": [
+        {
+          "targetVertices": 100,
+          "reachable": true,
+          "vertices": 99,
+          "failed": 0,
+          "eps": 0.000680591958226389,
+          "nsPerVertex": 1522.765,
+          "nsPerCall": 150754
+        },
+        {
+          "targetVertices": 1000,
+          "reachable": true,
+          "vertices": 1000,
+          "failed": 0,
+          "eps": 1.063453881566857e-05,
+          "nsPerVertex": 1578.947,
+          "nsPerCall": 1578947
+        },
+        {
+          "targetVertices": 10000,
+          "reachable": true,
+          "vertices": 10000,
+          "failed": 0,
+          "eps": 4.154118529752364e-08,
+          "nsPerVertex": 1558,
+          "nsPerCall": 15580000
+        },
+        {
+          "targetVertices": 100000,
+          "reachable": true,
+          "vertices": 100000,
+          "failed": 0,
+          "eps": 6.490810044625308e-10,
+          "nsPerVertex": 1587.8,
+          "nsPerCall": 158780000
+        }
+      ]
+    },
+    {
+      "id": "circle-001",
+      "entities": 1,
+      "vertsAtEps1e3": 129,
+      "singleEvaluation": {
+        "medianNsPerCall": 193500.00023841858,
+        "minNsPerCall": 192500,
+        "maxNsPerCall": 194500.00047683716,
+        "vertices": 129
+      },
+      "amortised": [
+        {
+          "targetVertices": 100,
+          "reachable": true,
+          "vertices": 100,
+          "failed": 0,
+          "eps": 0.003478120207564749,
+          "nsPerVertex": 1512.563,
+          "nsPerCall": 151256
+        },
+        {
+          "targetVertices": 1000,
+          "reachable": true,
+          "vertices": 1000,
+          "failed": 0,
+          "eps": 5.435637148873086e-05,
+          "nsPerVertex": 1535,
+          "nsPerCall": 1535000
+        },
+        {
+          "targetVertices": 10000,
+          "reachable": true,
+          "vertices": 10000,
+          "failed": 0,
+          "eps": 2.1233023989946642e-07,
+          "nsPerVertex": 1506,
+          "nsPerCall": 15060000
+        },
+        {
+          "targetVertices": 100000,
+          "reachable": true,
+          "vertices": 100000,
+          "failed": 0,
+          "eps": 3.3176600187640466e-09,
+          "nsPerVertex": 1515.8,
+          "nsPerCall": 151580000
+        }
+      ]
+    },
+    {
+      "id": "closed-by-endpoint-001",
+      "entities": 1,
+      "vertsAtEps1e3": 142,
+      "singleEvaluation": {
+        "medianNsPerCall": 235000,
+        "minNsPerCall": 231999.99928474426,
+        "maxNsPerCall": 235000,
+        "vertices": 142
+      },
+      "amortised": [
+        {
+          "targetVertices": 100,
+          "reachable": true,
+          "vertices": 100,
+          "failed": 0,
+          "eps": 0.002114439739604002,
+          "nsPerVertex": 1621.622,
+          "nsPerCall": 162162
+        },
+        {
+          "targetVertices": 1000,
+          "reachable": true,
+          "vertices": 1000,
+          "failed": 0,
+          "eps": 2.237258601765718e-05,
+          "nsPerVertex": 1688.889,
+          "nsPerCall": 1688889
+        },
+        {
+          "targetVertices": 10000,
+          "reachable": true,
+          "vertices": 10000,
+          "failed": 0,
+          "eps": 2.1946864884644414e-07,
+          "nsPerVertex": 1680,
+          "nsPerCall": 16800000
+        },
+        {
+          "targetVertices": 100000,
+          "reachable": true,
+          "vertices": 100000,
+          "failed": 0,
+          "eps": 2.039391639937231e-09,
+          "nsPerVertex": 1673.8,
+          "nsPerCall": 167380000
+        }
+      ]
+    },
+    {
+      "id": "closed-periodic-001",
+      "entities": 1,
+      "vertsAtEps1e3": 177,
+      "singleEvaluation": {
+        "medianNsPerCall": 286500.0009536743,
+        "minNsPerCall": 285499.99952316284,
+        "maxNsPerCall": 291999.99928474426,
+        "vertices": 177
+      },
+      "amortised": [
+        {
+          "targetVertices": 100,
+          "reachable": true,
+          "vertices": 100,
+          "failed": 0,
+          "eps": 0.0022166806233466867,
+          "nsPerVertex": 1587.302,
+          "nsPerCall": 158730
+        },
+        {
+          "targetVertices": 1000,
+          "reachable": true,
+          "vertices": 1000,
+          "failed": 0,
+          "eps": 2.528764145710553e-05,
+          "nsPerVertex": 1657.895,
+          "nsPerCall": 1657895
+        },
+        {
+          "targetVertices": 10000,
+          "reachable": true,
+          "vertices": 10000,
+          "failed": 0,
+          "eps": 3.4677032343585185e-07,
+          "nsPerVertex": 1662,
+          "nsPerCall": 16620000
+        },
+        {
+          "targetVertices": 100000,
+          "reachable": true,
+          "vertices": 100000,
+          "failed": 0,
+          "eps": 2.2523993699492315e-09,
+          "nsPerVertex": 1678,
+          "nsPerCall": 167800000
+        }
+      ]
+    },
+    {
+      "id": "ellipse-001",
+      "entities": 1,
+      "vertsAtEps1e3": 129,
+      "singleEvaluation": {
+        "medianNsPerCall": 195000,
+        "minNsPerCall": 194499.99928474426,
+        "maxNsPerCall": 197500,
+        "vertices": 129
+      },
+      "amortised": [
+        {
+          "targetVertices": 100,
+          "reachable": true,
+          "vertices": 100,
+          "failed": 0,
+          "eps": 0.003752082346111406,
+          "nsPerVertex": 1505,
+          "nsPerCall": 150500
+        },
+        {
+          "targetVertices": 1000,
+          "reachable": true,
+          "vertices": 1000,
+          "failed": 0,
+          "eps": 5.8119209581594704e-05,
+          "nsPerVertex": 1525,
+          "nsPerCall": 1525000
+        },
+        {
+          "targetVertices": 10000,
+          "reachable": true,
+          "vertices": 10000,
+          "failed": 0,
+          "eps": 2.3108479399253926e-07,
+          "nsPerVertex": 1508,
+          "nsPerCall": 15080000
+        },
+        {
+          "targetVertices": 100000,
+          "reachable": true,
+          "vertices": 100000,
+          "failed": 0,
+          "eps": 3.5795928949248736e-09,
+          "nsPerVertex": 1519.2,
+          "nsPerCall": 151920000
+        }
+      ]
+    },
+    {
+      "id": "elliptical-arc-001",
+      "entities": 1,
+      "vertsAtEps1e3": 65,
+      "singleEvaluation": {
+        "medianNsPerCall": 99337.74834437086,
+        "minNsPerCall": 99013.15758102818,
+        "maxNsPerCall": 103092.78350515464,
+        "vertices": 65
+      },
+      "amortised": [
+        {
+          "targetVertices": 100,
+          "reachable": true,
+          "vertices": 100,
+          "failed": 0,
+          "eps": 0.00045803049527784885,
+          "nsPerVertex": 1535.714,
+          "nsPerCall": 153571
+        },
+        {
+          "targetVertices": 1000,
+          "reachable": true,
+          "vertices": 1000,
+          "failed": 0,
+          "eps": 7.1248748892332306e-06,
+          "nsPerVertex": 1545,
+          "nsPerCall": 1545000
+        },
+        {
+          "targetVertices": 10000,
+          "reachable": true,
+          "vertices": 10000,
+          "failed": 0,
+          "eps": 2.81504145868843e-08,
+          "nsPerVertex": 1534,
+          "nsPerCall": 15340000
+        },
+        {
+          "targetVertices": 100000,
+          "reachable": true,
+          "vertices": 100000,
+          "failed": 0,
+          "eps": 4.3699559706420054e-10,
+          "nsPerVertex": 1541.6,
+          "nsPerCall": 154160000
+        }
+      ]
+    },
+    {
+      "id": "large-coords-001",
+      "entities": 1,
+      "vertsAtEps1e3": 4,
+      "singleEvaluation": {
+        "medianNsPerCall": 2071.966296014918,
+        "minNsPerCall": 2064.409578860446,
+        "maxNsPerCall": 2152.234737068656,
+        "vertices": 4
+      },
+      "amortised": [
+        {
+          "targetVertices": 100,
+          "reachable": false,
+          "vertices": 4,
+          "failed": 0,
+          "eps": 3.16227766016838e-05
+        },
+        {
+          "targetVertices": 1000,
+          "reachable": false,
+          "vertices": 4,
+          "failed": 0,
+          "eps": 3.16227766016838e-05
+        },
+        {
+          "targetVertices": 10000,
+          "reachable": false,
+          "vertices": 4,
+          "failed": 0,
+          "eps": 3.16227766016838e-05
+        },
+        {
+          "targetVertices": 100000,
+          "reachable": true,
+          "vertices": 126708,
+          "failed": 0,
+          "eps": 8.726838392745023e-10,
+          "nsPerVertex": 649.998,
+          "nsPerCall": 82360000
+        }
+      ]
+    },
+    {
+      "id": "layer-state-001",
+      "entities": 3,
+      "vertsAtEps1e3": 6,
+      "singleEvaluation": {
+        "medianNsPerCall": 2033.760423022168,
+        "minNsPerCall": 2021.8358269308533,
+        "maxNsPerCall": 2052.1239482864767,
+        "vertices": 6
+      },
+      "amortised": [
+        {
+          "targetVertices": 100,
+          "reachable": false,
+          "vertices": 6,
+          "failed": 0,
+          "eps": 3.16227766016838e-05
+        },
+        {
+          "targetVertices": 1000,
+          "reachable": false,
+          "vertices": 6,
+          "failed": 0,
+          "eps": 3.16227766016838e-05
+        },
+        {
+          "targetVertices": 10000,
+          "reachable": false,
+          "vertices": 6,
+          "failed": 0,
+          "eps": 3.16227766016838e-05
+        },
+        {
+          "targetVertices": 100000,
+          "reachable": false,
+          "vertices": 6,
+          "failed": 0,
+          "eps": 3.16227766016838e-05
+        }
+      ]
+    },
+    {
+      "id": "line-001",
+      "entities": 1,
+      "vertsAtEps1e3": 2,
+      "singleEvaluation": {
+        "medianNsPerCall": 1315.1549690938582,
+        "minNsPerCall": 1310.6732491589846,
+        "maxNsPerCall": 1342.8827215756492,
+        "vertices": 2
+      },
+      "amortised": [
+        {
+          "targetVertices": 100,
+          "reachable": false,
+          "vertices": 2,
+          "failed": 0,
+          "eps": 3.16227766016838e-05
+        },
+        {
+          "targetVertices": 1000,
+          "reachable": false,
+          "vertices": 2,
+          "failed": 0,
+          "eps": 3.16227766016838e-05
+        },
+        {
+          "targetVertices": 10000,
+          "reachable": false,
+          "vertices": 2,
+          "failed": 0,
+          "eps": 3.16227766016838e-05
+        },
+        {
+          "targetVertices": 100000,
+          "reachable": false,
+          "vertices": 2,
+          "failed": 0,
+          "eps": 3.16227766016838e-05
+        }
+      ]
+    },
+    {
+      "id": "lwpolyline-closed-001",
+      "entities": 1,
+      "vertsAtEps1e3": 5,
+      "singleEvaluation": {
+        "medianNsPerCall": 2009.107956067506,
+        "minNsPerCall": 1996.1407944640362,
+        "maxNsPerCall": 2024.0183510997167,
+        "vertices": 5
+      },
+      "amortised": [
+        {
+          "targetVertices": 100,
+          "reachable": false,
+          "vertices": 5,
+          "failed": 0,
+          "eps": 3.16227766016838e-05
+        },
+        {
+          "targetVertices": 1000,
+          "reachable": false,
+          "vertices": 5,
+          "failed": 0,
+          "eps": 3.16227766016838e-05
+        },
+        {
+          "targetVertices": 10000,
+          "reachable": false,
+          "vertices": 5,
+          "failed": 0,
+          "eps": 3.16227766016838e-05
+        },
+        {
+          "targetVertices": 100000,
+          "reachable": false,
+          "vertices": 5,
+          "failed": 0,
+          "eps": 3.16227766016838e-05
+        }
+      ]
+    },
+    {
+      "id": "nonunit-weight-001",
+      "entities": 1,
+      "vertsAtEps1e3": 35,
+      "singleEvaluation": {
+        "medianNsPerCall": 52173.913043478264,
+        "minNsPerCall": 52083.333333333336,
+        "maxNsPerCall": 53191.48936170213,
+        "vertices": 35
+      },
+      "amortised": [
+        {
+          "targetVertices": 100,
+          "reachable": true,
+          "vertices": 100,
+          "failed": 0,
+          "eps": 0.00010954985735614054,
+          "nsPerVertex": 1584.211,
+          "nsPerCall": 158421
+        },
+        {
+          "targetVertices": 1000,
+          "reachable": true,
+          "vertices": 1000,
+          "failed": 0,
+          "eps": 1.0711398859640825e-06,
+          "nsPerVertex": 1657.895,
+          "nsPerCall": 1657895
+        },
+        {
+          "targetVertices": 10000,
+          "reachable": true,
+          "vertices": 10000,
+          "failed": 0,
+          "eps": 1.0866815534494037e-08,
+          "nsPerVertex": 1644,
+          "nsPerCall": 16440000
+        },
+        {
+          "targetVertices": 100000,
+          "reachable": true,
+          "vertices": 100000,
+          "failed": 0,
+          "eps": 1.0964660610278462e-10,
+          "nsPerVertex": 1642.6,
+          "nsPerCall": 164260000
+        }
+      ]
+    },
+    {
+      "id": "nurbs-d2-offconic-001",
+      "entities": 1,
+      "vertsAtEps1e3": 65,
+      "singleEvaluation": {
+        "medianNsPerCall": 101351.35135135135,
+        "minNsPerCall": 101351.35135135135,
+        "maxNsPerCall": 101694.91525423729,
+        "vertices": 65
+      },
+      "amortised": [
+        {
+          "targetVertices": 100,
+          "reachable": true,
+          "vertices": 100,
+          "failed": 0,
+          "eps": 0.0004128128179862305,
+          "nsPerVertex": 1589.474,
+          "nsPerCall": 158947
+        },
+        {
+          "targetVertices": 1000,
+          "reachable": true,
+          "vertices": 1000,
+          "failed": 0,
+          "eps": 5.036373381642158e-06,
+          "nsPerVertex": 1636.842,
+          "nsPerCall": 1636842
+        },
+        {
+          "targetVertices": 10000,
+          "reachable": true,
+          "vertices": 10000,
+          "failed": 0,
+          "eps": 5.3414008642010515e-08,
+          "nsPerVertex": 1640,
+          "nsPerCall": 16400000
+        },
+        {
+          "targetVertices": 100000,
+          "reachable": true,
+          "vertices": 100000,
+          "failed": 0,
+          "eps": 3.94811478429744e-10,
+          "nsPerVertex": 1643,
+          "nsPerCall": 164300000
+        }
+      ]
+    },
+    {
+      "id": "nurbs-d3-001",
+      "entities": 1,
+      "vertsAtEps1e3": 93,
+      "singleEvaluation": {
+        "medianNsPerCall": 152500,
+        "minNsPerCall": 152000.00047683716,
+        "maxNsPerCall": 155000,
+        "vertices": 93
+      },
+      "amortised": [
+        {
+          "targetVertices": 100,
+          "reachable": true,
+          "vertices": 100,
+          "failed": 0,
+          "eps": 0.0008078833037597063,
+          "nsPerVertex": 1648.352,
+          "nsPerCall": 164835
+        },
+        {
+          "targetVertices": 1000,
+          "reachable": true,
+          "vertices": 1000,
+          "failed": 0,
+          "eps": 9.002850438344173e-06,
+          "nsPerVertex": 1727.778,
+          "nsPerCall": 1727778
+        },
+        {
+          "targetVertices": 10000,
+          "reachable": true,
+          "vertices": 10000,
+          "failed": 0,
+          "eps": 1.0962096658844882e-07,
+          "nsPerVertex": 1710,
+          "nsPerCall": 17100000
+        },
+        {
+          "targetVertices": 100000,
+          "reachable": true,
+          "vertices": 100000,
+          "failed": 0,
+          "eps": 7.946057978835607e-10,
+          "nsPerVertex": 1708.4,
+          "nsPerCall": 170840000
+        }
+      ]
+    },
+    {
+      "id": "polyline-001",
+      "entities": 1,
+      "vertsAtEps1e3": 5,
+      "singleEvaluation": {
+        "medianNsPerCall": 2002.4028834601522,
+        "minNsPerCall": 1963.0938358853552,
+        "maxNsPerCall": 2013.5579569098597,
+        "vertices": 5
+      },
+      "amortised": [
+        {
+          "targetVertices": 100,
+          "reachable": false,
+          "vertices": 5,
+          "failed": 0,
+          "eps": 3.16227766016838e-05
+        },
+        {
+          "targetVertices": 1000,
+          "reachable": false,
+          "vertices": 5,
+          "failed": 0,
+          "eps": 3.16227766016838e-05
+        },
+        {
+          "targetVertices": 10000,
+          "reachable": false,
+          "vertices": 5,
+          "failed": 0,
+          "eps": 3.16227766016838e-05
+        },
+        {
+          "targetVertices": 100000,
+          "reachable": false,
+          "vertices": 5,
+          "failed": 0,
+          "eps": 3.16227766016838e-05
+        }
+      ]
+    },
+    {
+      "id": "polyline2d-001",
+      "entities": 1,
+      "vertsAtEps1e3": 5,
+      "singleEvaluation": {
+        "medianNsPerCall": 1970.0551615445233,
+        "minNsPerCall": 1964.7652105573384,
+        "maxNsPerCall": 2001.0672358591248,
+        "vertices": 5
+      },
+      "amortised": [
+        {
+          "targetVertices": 100,
+          "reachable": false,
+          "vertices": 5,
+          "failed": 0,
+          "eps": 3.16227766016838e-05
+        },
+        {
+          "targetVertices": 1000,
+          "reachable": false,
+          "vertices": 5,
+          "failed": 0,
+          "eps": 3.16227766016838e-05
+        },
+        {
+          "targetVertices": 10000,
+          "reachable": false,
+          "vertices": 5,
+          "failed": 0,
+          "eps": 3.16227766016838e-05
+        },
+        {
+          "targetVertices": 100000,
+          "reachable": false,
+          "vertices": 5,
+          "failed": 0,
+          "eps": 3.16227766016838e-05
+        }
+      ]
+    },
+    {
+      "id": "repeated-knot-c0-001",
+      "entities": 1,
+      "vertsAtEps1e3": 111,
+      "singleEvaluation": {
+        "medianNsPerCall": 179500.00047683716,
+        "minNsPerCall": 179000.00095367432,
+        "maxNsPerCall": 180000,
+        "vertices": 111
+      },
+      "amortised": [
+        {
+          "targetVertices": 100,
+          "reachable": true,
+          "vertices": 99,
+          "failed": 0,
+          "eps": 0.0016697684466455626,
+          "nsPerVertex": 1611.863,
+          "nsPerCall": 159574
+        },
+        {
+          "targetVertices": 1000,
+          "reachable": true,
+          "vertices": 1000,
+          "failed": 0,
+          "eps": 8.26738726643307e-06,
+          "nsPerVertex": 1657.895,
+          "nsPerCall": 1657895
+        },
+        {
+          "targetVertices": 10000,
+          "reachable": true,
+          "vertices": 10000,
+          "failed": 0,
+          "eps": 1.2006503397868958e-07,
+          "nsPerVertex": 1662,
+          "nsPerCall": 16620000
+        },
+        {
+          "targetVertices": 100000,
+          "reachable": true,
+          "vertices": 100001,
+          "failed": 0,
+          "eps": 1.537979984728295e-09,
+          "nsPerVertex": 1662.983,
+          "nsPerCall": 166300000
+        }
+      ]
+    },
+    {
+      "id": "tiny-radius-001",
+      "entities": 1,
+      "vertsAtEps1e3": 2,
+      "singleEvaluation": {
+        "medianNsPerCall": 1753.0532343832174,
+        "minNsPerCall": 1727.01629152035,
+        "maxNsPerCall": 1812.031891761295,
+        "vertices": 2
+      },
+      "amortised": [
+        {
+          "targetVertices": 100,
+          "reachable": true,
+          "vertices": 100,
+          "failed": 0,
+          "eps": 1.2647709840184201e-08,
+          "nsPerVertex": 1505,
+          "nsPerCall": 150500
+        },
+        {
+          "targetVertices": 1000,
+          "reachable": true,
+          "vertices": 1000,
+          "failed": 0,
+          "eps": 1.9765947043389178e-10,
+          "nsPerVertex": 1540,
+          "nsPerCall": 1540000
+        },
+        {
+          "targetVertices": 10000,
+          "reachable": true,
+          "vertices": 10001,
+          "failed": 0,
+          "eps": 7.721355835566244e-13,
+          "nsPerVertex": 1517.848,
+          "nsPerCall": 15180000
+        },
+        {
+          "targetVertices": 100000,
+          "reachable": true,
+          "vertices": 100001,
+          "failed": 0,
+          "eps": 1.206200166565108e-14,
+          "nsPerVertex": 1516.385,
+          "nsPerCall": 151640000
+        }
+      ]
+    }
+  ],
+  "large": [
+    {
+      "id": "architectural-1e5",
+      "fileBytes": 1810416,
+      "openMs": 65.3,
+      "queryAllMs": 0.8,
+      "entities": 100000,
+      "extent": [
+        -6548.238,
+        -5187.747,
+        131670.75,
+        128000
+      ],
+      "viewports": [
+        {
+          "fraction": 1,
+          "queryMs": 0.5,
+          "entities": 100000,
+          "f64": {
+            "tessellateMs": 149.1,
+            "vertices": 288587,
+            "failed": 0,
+            "nsPerEntity": 1491,
+            "nsPerVertex": 517,
+            "wasmPagesGrown": 0
+          },
+          "f32": {
+            "tessellateMs": 150,
+            "vertices": 288587,
+            "failed": 0,
+            "nsPerEntity": 1500,
+            "nsPerVertex": 520,
+            "wasmPagesGrown": 0
+          },
+          "heap": {
+            "calls": 50,
+            "entitiesPerCall": 100000,
+            "growthBytes": -1765456,
+            "afterGcBytes": -1812632,
+            "bytesPerEntity": -0.35309
+          }
+        },
+        {
+          "fraction": 0.25,
+          "queryMs": 0.5,
+          "entities": 11553,
+          "f64": {
+            "tessellateMs": 29.9,
+            "vertices": 40605,
+            "failed": 0,
+            "nsPerEntity": 2588,
+            "nsPerVertex": 736,
+            "wasmPagesGrown": 0
+          },
+          "f32": {
+            "tessellateMs": 30.2,
+            "vertices": 40605,
+            "failed": 0,
+            "nsPerEntity": 2614,
+            "nsPerVertex": 744,
+            "wasmPagesGrown": 0
+          }
+        },
+        {
+          "fraction": 0.05,
+          "queryMs": 0.3,
+          "entities": 607,
+          "f64": {
+            "tessellateMs": 2.4,
+            "vertices": 2645,
+            "failed": 0,
+            "nsPerEntity": 3954,
+            "nsPerVertex": 907,
+            "wasmPagesGrown": 0
+          },
+          "f32": {
+            "tessellateMs": 2.4,
+            "vertices": 2645,
+            "failed": 0,
+            "nsPerEntity": 3954,
+            "nsPerVertex": 907,
+            "wasmPagesGrown": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "architectural-1e6",
+      "fileBytes": 17824896,
+      "openMs": 659.6,
+      "queryAllMs": 8.2,
+      "entities": 1000000,
+      "extent": [
+        -5942.31,
+        -5982.3,
+        405930.512,
+        400000
+      ],
+      "viewports": [
+        {
+          "fraction": 1,
+          "queryMs": 8.3,
+          "entities": 1000000,
+          "f64": {
+            "tessellateMs": 959.2,
+            "vertices": 2608762,
+            "failed": 0,
+            "nsPerEntity": 959,
+            "nsPerVertex": 368,
+            "wasmPagesGrown": 0
+          },
+          "f32": {
+            "tessellateMs": 967.3,
+            "vertices": 2608762,
+            "failed": 0,
+            "nsPerEntity": 967,
+            "nsPerVertex": 371,
+            "wasmPagesGrown": 0
+          },
+          "heap": {
+            "calls": 50,
+            "entitiesPerCall": 1000000,
+            "growthBytes": -17780240,
+            "afterGcBytes": -17819400,
+            "bytesPerEntity": -0.3556
+          }
+        },
+        {
+          "fraction": 0.25,
+          "queryMs": 6.6,
+          "entities": 102465,
+          "f64": {
+            "tessellateMs": 164.2,
+            "vertices": 302419,
+            "failed": 0,
+            "nsPerEntity": 1602,
+            "nsPerVertex": 543,
+            "wasmPagesGrown": 0
+          },
+          "f32": {
+            "tessellateMs": 164.6,
+            "vertices": 302419,
+            "failed": 0,
+            "nsPerEntity": 1606,
+            "nsPerVertex": 544,
+            "wasmPagesGrown": 0
+          }
+        },
+        {
+          "fraction": 0.05,
+          "queryMs": 5.6,
+          "entities": 4588,
+          "f64": {
+            "tessellateMs": 14.6,
+            "vertices": 17494,
+            "failed": 0,
+            "nsPerEntity": 3182,
+            "nsPerVertex": 835,
+            "wasmPagesGrown": 0
+          },
+          "f32": {
+            "tessellateMs": 14.6,
+            "vertices": 17494,
+            "failed": 0,
+            "nsPerEntity": 3182,
+            "nsPerVertex": 835,
+            "wasmPagesGrown": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "mep-1e5",
+      "fileBytes": 2370104,
+      "openMs": 69.4,
+      "queryAllMs": 0.8,
+      "entities": 100000,
+      "extent": [
+        -12906.153,
+        -10691.327,
+        140509.44,
+        128000
+      ],
+      "viewports": [
+        {
+          "fraction": 1,
+          "queryMs": 0.9,
+          "entities": 100000,
+          "f64": {
+            "tessellateMs": 272.3,
+            "vertices": 397384,
+            "failed": 0,
+            "nsPerEntity": 2723,
+            "nsPerVertex": 685,
+            "wasmPagesGrown": 0
+          },
+          "f32": {
+            "tessellateMs": 270.9,
+            "vertices": 397384,
+            "failed": 0,
+            "nsPerEntity": 2709,
+            "nsPerVertex": 682,
+            "wasmPagesGrown": 0
+          },
+          "heap": {
+            "calls": 50,
+            "entitiesPerCall": 100000,
+            "growthBytes": 44776,
+            "afterGcBytes": 5572,
+            "bytesPerEntity": 0.00896
+          }
+        },
+        {
+          "fraction": 0.25,
+          "queryMs": 0.9,
+          "entities": 11212,
+          "f64": {
+            "tessellateMs": 63,
+            "vertices": 60714,
+            "failed": 0,
+            "nsPerEntity": 5619,
+            "nsPerVertex": 1038,
+            "wasmPagesGrown": 0
+          },
+          "f32": {
+            "tessellateMs": 62,
+            "vertices": 60714,
+            "failed": 0,
+            "nsPerEntity": 5530,
+            "nsPerVertex": 1021,
+            "wasmPagesGrown": 0
+          }
+        },
+        {
+          "fraction": 0.05,
+          "queryMs": 0.7,
+          "entities": 582,
+          "f64": {
+            "tessellateMs": 6.7,
+            "vertices": 4861,
+            "failed": 0,
+            "nsPerEntity": 11512,
+            "nsPerVertex": 1378,
+            "wasmPagesGrown": 0
+          },
+          "f32": {
+            "tessellateMs": 5.7,
+            "vertices": 4861,
+            "failed": 0,
+            "nsPerEntity": 9794,
+            "nsPerVertex": 1173,
+            "wasmPagesGrown": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "pathological-1e3",
+      "fileBytes": 757488,
+      "openMs": 8.4,
+      "queryAllMs": 0,
+      "entities": 917,
+      "extent": [
+        -73.10616666666678,
+        -84.91066666666671,
+        99955.18076503572,
+        99993.68235385854
+      ],
+      "viewports": [
+        {
+          "fraction": 1,
+          "queryMs": 0,
+          "entities": 917,
+          "f64": {
+            "tessellateMs": 52.8,
+            "vertices": 42561,
+            "failed": 0,
+            "nsPerEntity": 57579,
+            "nsPerVertex": 1241,
+            "wasmPagesGrown": 0
+          },
+          "f32": {
+            "tessellateMs": 52.3,
+            "vertices": 42561,
+            "failed": 0,
+            "nsPerEntity": 57034,
+            "nsPerVertex": 1229,
+            "wasmPagesGrown": 0
+          },
+          "heap": {
+            "calls": 50,
+            "entitiesPerCall": 917,
+            "growthBytes": 44776,
+            "afterGcBytes": 5720,
+            "bytesPerEntity": 0.97658
+          }
+        },
+        {
+          "fraction": 0.25,
+          "queryMs": 0,
+          "entities": 57,
+          "f64": {
+            "tessellateMs": 0.1,
+            "vertices": 198,
+            "failed": 0,
+            "nsPerEntity": 1754,
+            "nsPerVertex": 505,
+            "wasmPagesGrown": 0
+          },
+          "f32": {
+            "tessellateMs": 0.2,
+            "vertices": 198,
+            "failed": 0,
+            "nsPerEntity": 3509,
+            "nsPerVertex": 1010,
+            "wasmPagesGrown": 0
+          }
+        },
+        {
+          "fraction": 0.05,
+          "queryMs": 0.1,
+          "entities": 0,
+          "f64": {
+            "tessellateMs": 0,
+            "vertices": 0,
+            "failed": 0,
+            "nsPerEntity": null,
+            "nsPerVertex": null,
+            "wasmPagesGrown": 0
+          },
+          "f32": {
+            "tessellateMs": 0,
+            "vertices": 0,
+            "failed": 0,
+            "nsPerEntity": null,
+            "nsPerVertex": null,
+            "wasmPagesGrown": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "spline-heavy-1e5",
+      "fileBytes": 12341936,
+      "openMs": 328.3,
+      "queryAllMs": 0.6,
+      "entities": 100000,
+      "extent": [
+        -4522.676,
+        -3504.057,
+        132587.196,
+        131463.469
+      ],
+      "viewports": [
+        {
+          "fraction": 1,
+          "queryMs": 0.8,
+          "entities": 100000,
+          "f64": {
+            "tessellateMs": 1197.6,
+            "vertices": 1007892,
+            "failed": 0,
+            "nsPerEntity": 11976,
+            "nsPerVertex": 1188,
+            "wasmPagesGrown": 0
+          },
+          "f32": {
+            "tessellateMs": 1206.8,
+            "vertices": 1007892,
+            "failed": 0,
+            "nsPerEntity": 12068,
+            "nsPerVertex": 1197,
+            "wasmPagesGrown": 0
+          },
+          "heap": {
+            "calls": 50,
+            "entitiesPerCall": 100000,
+            "growthBytes": -712712,
+            "afterGcBytes": -751916,
+            "bytesPerEntity": -0.14254
+          }
+        },
+        {
+          "fraction": 0.25,
+          "queryMs": 0.6,
+          "entities": 7427,
+          "f64": {
+            "tessellateMs": 200,
+            "vertices": 127454,
+            "failed": 0,
+            "nsPerEntity": 26929,
+            "nsPerVertex": 1569,
+            "wasmPagesGrown": 0
+          },
+          "f32": {
+            "tessellateMs": 198.4,
+            "vertices": 127454,
+            "failed": 0,
+            "nsPerEntity": 26713,
+            "nsPerVertex": 1557,
+            "wasmPagesGrown": 0
+          }
+        },
+        {
+          "fraction": 0.05,
+          "queryMs": 0.7,
+          "entities": 385,
+          "f64": {
+            "tessellateMs": 26.7,
+            "vertices": 14854,
+            "failed": 0,
+            "nsPerEntity": 69351,
+            "nsPerVertex": 1797,
+            "wasmPagesGrown": 0
+          },
+          "f32": {
+            "tessellateMs": 27.1,
+            "vertices": 14854,
+            "failed": 0,
+            "nsPerEntity": 70390,
+            "nsPerVertex": 1824,
+            "wasmPagesGrown": 0
+          }
+        }
+      ]
+    }
+  ],
+  "previewAccounting": [
+    {
+      "id": "arc-seam-001",
+      "entities": 1,
+      "extent": [
+        2.12600932287378,
+        -2.1166209767111757,
+        2.9983482546734983,
+        1.9709597961563672
+      ],
+      "referenceBudget": 4.087580772867543e-07,
+      "previews": [
+        {
+          "declaredErrorWorld": 0.40875807728675434,
+          "measuredMaxWorld": 0.20847713426305733,
+          "ratio": 0.51,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 3,
+          "referenceVertices": 2049
+        },
+        {
+          "declaredErrorWorld": 0.04087580772867543,
+          "measuredMaxWorld": 0.013173940625994867,
+          "ratio": 0.3223,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 9,
+          "referenceVertices": 2049
+        },
+        {
+          "declaredErrorWorld": 0.004087580772867544,
+          "measuredMaxWorld": 0.0032952949846715416,
+          "ratio": 0.8062,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 17,
+          "referenceVertices": 2049
+        }
+      ],
+      "coverage": {
+        "boxes": 8,
+        "entitiesMeetingBox": 3,
+        "missing": 0,
+        "extraKept": 5
+      }
+    },
+    {
+      "id": "bezier-d3-001",
+      "entities": 1,
+      "extent": [
+        0,
+        0,
+        4,
+        1.875
+      ],
+      "referenceBudget": 4e-07,
+      "previews": [
+        {
+          "declaredErrorWorld": 0.4,
+          "measuredMaxWorld": 0.11233371472410347,
+          "ratio": 0.2808,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 5,
+          "referenceVertices": 3207
+        },
+        {
+          "declaredErrorWorld": 0.04,
+          "measuredMaxWorld": 0.028973460998843504,
+          "ratio": 0.7243,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 9,
+          "referenceVertices": 3207
+        },
+        {
+          "declaredErrorWorld": 0.004,
+          "measuredMaxWorld": 0.0018297650483202644,
+          "ratio": 0.4574,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 33,
+          "referenceVertices": 3207
+        }
+      ],
+      "coverage": {
+        "boxes": 8,
+        "entitiesMeetingBox": 3,
+        "missing": 0,
+        "extraKept": 5
+      }
+    },
+    {
+      "id": "bspline-d3-001",
+      "entities": 1,
+      "extent": [
+        0,
+        0,
+        7,
+        1.3235344050480768
+      ],
+      "referenceBudget": 7e-07,
+      "previews": [
+        {
+          "declaredErrorWorld": 0.7000000000000001,
+          "measuredMaxWorld": 0.5225844850822781,
+          "ratio": 0.7465,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 5,
+          "referenceVertices": 3990
+        },
+        {
+          "declaredErrorWorld": 0.07,
+          "measuredMaxWorld": 0.06618714242901635,
+          "ratio": 0.9455,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 14,
+          "referenceVertices": 3990
+        },
+        {
+          "declaredErrorWorld": 0.007,
+          "measuredMaxWorld": 0.005922466378808866,
+          "ratio": 0.8461,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 44,
+          "referenceVertices": 3990
+        }
+      ],
+      "coverage": {
+        "boxes": 8,
+        "entitiesMeetingBox": 4,
+        "missing": 0,
+        "extraKept": 4
+      }
+    },
+    {
+      "id": "bspline-d5-001",
+      "entities": 1,
+      "extent": [
+        0,
+        0,
+        8,
+        1.4958043163023953
+      ],
+      "referenceBudget": 8e-07,
+      "previews": [
+        {
+          "declaredErrorWorld": 0.8,
+          "measuredMaxWorld": 0.5973039515546916,
+          "ratio": 0.7466,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 6,
+          "referenceVertices": 3533
+        },
+        {
+          "declaredErrorWorld": 0.08,
+          "measuredMaxWorld": 0.069547982292637,
+          "ratio": 0.8693,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 14,
+          "referenceVertices": 3533
+        },
+        {
+          "declaredErrorWorld": 0.008,
+          "measuredMaxWorld": 0.007446493653760471,
+          "ratio": 0.9308,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 41,
+          "referenceVertices": 3533
+        }
+      ],
+      "coverage": {
+        "boxes": 8,
+        "entitiesMeetingBox": 2,
+        "missing": 0,
+        "extraKept": 6
+      }
+    },
+    {
+      "id": "bulge-arc-001",
+      "entities": 2,
+      "extent": [
+        0.9999999999999993,
+        0.37569251789680447,
+        4.5,
+        2.25
+      ],
+      "referenceBudget": 3.500000000000001e-07,
+      "previews": [
+        {
+          "declaredErrorWorld": 0.3500000000000001,
+          "measuredMaxWorld": 0.20291243234204348,
+          "ratio": 0.5797,
+          "entitiesChecked": 2,
+          "withinDeclared": true,
+          "vertices": 6,
+          "referenceVertices": 4098
+        },
+        {
+          "declaredErrorWorld": 0.03500000000000001,
+          "measuredMaxWorld": 0.012826478489680397,
+          "ratio": 0.3665,
+          "entitiesChecked": 2,
+          "withinDeclared": true,
+          "vertices": 18,
+          "referenceVertices": 4098
+        },
+        {
+          "declaredErrorWorld": 0.003500000000000001,
+          "measuredMaxWorld": 0.0032084338640580787,
+          "ratio": 0.9167,
+          "entitiesChecked": 2,
+          "withinDeclared": true,
+          "vertices": 34,
+          "referenceVertices": 4098
+        }
+      ],
+      "coverage": {
+        "boxes": 8,
+        "entitiesMeetingBox": 4,
+        "missing": 0,
+        "extraKept": 12
+      }
+    },
+    {
+      "id": "bulge-arc-neg-001",
+      "entities": 2,
+      "extent": [
+        0.5,
+        -0.9999999999999996,
+        3,
+        2.5000000000000036
+      ],
+      "referenceBudget": 3.500000000000003e-07,
+      "previews": [
+        {
+          "declaredErrorWorld": 0.3500000000000003,
+          "measuredMaxWorld": 0.16476803889557554,
+          "ratio": 0.4708,
+          "entitiesChecked": 2,
+          "withinDeclared": true,
+          "vertices": 6,
+          "referenceVertices": 4098
+        },
+        {
+          "declaredErrorWorld": 0.03500000000000003,
+          "measuredMaxWorld": 0.010366624109254385,
+          "ratio": 0.2962,
+          "entitiesChecked": 2,
+          "withinDeclared": true,
+          "vertices": 18,
+          "referenceVertices": 4098
+        },
+        {
+          "declaredErrorWorld": 0.003500000000000003,
+          "measuredMaxWorld": 0.0025925161924648878,
+          "ratio": 0.7407,
+          "entitiesChecked": 2,
+          "withinDeclared": true,
+          "vertices": 34,
+          "referenceVertices": 4098
+        }
+      ],
+      "coverage": {
+        "boxes": 8,
+        "entitiesMeetingBox": 6,
+        "missing": 0,
+        "extraKept": 10
+      }
+    },
+    {
+      "id": "circle-001",
+      "entities": 1,
+      "extent": [
+        -1.25,
+        -5,
+        4.25,
+        0.5
+      ],
+      "referenceBudget": 5.5e-07,
+      "previews": [
+        {
+          "declaredErrorWorld": 0.55,
+          "measuredMaxWorld": 0.2093312855939619,
+          "ratio": 0.3806,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 9,
+          "referenceVertices": 8193
+        },
+        {
+          "declaredErrorWorld": 0.055,
+          "measuredMaxWorld": 0.01324200165145895,
+          "ratio": 0.2408,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 33,
+          "referenceVertices": 8193
+        },
+        {
+          "declaredErrorWorld": 0.0055,
+          "measuredMaxWorld": 0.0033124954357769774,
+          "ratio": 0.6023,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 65,
+          "referenceVertices": 8193
+        }
+      ],
+      "coverage": {
+        "boxes": 8,
+        "entitiesMeetingBox": 1,
+        "missing": 0,
+        "extraKept": 7
+      }
+    },
+    {
+      "id": "closed-by-endpoint-001",
+      "entities": 1,
+      "extent": [
+        0,
+        -1.7764892578125,
+        5.538899739583334,
+        3.0507100423177085
+      ],
+      "referenceBudget": 5.538899739583333e-07,
+      "previews": [
+        {
+          "declaredErrorWorld": 0.5538899739583334,
+          "measuredMaxWorld": 0.46940685514948827,
+          "ratio": 0.8475,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 7,
+          "referenceVertices": 5995
+        },
+        {
+          "declaredErrorWorld": 0.05538899739583334,
+          "measuredMaxWorld": 0.0494617761224955,
+          "ratio": 0.893,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 22,
+          "referenceVertices": 5995
+        },
+        {
+          "declaredErrorWorld": 0.005538899739583334,
+          "measuredMaxWorld": 0.004056492349953317,
+          "ratio": 0.7324,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 65,
+          "referenceVertices": 5995
+        }
+      ],
+      "coverage": {
+        "boxes": 8,
+        "entitiesMeetingBox": 4,
+        "missing": 0,
+        "extraKept": 4
+      }
+    },
+    {
+      "id": "closed-periodic-001",
+      "entities": 1,
+      "extent": [
+        -2.49375,
+        -2.471547619047619,
+        2.45,
+        2.5458333333333334
+      ],
+      "referenceBudget": 5.017380952380952e-07,
+      "previews": [
+        {
+          "declaredErrorWorld": 0.5017380952380952,
+          "measuredMaxWorld": 0.44988974189310516,
+          "ratio": 0.8967,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 7,
+          "referenceVertices": 6479
+        },
+        {
+          "declaredErrorWorld": 0.05017380952380952,
+          "measuredMaxWorld": 0.045970159167990125,
+          "ratio": 0.9162,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 23,
+          "referenceVertices": 6479
+        },
+        {
+          "declaredErrorWorld": 0.005017380952380952,
+          "measuredMaxWorld": 0.0047389231899745855,
+          "ratio": 0.9445,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 84,
+          "referenceVertices": 6479
+        }
+      ],
+      "coverage": {
+        "boxes": 8,
+        "entitiesMeetingBox": 2,
+        "missing": 0,
+        "extraKept": 6
+      }
+    },
+    {
+      "id": "ellipse-001",
+      "entities": 1,
+      "extent": [
+        -0.9949505132246348,
+        -1.9447075324643348,
+        4.9949505132246355,
+        3.944707532464335
+      ],
+      "referenceBudget": 5.98990102644927e-07,
+      "previews": [
+        {
+          "declaredErrorWorld": 0.598990102644927,
+          "measuredMaxWorld": 0.22767503980538376,
+          "ratio": 0.3801,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 9,
+          "referenceVertices": 8193
+        },
+        {
+          "declaredErrorWorld": 0.0598990102644927,
+          "measuredMaxWorld": 0.05683971579543118,
+          "ratio": 0.9489,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 25,
+          "referenceVertices": 8193
+        },
+        {
+          "declaredErrorWorld": 0.0059899010264492705,
+          "measuredMaxWorld": 0.003613452028650995,
+          "ratio": 0.6033,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 65,
+          "referenceVertices": 8193
+        }
+      ],
+      "coverage": {
+        "boxes": 8,
+        "entitiesMeetingBox": 2,
+        "missing": 0,
+        "extraKept": 6
+      }
+    },
+    {
+      "id": "elliptical-arc-001",
+      "entities": 1,
+      "extent": [
+        -0.7999558818015459,
+        2.016167142459582,
+        4.50809685455813,
+        3.944215237164549
+      ],
+      "referenceBudget": 5.308052736359676e-07,
+      "previews": [
+        {
+          "declaredErrorWorld": 0.5308052736359676,
+          "measuredMaxWorld": 0.43736635247280337,
+          "ratio": 0.824,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 3,
+          "referenceVertices": 2049
+        },
+        {
+          "declaredErrorWorld": 0.053080527363596766,
+          "measuredMaxWorld": 0.028210516785292378,
+          "ratio": 0.5315,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 9,
+          "referenceVertices": 2049
+        },
+        {
+          "declaredErrorWorld": 0.005308052736359676,
+          "measuredMaxWorld": 0.001768364256553803,
+          "ratio": 0.3331,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 33,
+          "referenceVertices": 2049
+        }
+      ],
+      "coverage": {
+        "boxes": 8,
+        "entitiesMeetingBox": 4,
+        "missing": 0,
+        "extraKept": 4
+      }
+    },
+    {
+      "id": "large-coords-001",
+      "entities": 1,
+      "extent": [
+        10000000,
+        10000000,
+        10000000.0003,
+        10000000.0002
+      ],
+      "referenceBudget": 2.9999949038028714e-11,
+      "previews": [
+        {
+          "declaredErrorWorld": 2.9999949038028718e-05,
+          "measuredMaxWorld": 0,
+          "ratio": 0,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 4,
+          "referenceVertices": 161063
+        },
+        {
+          "declaredErrorWorld": 2.999994903802872e-06,
+          "measuredMaxWorld": 0,
+          "ratio": 0,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 4,
+          "referenceVertices": 161063
+        },
+        {
+          "declaredErrorWorld": 2.999994903802872e-07,
+          "measuredMaxWorld": 0,
+          "ratio": 0,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 4,
+          "referenceVertices": 161063
+        }
+      ],
+      "coverage": {
+        "boxes": 8,
+        "entitiesMeetingBox": 3,
+        "missing": 0,
+        "extraKept": 5
+      }
+    },
+    {
+      "id": "layer-state-001",
+      "entities": 3,
+      "extent": [
+        0,
+        0,
+        5.5,
+        5
+      ],
+      "referenceBudget": 5.5e-07,
+      "previews": [
+        {
+          "declaredErrorWorld": 0.55,
+          "measuredMaxWorld": 0,
+          "ratio": 0,
+          "entitiesChecked": 3,
+          "withinDeclared": true,
+          "vertices": 6,
+          "referenceVertices": 6
+        },
+        {
+          "declaredErrorWorld": 0.055,
+          "measuredMaxWorld": 0,
+          "ratio": 0,
+          "entitiesChecked": 3,
+          "withinDeclared": true,
+          "vertices": 6,
+          "referenceVertices": 6
+        },
+        {
+          "declaredErrorWorld": 0.0055,
+          "measuredMaxWorld": 0,
+          "ratio": 0,
+          "entitiesChecked": 3,
+          "withinDeclared": true,
+          "vertices": 6,
+          "referenceVertices": 6
+        }
+      ],
+      "coverage": {
+        "boxes": 8,
+        "entitiesMeetingBox": 6,
+        "missing": 0,
+        "extraKept": 3
+      }
+    },
+    {
+      "id": "line-001",
+      "entities": 1,
+      "extent": [
+        0.5,
+        0.25,
+        3.75,
+        2.5
+      ],
+      "referenceBudget": 3.2499999999999996e-07,
+      "previews": [
+        {
+          "declaredErrorWorld": 0.325,
+          "measuredMaxWorld": 0,
+          "ratio": 0,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 2,
+          "referenceVertices": 2
+        },
+        {
+          "declaredErrorWorld": 0.0325,
+          "measuredMaxWorld": 0,
+          "ratio": 0,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 2,
+          "referenceVertices": 2
+        },
+        {
+          "declaredErrorWorld": 0.0032500000000000003,
+          "measuredMaxWorld": 0,
+          "ratio": 0,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 2,
+          "referenceVertices": 2
+        }
+      ],
+      "coverage": {
+        "boxes": 8,
+        "entitiesMeetingBox": 4,
+        "missing": 0,
+        "extraKept": 4
+      }
+    },
+    {
+      "id": "lwpolyline-closed-001",
+      "entities": 1,
+      "extent": [
+        -1,
+        0,
+        5,
+        3.75
+      ],
+      "referenceBudget": 6e-07,
+      "previews": [
+        {
+          "declaredErrorWorld": 0.6000000000000001,
+          "measuredMaxWorld": 0,
+          "ratio": 0,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 5,
+          "referenceVertices": 5
+        },
+        {
+          "declaredErrorWorld": 0.06,
+          "measuredMaxWorld": 0,
+          "ratio": 0,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 5,
+          "referenceVertices": 5
+        },
+        {
+          "declaredErrorWorld": 0.006,
+          "measuredMaxWorld": 0,
+          "ratio": 0,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 5,
+          "referenceVertices": 5
+        }
+      ],
+      "coverage": {
+        "boxes": 8,
+        "entitiesMeetingBox": 6,
+        "missing": 0,
+        "extraKept": 2
+      }
+    },
+    {
+      "id": "nonunit-weight-001",
+      "entities": 1,
+      "extent": [
+        0,
+        0,
+        4,
+        2.9854273487798295
+      ],
+      "referenceBudget": 4e-07,
+      "previews": [
+        {
+          "declaredErrorWorld": 0.4,
+          "measuredMaxWorld": 0.05126740433033231,
+          "ratio": 0.1282,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 4,
+          "referenceVertices": 1642
+        },
+        {
+          "declaredErrorWorld": 0.04,
+          "measuredMaxWorld": 0.03523157905165491,
+          "ratio": 0.8808,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 7,
+          "referenceVertices": 1642
+        },
+        {
+          "declaredErrorWorld": 0.004,
+          "measuredMaxWorld": 0.0035358004864653294,
+          "ratio": 0.884,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 17,
+          "referenceVertices": 1642
+        }
+      ],
+      "coverage": {
+        "boxes": 8,
+        "entitiesMeetingBox": 4,
+        "missing": 0,
+        "extraKept": 4
+      }
+    },
+    {
+      "id": "nurbs-d2-offconic-001",
+      "entities": 1,
+      "extent": [
+        0,
+        0,
+        5,
+        1.9187777074097532
+      ],
+      "referenceBudget": 5e-07,
+      "previews": [
+        {
+          "declaredErrorWorld": 0.5,
+          "measuredMaxWorld": 0.35942626078900675,
+          "ratio": 0.7189,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 4,
+          "referenceVertices": 2814
+        },
+        {
+          "declaredErrorWorld": 0.05,
+          "measuredMaxWorld": 0.04045229227438323,
+          "ratio": 0.809,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 11,
+          "referenceVertices": 2814
+        },
+        {
+          "declaredErrorWorld": 0.005,
+          "measuredMaxWorld": 0.0035952687580817163,
+          "ratio": 0.7191,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 33,
+          "referenceVertices": 2814
+        }
+      ],
+      "coverage": {
+        "boxes": 8,
+        "entitiesMeetingBox": 2,
+        "missing": 0,
+        "extraKept": 6
+      }
+    },
+    {
+      "id": "nurbs-d3-001",
+      "entities": 1,
+      "extent": [
+        0,
+        -0.38176638176638183,
+        7,
+        2
+      ],
+      "referenceBudget": 7e-07,
+      "previews": [
+        {
+          "declaredErrorWorld": 0.7000000000000001,
+          "measuredMaxWorld": 0.44666506937352496,
+          "ratio": 0.6381,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 5,
+          "referenceVertices": 3335
+        },
+        {
+          "declaredErrorWorld": 0.07,
+          "measuredMaxWorld": 0.05452727326100022,
+          "ratio": 0.779,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 12,
+          "referenceVertices": 3335
+        },
+        {
+          "declaredErrorWorld": 0.007,
+          "measuredMaxWorld": 0.006671560775503731,
+          "ratio": 0.9531,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 41,
+          "referenceVertices": 3335
+        }
+      ],
+      "coverage": {
+        "boxes": 8,
+        "entitiesMeetingBox": 2,
+        "missing": 0,
+        "extraKept": 6
+      }
+    },
+    {
+      "id": "polyline-001",
+      "entities": 1,
+      "extent": [
+        -1.5,
+        -1.25,
+        4,
+        3.25
+      ],
+      "referenceBudget": 5.5e-07,
+      "previews": [
+        {
+          "declaredErrorWorld": 0.55,
+          "measuredMaxWorld": 0,
+          "ratio": 0,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 5,
+          "referenceVertices": 5
+        },
+        {
+          "declaredErrorWorld": 0.055,
+          "measuredMaxWorld": 0,
+          "ratio": 0,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 5,
+          "referenceVertices": 5
+        },
+        {
+          "declaredErrorWorld": 0.0055,
+          "measuredMaxWorld": 0,
+          "ratio": 0,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 5,
+          "referenceVertices": 5
+        }
+      ],
+      "coverage": {
+        "boxes": 8,
+        "entitiesMeetingBox": 4,
+        "missing": 0,
+        "extraKept": 4
+      }
+    },
+    {
+      "id": "polyline2d-001",
+      "entities": 1,
+      "extent": [
+        -2,
+        -1.75,
+        3.5,
+        3
+      ],
+      "referenceBudget": 5.5e-07,
+      "previews": [
+        {
+          "declaredErrorWorld": 0.55,
+          "measuredMaxWorld": 0,
+          "ratio": 0,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 5,
+          "referenceVertices": 5
+        },
+        {
+          "declaredErrorWorld": 0.055,
+          "measuredMaxWorld": 0,
+          "ratio": 0,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 5,
+          "referenceVertices": 5
+        },
+        {
+          "declaredErrorWorld": 0.0055,
+          "measuredMaxWorld": 0,
+          "ratio": 0,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 5,
+          "referenceVertices": 5
+        }
+      ],
+      "coverage": {
+        "boxes": 8,
+        "entitiesMeetingBox": 3,
+        "missing": 0,
+        "extraKept": 5
+      }
+    },
+    {
+      "id": "repeated-knot-c0-001",
+      "entities": 1,
+      "extent": [
+        0,
+        0,
+        6,
+        1.5
+      ],
+      "referenceBudget": 6e-07,
+      "previews": [
+        {
+          "declaredErrorWorld": 0.6000000000000001,
+          "measuredMaxWorld": 0.5680160625064411,
+          "ratio": 0.9467,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 3,
+          "referenceVertices": 3725
+        },
+        {
+          "declaredErrorWorld": 0.06,
+          "measuredMaxWorld": 0.05056838399971686,
+          "ratio": 0.8428,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 15,
+          "referenceVertices": 3725
+        },
+        {
+          "declaredErrorWorld": 0.006,
+          "measuredMaxWorld": 0.005539722030483019,
+          "ratio": 0.9233,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 51,
+          "referenceVertices": 3725
+        }
+      ],
+      "coverage": {
+        "boxes": 8,
+        "entitiesMeetingBox": 3,
+        "missing": 0,
+        "extraKept": 5
+      }
+    },
+    {
+      "id": "tiny-radius-001",
+      "entities": 1,
+      "extent": [
+        0.50001,
+        0.5,
+        0.50001,
+        0.5
+      ],
+      "referenceBudget": 1e-16,
+      "previews": [
+        {
+          "declaredErrorWorld": 1.0000000000000002e-10,
+          "measuredMaxWorld": 4.706203407067116e-11,
+          "ratio": 0.4706,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 1025,
+          "referenceVertices": 1263234
+        },
+        {
+          "declaredErrorWorld": 1.0000000000000001e-11,
+          "measuredMaxWorld": 2.941525738031154e-12,
+          "ratio": 0.2942,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 4097,
+          "referenceVertices": 1263234
+        },
+        {
+          "declaredErrorWorld": 1.0000000000000002e-12,
+          "measuredMaxWorld": 7.354858767272074e-13,
+          "ratio": 0.7355,
+          "entitiesChecked": 1,
+          "withinDeclared": true,
+          "vertices": 8193,
+          "referenceVertices": 1263234
+        }
+      ],
+      "coverage": {
+        "boxes": 8,
+        "entitiesMeetingBox": 8,
+        "missing": 0,
+        "extraKept": 0
+      }
+    }
+  ],
+  "previewAccountingLarge": [
+    {
+      "id": "architectural-1e5",
+      "entities": 100000,
+      "extent": [
+        -6548.238,
+        -5187.747,
+        131670.75,
+        128000
+      ],
+      "referenceBudget": 0.13821898800000001,
+      "previews": [
+        {
+          "declaredErrorWorld": 138.21898800000002,
+          "measuredMaxWorld": 92.90433842278948,
+          "ratio": 0.6722,
+          "entitiesChecked": 300,
+          "withinDeclared": true,
+          "vertices": 258521,
+          "referenceVertices": 1191921
+        }
+      ],
+      "coverage": {
+        "boxes": 4,
+        "entitiesMeetingBox": 111571,
+        "missing": 0,
+        "extraKept": 15
+      }
+    },
+    {
+      "id": "architectural-1e6",
+      "entities": 1000000,
+      "extent": [
+        -5942.31,
+        -5982.3,
+        405930.512,
+        400000
+      ],
+      "referenceBudget": 0.41187282199999997,
+      "previews": [
+        {
+          "declaredErrorWorld": 411.872822,
+          "measuredMaxWorld": 390.3740000000107,
+          "ratio": 0.9478,
+          "entitiesChecked": 300,
+          "withinDeclared": true,
+          "vertices": 2445125,
+          "referenceVertices": 7445535
+        }
+      ],
+      "coverage": {
+        "boxes": 4,
+        "entitiesMeetingBox": 1106884,
+        "missing": 0,
+        "extraKept": 16
+      }
+    },
+    {
+      "id": "mep-1e5",
+      "entities": 100000,
+      "extent": [
+        -12906.153,
+        -10691.327,
+        140509.44,
+        128000
+      ],
+      "referenceBudget": 0.153415593,
+      "previews": [
+        {
+          "declaredErrorWorld": 153.415593,
+          "measuredMaxWorld": 140.8819311424882,
+          "ratio": 0.9183,
+          "entitiesChecked": 300,
+          "withinDeclared": true,
+          "vertices": 317644,
+          "referenceVertices": 2542443
+        }
+      ],
+      "coverage": {
+        "boxes": 4,
+        "entitiesMeetingBox": 111723,
+        "missing": 0,
+        "extraKept": 79
+      }
+    },
+    {
+      "id": "pathological-1e3",
+      "entities": 917,
+      "extent": [
+        -73.12014550781255,
+        -84.91066666666671,
+        99955.18076503572,
+        99993.68235385854
+      ],
+      "referenceBudget": 0.1000785930205252,
+      "previews": [
+        {
+          "declaredErrorWorld": 100.0785930205252,
+          "measuredMaxWorld": 50,
+          "ratio": 0.4996,
+          "entitiesChecked": 230,
+          "withinDeclared": true,
+          "vertices": 42395,
+          "referenceVertices": 51363
+        }
+      ],
+      "coverage": {
+        "boxes": 4,
+        "entitiesMeetingBox": 958,
+        "missing": 0,
+        "extraKept": 0
+      }
+    },
+    {
+      "id": "spline-heavy-1e5",
+      "entities": 100000,
+      "extent": [
+        -4522.676,
+        -3504.057,
+        132587.196,
+        131463.469
+      ],
+      "referenceBudget": 0.137109872,
+      "previews": [
+        {
+          "declaredErrorWorld": 137.109872,
+          "measuredMaxWorld": 131.8958485178779,
+          "ratio": 0.962,
+          "entitiesChecked": 300,
+          "withinDeclared": true,
+          "vertices": 822045,
+          "referenceVertices": 12496328
+        }
+      ],
+      "coverage": {
+        "boxes": 4,
+        "entitiesMeetingBox": 107732,
+        "missing": 0,
+        "extraKept": 37
+      }
+    }
+  ],
+  "leak": {
+    "cycles": 6000,
+    "pagesBefore": 8521,
+    "pagesAfterFirst3000": 8521,
+    "pagesAfter6000": 8521,
+    "note": "pages are 64 KiB; no growth between the two halves means no per-call leak"
+  }
+}

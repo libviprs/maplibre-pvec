@@ -10,7 +10,7 @@ export class PVecError extends Error {
   }
 }
 
-export type PVecOptionErrorCode = "url-not-absolute" | "cache-budget-invalid" | "worker-count-invalid" | "limit-invalid";
+export type PVecOptionErrorCode = "url-not-absolute" | "cache-budget-invalid" | "worker-count-invalid" | "limit-invalid" | "raster-option-invalid";
 export class PVecOptionError extends PVecError {
   declare readonly code: PVecOptionErrorCode;
 }

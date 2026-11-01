@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { chooseTransport, loadEvaluator } from "../../../src/wasm/loader";
 import { gateProjection } from "../../../src/transform/projection";
-import { PROBE_WASM_BYTES } from "../helpers/probe";
+import { EVALUATOR_WASM_BYTES } from "../helpers/probe";
 import { PVecError } from "../../../src/source/errors";
 
 const bytesResponse = (type = "application/wasm"): Response =>
-  new Response(PROBE_WASM_BYTES as BodyInit, { headers: { "content-type": type } });
+  new Response(EVALUATOR_WASM_BYTES as BodyInit, { headers: { "content-type": type } });
 
 describe("#31 M7.6 WASM acquisition", () => {
   it("default mode resolves the asset from import.meta.url, same origin, and fetches it once", async () => {
@@ -13,7 +13,7 @@ describe("#31 M7.6 WASM acquisition", () => {
     const ev = await loadEvaluator({}, { fetch: async (u) => (seen.push(String(u)), bytesResponse()) });
     expect(seen).toHaveLength(1);
     expect(seen[0]).toMatch(/pvec_eval\.wasm$/);
-    expect(ev.abiVersion).toBe(0);
+    expect(ev.abiVersion).toBe(2);
     expect(ev.source).toBe("default");
   });
 
@@ -26,11 +26,11 @@ describe("#31 M7.6 WASM acquisition", () => {
 
   it("a wrong content-type falls back to arrayBuffer compile instead of failing", async () => {
     const ev = await loadEvaluator({}, { fetch: async () => bytesResponse("application/octet-stream") });
-    expect(ev.abiVersion).toBe(0);
+    expect(ev.abiVersion).toBe(2);
   });
 
   it("injected wasmModule never touches fetch (strict CSP)", async () => {
-    const wasmModule = await WebAssembly.compile(PROBE_WASM_BYTES);
+    const wasmModule = await WebAssembly.compile(EVALUATOR_WASM_BYTES);
     const ev = await loadEvaluator({ wasmModule }, { fetch: async () => { throw new Error("fetch must not run"); } });
     expect(ev.source).toBe("injected");
   });
@@ -38,10 +38,10 @@ describe("#31 M7.6 WASM acquisition", () => {
   it("injected instantiate hook receives the imports and its instance is used", async () => {
     let got: unknown;
     const ev = await loadEvaluator(
-      { instantiate: async (imports) => ((got = imports), (await WebAssembly.instantiate(PROBE_WASM_BYTES, imports)).instance) },
+      { instantiate: async (imports) => ((got = imports), (await WebAssembly.instantiate(EVALUATOR_WASM_BYTES, imports)).instance) },
       { fetch: async () => { throw new Error("fetch must not run"); } },
     );
-    expect(got).toEqual({});
+    expect(Object.keys(got as object)).toEqual(["./pvec_wasm_bg.js"]);
     expect(ev.source).toBe("injected");
   });
 

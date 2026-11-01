@@ -29,14 +29,15 @@
             }
           },
           "pvec": {
-            "description": "Byte size of the prebuilt .pvec. PENDING with null until pvec P2.4 emits canonical files.",
+            "description": "The prebuilt .pvec from pvec's generator. PRESENT with its size and digest, NOT_EMITTED with pvec's reason, PENDING only when no index was loaded.",
             "type": "object",
             "additionalProperties": false,
-            "required": ["status", "bytes", "waitsOn"],
+            "required": ["status", "bytes", "sha256", "note"],
             "properties": {
-              "status": { "enum": ["PENDING", "PRESENT"] },
+              "status": { "enum": ["PENDING", "PRESENT", "NOT_EMITTED"] },
               "bytes": { "type": ["integer", "null"], "minimum": 1 },
-              "waitsOn": { "type": "string" }
+              "sha256": { "type": ["string", "null"], "pattern": "^[0-9a-f]{64}$" },
+              "note": { "type": "string" }
             }
           },
           "viewport": {

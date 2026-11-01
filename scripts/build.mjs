@@ -1,6 +1,7 @@
 // Builds dist/: bundled ESM per entry, the .wasm asset, and rolled-up types. Runs in a container.
 import { build } from "esbuild";
-import { copyFileSync, mkdirSync, existsSync } from "node:fs";
+import { copyFileSync, mkdirSync, existsSync, readFileSync } from "node:fs";
+import { resolveStagedWasm } from "../tools/staged-wasm.mjs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -19,7 +20,12 @@ await build({
   logLevel: "warning",
   absWorkingDir: root,
 });
-// PVEC_WASM points at the evaluator artifact from libviprs/pvec once it exists. Until then the
-// committed boundary probe is shipped under the same name so the acquisition paths are real.
-const artifact = process.env.PVEC_WASM && existsSync(process.env.PVEC_WASM) ? process.env.PVEC_WASM : join(root, "wasm/probe.wasm");
+// The evaluator is the pvec-wasm build committed under wasm/ (pinned by wasm/pvec.pin.json, rebuilt by
+// tools/pvec-artifacts.sh). PVEC_WASM overrides it: a staged release directory or a module from
+// libviprs/pvec tools/wasm-release.sh, checked against its manifest and the pinned ABI version, or a bare
+// .wasm to try another build. The loader's export check refuses anything that is not the packed evaluator.
+const pin = JSON.parse(readFileSync(join(root, "wasm/pvec.pin.json"), "utf8"));
+const artifact = process.env.PVEC_WASM && existsSync(process.env.PVEC_WASM)
+  ? resolveStagedWasm(process.env.PVEC_WASM, { abiVersion: pin.abiVersion, sha256: process.env.PVEC_WASM_SHA256 }).file
+  : join(root, "wasm/pvec_eval.wasm");
 copyFileSync(artifact, join(dist, "pvec_eval.wasm"));

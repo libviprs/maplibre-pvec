@@ -1,0 +1,176 @@
+{
+  "schema": 1,
+  "arch": "x64",
+  "unannotated": 0,
+  "runs": [
+    {
+      "engine": "chromium",
+      "version": "111.0.5563.19",
+      "kind": "grid",
+      "total": 4,
+      "passed": 4
+    },
+    {
+      "engine": "chromium",
+      "version": "111.0.5563.19",
+      "kind": "grid",
+      "maplibre": "4.7.1",
+      "total": 1,
+      "passed": 1
+    },
+    {
+      "engine": "chromium",
+      "version": "111.0.5563.19",
+      "kind": "grid",
+      "maplibre": "5.24.0",
+      "total": 1,
+      "passed": 1
+    },
+    {
+      "engine": "chromium",
+      "version": "111.0.5563.19",
+      "kind": "grid",
+      "maplibre": "6.16.0",
+      "total": 1,
+      "passed": 1
+    },
+    {
+      "engine": "chromium",
+      "version": "130.0.6723.31",
+      "kind": "grid",
+      "total": 4,
+      "passed": 4
+    },
+    {
+      "engine": "chromium",
+      "version": "130.0.6723.31",
+      "kind": "grid",
+      "maplibre": "4.7.1",
+      "total": 1,
+      "passed": 1
+    },
+    {
+      "engine": "chromium",
+      "version": "130.0.6723.31",
+      "kind": "grid",
+      "maplibre": "5.24.0",
+      "total": 1,
+      "passed": 1
+    },
+    {
+      "engine": "chromium",
+      "version": "130.0.6723.31",
+      "kind": "grid",
+      "maplibre": "6.16.0",
+      "total": 1,
+      "passed": 1
+    },
+    {
+      "engine": "firefox",
+      "version": "131.0",
+      "kind": "grid",
+      "total": 4,
+      "passed": 4
+    },
+    {
+      "engine": "firefox",
+      "version": "131.0",
+      "kind": "grid",
+      "maplibre": "4.7.1",
+      "total": 1,
+      "passed": 1
+    },
+    {
+      "engine": "firefox",
+      "version": "131.0",
+      "kind": "grid",
+      "maplibre": "5.24.0",
+      "total": 1,
+      "passed": 1
+    },
+    {
+      "engine": "firefox",
+      "version": "131.0",
+      "kind": "grid",
+      "maplibre": "6.16.0",
+      "total": 1,
+      "passed": 1
+    },
+    {
+      "engine": "webkit",
+      "version": "18.0",
+      "kind": "grid",
+      "total": 4,
+      "passed": 4
+    },
+    {
+      "engine": "webkit",
+      "version": "18.0",
+      "kind": "grid",
+      "maplibre": "4.7.1",
+      "total": 1,
+      "passed": 1
+    },
+    {
+      "engine": "webkit",
+      "version": "18.0",
+      "kind": "grid",
+      "maplibre": "5.24.0",
+      "total": 1,
+      "passed": 1
+    },
+    {
+      "engine": "webkit",
+      "version": "18.0",
+      "kind": "grid",
+      "maplibre": "6.16.0",
+      "total": 1,
+      "passed": 1
+    },
+    {
+      "engine": "chromium",
+      "version": "130.0.6723.31",
+      "kind": "isolated",
+      "total": 1,
+      "passed": 1
+    },
+    {
+      "engine": "chromium",
+      "version": "130.0.6723.31",
+      "kind": "isolated",
+      "maplibre": "6.16.0",
+      "total": 1,
+      "passed": 1
+    },
+    {
+      "engine": "firefox",
+      "version": "131.0",
+      "kind": "isolated",
+      "total": 1,
+      "passed": 1
+    },
+    {
+      "engine": "firefox",
+      "version": "131.0",
+      "kind": "isolated",
+      "maplibre": "6.16.0",
+      "total": 1,
+      "passed": 1
+    },
+    {
+      "engine": "webkit",
+      "version": "18.0",
+      "kind": "isolated",
+      "total": 1,
+      "passed": 1
+    },
+    {
+      "engine": "webkit",
+      "version": "18.0",
+      "kind": "isolated",
+      "maplibre": "6.16.0",
+      "total": 1,
+      "passed": 1
+    }
+  ]
+}

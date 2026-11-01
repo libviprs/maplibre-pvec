@@ -5,20 +5,20 @@
     {
       "id": "conformance_green_every_browser_row",
       "spec": "conformance suite green on every supported browser row (M2.8 / M7.7)",
-      "status": "deferred",
+      "status": "met",
       "measured": {
-        "supportedRows": 1,
+        "supportedRows": 3,
         "rows": 3
       },
-      "evidence": "compatibility.json browsers: chromium supported, firefox and webkit pending",
-      "deferredIn": "docs/deferred.md#issue-40-v1-freeze-and-documentation"
+      "evidence": "compatibility.json browsers against release/browser-grid.json (tools/run-grid.sh): every row supported and every grid run passed"
     },
     {
       "id": "gates_green_frozen_corpus",
       "spec": "all gates green on the frozen corpus after tuning (M8.2 - M8.5, M8.6)",
       "status": "deferred",
       "measured": {
-        "casesWithPvecBytes": 0,
+        "casesWithPvecBytes": 28,
+        "notEmittedByPvec": 2,
         "cases": 30,
         "varianceOk": true
       },
@@ -28,35 +28,41 @@
     {
       "id": "no_quarantined_in_pass_set",
       "spec": "no QUARANTINED fixture in the pass set (EPIC O classes)",
-      "status": "deferred",
+      "status": "met",
       "measured": {
         "quarantined": 0,
-        "passSetCases": 0
+        "passSetCases": 28
       },
-      "evidence": "the pass set is empty until the corpus has real .pvec bytes, so the absence is not yet evidence",
-      "deferredIn": "docs/deferred.md#issue-40-v1-freeze-and-documentation"
+      "evidence": "the pass set is the corpus cases with real .pvec bytes from pvec's generator; none of them is QUARANTINED"
     },
     {
       "id": "wasm_blocked_paths_documented",
       "spec": "WASM-blocked and non-isolated paths behave as documented (M7.6)",
-      "status": "deferred",
+      "status": "met",
       "measured": {
         "documented": true,
-        "verifiedThroughLayer": false
+        "verifiedThroughLayer": true,
+        "errorEvents": 1,
+        "rangeRequests": 0,
+        "mapLibrePixelDiff": 0,
+        "tarballBlockedErrorEvents": 1
       },
-      "evidence": "documented and unit tested at the loader; the layer does not call the version and WebGL2 refusals yet",
-      "deferredIn": "docs/deferred.md#issue-40-v1-freeze-and-documentation"
+      "evidence": "release/evidence/83-wired-layer.json, measured in Chromium through the wired layer and through the installed tarball"
     },
     {
       "id": "lifecycle_leak_and_context_loss",
       "spec": "lifecycle leak and context-loss tests green (M7.2)",
-      "status": "deferred",
+      "status": "met",
       "measured": {
         "leakTests": "lifecycle.test.ts (structural)",
-        "contextLossSnapshot": false
+        "contextLossSnapshot": true,
+        "newRangeRequests": 0,
+        "snapshotDiff": 0,
+        "outsideStrokeDiff": 0,
+        "symbolLayerDiff": 0,
+        "stateDiffs": 0
       },
-      "evidence": "the forced WEBGL_lose_context snapshot needs the wired renderer",
-      "deferredIn": "docs/deferred.md#issue-40-v1-freeze-and-documentation"
+      "evidence": "release/evidence/83-wired-layer.json: forced WEBGL_lose_context on a WebGL2 canvas through the layer, zero new range requests, snapshot within 0.1 percent; coexistence with MapLibre's own layers on a real map"
     },
     {
       "id": "examples_pass_network_denied",
@@ -75,7 +81,7 @@
       "spec": "API report identical to the committed baseline (M7.1)",
       "status": "met",
       "measured": {
-        "reportSha256": "dba22cb165fb3af29081fa83c770dbe79ce7527903d090bbd9eac67e5ceb9fe1",
+        "reportSha256": "6e573850bede9f0559a1d4ebc8e6e4bc273ee92342477413df488384467ff99c",
         "change": "none"
       },
       "evidence": "etc/maplibre-pvec.api.md regenerated from the sources and compared with release/v1-freeze.json"

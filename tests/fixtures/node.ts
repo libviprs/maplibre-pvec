@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join, resolve, sep } from "node:path";
+import type { PvecIndex } from "./registry";
 import { type ArtifactSource, sha256Hex } from "./source";
 
 export function fsSource(dir: string): ArtifactSource {
@@ -34,4 +35,14 @@ export async function fetchVerified(opts: {
   await mkdir(dirname(file), { recursive: true });
   await writeFile(file, bytes);
   return bytes;
+}
+
+/** Reads tests/fixtures/pvec/index.json and re-hashes every artifact it lists, so the bytes cannot drift from it. */
+export async function loadPvecIndex(dir: string): Promise<PvecIndex> {
+  const index = JSON.parse(await readFile(join(dir, "index.json"), "utf8")) as PvecIndex;
+  for (const [id, a] of Object.entries(index.artifacts)) {
+    const got = await sha256Hex(new Uint8Array(await readFile(join(dir, `${id}.pvec`))));
+    if (got !== a.sha256) throw new Error(`${id}.pvec hash ${got} differs from the pinned ${a.sha256}`);
+  }
+  return index;
 }

@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "issue": 83,
+  "environment": "Chromium 130 (Playwright 1.48.2) on SwiftShader software GL, linux/x86_64 container; the map specs use a stand-in evaluator and cursor, the tarball spec uses the shipped package",
+  "note": "Measured by tests/e2e/83-*.spec.ts. Stand-in evaluator and cursor on the map specs, the installed tarball for the tarball spec.",
+  "coexistence": {
+    "outsideStrokeDiff": 0,
+    "stateDiffs": 0,
+    "symbolLayerDiff": 0
+  },
+  "contextLoss": {
+    "forced": true,
+    "contextLosses": 1,
+    "newRangeRequests": 0,
+    "snapshotDiff": 0
+  },
+  "tarball": {
+    "installed": true,
+    "errorEvents": 0,
+    "rangesIssued": 2,
+    "blockedErrorEvents": 1,
+    "blockedRangeRequests": 0
+  },
+  "wasmBlocked": {
+    "code": "wasm_unavailable",
+    "errorEvents": 1,
+    "rangeRequests": 0,
+    "mapLibrePixelDiff": 0
+  }
+}

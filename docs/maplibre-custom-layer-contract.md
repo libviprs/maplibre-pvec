@@ -12,6 +12,10 @@ Decision: [ADR 0001](adr/0001-maplibre-integration-surface.md), evidence in the 
 
 `createPVecLayer(options)` validates options and makes no request. `onAdd` starts the bootstrap, `whenReady()` resolves once the first bootstrap is over (it never rejects), `update(partial)` changes georeference, limits, cache, error policy or style without refetching canonical bytes, and `on`, `off` and `once` subscribe to events. The full signatures are in the [API reference](api/reference.md) and the exported names in [public surface](api/public-surface.md).
 
+## Draw order
+
+The PVec layer is one style layer. Inside it the order is band 0 rasters, the strokes, band 1 rasters. Against the rest of the style, `beforeId` of `map.addLayer(layer, beforeId)` is the only ordering knob: a MapLibre layer placed after the PVec layer draws over band 1 (labels in a `symbol` layer above stay readable), one placed before it is covered by the opaque part of band 0 and shows through the scan's baked alpha. The layer draws with the stencil test off, writes no stencil, and blends `ONE, ONE_MINUS_SRC_ALPHA` over whatever is underneath (the bitmaps are decoded premultiplied, `opacity` multiplies into the fragment). `tests/e2e/rendering/106-raster-compose.spec.ts` checks each of these on 4.7.1, 5.24.0 and 6.16.0.
+
 ## Not yet true
 
 `assertMapLibreVersion` and `assertWebGL2` exist and are tested, but `onAdd` does not call them yet, so the `unsupported_maplibre_version` and `webgl2_required` refusals are not reachable from a real attach. See [deferred work](deferred.md).

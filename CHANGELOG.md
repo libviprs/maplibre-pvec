@@ -17,6 +17,11 @@ Nothing is tagged or published. `1.0.0` waits for every condition in `release/v1
 - Package output, WASM acquisition modes, compatibility matrix and pack check.
 - Benchmark corpus, harness and a first committed baseline run.
 - Complete documentation set with generated pages (`docs/README.md`), the v1 freeze file and the release gate.
+- The shipped `pvec_eval.wasm` is the real `pvec-wasm` evaluator (ABI 1), and `loadEvaluator` refuses a module without its export set. 22 of the 30 corpus fixtures have real `.pvec` bytes from pvec's generator. Spikes M1.2, M1.3 and M1.5 re-run on them.
+
+### Raster names (#104, minor)
+
+A minor change: nothing is removed or retyped. `PVecLayerOptions.raster` and `update({ raster })`, the `rasterskipped` event and `RasterSkippedEvent`, `RasterInfo` and `PVecLayer.rasters()`, and the optional capability `raster` in the compatibility matrix. `DiagnosticsSnapshot.rasters` is added. This is a freeze amendment under the R-M epic (#103). `tools/release-gate.mjs` hashes whole declarations, so it reads each of these additions to an existing declaration as a change to that symbol.
 
 ### Measurements
 

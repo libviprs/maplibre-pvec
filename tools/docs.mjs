@@ -3,7 +3,7 @@
 //   node tools/docs.mjs --check   fail when a generated page differs from its sources
 // Generated: docs/README.md, docs/adr/README.md, docs/api/reference.md, docs/benchmark-report.md, docs/slo.md.
 // The numbers come from etc/maplibre-pvec.api.md and bench/results/*.json, so prose cannot drift from them.
-import { readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -62,7 +62,7 @@ function adrIndex(root) {
   });
   return `${GEN("docs/adr/*.md")}# Architecture decision records (browser)
 
-Eight ADRs freeze the phase 1 decisions. Each one quotes numbers from a spike report under \`docs/spikes/\`.
+Eight ADRs freeze the phase 1 decisions. Each one quotes numbers from a spike report under \`docs/spikes/\`. Later records (0009 and up) decide what came after, and say what they measured in their own evidence.
 
 | ADR | Subject | Status | Evidence |
 |---|---|---|---|
@@ -106,7 +106,7 @@ function results(root) {
 
 function benchmarkReport(root) {
   const corpusPin = JSON.parse(readFileSync(path.join(root, "bench/corpus/corpus.json"), "utf8")).revision;
-  const out = [`${GEN("bench/results/*.json")}# Benchmark report\n`];
+  const out = [`${GEN("bench/results/*.json, bench/baselines/renderer-baselines.json, spikes/pvec-real/*.json")}# Benchmark report\n`];
   out.push("These are display-fidelity and frame-behaviour measurements of the benchmark subject named under each result. They are not claims about geometric accuracy; the mathematical tolerances belong to the shared numeric policy (libviprs/pvec#1, P1.2), and this report cites none.\n");
   for (const { file, r } of results(root)) {
     out.push(`## ${file}\n`);
@@ -123,8 +123,105 @@ function benchmarkReport(root) {
     }
     out.push("");
   }
-  out.push("Software GL means these are relative costs. Hardware numbers, the add-on's own runs and the thresholds for them are listed in [deferred work](deferred.md).\n");
+  out.push("The runs above used software GL, so they are relative costs.\n");
+  const hwFile = path.join(root, "bench/baselines/renderer-baselines.json");
+  const hw = JSON.parse(readFileSync(hwFile, "utf8"));
+  out.push("## Real hardware (renderer-keyed baselines)\n");
+  out.push("Stroke pipeline through the buffer pool, 1e6 segments per frame as ten 100k-segment ranges (ten draw calls), 1600x1000 css px at dpr 2, 60 s of rAF frames after a 3 s warm-up. Each row comes from the result file named in its last column; the pixel hash of the fixed snapshot scene is stored per renderer in `bench/baselines/renderer-baselines.json`. The CPU column is JavaScript submit time per frame; the GPU column is the timer-query time where the engine offers one. A 120 Hz display makes the frame interval 8.3 ms, so the interval is capped by the display, not by the work.\n");
+  out.push("| renderer | engine | arch | frame p50/p95/max (ms) | frames over 20 ms | draw calls | CPU submit p95 (ms) | GPU frame p50 (ms) | 1e6 sync draw p50 (ms) | 1e6 upload (ms) | 4 MiB upload p95 (ms) | 8 MiB upload p95 (ms) | source |", "|---|---|---|---|---|---|---|---|---|---|---|---|---|");
+  for (const [key, e] of Object.entries(hw.entries)) {
+    const up = (b) => fmt(e.upload.find((u) => u.bytes === b).p95Ms);
+    out.push(`| ${key.split(" | ")[0]} | ${e.engine} ${e.browserVersion} | ${e.arch} | ${fmt(e.frames.p50Ms)} / ${fmt(e.frames.p95Ms)} / ${fmt(e.frames.maxMs)} | ${e.frames.over20Ms} of ${e.frames.count} | ${e.drawCalls.perFrame} | ${fmt(e.cpu.submitP95Ms)} | ${e.gpu ? fmt(e.gpu.frameP50Ms) : "no timer query"} | ${fmt(e.draw1e6.syncDrawP50Ms)} | ${fmt(e.draw1e6.uploadMs)} | ${up(4 << 20)} | ${up(8 << 20)} | \`${e.source}\` |`);
+  }
+  out.push("");
+  const withLayer = Object.entries(hw.entries).filter(([, e]) => e.layer);
+  if (withLayer.length) {
+    out.push("### The same scene through the wired layer\n");
+    out.push("The same 1e6 segments in ten style groups (ten draw calls), drawn by `createPVecLayer` on a real MapLibre map with the stand-in cursor (real `.pvec` strokes come with the shared decoder), panned every frame, 60 s after a 3 s warm-up, in the same browser session as the row above. Render CPU is the JavaScript time inside `layer.render`; frame interval is the time between map renders. Settle is from `addLayer` until the pool has uploaded all of it (at most `uploadBudgetBytes` a frame) and every range draws. State diffs come from a separate 400-frame run with the guard's debug diff on.\n");
+    out.push("| renderer | engine | frame p50/p95/max (ms) | frames over 20 ms | draw calls | render CPU p50/p95/max (ms) | GPU frame p50 (ms) | settle (frames / ms) | largest upload in a frame (MiB) | state diffs | errors |", "|---|---|---|---|---|---|---|---|---|---|---|");
+    for (const [key, e] of withLayer) {
+      const l = e.layer;
+      out.push(`| ${key.split(" | ")[0]} | ${e.engine} ${e.browserVersion} | ${fmt(l.frames.p50Ms)} / ${fmt(l.frames.p95Ms)} / ${fmt(l.frames.maxMs)} | ${l.frames.over20Ms} of ${l.frames.count} | ${l.drawCalls.perFrame} | ${fmt(l.cpu.renderP50Ms)} / ${fmt(l.cpu.renderP95Ms)} / ${fmt(l.cpu.renderMaxMs)} | ${l.gpu ? fmt(l.gpu.frameP50Ms) : "no timer query"} | ${l.settle.frames} / ${l.settle.ms} | ${fmt(l.settle.maxUploadBytesPerFrame / (1 << 20))} | ${l.stateDiffs} | ${l.errors} |`);
+    }
+    out.push("");
+    out.push("The state guard used to read the GL state back every frame, and in Chromium the first `getParameter` waits for the GPU (11 ms of render CPU on the M5, about 5 ms on the Intel part). It now reads the state once to seed a shadow kept by the context's setters, so a steady-state frame does no blocking reads (#96); the debug diff still queries. The pool kept to its upload budget on all three.\n");
+  }
+  const soft = Object.entries(hw.softwareEntries ?? {});
+  if (soft.length) {
+    out.push("### arm64 Linux, software GL (not GPU numbers)\n");
+    out.push("The same raw run and layer run in a linux/arm64 container on an Apple Silicon Mac under Docker Desktop. Docker Desktop passes no GPU into a container, so Chromium drew with SwiftShader on the CPU (4 cpus, 4 GB), at dpr 1 (the GPU rows use dpr 2) because software drawing of the 1e6-segment scene already costs seconds a frame. These rows say the harness, the pool and the wired layer work on arm64 Linux, and what they cost in software. They are not GPU numbers, not tuning input, and they do not stand in for an NVIDIA run or a real-GPU arm64 Linux run: neither was run and neither is claimed ([deferred work](deferred.md)). A frame takes seconds here, so the 60 s loops hold only a handful of frames and the frame percentiles are rough; the layer run's GL state diff covers 5 frames instead of 400.\n");
+    out.push("| renderer | engine | arch | dpr | raw frames in the 60 s loop | draw calls | 1e6 sync draw p50 (s) | CPU submit p95 (ms) | 4 MiB upload p95 (ms) | 16 MiB upload p95 (ms) | layer frames / frame p50 (s) | layer render CPU p50 / max (ms) | layer settle (frames) | largest upload in a frame (MiB) | state diffs / errors | source |", "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|");
+    for (const [key, e] of soft) {
+      const l = e.layer;
+      const up = (b) => fmt(e.upload.find((u) => u.bytes === b).p95Ms);
+      out.push(`| ${key.split(" | ")[0]} | ${e.engine} ${e.browserVersion} | ${e.arch} | 1 | ${e.frames.count} | ${e.drawCalls.perFrame} | ${fmt(e.draw1e6.syncDrawP50Ms / 1000)} | ${fmt(e.cpu.submitP95Ms)} | ${up(4 << 20)} | ${up(16 << 20)} | ${l ? `${l.frames.count} / ${fmt(l.frames.p50Ms / 1000)}` : "n/a"} | ${l ? `${fmt(l.cpu.renderP50Ms)} / ${fmt(l.cpu.renderMaxMs)}` : "n/a"} | ${l ? l.settle.frames : "n/a"} | ${l ? fmt(l.settle.maxUploadBytesPerFrame / (1 << 20)) : "n/a"} | ${l ? `${l.stateDiffs} / ${l.errors}` : "n/a"} | \`${e.source}\` |`);
+    }
+    out.push("");
+  }
+  out.push(...realEvaluatorSection(root));
+  out.push("Software GL means these are relative costs. The add-on's own runs and the thresholds for them are listed in [deferred work](deferred.md).\n");
   return out.join("\n");
+}
+
+const fr = (n) => (n === null || n === undefined ? "n/a" : n.toFixed(2));
+const kb = (n) => (n >= 1e6 ? `${(n / 1e6).toFixed(2)} MB` : n >= 1e3 ? `${(n / 1e3).toFixed(1)} kB` : `${n} B`);
+
+/** The real evaluator and real container numbers from spikes/pvec-real, when they have been run. */
+function realEvaluatorSection(root) {
+  const file = path.join(root, "spikes/pvec-real/results.json");
+  if (!existsSync(file)) return [];
+  const r = JSON.parse(readFileSync(file, "utf8"));
+  const out = ["## Real pvec evaluator and real .pvec bytes\n"];
+  out.push(`- \`spikes/pvec-real/results.json\`: ${r.browser}, ${r.platform} container, \`libviprs/pvec\` \`${r.pvecCommit.slice(0, 7)}\`, ABI version ${r.abiVersion}`);
+  out.push(`- module ${r.wasmBytes} bytes, compile ${fmt(r.compileMs)} ms, instantiate ${fmt(r.instantiateMs)} ms`);
+  out.push("- the docker host was shared and loaded while this ran, so every time here is an upper bound and only the shape is a result");
+  out.push("- the subject is the shipped evaluator through the packed binding; the arrays are views over linear memory, nothing is copied\n");
+  out.push("### Evaluation cost per named fixture\n");
+  out.push("One evaluation is a batch of the fixture's entities tessellated to a drawing-sized budget, including the four views and the release. Per vertex is at a budget chosen to give about that many vertices from one curve (n/a: the fixture has fewer vertices than that at any budget).\n");
+  out.push("| fixture | entities | one evaluation (ns) | vertices | ns/vertex at 1e2 | 1e3 | 1e4 | 1e5 |", "|---|---|---|---|---|---|---|---|");
+  for (const f of r.fixtures) {
+    const cell = (n) => { const a = f.amortised.find((x) => x.targetVertices === n); return a && a.nsPerVertex !== undefined ? fmt(a.nsPerVertex) : "n/a"; };
+    out.push(`| ${f.id} | ${f.entities} | ${fmt(Math.round(f.singleEvaluation.medianNsPerCall))} | ${f.singleEvaluation.vertices} | ${cell(1e2)} | ${cell(1e3)} | ${cell(1e4)} | ${cell(1e5)} |`);
+  }
+  out.push("");
+  if (r.large?.length) {
+    out.push("### Packed output on the generated corpus entries\n");
+    out.push("| entry | file | entities | open (ms) | whole drawing (ms) | ns/entity | ns/vertex | 25 percent window (ms) | 5 percent window (ms) | JS heap bytes/entity |", "|---|---|---|---|---|---|---|---|---|---|");
+    for (const l of r.large) {
+      const [full, q, sm] = l.viewports;
+      out.push(`| ${l.id} | ${kb(l.fileBytes)} | ${l.entities} | ${fmt(l.openMs)} | ${fmt(full.f64.tessellateMs)} | ${fmt(full.f64.nsPerEntity)} | ${fmt(full.f64.nsPerVertex)} | ${fmt(q.f64.tessellateMs)} | ${fmt(sm.f64.tessellateMs)} | ${full.heap ? fr(full.heap.bytesPerEntity) : "n/a"} |`);
+    }
+    out.push("");
+  }
+  if (r.leak) out.push(`Leak check: ${r.leak.cycles} open, query, tessellate and release cycles left linear memory at ${r.leak.pagesAfter6000} pages (${r.leak.pagesBefore} before, ${r.leak.pagesAfterFirst3000} after the first half).\n`);
+  if (r.previewAccounting?.length) {
+    out.push("### Preview error accounting and viewport coverage\n");
+    out.push("Measured is the largest distance between the preview and a reference tessellation at a hundred thousandth of the extent or tighter (both directions); declared is the budget asked for. The ratio is measured over declared. Coverage counts entities whose reference curve meets a window and are missing from the viewport batch.\n");
+    out.push("| fixture | ratio at 1e-1 | 1e-2 | 1e-3 of extent | all within declared | windows | entities meeting a window | missing |", "|---|---|---|---|---|---|---|---|");
+    const rows = [...r.previewAccounting, ...(r.previewAccountingLarge ?? [])];
+    for (const a of rows) {
+      const p = a.previews;
+      const three = p.length === 3 ? p.map((x) => fr(x.ratio)) : ["", "", fr(p[0]?.ratio)];
+      out.push(`| ${a.id} | ${three.join(" | ")} | ${p.every((x) => x.withinDeclared) ? "yes" : "NO"} | ${a.coverage.boxes} | ${a.coverage.entitiesMeetingBox} | ${a.coverage.missing} |`);
+    }
+    out.push("");
+  }
+  for (const [name, label] of [["x86_64", "x86_64"], ["arm64", "arm64"]]) {
+    const rf = path.join(root, `spikes/pvec-real/range-results-${name}.json`);
+    if (!existsSync(rf)) continue;
+    const rr = JSON.parse(readFileSync(rf, "utf8"));
+    out.push(`### Range bootstrap on real files, ${label}\n`);
+    out.push(`\`spikes/pvec-real/range-results-${name}.json\`: ${rr.platform}. The production source and bootstrap against files from pvec's writer over a loopback range origin; the ceiling is ${rr.bootstrapMaxRequests} bootstrap requests. A window is a share of the extent around its centre; ranges are coalesced when adjacent.\n`);
+    out.push("| file | bytes | blocks | RTT (ms) | bootstrap requests | bootstrap bytes | bootstrap (ms) | full: requests / bytes / ms | 25 percent: requests / bytes / ms | 5 percent: requests / bytes / ms |", "|---|---|---|---|---|---|---|---|---|---|");
+    const show = new Set(["line-001", "nurbs-d3-001", "pathological-1e3", "architectural-1e5", "mep-1e5", "spline-heavy-1e5", "architectural-1e6"]);
+    for (const x of rr.runs.filter((y) => show.has(y.name) && (y.rttMs === 0 || y.rttMs === 100))) {
+      if (x.error) { out.push(`| ${x.name} | ${x.fileBytes} | | ${x.rttMs} | ${x.error} | | | | | |`); continue; }
+      const v = (p) => { const w = x.viewports.find((q) => q.preset === p); return `${w.requests} / ${kb(w.bytes)} / ${fmt(w.ms)}`; };
+      out.push(`| ${x.name} | ${kb(x.fileBytes)} | ${x.bootstrap.blocks} | ${x.rttMs} | ${x.bootstrap.requests} | ${kb(x.bootstrap.bytes)} | ${fmt(x.bootstrap.ms)} | ${v("fullExtent")} | ${v("quarter")} | ${v("small")} |`);
+    }
+    out.push("");
+  }
+  return out;
 }
 
 function sloPage(root) {

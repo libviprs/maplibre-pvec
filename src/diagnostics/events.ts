@@ -1,4 +1,4 @@
-export const EVENT_NAMES = ["capabilities", "bytes", "tier0complete", "refinement", "capabilityunsupported", "error"] as const;
+export const EVENT_NAMES = ["capabilities", "bytes", "tier0complete", "refinement", "capabilityunsupported", "rasterskipped", "error"] as const;
 export type PVecEventName = (typeof EVENT_NAMES)[number];
 
 export interface CapabilityInfo {
@@ -39,6 +39,13 @@ export interface CapabilityUnsupportedEvent {
   required: boolean;
   action: string;
 }
+/** One raster the reader did not draw. Emitted once per skipped raster per bootstrap; the file's other rasters and its strokes draw. */
+export interface RasterSkippedEvent {
+  rasterId: number;
+  /** The rule that refused it, such as `RASTER-04`. */
+  rule: string;
+  message: string;
+}
 export interface PVecErrorEvent {
   code: string;
   message: string;
@@ -51,6 +58,7 @@ export interface PVecEventMap {
   tier0complete: Tier0CompleteEvent;
   refinement: RefinementEvent;
   capabilityunsupported: CapabilityUnsupportedEvent;
+  rasterskipped: RasterSkippedEvent;
   error: PVecErrorEvent;
 }
 
@@ -90,6 +98,19 @@ export class Emitter {
   }
 }
 
+/** What the host needs to know about a raster that draws. `attribution` is already escaped for an HTML sink. */
+export interface RasterInfo {
+  id: number;
+  width: number;
+  height: number;
+  /** 0 draws under the strokes, 1 over them. */
+  band: 0 | 1;
+  /** 0 to 255. */
+  opacity: number;
+  /** Plain text escaped for MapLibre's attribution control, empty when the raster has none. */
+  attribution: string;
+}
+
 export interface DiagnosticsSnapshot {
   ranges: { requested: number; issued: number; coalesced: number };
   bytes: { fetched: number; decoded: number; compressedTier: number; decodedTier: number; gpuTier: number };
@@ -100,4 +121,6 @@ export interface DiagnosticsSnapshot {
   pendingFetches: number;
   frames: number;
   contextLosses: number;
+  /** Zero for a file without a raster stream. `textureBytes` and `decodesInFlight` are read from the cache accounting. */
+  rasters: { drawn: number; skipped: number; textureBytes: number; decodesInFlight: number };
 }
