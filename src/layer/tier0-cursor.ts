@@ -13,11 +13,14 @@ const MAX_ENTITIES = 1e7;
 const MAX_SEGMENTS = 5e6;
 // The width of the whole drawing in screen pixels: a pixel of that view is the asked error, and the unit declared errors are given in.
 const FULL_VIEW_PX = 1920;
-// A window with more entities than this is split in four before it is tessellated, so one `next` costs the evaluator a small, even amount.
+// Entities of a leaf that are tessellated in one step, and of the advanced curves (a spline costs more than a segment).
+const PAGE_ENTITIES = 384;
+const ADVANCED_PAGE_ENTITIES = 96;
+// A window with more entities than this is split in four before it is tessellated (a module without the per-leaf calls).
 const STEP_ENTITIES = 512;
 const MAX_DEPTH = 12;
 // What one `next` call spends before it hands back what it has.
-const CALL_MS = 2;
+const CALL_MS = 1;
 // Stored previews are copied out this many to a step.
 const PREVIEW_STEP = 256;
 
@@ -34,17 +37,22 @@ const boundsOf = (p: ArrayLike<number>) => {
 };
 
 type Box = readonly [number, number, number, number];
-/** One unit of work: a window to answer (`top`: also read its stored previews first) or the rest of a stored preview stream. */
-type Job = { box: Box; depth: number; top: boolean } | { stream: number; at: number };
 
 /**
  * A cursor over the evaluator's Tier 0 stream of a file held in memory, in steps that each cost the evaluator a few
- * hundred entities, so that the decoder's slices stay short. Previews the file stores (codes 1 and 2) come from the stream
- * with their declared error; everything else, which is every entity of a file with no spatial directory, is the
- * evaluator's tessellation at one pixel of a 1920 pixel view of the whole drawing. A window holding more than a
- * few hundred entities is split in four first (an entity on a split line is answered once). All of it is display fidelity,
- * so every entity is a `preview`, with its error in pixels of that view. `window` is the source extent as
- * `[minX, minY, maxX, maxY]`. The cursor owns the file handle until it is drained; call `close` to give it back early.
+ * hundred entities, so that the decoder's slices stay short. `window` is the source extent as
+ * `[minX, minY, maxX, maxY]`, and an entity outside it is not returned. All of it is display fidelity, so every entity is a
+ * `preview`, with its error in pixels of a 1920 pixel view of the window.
+ *
+ * With a module that has the per-leaf calls (libviprs/pvec#238) and a file that has a spatial directory, the cursor walks the
+ * leaves the window touches, one at a time, and a leaf is a block: its stored previews (codes 1 and 2, with their declared error)
+ * come from `tier0_leaf`, then its entities a page at a time from `query_leaf`, tessellated at one pixel. Every entity is in one leaf, so none is
+ * answered twice, a step costs a page and not the file, and the decoder counts a block against `maxEntitiesPerBlock` where it used to
+ * count the whole file. The advanced curves, which no leaf holds, are the last block. With a module that has no per-leaf calls, or a file with no
+ * directory, it walks the window in boxes instead: a box holding more than a few hundred entities is split in four first (an
+ * entity on a split line is answered once), and the whole walk is one block, as before.
+ *
+ * The cursor owns the file handle until it is drained; call `close` to give it back early.
  */
 export function tier0CursorOver(evaluator: Evaluator, bytes: Uint8Array, window: readonly [number, number, number, number]): BlockCursor & { close(): void } {
   const rt = bindPacked(evaluator);
@@ -52,33 +60,11 @@ export function tier0CursorOver(evaluator: Evaluator, bytes: Uint8Array, window:
   if (file < 0) throw new PVecError("load_failed", `the evaluator refused the file (code ${file})`);
   const px = Math.max(window[2] - window[0], window[3] - window[1], 1e-9) / FULL_VIEW_PX;
   const chain = [1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1e9, px];
-  const jobs: Job[] = [];
-  let open = true;
-  const close = (): void => {
-    if (!open) return;
-    open = false;
-    for (const j of jobs) if ("stream" in j) rt.release(j.stream);
-    jobs.length = 0;
-    rt.release(file);
-  };
-  // The windows to walk: every leaf box of the directory, then the advanced curves' own box, or the extent when the file has no directory.
-  const tops: Box[] = [];
-  if (rt.directoryStat(file, 0) === 1) {
-    const q = rt.directoryQuery(file, ...window);
-    if (typeof q !== "number") {
-      for (let i = 0; i < q.cells.length; i++) tops.push([q.boxes[4 * i]!, q.boxes[4 * i + 1]!, q.boxes[4 * i + 2]!, q.boxes[4 * i + 3]!]);
-      rt.release(q.handle);
-    }
-    const adv = [4, 5, 6, 7].map((n) => rt.directoryBound(file, n));
-    if (adv.every(Number.isFinite)) tops.push(adv as unknown as Box);
-  } else {
-    tops.push([...window]);
-  }
-  for (const box of tops.reverse()) jobs.push({ box, depth: 0, top: true });
   const hasDirectory = rt.directoryStat(file, 0) === 1;
   const seen = new Set<number>();
   const pending: RawEntity[] = [];
-  let at = 0;
+  const meetsWindow = (b: { minX: number; minY: number; maxX: number; maxY: number }): boolean =>
+    b.minX <= window[2] && b.maxX >= window[0] && b.minY <= window[3] && b.maxY >= window[1];
   const entity = (id: number, points: number[], declaredErrorPx: number): RawEntity => ({
     entityId: String(id),
     kind: "preview",
@@ -86,37 +72,9 @@ export function tier0CursorOver(evaluator: Evaluator, bytes: Uint8Array, window:
     bounds: boundsOf(points),
     declaredErrorPx,
   });
-  const step = (): void => {
-    const job = jobs.pop()!;
-    if ("stream" in job) {
-      const v = rt.tier0Views(job.stream);
-      const end = Math.min(v.ids.length, job.at + PREVIEW_STEP);
-      for (let i = job.at; i < end; i++) {
-        const id = v.ids[i]!, code = v.codes[i]!;
-        if (seen.has(id) || (code !== 1 && code !== 2)) continue;
-        const points = Array.from(v.vertices.subarray(2 * v.offsets[i]!, 2 * v.offsets[i + 1]!));
-        if (points.length >= 4) (seen.add(id), pending.push(entity(id, points, v.errors[i]! / px)));
-      }
-      if (end < v.ids.length) jobs.push({ stream: job.stream, at: end });
-      else rt.release(job.stream);
-      return;
-    }
-    const w = job.box;
-    if (job.top && hasDirectory) {
-      const t = rt.tier0Viewport(file, ...w);
-      // The remaining windows go below the stream on the stack, which is read first.
-      if (t >= 0) (jobs.push({ box: w, depth: job.depth, top: false }), jobs.push({ stream: t, at: 0 }));
-      else jobs.push({ box: w, depth: job.depth, top: false });
-      return;
-    }
-    const batch = rt.queryViewport(file, ...w, MAX_ENTITIES);
-    if (batch < 0) return;
+  /** Tessellates a batch and keeps the entities not answered yet. Releases the batch. */
+  const tessellated = (batch: number): void => {
     try {
-      if (rt.batchLength(batch) > STEP_ENTITIES && job.depth < MAX_DEPTH && w[2] > w[0] && w[3] > w[1]) {
-        const mx = (w[0] + w[2]) / 2, my = (w[1] + w[3]) / 2;
-        for (const b of [[mx, my, w[2], w[3]], [w[0], my, mx, w[3]], [mx, w[1], w[2], my], [w[0], w[1], mx, my]] as Box[]) jobs.push({ box: b, depth: job.depth + 1, top: false });
-        return;
-      }
       const tess = rt.tessellate(batch, chain, MAX_SEGMENTS, "f64");
       if (tess < 0) return;
       try {
@@ -125,7 +83,9 @@ export function tier0CursorOver(evaluator: Evaluator, bytes: Uint8Array, window:
           const id = v.entityIds[i]!;
           if (seen.has(id)) continue;
           const points = Array.from(v.vertices.subarray(2 * v.offsets[i]!, 2 * v.offsets[i + 1]!));
-          if (points.length >= 4) (seen.add(id), pending.push(entity(id, points, 1)));
+          if (points.length < 4) continue;
+          const e = entity(id, points, 1);
+          if (meetsWindow(e.bounds)) (seen.add(id), pending.push(e));
         }
       } finally {
         rt.release(tess);
@@ -134,17 +94,122 @@ export function tier0CursorOver(evaluator: Evaluator, bytes: Uint8Array, window:
       rt.release(batch);
     }
   };
+  /** Copies `PREVIEW_STEP` of the stored previews of a Tier 0 result at a time (a yield between), and releases it. */
+  function* storedPreviews(stream: number): Generator<void> {
+    try {
+      const n = rt.tier0Views(stream).ids.length;
+      for (let at = 0; at < n; at += PREVIEW_STEP) {
+        const v = rt.tier0Views(stream);
+        for (let i = at; i < Math.min(n, at + PREVIEW_STEP); i++) {
+          const id = v.ids[i]!, code = v.codes[i]!;
+          if (seen.has(id) || (code !== 1 && code !== 2)) continue;
+          const points = Array.from(v.vertices.subarray(2 * v.offsets[i]!, 2 * v.offsets[i + 1]!));
+          if (points.length < 4) continue;
+          const e = entity(id, points, v.errors[i]! / px);
+          if (meetsWindow(e.bounds)) (seen.add(id), pending.push(e));
+        }
+        yield;
+      }
+    } finally {
+      rt.release(stream);
+    }
+  }
+  /** One leaf (cell 0: the advanced curves): its stored previews, then its entities a page at a time. */
+  function* leaf(cell: number, hasBlock: boolean): Generator<void> {
+    if (hasBlock) {
+      const stream = rt.tier0Leaf(file, cell);
+      yield;
+      if (stream >= 0) yield* storedPreviews(stream);
+    }
+    const page = cell === 0 ? ADVANCED_PAGE_ENTITIES : PAGE_ENTITIES;
+    for (let first = 0; ; first += page) {
+      const batch = rt.queryLeaf(file, cell, first, page);
+      if (batch < 0) return;
+      const more = rt.batchTruncated(batch);
+      tessellated(batch);
+      yield;
+      if (!more) return;
+    }
+  }
+  /** A window of a module with no per-leaf calls: its stored previews, then boxes of a few hundred entities. */
+  function* box(w: Box, depth: number, top: boolean): Generator<void> {
+    if (top && hasDirectory) {
+      const stream = rt.tier0Viewport(file, ...w);
+      yield;
+      if (stream >= 0) yield* storedPreviews(stream);
+    }
+    const batch = rt.queryViewport(file, ...w, MAX_ENTITIES);
+    if (batch < 0) return;
+    if (rt.batchLength(batch) > STEP_ENTITIES && depth < MAX_DEPTH && w[2] > w[0] && w[3] > w[1]) {
+      rt.release(batch);
+      yield;
+      const mx = (w[0] + w[2]) / 2, my = (w[1] + w[3]) / 2;
+      for (const b of [[w[0], w[1], mx, my], [mx, w[1], w[2], my], [w[0], my, mx, w[3]], [mx, my, w[2], w[3]]] as Box[]) yield* box(b, depth + 1, false);
+      return;
+    }
+    tessellated(batch);
+    yield;
+  }
+
+  // The blocks to walk, each a generator that yields between steps.
+  const blocks: Array<() => Generator<void>> = [];
+  if (hasDirectory && rt.hasLeafCalls) {
+    const q = rt.directoryQuery(file, ...window);
+    if (typeof q !== "number") {
+      const cells = Array.from(q.cells), hasTier0 = Array.from(q.hasTier0);
+      rt.release(q.handle);
+      cells.forEach((cell, i) => blocks.push(() => leaf(cell, hasTier0[i] === 1)));
+    }
+    const adv = [4, 5, 6, 7].map((n) => rt.directoryBound(file, n));
+    if (adv.every(Number.isFinite)) blocks.push(() => leaf(0, false));
+  } else {
+    blocks.push(() => box([...window], 0, true));
+  }
+  blocks.reverse();
+
+  let current: Generator<void> | null = null;
+  let open = true;
+  let consumed = 0;
+  let emitted = 0;
+  const ends: number[] = [];
+  let at = 0;
+  let endedNow = false;
+  const close = (): void => {
+    if (!open) return;
+    open = false;
+    current?.return(undefined);
+    current = null;
+    blocks.length = 0;
+    rt.release(file);
+  };
+  const step = (): void => {
+    if (!current) {
+      const make = blocks.pop();
+      if (!make) return;
+      current = make();
+    }
+    const before = pending.length;
+    const r = current.next();
+    emitted += pending.length - before;
+    if (r.done) (current = null, ends.push(emitted));
+  };
   return {
     close,
+    // True when the entities the last `next` returned end a block, so the decoder counts the next one from zero.
+    endsBlock: () => endedNow,
     next(max: number): RawEntity[] | null {
-      // Windows overlap, so a run of steps can answer only entities already seen. A call gives up its turn after a couple of milliseconds
-      // with whatever it has, which may be nothing: an empty batch is not the end, `null` is.
+      // A call gives up its turn after a millisecond with whatever it has, which may be nothing: an empty batch is not the end, `null` is.
       const start = performance.now();
-      while (pending.length - at < max && jobs.length && performance.now() - start < CALL_MS) step();
-      if (at >= pending.length) return jobs.length ? [] : (close(), null);
-      const slice = pending.slice(at, at + max);
-      at += slice.length;
+      while (pending.length - at < max && (current || blocks.length) && performance.now() - start < CALL_MS) step();
+      let n = Math.min(max, pending.length - at);
+      if (ends.length) n = Math.min(n, ends[0]! - consumed);
+      const slice = pending.slice(at, at + n);
+      at += n;
+      consumed += n;
+      endedNow = false;
+      while (ends.length && ends[0]! <= consumed) (ends.shift(), (endedNow = true));
       if (at > 4096) (pending.splice(0, at), (at = 0));
+      if (!slice.length && !current && !blocks.length && at >= pending.length) return (close(), null);
       return slice;
     },
   };

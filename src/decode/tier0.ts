@@ -14,8 +14,12 @@ export interface RawEntity {
   /** Required for previews only. */
   declaredErrorPx?: number;
 }
-/** Cursor over a Tier 0 block in the WASM decoder. */
-export interface BlockCursor { next(maxEntities: number): RawEntity[] | null }
+/**
+ * Cursor over the Tier 0 blocks in the WASM decoder. `endsBlock`, when the cursor has it, says whether what the last `next`
+ * returned ends a block (a leaf of the spatial directory, say), so the decoder counts the next block from zero. A cursor
+ * without it is one block from its first entity to its last.
+ */
+export interface BlockCursor { next(maxEntities: number): RawEntity[] | null; endsBlock?(): boolean }
 
 /** Exact cheap geometry. It has no conformance label and no error field. */
 export interface ExactDraw { kind: 'exact'; entityId: string; generation: 0; geometry: Geometry; bounds: Bounds }
@@ -31,6 +35,8 @@ export interface Tier0Limits { maxEntitiesPerBlock: number; maxSliceMs: number; 
 export class Tier0Decoder {
   private readonly limits: Tier0Limits;
   private decoded = 0;
+  /** The longest `next` of the cursor so far: a slice does not start another call that could not end inside the budget. */
+  private longestCall = 0;
 
   constructor(l: Partial<Tier0Limits> = {}) {
     this.limits = {
@@ -44,13 +50,18 @@ export class Tier0Decoder {
   decodeSlice(cursor: BlockCursor): { draws: EntityDraw[] } | null {
     const start = this.limits.now();
     const draws: EntityDraw[] = [];
+    let callStart = start;
     do {
       const batch = cursor.next(8);
       if (batch === null) { this.decoded = 0; return draws.length ? { draws } : null; }
       this.decoded += batch.length;
       if (this.decoded > this.limits.maxEntitiesPerBlock) throw new Error(`block exceeds maxEntitiesPerBlock (${this.limits.maxEntitiesPerBlock})`);
+      if (cursor.endsBlock?.()) this.decoded = 0;
       for (const e of batch) draws.push(toDraw(e));
-    } while (this.limits.now() - start < this.limits.maxSliceMs);
+      const now = this.limits.now();
+      this.longestCall = Math.max(this.longestCall, now - callStart);
+      callStart = now;
+    } while (callStart - start + this.longestCall < this.limits.maxSliceMs);
     return { draws };
   }
 
