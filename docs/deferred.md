@@ -234,3 +234,14 @@ What is done and tested: the raster page of the hardware harness (`bench/hw/rast
 | Firefox rows for rasters | The harness drives Chromium and WebKit; Firefox is in the grid (#81) for correctness only | A Firefox lane in the hardware harness |
 | NVIDIA run, arm64 Linux with a real GPU | Descoped as in #82, not claimed (no driver on MARS, no GPU in Docker Desktop) | The same as #82 |
 | MARS scratch disk | `/work` on MARS was full during this task (565 of 579 GB), so builds and the x64 software run used the NAS and mercury | Space on MARS |
+
+## #110 Release gate rows for rasters, the pin move and the freeze
+
+What is done and tested: `release/v1-gate.json` rebuilt by `tools/release-gate.mjs --write`: the raster grid spec count inside the conformance condition, the raster corpus cases inside the corpus one, example 07 inside the examples one, the raster names inside the API one, and one new row, `raster_render_budget`, from the baselines. `evaluateRelease` refuses a gate that lacks the row or a key. `REQUIRED_CONDITIONS` is unchanged. The pin moved in #100 to the published `wasm-v1-ab3c2cf`; this task adds `hasRaster` on the evaluator (the raster group probed once at load, `SUPPORTED_ABI_VERSIONS` still `[1, 2]`), `raster_plan` in the probed set, a raster export check for staged modules, and the adapter's name for a raster stream the rules refuse as a whole.
+
+| Item | Why it cannot be done here | What unblocks it |
+|---|---|---|
+| The "examples pass" condition stays deferred | 2 of 6 examples exist; 02 to 06 are #84 and PR #85, which I was told to leave alone | #84 |
+| What stays open for rasters | The one-texel seam, the opacity option (the file's), the Tier 0 inline overview of a raster for a first-drawing mark, the real scan and real strokes in the raster corpus cases, an NVIDIA and an arm64 Linux GPU row (all above) | Their own rows above |
+| The refused stream's rule is not on the public surface | The adapter reads it (`RasterProvider.refusedStream`), the layer treats the file as having no rasters and reports the capability once as ignored, as before; a public name would be a freeze amendment | A decision to add one |
+

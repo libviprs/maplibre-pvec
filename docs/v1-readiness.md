@@ -6,13 +6,14 @@ I have not tagged or published anything. The package is `private` at `0.0.0`, an
 
 | condition | state | measured | where |
 |---|---|---|---|
-| conformance suite green on every supported browser row | deferred | 3 of 3 rows supported (chromium 111 to 130, firefox 131, webkit 18.0), each across MapLibre 4.7.1, 5.24.0 and 6.16.0, evidence in release/browser-grid.json | [deferred work](deferred.md), issue 2 and issue 40 |
+| conformance suite green on every supported browser row | met | 3 of 3 rows supported (chromium 111 to 130, firefox 131, webkit 18.0), each across MapLibre 4.7.1, 5.24.0 and 6.16.0, with the raster grid spec (`tests/e2e/grid/107-raster-grid.spec.ts`) among the grid runs; evidence in release/browser-grid.json | `release/v1-gate.json`, [deferred work](deferred.md), issue 107 |
 | all gates green on the frozen corpus after tuning | met | 28 of 30 corpus cases have `.pvec` bytes from pvec's generator, and the other two, `near-singular-001` and `translation-001`, are refused by design (`libviprs/pvec` ADR 0017); the baseline run's variance is within its limit. The add-on's own replay of the viewport scripts on those bytes is still issue 34 | [deferred work](deferred.md), issue 34 and issue 40 |
 | no QUARANTINED fixture in the pass set | met | 0 quarantined among the 28 cases with bytes | `release/v1-gate.json` |
 | WASM-blocked and non-isolated paths behave as documented | met | through the real layer: one `wasm_unavailable` error event, zero range requests, MapLibre's pixels unchanged (0 of 102400 differ), also from the installed tarball. Evidence in `release/evidence/83-wired-layer.json` | [deferred work](deferred.md), issue 83 |
 | lifecycle leak and context-loss tests green | met | forced `WEBGL_lose_context` then restore on a WebGL2 canvas through the layer: zero new range requests, snapshot identical (0 differing pixels), strokes back; with MapLibre's own layers the pixels outside the strokes match (0 differing) and the guard saw no leaked state in any frame. Measured on SwiftShader, with a stand-in evaluator and cursor | [deferred work](deferred.md), issue 83 |
-| examples pass with outbound network denied | deferred | 1 of 6 examples written; `01-minimal` passes against its own 127.0.0.1 server | [deferred work](deferred.md), issue 31 |
-| API report identical to the committed baseline | met | report regenerates with no diff and matches the frozen hash | `etc/maplibre-pvec.api.md` |
+| examples pass with outbound network denied | deferred | 2 of 6 examples written; `01-minimal` and `07-raster-underlay` pass against their own 127.0.0.1 servers with every other origin refused. 02 to 06 are #84 and PR #85, still open | [deferred work](deferred.md), issue 31 and #84 |
+| API report identical to the committed baseline | met | report regenerates with no diff and matches the frozen hash, the raster names (`raster` option, `rasterskipped`, `RasterInfo`, `rasters()`) among the 7 declarations that mention rasters | `etc/maplibre-pvec.api.md` |
+| render CPU with rasters (`raster_render_budget`, added by #110; the list of required conditions above is unchanged) | met | on frames that upload no tile at most 1.5 ms p95 on every real renderer (Apple M5 Chromium 0.2 ms, Apple GPU WebKit 0.46 ms as the mean because its timer is clamped to 1 ms, Intel ADL GT2 Chromium 1.1 ms), no frame that uploads a tile longer than 16.7 ms (largest 10.9 ms) | `release/v1-gate.json`, `bench/baselines/renderer-baselines.json`, ADR 0009 |
 
 ## Acceptance of the freeze task
 
