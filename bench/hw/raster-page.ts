@@ -214,6 +214,7 @@ async function scene(name: "strokes+0" | "strokes+1" | "strokes+10", scans: numb
   await settling;
 
   const interval: number[] = [], render: number[] = [], steadyMs: number[] = [], uploadMs: number[] = [];
+  const uploadTrace: { frame: number; ms: number; tiles: number; mib: number; prepareMs: number }[] = [];
   let peakTier = 0, last = 0, start = 0, i = 0;
   const budget = DEFAULTS.uploadBudgetBytes, tile = EDGE * EDGE * RASTER_DEFAULTS.bytesPerTexel;
   await new Promise<void>((resolve) => {
@@ -225,6 +226,7 @@ async function scene(name: "strokes+0" | "strokes+1" | "strokes+10", scans: numb
           interval.push(ts - last);
           render.push(lastRenderMs);
           (m.w.last && m.w.last.uploads > 0 ? uploadMs : steadyMs).push(lastRenderMs);
+          if (m.w.last && m.w.last.uploads > 0) uploadTrace.push({ frame: render.length, ms: lastRenderMs, tiles: m.w.last.uploads, mib: m.w.last.uploadedBytes / 1048576, prepareMs: m.w.last.renderMs });
           peakTier = Math.max(peakTier, layer.getDiagnostics().bytes.gpuTier);
         }
         last = ts;
@@ -273,6 +275,7 @@ async function scene(name: "strokes+0" | "strokes+1" | "strokes+10", scans: numb
     texture: { peakTextures: m.w.peakTextures, peakGpuTierBytes: Math.max(peakTier, m.w.peakTextureBytes), gpuBytes: GPU_CEILING },
     stateDiffs, errors: errors + errorsDebug, mainThreadDecodes,
     phases: { ...(globalThis as { __RPROF?: Record<string, number> }).__RPROF },
+    uploadTrace: uploadTrace.slice(0, 80),
     ...(o.profile ? { profile: { phases: { ...(globalThis as { __RPROF?: Record<string, number> }).__RPROF }, prepareP50Ms: stats(prepareMs).p50, prepareP95Ms: stats(prepareMs).p95, gl: [...glTime].map(([name, v]) => ({ name, calls: v.n, ms: v.ms })).sort((x, y) => y.ms - x.ms).slice(0, 12), renders: render.length } } : {}),
   };
 }

@@ -240,6 +240,8 @@ export interface RasterSceneRun {
   mainThreadDecodes: number;
   /** Optional breakdown: milliseconds the raster renderer spent per phase over the run's frames, and how many frames. */
   phases?: Record<string, number>;
+  /** The first 80 frames that uploaded a tile: render ms, tiles, MiB and the renderer's own prepare ms. */
+  uploadTrace?: { frame: number; ms: number; tiles: number; mib: number; prepareMs: number }[];
 }
 export interface RasterFitRun { view: "1080p" | "4k"; deviceSize: [number, number]; rasters: number; gpuBytes: number; peakGpuTierBytes: number; textures: number; levels: number[] }
 export interface RasterFirstDrawing { mbit: number; ms: number; bytes: number }
