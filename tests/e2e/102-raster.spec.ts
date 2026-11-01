@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
-import { cpus, loadavg } from "node:os";
 import { launch, SNAPSHOT_MATCH } from "./harness/layer-run";
 import { R, rasterRig } from "./harness/raster-run";
+import { steadyCpuWithinBudget } from "./harness/render-budget";
 import { buildRaster, type Kind, type WireRaster } from "../unit/helpers/raster_fixture";
 import type { Mat6 } from "../../src/render/raster/geometry";
 
@@ -128,14 +128,11 @@ test.describe("issue 102 rasters in the custom layer", () => {
       const f = await R<{ layerMs: number[] }>(page, "runFrames", 30);
       const sorted = [...f.layerMs].sort((a, b) => a - b);
       const p95 = sorted[Math.floor(sorted.length * 0.95)] ?? 0;
-      const loadPerCpu = loadavg()[0]! / cpus().length;
-      if (loadPerCpu <= 0.5) expect(p95, "the layer's own CPU for a steady frame, ms").toBeLessThanOrEqual(1.5);
-      else test.info().annotations.push({ type: "recorded, not asserted", description: `host load ${loadPerCpu.toFixed(2)} per cpu; layer CPU p95 ${p95} ms` });
+      steadyCpuWithinBudget(p95, "the layer's own CPU for a steady frame");
       evidence.decodeMsPerTile = s.decodeMs;
       evidence.uploadsPerFrame = s.uploadsPerFrame;
       evidence.textureBytesPerTile = s.tileBytes;
       evidence.steadyFrameP95Ms = p95;
-      evidence.hostLoadPerCpu = loadPerCpu;
       evidence.renderer = "software GL (SwiftShader), not a GPU";
     } finally {
       await r.stop();
