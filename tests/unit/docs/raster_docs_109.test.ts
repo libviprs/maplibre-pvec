@@ -40,7 +40,7 @@ describe("#109 docs/raster.md", () => {
     expect(read("docs/README.md")).toContain("(raster.md)");
     const all = listDocPages(root);
     const idx = read("docs/README.md");
-    for (const f of all) if (!f.startsWith("spikes/") && !/^adr\/\d{4}/.test(f)) expect(idx, f).toContain(`(${f})`);
+    for (const f of all) if (f !== "README.md" && !f.startsWith("spikes/") && !/^adr\/\d{4}/.test(f)) expect(idx, f).toContain(`(${f})`);
     for (const f of all) {
       for (const m of read(`docs/${f}`).matchAll(/\]\(((?!https?:|#|mailto:)[^)\s#]+)(#[^)]*)?\)/g)) {
         expect(existsSync(path.join(root, "docs", path.dirname(f), m[1]!)), `${f} -> ${m[1]}`).toBe(true);

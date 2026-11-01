@@ -84,6 +84,6 @@ Edge-to-edge quads have a one-texel seam with `CLAMP_TO_EDGE` and no overlap. It
 
 ## Measured costs
 
-Display-fidelity and frame-behaviour numbers, each with the renderer, engine and arch that produced it. The full tables are in the [benchmark report](benchmark-report.md); software GL rows are relative costs and are never a budget.
+These are display fidelity and frame-behaviour numbers, each with the renderer, engine and arch that produced it. The full tables are in the [benchmark report](benchmark-report.md); software GL rows are relative costs and are never a budget.
 
 RASTER_NUMBERS_TABLE
