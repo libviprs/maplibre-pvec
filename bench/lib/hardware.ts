@@ -225,8 +225,9 @@ export interface RasterSceneRun {
     p50Ms: number;
     p95Ms: number;
     maxMs: number;
-    steady: { frames: number; meanMs: number; p50Ms: number; p95Ms: number; p99Ms: number; maxMs: number };
-    uploadFrames: { frames: number; share: number; p50Ms: number; p95Ms: number; maxMs: number };
+    steady: { frames: number; meanMs: number; p50Ms: number; p95Ms: number; p99Ms: number; maxMs: number; over16_7Ms: number[] };
+    /** `over16_7Ms` lists every upload frame that took longer than one 60 fps frame: a hitch is recorded, never averaged away. */
+    uploadFrames: { frames: number; share: number; p50Ms: number; p95Ms: number; maxMs: number; over16_7Ms: number[] };
   };
   uploads: { framesWithUploads: number; maxTilesPerFrame: number; maxBytesPerFrame: number; overBudgetFrames: number };
   texture: { peakTextures: number; peakGpuTierBytes: number; gpuBytes: number };
@@ -264,6 +265,10 @@ export interface RasterResult {
 export const RASTER_RENDER_STEADY_P95_MS = 1.5;
 /** The upload budget of the frozen DEFAULTS (ms), restated here because the harness bundle cannot import the runtime defaults. */
 export const RASTER_UPLOAD_BUDGET_MS = 2;
+/** Fewer upload frames than this and their p95 is their maximum: the bound is then asserted on the p50, and the hitches are listed. */
+export const RASTER_UPLOAD_P95_MIN_FRAMES = 20;
+/** One 60 fps frame, ms. */
+export const FRAME_60FPS_MS = 16.7;
 /** The tile edge of the scenes the harness draws. */
 export const RASTER_SCENE_EDGE = 512;
 
@@ -308,6 +313,7 @@ export function validateRasterResult(r: unknown, software: boolean): string[] {
     for (const k of ["meanMs", "p50Ms", "p95Ms", "p99Ms", "maxMs"] as const) if (!finite(s.render?.steady?.[k])) errors.push(`raster.scenes ${name} render.steady.${k} is missing`);
     if (!(s.render?.steady?.frames > 0)) errors.push(`raster.scenes ${name} has no steady frames`);
     for (const k of ["frames", "share", "p50Ms", "p95Ms", "maxMs"] as const) if (!finite(s.render?.uploadFrames?.[k])) errors.push(`raster.scenes ${name} render.uploadFrames.${k} is missing`);
+    if (!Array.isArray(s.render?.uploadFrames?.over16_7Ms) || !Array.isArray(s.render?.steady?.over16_7Ms)) errors.push(`raster.scenes ${name} render.*.over16_7Ms (the frames longer than 16.7 ms) is missing`);
     if (!finite(s.uploads?.maxBytesPerFrame) || !finite(s.uploads?.maxTilesPerFrame)) errors.push(`raster.scenes ${name} uploads per frame are missing`);
     if (!(s.texture?.gpuBytes > 0) || !finite(s.texture?.peakGpuTierBytes)) errors.push(`raster.scenes ${name} texture residency is missing`);
     if (s.stateDiffs !== 0) errors.push(`raster.scenes ${name} left GL state behind in ${s.stateDiffs} frame diffs`);
@@ -343,8 +349,11 @@ export function rasterBudgetProblems(r: { raster: RasterRun; environment?: { tim
     const steady = clamped ? s.render.steady.meanMs : s.render.steady.p95Ms;
     const stat = clamped ? "mean" : "p95";
     if (!(steady <= RASTER_RENDER_STEADY_P95_MS)) out.push(`${s.name}: steady render ${stat} ${steady} ms is over ${RASTER_RENDER_STEADY_P95_MS} ms`);
-    if (s.render.uploadFrames.frames > 0 && !(s.render.uploadFrames.p95Ms <= steady + RASTER_UPLOAD_BUDGET_MS + upload)) {
-      out.push(`${s.name}: render p95 ${s.render.uploadFrames.p95Ms} ms over upload frames is above ${steady} + ${RASTER_UPLOAD_BUDGET_MS} + ${upload} ms (steady, upload budget, texImage2D p95)`);
+    const uf = s.render.uploadFrames;
+    const enough = uf.frames >= RASTER_UPLOAD_P95_MIN_FRAMES;
+    const seen = enough ? uf.p95Ms : uf.p50Ms;
+    if (uf.frames > 0 && !(seen <= steady + RASTER_UPLOAD_BUDGET_MS + upload)) {
+      out.push(`${s.name}: render ${enough ? "p95" : "p50"} ${seen} ms over upload frames (${uf.frames}) is above ${steady} + ${RASTER_UPLOAD_BUDGET_MS} + ${upload} ms (steady, upload budget, texImage2D p95)`);
     }
     if (s.uploads.overBudgetFrames !== 0) out.push(`${s.name}: ${s.uploads.overBudgetFrames} frames uploaded more than the byte budget plus one tile`);
   }

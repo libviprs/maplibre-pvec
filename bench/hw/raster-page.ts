@@ -263,8 +263,8 @@ async function scene(name: "strokes+0" | "strokes+1" | "strokes+10", scans: numb
     frames: { count: interval.length, p50Ms: fs.p50, p95Ms: fs.p95, p99Ms: fs.p99, maxMs: fs.max, over20Ms: interval.filter((v) => v > 20).length },
     render: {
       p50Ms: rs.p50, p95Ms: rs.p95, maxMs: rs.max,
-      steady: { frames: steadyMs.length, meanMs: mean(steadyMs), p50Ms: ss.p50, p95Ms: ss.p95, p99Ms: ss.p99, maxMs: ss.max },
-      uploadFrames: { frames: uploadMs.length, share: render.length ? uploadMs.length / render.length : 0, p50Ms: us.p50, p95Ms: us.p95, maxMs: us.max },
+      steady: { frames: steadyMs.length, meanMs: mean(steadyMs), p50Ms: ss.p50, p95Ms: ss.p95, p99Ms: ss.p99, maxMs: ss.max, over16_7Ms: steadyMs.filter((v) => v > 16.7) },
+      uploadFrames: { frames: uploadMs.length, share: render.length ? uploadMs.length / render.length : 0, p50Ms: us.p50, p95Ms: us.p95, maxMs: us.max, over16_7Ms: uploadMs.filter((v) => v > 16.7) },
     },
     uploads: {
       framesWithUploads: m.w.uploads.length, maxTilesPerFrame: Math.max(0, ...m.w.uploads.map((u) => u.tiles)), maxBytesPerFrame: Math.max(0, ...m.w.uploads.map((u) => u.bytes)),
