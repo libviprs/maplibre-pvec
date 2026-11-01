@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "generator": "pvec-testkit generate_all (P2.4)",
-  "pvecCommit": "fc5ca4a6cf59eff6339ed11d0931eec81d7feb30",
+  "pvecCommit": "dcef7f6ad8c20be9d6b5053e93fda18b3566182f",
   "corpusRevision": "r0-open",
   "note": "pvec vendors the r0-open bundle at libviprs/pvec-gold-fixtures f94f7f22. Fixtures whose record changed since then are in notEmitted until pvec re-pins.",
   "artifacts": {
