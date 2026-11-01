@@ -93,6 +93,7 @@ export interface RasterEntry {
   browserVersion: string;
   /** The timer step the result was measured with: it decides whether the render budget reads a percentile or the mean. */
   timerResolutionMs?: number;
+  hostLoad?: { start: number; end: number; cpus: number };
   source: string;
   raster: RasterRun;
 }
