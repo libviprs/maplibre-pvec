@@ -139,7 +139,6 @@ async function main(p) {
     rt.release(all); rt.release(file);
     out.large.push(row);
   }
-
   // ---- M1.5: preview error accounting and viewport coverage, against a tight reference tessellation ----
   const polys = (v) => {
     const o = [];
@@ -243,26 +242,34 @@ async function main(p) {
     const dec = new PvecMlp.Tier0Decoder();
     const times = [];
     let entities = 0;
-    for (;;) {
-      const a = performance.now();
-      const slice = dec.decodeSlice(cursor);
-      times.push(performance.now() - a);
-      if (!slice) break;
-      entities += slice.draws.length;
+    // The decoder counts a whole cursor as one block, so a file over DEFAULTS.maxEntitiesPerBlock is refused by it. That is the layer's behaviour and it is recorded, not hidden.
+    let refused;
+    try {
+      for (;;) {
+        const a = performance.now();
+        const slice = dec.decodeSlice(cursor);
+        times.push(performance.now() - a);
+        if (!slice) break;
+        entities += slice.draws.length;
+      }
+    } catch (e) {
+      refused = String(e && e.message || e);
     }
     cursor.close();
-    out.tier0Slices.push({ id, entities, slices: times.length - 1, maxSliceMs: r3(Math.max(...times)), medianSliceMs: r3(median(times)), totalMs: r3(times.reduce((x, y) => x + y, 0)), openMs: r3(openMs), platform: 'chromium, ' + navigator.userAgent.slice(0, 60) });
+    out.tier0Slices.push({ id, entities, slices: Math.max(0, times.length - 1), maxSliceMs: r3(Math.max(...times)), medianSliceMs: r3(median(times)), totalMs: r3(times.reduce((x, y) => x + y, 0)), openMs: r3(openMs), ...(refused ? { refused } : {}), platform: 'chromium, ' + navigator.userAgent.slice(0, 60) });
 
     // Stream audit: entries + uncovered is the window's entity count, and every preview stays within its declared error of a tight reference.
     const file = rt.open(bytes);
     const row = { id, directory: rt.directoryStat(file, 0) === 1, windows: [], coverageMissing: 0, previews: [] };
+    const b = [0, 1, 2, 3].map((n) => rt.directoryBound(file, n));
+    const w = b[2] - b[0], h = b[3] - b[1];
+    // The reference is a tight tessellation, one millionth of the extent like the preview accounting above (an absolute 1e-6 on this file made the module panic with a capacity overflow instead of refusing).
     const all = rt.queryViewport(file, ...WORLD, 1e7);
-    const refT = rt.tessellate(all, worldChain(1e-6), 5e6, 'f64');
+    const refT = rt.tessellate(all, worldChain(Math.max(w, h) * 1e-6), 5e6, 'f64');
+    if (refT < 0) throw new Error('reference tessellation returned ' + refT);
     const rv = rt.views(refT);
     const refById = new Map(polys(rv).map((e) => [e.id, e.pts]));
     rt.release(refT); rt.release(all);
-    const b = [0, 1, 2, 3].map((n) => rt.directoryBound(file, n));
-    const w = b[2] - b[0], h = b[3] - b[1];
     let worst = 0, checked = 0, within = true;
     for (const f of [1, 0.25, 0.05]) {
       const box = f >= 1 ? [b[0] - 1, b[1] - 1, b[2] + 1, b[3] + 1] : [b[0] + w * (0.5 - f / 2), b[1] + h * (0.5 - f / 2), b[0] + w * (0.5 + f / 2), b[1] + h * (0.5 + f / 2)];
