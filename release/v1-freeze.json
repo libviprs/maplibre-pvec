@@ -175,7 +175,8 @@
     "renderBudget": {
       "steadyP95Ms": 1.5,
       "statistic": "p95 of the render time of frames that uploaded no tile; the mean where the timer resolves 1 ms or coarser",
-      "uploadFrames": "render p95 over frames that uploaded a tile is at most the steady figure plus uploadBudgetMs plus the texImage2D p95 at the scene's tile size, and no frame uploads more than uploadBudgetBytes plus one tile; the p95 is asserted only with at least 20 upload frames, below that the p50 is, and every frame over 16.7 ms is recorded",
+      "uploadFrames": "no frame that uploads a tile takes longer than 16.7 ms (one 60 fps frame) and no frame uploads more than uploadBudgetBytes plus one tile; the p95, the count, the maximum and every upload frame over 16.7 ms are recorded",
+      "amendment": "2026-10-31: the upload-frame rule replaces the determination's bound (steady figure plus uploadBudgetMs plus the texImage2D p95), which the M5 in Chromium cannot meet because the driver blocks one tile for about 10 ms once roughly 12 MiB are in flight; it is a change from the determination, approved by Rom on 2026-10-31 ('Proceed with recommendations')",
       "reference": "docs/adr/0009-raster-quads.md, Budget; ADR 0005's 1 ms stays the pipeline's number"
     }
   }

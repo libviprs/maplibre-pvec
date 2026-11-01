@@ -111,34 +111,23 @@ describe("#108 raster result files", () => {
     r.raster.replay = r.raster.replay.filter((x) => !(x.case === "architectural-1e5+10-scans" && x.rasters === "off"));
     expect(validateRasterResult(r, false).join()).toMatch(/replay.*10-scans.*off/);
   });
-  it("asserts the steady p95 against 1.5 ms, upload frames against the upload budget's own rule, and the byte budget", () => {
+  it("asserts the steady p95 against 1.5 ms, no upload frame longer than 16.7 ms, and the byte budget", () => {
     expect(RASTER_RENDER_STEADY_P95_MS).toBe(1.5);
     expect(rasterBudgetProblems(good())).toEqual([]);
     const steady = good();
     steady.raster.scenes[1]!.render.steady.p95Ms = 1.6;
     expect(rasterBudgetProblems(steady).join()).toMatch(/strokes\+10.*steady render p95 1\.6 ms is over 1\.5/);
-    // all-frames p95 above 1.5 ms alone is not a miss: the upload frames carry their own bound
-    const allFrames = good();
-    allFrames.raster.scenes[1]!.render.p95Ms = 4;
-    expect(rasterBudgetProblems(allFrames)).toEqual([]);
-    const upload = good();
-    upload.raster.scenes[0]!.render.uploadFrames.p95Ms = 0.4 + 2 + 0.6 + 0.1;
-    expect(rasterBudgetProblems(upload).join()).toMatch(/upload frames|over upload frames/);
+    // the all-frames p95 and the p95 of upload frames are recorded, not asserted
+    const recorded = good();
+    recorded.raster.scenes[1]!.render.p95Ms = 4;
+    recorded.raster.scenes[1]!.render.uploadFrames = { frames: 32, share: 0.005, p50Ms: 0.7, p95Ms: 10.1, maxMs: 10.9, over16_7Ms: [] };
+    expect(rasterBudgetProblems(recorded), "a 10 ms upload frame is under one 60 fps frame").toEqual([]);
+    const hitch = good();
+    hitch.raster.scenes[0]!.render.uploadFrames = { frames: 8, share: 0.017, p50Ms: 3.9, p95Ms: 32.3, maxMs: 32.3, over16_7Ms: [32.3] };
+    expect(rasterBudgetProblems(hitch).join()).toMatch(/strokes\+1: an upload frame took 32\.3 ms, longer than one 60 fps frame \(16\.7 ms\); 1 of 8/);
     const bytes = good();
     bytes.raster.scenes[0]!.uploads.overBudgetFrames = 1;
     expect(rasterBudgetProblems(bytes).join()).toMatch(/byte budget plus one tile/);
-  });
-  it("with fewer than 20 upload frames the bound is asserted on their p50, because their p95 is their max, and the hitch is still listed", () => {
-    const few = good();
-    const sc = few.raster.scenes[0]!;
-    sc.render.uploadFrames = { frames: 8, share: 0.017, p50Ms: 3.9, p95Ms: 32.3, maxMs: 32.3, over16_7Ms: [32.3] };
-    expect(rasterBudgetProblems(few), "a 32 ms hitch among 8 upload frames: p50 3.9 is inside 0.4 + 2 + 0.6").toEqual([]);
-    expect(sc.render.uploadFrames.over16_7Ms).toEqual([32.3]);
-    sc.render.uploadFrames.p50Ms = 3.2;
-    expect(rasterBudgetProblems(few).join(), "p50 3.2 is over the bound of 3.0 ms").toMatch(/render p50 3\.2 ms over upload frames \(8\)/);
-    const many = good();
-    many.raster.scenes[0]!.render.uploadFrames = { frames: 20, share: 0.04, p50Ms: 1, p95Ms: 32.3, maxMs: 32.3, over16_7Ms: [32.3] };
-    expect(rasterBudgetProblems(many).join(), "with 20 frames the p95 counts").toMatch(/render p95 32\.3 ms over upload frames \(20\)/);
   });
   it("refuse a result that does not list the frames over 16.7 ms", () => {
     const r = good();
@@ -286,7 +275,8 @@ describe("#108 the texture constant", () => {
     expect(rb.steadyP95Ms).toBe(RASTER_RENDER_STEADY_P95_MS);
     expect(rb.softwareFeedsBudget ?? freeze.rasterProvenance.softwareFeedsBudget).toBe(false);
     expect(rb.statistic).toMatch(/mean/);
-    expect(rb.uploadFrames, "the 20-frame rule is written into the provenance, not left as a silent deviation").toMatch(/at least 20 upload frames.*p50/);
+    expect(rb.uploadFrames, "the amendment is written into the provenance").toMatch(/longer than 16\.7 ms/);
+    expect(rb.amendment, "dated, approved by Rom, a change from the determination").toMatch(/2026-10-31.*Rom.*determination/);
     const keys = Object.keys(json("bench/baselines/renderer-baselines.json").rasterEntries).sort();
     expect([...freeze.rasterProvenance.renderers].sort()).toEqual(keys);
   });

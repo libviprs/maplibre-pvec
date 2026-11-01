@@ -229,7 +229,7 @@ export interface RasterSceneRun {
     p95Ms: number;
     maxMs: number;
     steady: { frames: number; meanMs: number; p50Ms: number; p95Ms: number; p99Ms: number; maxMs: number; over16_7Ms: number[] };
-    /** `over16_7Ms` lists every upload frame that took longer than one 60 fps frame: a hitch is recorded, never averaged away. */
+    /** `over16_7Ms` lists every upload frame that took longer than one 60 fps frame: the assertion is that it is empty, and a hitch is recorded, never averaged away. */
     uploadFrames: { frames: number; share: number; p50Ms: number; p95Ms: number; maxMs: number; over16_7Ms: number[] };
   };
   uploads: { framesWithUploads: number; maxTilesPerFrame: number; maxBytesPerFrame: number; overBudgetFrames: number };
@@ -268,11 +268,7 @@ export interface RasterResult {
  * asserted instead, because a percentile of clamped readings cannot be read below about 2 ms. ADR 0005's 1 ms stays the pipeline's number.
  */
 export const RASTER_RENDER_STEADY_P95_MS = 1.5;
-/** The upload budget of the frozen DEFAULTS (ms), restated here because the harness bundle cannot import the runtime defaults. */
-export const RASTER_UPLOAD_BUDGET_MS = 2;
-/** Fewer upload frames than this and their p95 is their maximum: the bound is then asserted on the p50, and the hitches are listed. */
-export const RASTER_UPLOAD_P95_MIN_FRAMES = 20;
-/** One 60 fps frame, ms. */
+/** One 60 fps frame, ms: no frame that uploads a tile may take longer (ADR 0009, amended 2026-11-01 at Rom's approval of 2026-10-31). */
 export const FRAME_60FPS_MS = 16.7;
 /** The tile edge of the scenes the harness draws. */
 export const RASTER_SCENE_EDGE = 512;
@@ -345,25 +341,20 @@ export function validateRasterResult(r: unknown, software: boolean): string[] {
 
 /**
  * The budget of ADR 0009, asserted on a real renderer's result: steady frames inside `RASTER_RENDER_STEADY_P95_MS` (the mean where the
- * timer resolves 1 ms or coarser), upload frames inside the upload budget's own rule (no frame over the byte budget plus one tile, and
- * render p95 over upload frames at most the steady figure plus the 2 ms upload budget plus the file's own `texImage2D` p95 at the scene's
- * tile size), and the gpu ceiling. Software GL is never asserted.
+ * timer resolves 1 ms or coarser), no frame that uploads a tile longer than one 60 fps frame (`FRAME_60FPS_MS`), no frame over the byte
+ * budget plus one tile, and the gpu ceiling. The p95, count, maximum and every upload frame over 16.7 ms are recorded in the file and
+ * not asserted. Software GL is never asserted.
  */
 export function rasterBudgetProblems(r: { raster: RasterRun; environment?: { timerResolutionMs?: number | undefined } }): string[] {
   const out: string[] = [];
   const clamped = (r.environment?.timerResolutionMs ?? 0) >= 1;
-  const upload = r.raster.upload.find((u) => u.edge === RASTER_SCENE_EDGE)?.p95Ms ?? Infinity;
   for (const s of r.raster.scenes) {
     if (!(s.rasters > 0)) continue;
     const steady = clamped ? s.render.steady.meanMs : s.render.steady.p95Ms;
     const stat = clamped ? "mean" : "p95";
     if (!(steady <= RASTER_RENDER_STEADY_P95_MS)) out.push(`${s.name}: steady render ${stat} ${steady} ms is over ${RASTER_RENDER_STEADY_P95_MS} ms`);
     const uf = s.render.uploadFrames;
-    const enough = uf.frames >= RASTER_UPLOAD_P95_MIN_FRAMES;
-    const seen = enough ? uf.p95Ms : uf.p50Ms;
-    if (uf.frames > 0 && !(seen <= steady + RASTER_UPLOAD_BUDGET_MS + upload)) {
-      out.push(`${s.name}: render ${enough ? "p95" : "p50"} ${seen} ms over upload frames (${uf.frames}) is above ${steady} + ${RASTER_UPLOAD_BUDGET_MS} + ${upload} ms (steady, upload budget, texImage2D p95)`);
-    }
+    if (uf.over16_7Ms.length > 0 || uf.maxMs > FRAME_60FPS_MS) out.push(`${s.name}: an upload frame took ${uf.maxMs} ms, longer than one 60 fps frame (${FRAME_60FPS_MS} ms); ${uf.over16_7Ms.length} of ${uf.frames}`);
     if (s.uploads.overBudgetFrames !== 0) out.push(`${s.name}: ${s.uploads.overBudgetFrames} frames uploaded more than the byte budget plus one tile`);
   }
   for (const f of r.raster.fit) if (!(f.peakGpuTierBytes <= f.gpuBytes)) out.push(`${f.view}: ${f.peakGpuTierBytes} bytes over the ${f.gpuBytes} ceiling`);
