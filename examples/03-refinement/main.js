@@ -1,6 +1,6 @@
 // The refinement stream on a real map: a circle (known truth) is drawn from its Tier 0 preview, the page zooms in twice, and the layer
 // refines the stroke each time the camera has rested, reporting `tier0complete` once and `refinement` with generations that only go up.
-// After each refinement 24 points on the analytic circle must have ink under them. Nothing leaves 127.0.0.1.
+// After each refinement every point of the analytic circle that is on screen, 0.02 degrees apart, must have ink under them. Nothing leaves 127.0.0.1.
 import { createPVecLayer } from "/pkg/index.js";
 import { calibrationArray, lngLatOf, onCircle } from "/lib/circle.mjs";
 import { frames, openMap, snapshot, until } from "/lib/map.js";
@@ -13,7 +13,7 @@ function missing(map) {
   const read = snapshot(map);
   const bad = [];
   let tested = 0;
-  for (let deg = 0; deg < 360; deg += 0.5) {
+  for (let deg = 0; deg < 360; deg += 0.02) {
     const p = map.project(onCircle(deg));
     if (!(p.x > 12 && p.x < 628 && p.y > 12 && p.y < 468)) continue;
     tested++;
