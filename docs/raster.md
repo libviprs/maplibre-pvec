@@ -30,7 +30,7 @@ The level is chosen from the larger singular value of the pixel-to-device Jacobi
 
 ## Bands and RasterId order
 
-Band 0 draws before the strokes and band 1 after them; inside a band by `RasterId`. Hatch fills, when the engine has them, sit between. There is no interleaving of one stroke with one raster: the stroke pass is a single instanced draw. The band is the file's, so `layer.rasters()` reports it and nothing here changes it. Against MapLibre's own layers the custom layer's `beforeId` decides, as for any custom layer (`106-raster-compose.spec.ts`).
+Band 0 draws before the strokes and band 1 after them; inside a band by `RasterId`. Hatch fills, when the engine has them, sit between. There is no interleaving of one stroke with one raster: the stroke pass is a single instanced draw. The band is the file's, so `layer.rasters()` reports it and nothing here changes it; example 07 switches between libviprs's two conversions of the same scan, one in band 0 and one in band 1, to show both orders. Against MapLibre's own layers the custom layer's `beforeId` decides, as for any custom layer (`106-raster-compose.spec.ts`).
 
 ## Opacity
 
@@ -86,4 +86,10 @@ Edge-to-edge quads have a one-texel seam with `CLAMP_TO_EDGE` and no overlap. It
 
 These are display fidelity and frame-behaviour numbers, each with the renderer, engine and arch that produced it. The full tables are in the [benchmark report](benchmark-report.md); software GL rows are relative costs and are never a budget.
 
-RASTER_NUMBERS_TABLE
+| renderer, engine, arch | decode of a 512 px gray PNG tile, p50 / p95 | decode of a 512 px JPEG gray tile, p50 / p95 | upload of a 512 px tile with `texImage2D`, p95 | steady render CPU with ten scans, p95 (mean for WebKit) | longest frame that uploaded a tile |
+|---|---|---|---|---|---|
+| ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version), chromium, arm64 | 1.0 ms / 1.1 ms | 0.90 ms / 1.0 ms | 0.20 ms | 0.20 ms (p95) | 10.9 ms |
+| Apple GPU, webkit, arm64 | 2.0 ms / 3.0 ms | 2.0 ms / 2.0 ms | 1.0 ms | 0.46 ms (mean) | 4.0 ms |
+| ANGLE (Intel, Mesa Intel(R) Graphics (ADL GT2), OpenGL ES 3.2), chromium, x64 | 7.1 ms / 7.7 ms | 3.5 ms / 4.0 ms | 1.7 ms | 1.1 ms (p95) | 6.3 ms |
+
+The steady budget is 1.5 ms (ADR 0009); no frame that uploads a tile may take longer than 16.7 ms. Software GL rows (x64 and arm64 linux containers) are in the benchmark report as relative costs and are not quoted here.
