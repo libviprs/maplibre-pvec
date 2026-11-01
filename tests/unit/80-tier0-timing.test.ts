@@ -53,6 +53,6 @@ describe("#80 and #125 Tier 0 slice timing on the real stream", () => {
 
   it("was measured on the abi version the evaluator ships with the Tier 0 stream (2) and the per-leaf calls", () => {
     expect(results.abiVersion).toBeGreaterThanOrEqual(2);
-    expect(results.pvecCommit).toBe("fc5ca4a6cf59eff6339ed11d0931eec81d7feb30");
+    expect(results.pvecCommit).toBe("dcef7f6ad8c20be9d6b5053e93fda18b3566182f");
   });
 });

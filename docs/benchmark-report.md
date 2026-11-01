@@ -229,8 +229,8 @@ The software GL rows (SwiftShader on the CPU, a linux container, no GPU) are rel
 
 ## Real pvec evaluator and real .pvec bytes
 
-- `spikes/pvec-real/results.json`: chromium 130.0.6723.31, linux/x64 container, `libviprs/pvec` `fc5ca4a`, ABI version 2
-- module 751260 bytes, compile 73.5 ms, instantiate 0.6 ms
+- `spikes/pvec-real/results.json`: chromium 130.0.6723.31, linux/x64 container, `libviprs/pvec` `dcef7f6`, ABI version 2
+- module 764921 bytes, compile 41.2 ms, instantiate 0.2 ms
 - the docker host was shared and loaded while this ran, so every time here is an upper bound and only the shape is a result
 - the subject is the shipped evaluator through the packed binding; the arrays are views over linear memory, nothing is copied
 
@@ -353,20 +353,20 @@ The files are the corpus entries written with a spatial directory and one Tier 0
 
 ### Tier 0 decoder slices on the real stream
 
-The default cursor of the layer drained by `Tier0Decoder` with its default slice size, and the cursor as it was before #125 under the same decoder, in the same run on the same host. A slice is one `decodeSlice` call; the ceiling is `DEFAULTS.maxSliceMs`. Opening the file in the evaluator is the cursor's first step and is reported on its own. Leaves is the number of leaves of the spatial directory (the 1e5 files are written with a leaf capacity of 1,024, the others with pvec's 32,768). These rows are from pvec `wasm-v1-fc5ca4a` (the cheaper tessellation of pvec#243), measured with the docker host's one-minute load under its 28 cpus at three polls in a row (12 to 18 at the start). The rows from `wasm-v1-c4f71b3` had a longest slice of 8.1 / 38.2 / 11.6 / 48.9 / 15.5 ms for architectural-1e5 / architectural-1e6 / mep-1e5 / pathological-1e3 / spline-heavy-1e5. The 8 ms bound is not met (maplibre-pvec#125 stays open). The longest slices are the release of the file handle when the walk ends (5 to 40 ms, growing with the file) and, in pathological-1e3, four single splines of 10,000 control points that cost 11 to 14 ms each in one `tessellate_batch` call.
+The default cursor of the layer drained by `Tier0Decoder` with its default slice size, and the cursor as it was before #125 under the same decoder, in the same run on the same host. A slice is one `decodeSlice` call; the ceiling is `DEFAULTS.maxSliceMs`. Opening the file in the evaluator is the cursor's first step and is reported on its own. Leaves is the number of leaves of the spatial directory (the 1e5 files are written with a leaf capacity of 1,024, the others with pvec's 32,768). These rows are from pvec `wasm-v1-dcef7f6` (a spline span tested from the control points around it, pvec#245 and pvec#248), measured with the docker host's one-minute load under its 28 cpus at three polls in a row (10 to 12 at the start). The layer's cursor is timed for every file before the older cursor, because the older one leaves a large heap of garbage behind it (a run that interleaved them had two slices of 12 and 26 ms on `architectural-1e6`). The rows from `wasm-v1-fc5ca4a` had a longest slice of 9.5 / 38.5 / 11.5 / 50.9 / 15.4 ms for architectural-1e5 / architectural-1e6 / mep-1e5 / pathological-1e3 / spline-heavy-1e5. The 8 ms bound is met for the layer's cursor on all five (maplibre-pvec#125): the file is freed on a later turn, a step is sized from what the last one cost, the decoder keeps room for two of its longest calls, and the set of answered ids is a leaf and not the file.
 
 | entry | cursor | leaves | entities | slices | slices over 8 ms | open (ms) | max slice (ms) | p99 slice (ms) | median slice (ms) | total (ms) |
 |---|---|---|---|---|---|---|---|---|---|---|
-| architectural-1e5 | leaves (#125) | 97 | 99968 | 27 | 1 | 50.4 | 9.5 | 9.5 | 6.9 | 189.8 |
-| architectural-1e5 | boxes (before #125) | 97 | 99968 | 266 | 2 | 47.1 | 15.1 | 7.8 | 6.2 | 1586.8 |
-| architectural-1e6 | leaves (#125) | 31 | 1000000 | 437 | 7 | 423.9 | 38.5 | 9.1 | 4.9 | 1946.6 |
-| architectural-1e6 | boxes (before #125) | 31 | refused: block exceeds maxEntitiesPerBlock (200000) | 2991 | 153 | 410.2 | 51.7 | 19.1 | 6.2 | 13036.3 |
-| mep-1e5 | leaves (#125) | 95 | 99904 | 34 | 3 | 55.6 | 11.5 | 11.5 | 6.6 | 237.8 |
-| mep-1e5 | boxes (before #125) | 95 | 99904 | 395 | 4 | 59.7 | 11.4 | 8.1 | 6.2 | 2406.7 |
-| pathological-1e3 | leaves (#125) | 1 | 914 | 22 | 1 | 4.9 | 50.9 | 50.9 | 0 | 51.3 |
-| pathological-1e3 | boxes (before #125) | 1 | 917 | 20 | 2 | 5 | 49.2 | 49.2 | 0 | 63.9 |
-| spline-heavy-1e5 | leaves (#125) | 40 | 100000 | 136 | 1 | 188.8 | 15.4 | 7.6 | 7.2 | 979 |
-| spline-heavy-1e5 | boxes (before #125) | 40 | 100000 | 943 | 47 | 191.3 | 11.1 | 9.3 | 4.7 | 4739.8 |
+| architectural-1e5 | leaves (#125) | 97 | 99968 | 15 | 0 | 47.2 | 6.6 | 6.6 | 6.4 | 89.5 |
+| architectural-1e6 | leaves (#125) | 31 | 1000000 | 137 | 0 | 418 | 6.4 | 6.3 | 5 | 675.7 |
+| mep-1e5 | leaves (#125) | 95 | 99904 | 16 | 0 | 53.8 | 7.5 | 7.5 | 6.2 | 104.5 |
+| pathological-1e3 | leaves (#125) | 1 | 914 | 2 | 0 | 4.7 | 6.5 | 6.5 | 1.6 | 8.1 |
+| spline-heavy-1e5 | leaves (#125) | 40 | 100000 | 92 | 0 | 192.7 | 7 | 7 | 5.2 | 472.2 |
+| architectural-1e5 | boxes (before #125) | 97 | 99968 | 314 | 1 | 49.6 | 13.1 | 5.7 | 3.9 | 1220.5 |
+| architectural-1e6 | boxes (before #125) | 31 | refused: block exceeds maxEntitiesPerBlock (200000) | 17898 | 108 | 405.7 | 45.6 | 7.6 | 0 | 12099.2 |
+| mep-1e5 | boxes (before #125) | 95 | 99904 | 487 | 1 | 54.2 | 11.6 | 5.8 | 4.1 | 1861.3 |
+| pathological-1e3 | boxes (before #125) | 1 | 917 | 1 | 1 | 4.7 | 11.3 | 11.3 | 11.3 | 11.7 |
+| spline-heavy-1e5 | boxes (before #125) | 40 | 100000 | 700 | 1 | 186.7 | 8.1 | 5.9 | 2.6 | 2133.2 |
 
 ### Range bootstrap on real files, x86_64
 
