@@ -1,22 +1,24 @@
 import { availableParallelism } from 'node:os';
 import { Worker } from 'node:worker_threads';
 
-type CpuUsage = { user: number; system: number };
-const threadCpuUsage = (process as unknown as { threadCpuUsage?: () => CpuUsage }).threadCpuUsage;
-
-/** True when `cpuMs` is the calling thread's own CPU time (Node 22.19 and later), false when it falls back to the wall clock. */
-export const cpuClockIsThreadTime = threadCpuUsage !== undefined;
-
 /**
- * Milliseconds of CPU time the calling thread has used. A timing check that must hold "on a machine that can run the suite" reads this
- * and not `performance.now()`: time spent waiting for a core while other processes run is not a cost of the code under test, and it is
- * the whole tail on a busy host. Falls back to the wall clock on a Node without `process.threadCpuUsage`.
+ * Times a section that does the same work every run (a seeded rebuild, a scripted camera path) and returns one time per step. A quiet
+ * host passes on the first run and nothing else happens. When `ok` refuses the profile, the section is run again, up to `maxRuns`,
+ * and each step keeps the smallest time seen in any run: work is the same each run, so the smallest is the work and the rest is the
+ * host (a preemption lands on a different step each time). Code that really costs more than the budget costs it in every run, so it
+ * still fails. The thread's own CPU time (`process.threadCpuUsage`) is no help: some kernels account it in 4 ms ticks (measured on
+ * the docker host).
  */
-export const cpuMs = (): number => {
-  if (!threadCpuUsage) return performance.now();
-  const u = threadCpuUsage.call(process);
-  return (u.user + u.system) / 1000;
-};
+export async function quietest(run: () => number[] | Promise<number[]>, ok: (profile: number[]) => boolean, maxRuns = 5): Promise<{ profile: number[]; runs: number }> {
+  let profile = await run();
+  let runs = 1;
+  while (!ok(profile) && runs < maxRuns) {
+    const again = await run();
+    profile = profile.map((t, i) => Math.min(t, again[i] ?? t));
+    runs++;
+  }
+  return { profile, runs };
+}
 
 /**
  * Keeps `threads` cores busy (twice the cores by default, so the thread under test is always competing for one) until the returned
